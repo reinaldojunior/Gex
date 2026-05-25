@@ -1125,6 +1125,21 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 #userBadge .user-avatar{width:24px;height:24px;border-radius:50%;background:#60a5fa;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
 #userBadge .user-name{font-size:11px;font-weight:500;color:rgba(255,255,255,.8)}
 
+
+/* ── ESTOQUE ── */
+.est-row{border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .15s}
+.est-row:hover{background:#f8faff}
+.est-row.expandido{background:#f0f7ff}
+.est-row td{padding:7px 10px;font-size:12px;vertical-align:middle}
+.est-nome{font-weight:600;color:#1e293b;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.est-saldo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;text-align:center}
+.est-seg-input{width:64px;padding:3px 6px;border:1px solid var(--borda);border-radius:6px;font-size:11px;text-align:center;font-family:'JetBrains Mono',monospace}
+.est-status{display:inline-block;width:12px;height:12px;border-radius:50%}
+.est-val-badge{display:inline-block;width:10px;height:10px}
+.est-lotes{background:#f8fafc;border-bottom:2px solid #e2e8f0}
+.est-lotes td{padding:8px 14px}
+.est-expand-btn{background:none;border:none;cursor:pointer;font-size:14px;color:#60a5fa;padding:2px 6px}
+
 </style>
 </head>
 <body>
@@ -1637,7 +1652,52 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
   <!-- SEÇÃO ESTOQUE (placeholder) -->
   <div id="secaoEstoque" style="display:none">
-    <div class="empty-mod" style="padding:60px"><div class="empty-icon">📦</div>Módulo de Estoque — em breve.</div>
+    <div class="historico-card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="card-title" style="margin-bottom:4px">📦 Estoque — Produtos Acabados (ACA)</div>
+          <div id="estUploadInfo" style="font-size:11px;color:var(--muted)">Nenhum relatório carregado.</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-pdf" onclick="document.getElementById('inputEstoque').click()" style="font-size:12px;padding:8px 16px">📂 Carregar Relatório Excel</button>
+          <input type="file" id="inputEstoque" accept=".xlsx,.xls" style="display:none" onchange="processarEstoque(this)">
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--borda)">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;align-self:center">Estoque:</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a"></span>OK</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#eab308"></span>Atenção</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316"></span>Baixo</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#dc2626"></span>Zerado</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;align-self:center;margin-left:8px">Validade:</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#16a34a"></span>&gt;12m</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#eab308"></span>6-12m</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#dc2626"></span>&lt;6m</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#1e293b"></span>Vencido</div>
+      </div>
+    </div>
+    <div class="tabela-card" id="estTabela">
+      <div class="tabela-head">
+        <div class="tabela-title">Posição de Estoque</div>
+        <input type="text" id="estBusca" placeholder="🔍 Buscar produto..." onInput="filtrarEstoque(this.value)"
+          style="padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;width:220px;outline:none">
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:#f0f4fa">
+            <th style="width:32px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">ST</th>
+            <th style="padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:left">Produto</th>
+            <th style="width:100px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Código</th>
+            <th style="width:80px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Saldo</th>
+            <th style="width:90px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Est. Seg.</th>
+            <th style="width:90px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Diferença</th>
+            <th style="width:80px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Vencendo</th>
+            <th style="width:60px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="estTbody"></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Modal Evento -->
@@ -3554,6 +3614,249 @@ async function carregarSegSupabase(){
     if(d&&d.length&&typeof estSeg!=='undefined'){d.forEach(function(x){estSeg[x.codigo]=x.quantidade;});try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}}
   }catch(e){}
 }
+
+
+/* ══ ESTOQUE ══ */
+var PRODS_SITE=[
+  ["33.0031.0000","D-GERMI 50 ML BLISTER"],
+  ["33.0058.0750","EXEOL SURF OPTIMAL 750 ML"],
+  ["29.0012.0700","PROACTION AC 700ML"],
+  ["28.0034.1000","PROACTION AS 100 1L"],
+  ["28.0025.0005","PROACTION AS 100 5L (DET. ENZIMÁTICO)"],
+  ["28.0023.0001","PROACTION AS 110 4E 1L COM VÁLVULA PUMP"],
+  ["28.0024.0005","PROACTION AS 110 4E 5L (DET. ENZIMÁTICO)"],
+  ["28.0021.0750","PROACTION AS 120 4E FOAM 750 ML"],
+  ["28.0022.0001","PROACTION AS 130 7E 1L"],
+  ["28.0033.5000","PROACTION AS 130 7E 5L"],
+  ["29.0013.1000","PROACTION AS 500 1L"],
+  ["29.0006.0001","PROACTION AS 500 5L"],
+  ["29.0003.0750","PROACTION AS 700 750ML (LUBRIF INSTRUM)"],
+  ["29.0009.0005","PROACTION AS 700 ULTRA 5L"],
+  ["33.0046.0750","PROACTION GERMI 750ML"],
+  ["33.0022.0001","PROACTION GERMI - PRONTO USO - NÍVEL INTERMEDIÁRIO"],
+  ["33.0067.1000","PROACTION GERMI ULTRA 1L"],
+  ["33.0068.5000","PROACTION GERMI ULTRA 5L"],
+  ["33.0063.5000","PROACTION GTA 2% 5L"],
+  ["33.0042.0230","PROACTION GTA 2% INATIVADOR 230G"],
+  ["33.0064.0050","PROACTION GTA 2% TEST STRIPS - 50 FITAS"],
+  ["13.0027.0050","PROACTION HORTIFRUTI - USO INSTITUCIONAL 50 ML"],
+  ["31.0003.0001","PROACTION INSTRUMENTAL 1L (DET NEUTRO)"],
+  ["31.0004.0005","PROACTION INSTRUMENTAL 5L (DET NEUTRO)"],
+  ["33.0061.0000","PROACTION NEUTROCEPTIC 2000"],
+  ["33.0062.0050","PROACTION NEUTROCEPTIC 2000 TEST STRIPS - 50 FITAS"],
+  ["33.0069.5000","PROACTION OPA 5L"],
+  ["33.0020.0032","PROACTION OPA INATIVADOR 30G"],
+  ["33.0019.0040","PROACTION OPA TEST STRIPS 40 UN"],
+  ["33.0017.0750","PROACTION OXI 750 ML"],
+  ["33.0071.5000","PROACTION OXI ULTRA 5L"],
+  ["33.0065.5000","PROACTION PERACETIC 0,2% 5LT"],
+  ["33.0066.0030","PROACTION PERACETIC TEST STRIPS 30UN"],
+];
+
+var SEG_DEFAULT={"33.0031.0000":9936,"33.0058.0750":945,"29.0012.0700":31,"28.0034.1000":3229,"28.0025.0005":324,"28.0023.0001":13,"28.0024.0005":165,"28.0021.0750":852,"28.0022.0001":189,"28.0033.5000":941,"29.0013.1000":75,"29.0006.0001":50,"29.0003.0750":58,"29.0009.0005":116,"33.0046.0750":2809,"33.0022.0001":100,"33.0067.1000":21,"33.0068.5000":217,"33.0063.5000":2531,"33.0042.0230":1878,"33.0064.0050":234,"13.0027.0050":480863,"31.0003.0001":84,"31.0004.0005":308,"33.0061.0000":4004,"33.0062.0050":996,"33.0069.5000":403,"33.0020.0032":398,"33.0019.0040":136,"33.0017.0750":9047,"33.0071.5000":149,"33.0065.5000":1626,"33.0066.0030":290};
+
+var estDados={};
+var estSeg={};
+var estCodAlts={};
+try{estCodAlts=JSON.parse(localStorage.getItem('gex_est_alts')||'{}');}catch(e){}
+
+function processarEstoque(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){importarXLSXEstoque(e.target.result,file.name);};
+  reader.readAsArrayBuffer(file);
+  input.value='';
+}
+function importarXLSXEstoque(buffer,filename){
+  if(typeof XLSX==='undefined'){
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=function(){processarBuffer(buffer,filename);};
+    document.head.appendChild(s);
+  }else{processarBuffer(buffer,filename);}
+}
+function processarBuffer(buffer,filename){
+  try{
+    var wb=XLSX.read(buffer,{type:'arraybuffer',cellDates:true});
+    var ws=wb.Sheets[wb.SheetNames[0]];
+    var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    if(!rows||rows.length<2){showT('Arquivo vazio','erro');return;}
+    var header=rows[0];
+    var iCod=header.indexOf('Cód. Item'),iNome=header.indexOf('Item'),iDep=header.indexOf('Cód. Depósito');
+    var iLote=header.indexOf('Lote'),iDisp=header.indexOf('Saldo Disponível'),iVal=header.indexOf('Validade Lote'),iUnid=header.indexOf('Unid.');
+    if(iCod<0||iDep<0){showT('Colunas não encontradas','erro');return;}
+    estDados={};var total=0;
+    for(var i=1;i<rows.length;i++){
+      var row=rows[i];
+      if(!row[iDep]||String(row[iDep]).trim()!=='ACA')continue;
+      var cod=String(row[iCod]||'').trim();if(!cod)continue;
+      var disp=parseFloat(row[iDisp])||0;
+      var lote=String(row[iLote]||'').trim();
+      var valRaw=row[iVal],val=null;
+      if(valRaw instanceof Date){val=valRaw;}
+      else if(valRaw&&String(valRaw).match(/\d{2}\/\d{2}\/\d{4}/)){var p=String(valRaw).split('/');val=new Date(p[2],p[1]-1,p[0]);}
+      if(!estDados[cod])estDados[cod]={nome:String(row[iNome]||'').trim(),unid:String(row[iUnid]||'UN').trim(),lotes:[]};
+      if(lote||disp>0)estDados[cod].lotes.push({lote:lote,disp:disp,val:val,status:String(row[20]||'')});
+      total++;
+    }
+    var agora=new Date();
+    try{localStorage.setItem('gex_est_dados',JSON.stringify(estDados));localStorage.setItem('gex_est_info',JSON.stringify({data:agora.toLocaleString('pt-BR'),total:total}));}catch(e){}
+    // Salvar histórico 7 dias
+    try{
+      var hist={};try{hist=JSON.parse(localStorage.getItem('gex_est_hist')||'{}');}catch(e){}
+      var hoje=agora.toISOString().split('T')[0];
+      var snap={};PRODS_SITE.forEach(function(p){var d=estDados[p[0]];snap[p[0]]=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;});
+      hist[hoje]=snap;
+      var dias=Object.keys(hist).sort();while(dias.length>7){var dd=dias.shift();delete hist[dd];}
+      localStorage.setItem('gex_est_hist',JSON.stringify(hist));
+    }catch(e){}
+    // Supabase
+    salvarEstoqueSupabase(estDados);
+    var el=document.getElementById('estUploadInfo');
+    if(el)el.textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+total+' registros ACA';
+    var tab=document.getElementById('estTabela');var vaz=document.getElementById('estVazio');
+    if(tab)tab.style.display='block';if(vaz)vaz.style.display='none';
+    renderEstoque('');
+    showT('Estoque carregado ✓','verde');
+  }catch(err){showT('Erro ao processar: '+err.message,'erro');}
+}
+
+function statusEstoque(total,seg){
+  if(seg<=0)return{cor:'#94a3b8',label:'Sem seg.'};
+  if(total<=0)return{cor:'#dc2626',label:'Zerado'};
+  var pct=total/seg;
+  if(pct>=1)return{cor:'#16a34a',label:'OK'};
+  if(pct>=0.5)return{cor:'#eab308',label:'Atenção'};
+  return{cor:'#f97316',label:'Baixo'};
+}
+function statusValidade(val){
+  if(!val)return null;
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var v=new Date(val);v.setHours(0,0,0,0);
+  var meses=(v-hoje)/(1000*60*60*24*30.44);
+  if(meses<0)return{cor:'#1e293b',label:'Vencido',meses:meses};
+  if(meses<6)return{cor:'#dc2626',label:'Crítico',meses:meses};
+  if(meses<12)return{cor:'#eab308',label:'Atenção',meses:meses};
+  return{cor:'#16a34a',label:'Válido',meses:meses};
+}
+function fmtData(val){if(!val)return '—';return new Date(val).toLocaleDateString('pt-BR');}
+
+function renderEstoque(filtro){
+  var tbody=document.getElementById('estTbody');if(!tbody)return;
+  var html='';var f=(filtro||'').toLowerCase();
+  PRODS_SITE.forEach(function(p){
+    var cod=p[0],nome=p[1];
+    if(f&&!nome.toLowerCase().includes(f)&&!cod.includes(f))return;
+    var dados=estDados[cod]||{nome:nome,unid:'UN',lotes:[]};
+    var total=dados.lotes.reduce(function(s,l){return s+(l.disp||0);},0);
+    var codAlts=estCodAlts[cod]||[];
+    codAlts.forEach(function(a){var d=estDados[a];if(d)total+=d.lotes.reduce(function(s,l){return s+(l.disp||0);},0);});
+    var seg=parseInt(estSeg[cod])||0;
+    var st=statusEstoque(total,seg);
+    var piorVal=null;
+    dados.lotes.forEach(function(l){if(l.disp>0&&l.val){var sv=statusValidade(l.val);if(sv&&(!piorVal||sv.meses<piorVal.meses))piorVal=sv;}});
+    var valBadge=piorVal?'<span class="est-val-badge" style="background:'+piorVal.cor+';margin-left:4px" title="'+piorVal.label+'"></span>':'';
+    var altBadge=codAlts.length>0?'<span style="font-size:9px;background:#fff3e0;color:#f97316;border:1px solid #fed7aa;border-radius:4px;padding:1px 5px;margin-left:4px">+'+codAlts.length+' cód.</span>':'';
+    var expandido=estExpandido===cod;
+    html+=`<tr class="est-row${expandido?' expandido':''}" onclick="toggleEstoque('${cod}')">
+      <td style="text-align:center"><span class="est-status" style="background:${st.cor}" title="${st.label}"></span></td>
+      <td><div class="est-nome">${dados.nome||nome}${valBadge}${altBadge}</div></td>
+      <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b">${cod}</td>
+      <td class="est-saldo" style="color:${st.cor}">${total} <span style="font-size:10px;font-weight:400;color:#64748b">${dados.unid}</span></td>
+      <td style="text-align:center"><input type="number" class="est-seg-input" value="${seg}" min="0" placeholder="0" onclick="event.stopPropagation()" onchange="salvarSeg('${cod}',this.value)" title="Estoque de segurança"></td>
+      <td style="text-align:center">${(function(){
+        if(seg<=0)return '<span style="font-size:10px;color:#94a3b8">—</span>';
+        var dif=total-seg;
+        if(dif>0)return '<span style="font-size:11px;font-weight:700;color:#16a34a">+'+dif+'</span><br><span style="font-size:9px;color:#16a34a">OK</span>';
+        if(dif===0)return '<span style="font-size:11px;font-weight:700;color:#eab308">0</span><br><span style="font-size:9px;color:#eab308">Exato</span>';
+        return '<span style="font-size:11px;font-weight:700;color:#dc2626">'+dif+'</span><br><span style="font-size:9px;color:#dc2626;font-weight:700">Produzir</span>';
+      })()}</td>
+      <td style="text-align:center">${piorVal?'<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px"><span class="est-val-badge" style="background:'+piorVal.cor+'"></span>'+piorVal.label+'</span>':'<span style="font-size:10px;color:#94a3b8">—</span>'}</td>
+      <td style="text-align:center;white-space:nowrap">
+        <button class="est-expand-btn" onclick="toggleEstoque('${cod}');event.stopPropagation()">${expandido?'▲':'▼'}</button>
+        <button class="est-expand-btn" onclick="adicionarCodAlt('${cod}');event.stopPropagation()" title="Vincular código alternativo" style="font-size:14px;color:#f97316">+</button>
+      </td>
+    </tr>`;
+    if(expandido){
+      html+='<tr class="est-lotes"><td colspan="8"><div style="padding:4px 0">';
+      var todosLotes=dados.lotes.map(function(l){return Object.assign({},l,{origemCod:cod});});
+      codAlts.forEach(function(a){var d=estDados[a];if(d)d.lotes.forEach(function(l){todosLotes.push(Object.assign({},l,{origemCod:a}));});});
+      if(!todosLotes.length){html+='<div style="font-size:11px;color:#94a3b8;padding:8px">Sem lotes no depósito ACA.</div>';}
+      else{
+        html+='<div style="display:grid;grid-template-columns:140px 100px 60px 110px 1fr;gap:0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;padding:0 4px 6px;border-bottom:1px solid #e2e8f0;margin-bottom:4px"><span>Lote</span><span style="text-align:right">Qtd</span><span style="text-align:center">Un.</span><span style="text-align:center">Validade</span><span style="text-align:center">Status</span></div>';
+        todosLotes.forEach(function(l){
+          var sv=statusValidade(l.val);
+          html+='<div style="display:grid;grid-template-columns:140px 100px 60px 110px 1fr;gap:0;padding:5px 4px;border-bottom:1px solid #f8fafc;align-items:center">';
+          html+='<span style="font-family:JetBrains Mono,monospace;font-size:10px;color:#475569">'+l.lote+(l.origemCod&&l.origemCod!==cod?'<span style="font-size:9px;color:#f97316;margin-left:4px">('+l.origemCod+')</span>':'')+'</span>';
+          html+='<span style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:12px;color:#1e293b;text-align:right">'+l.disp+'</span>';
+          html+='<span style="text-align:center;font-size:11px;color:#64748b">'+dados.unid+'</span>';
+          html+='<span style="text-align:center;font-size:11px;color:#1e293b">'+fmtData(l.val)+'</span>';
+          html+='<span style="text-align:center;display:flex;align-items:center;gap:5px">'+(sv?'<span style="display:inline-block;width:10px;height:10px;background:'+sv.cor+'"></span><span style="font-size:10px">'+sv.label+'</span>':'—')+'</span>';
+          html+='</div>';
+        });
+      }
+      // Códigos alternativos
+      var alts=estCodAlts[cod]||[];
+      html+='<div style="margin-top:8px;padding-top:6px;border-top:1px solid #e2e8f0"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px">Códigos Alternativos</div>';
+      if(alts.length){alts.forEach(function(a){var ad=estDados[a];var at=ad?ad.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;html+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px"><span style="font-family:JetBrains Mono,monospace;color:#f97316">'+a+'</span><span style="color:#64748b">'+(ad?ad.nome:'não encontrado')+'</span><span style="font-weight:700;color:#1e293b;margin-left:auto">'+at+' un.</span><button onclick="removerCodAlt(''+cod+'',''+a+'');event.stopPropagation()" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px">✕</button></div>';});}
+      else{html+='<span style="font-size:11px;color:#94a3b8">Nenhum. Clique em + para adicionar.</span>';}
+      html+='</div></div></td></tr>';
+    }
+  });
+  if(!html)html='<tr><td colspan="8" style="text-align:center;padding:30px;color:#94a3b8;font-size:12px">Nenhum produto encontrado.</td></tr>';
+  tbody.innerHTML=html;
+}
+
+var estExpandido=null;
+function toggleEstoque(cod){estExpandido=estExpandido===cod?null:cod;renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');}
+function filtrarEstoque(v){renderEstoque(v);}
+
+function salvarSeg(cod,val){
+  estSeg[cod]=parseInt(val)||0;
+  try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}
+  salvarSegSupabase(cod,estSeg[cod]);
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+}
+
+function adicionarCodAlt(codPrincipal){
+  var novo=prompt('Código alternativo para "'+codPrincipal+'":');
+  if(!novo||!novo.trim())return;
+  novo=novo.trim();
+  if(novo===codPrincipal){showT('Código igual ao principal','erro');return;}
+  if(!estCodAlts[codPrincipal])estCodAlts[codPrincipal]=[];
+  if(estCodAlts[codPrincipal].indexOf(novo)>=0){showT('Já vinculado','');return;}
+  estCodAlts[codPrincipal].push(novo);
+  try{localStorage.setItem('gex_est_alts',JSON.stringify(estCodAlts));}catch(e){}
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+  showT('Código '+novo+' vinculado ✓','verde');
+}
+
+function removerCodAlt(codPrincipal,codAlt){
+  if(!estCodAlts[codPrincipal])return;
+  estCodAlts[codPrincipal]=estCodAlts[codPrincipal].filter(function(c){return c!==codAlt;});
+  try{localStorage.setItem('gex_est_alts',JSON.stringify(estCodAlts));}catch(e){}
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+}
+
+// Inicializar estoque
+(function(){
+  try{estSeg=JSON.parse(localStorage.getItem('gex_est_seg')||'{}');}catch(e){estSeg={};}
+  PRODS_SITE.forEach(function(p){if(estSeg[p[0]]===undefined||estSeg[p[0]]===null)estSeg[p[0]]=SEG_DEFAULT[p[0]]!==undefined?SEG_DEFAULT[p[0]]:100;});
+  try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}
+  carregarSegSupabase();
+  try{
+    var d=localStorage.getItem('gex_est_dados');
+    var tab=document.getElementById('estTabela');
+    var el=document.getElementById('estUploadInfo');
+    if(d){
+      estDados=JSON.parse(d);
+      var info=localStorage.getItem('gex_est_info');
+      if(info&&el){var inf=JSON.parse(info);el.textContent='📅 Último upload: '+inf.data+' — '+inf.total+' registros ACA';}
+    } else if(el){el.textContent='⚠️ Nenhum relatório carregado. Faça o upload para ver os saldos.';}
+    if(tab)tab.style.display='block';
+    renderEstoque('');
+  }catch(e){renderEstoque('');}
+})();
 
 </script>
 </body>
