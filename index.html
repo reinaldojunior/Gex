@@ -2112,13 +2112,13 @@ function renderHome(){
   if(dEl){var opts={weekday:'long',year:'numeric',month:'long',day:'numeric'};dEl.textContent=new Date().toLocaleDateString('pt-BR',opts);}
 
   // Métricas
-  var cots=[];try{cots=JSON.parse(localStorage.getItem('ph')||'[]');}catch(e){}
+  var cots=window._sbCotCache||[];
   var mesAtual=new Date().toISOString().substring(0,7);
-  var cotsMes=cots.filter(function(c){return(c.dataSalvo||'').substring(0,7)===mesAtual;}).length;
+  var cotsMes=cots.filter(function(c){return(c.data||'').substring(0,7)===mesAtual;}).length;
   var hmC=document.getElementById('hmCotacoes');if(hmC)hmC.textContent=cots.length;
   var hmCM=document.getElementById('hmCotMes');if(hmCM){hmCM.textContent=cotsMes+' este mês';if(cotsMes>0)hmCM.className='metric-badge up';}
 
-  var frs=[];try{frs=JSON.parse(localStorage.getItem('proaction_fretes')||'[]');}catch(e){}
+  var frs=fretes||[];
   var frTransito=frs.filter(function(f){return f.status==='transito';}).length;
   var hmF=document.getElementById('hmFretes');if(hmF){hmF.textContent=frTransito;if(frTransito>0)hmF.style.color='#f97316';}
   var hmFT=document.getElementById('hmFretesTotal');if(hmFT)hmFT.textContent=frs.length+' total';
@@ -2197,8 +2197,15 @@ function renderHome(){
   }
 }
 
-function gerarNum(){
-  let n=1;try{n=(parseInt(localStorage.getItem('pc')||'0'))+1;localStorage.setItem('pc',n);}catch(e){}
+async function gerarNum(){
+  let n=1;
+  try{
+    const {data}=await sb.from('config').select('valor').eq('chave','contador_cotacoes').maybeSingle();
+    n=(parseInt(data?.valor||'0'))+1;
+    await sb.from('config').upsert({chave:'contador_cotacoes',valor:String(n)},{onConflict:'chave'});
+  }catch(e){
+    try{n=(parseInt(localStorage.getItem('pc')||'0'))+1;localStorage.setItem('pc',n);}catch(e2){}
+  }
   const s=`COT-${new Date().getFullYear()}-${String(n).padStart(3,'0')}`;
   document.getElementById('numCotacao').textContent=s;
   document.getElementById('numCotInput').value=s;
@@ -2325,15 +2332,12 @@ function snap(){
 
 function salvarCot(){
   const s=snap();
-  try{let h=JSON.parse(localStorage.getItem('ph')||'[]');h=h.filter(x=>x.num!==s.num);h.unshift(s);if(h.length>20)h=h.slice(0,20);localStorage.setItem('ph',JSON.stringify(h));carregarHist();}
-  catch(e){}
-  // Salvar no Supabase
-  sbSalvarCotacao(s).catch(e=>console.error(e));
+  sbSalvarCotacao(s).then(()=>sbCarregarCotacoes()).catch(e=>console.error(e));
   showT('Cotação salva ✓','verde');
 }
 
 function carregarHist(){
-  let h=[];try{h=JSON.parse(localStorage.getItem('ph')||'[]');}catch(e){}
+  let h=window._sbCotCache||[];
   var hc=document.getElementById('histCount');if(hc)hc.textContent=h.length;
   const el=document.getElementById('historicoList');
   if(!h.length){el.innerHTML='<div class="historico-vazio">Nenhuma cotação salva ainda.</div>';return;}
@@ -2341,7 +2345,7 @@ function carregarHist(){
 }
 
 function filtrarHist(q){
-  let h=[];try{h=JSON.parse(localStorage.getItem('ph')||'[]');}catch(e){}
+  let h=window._sbCotCache||[];
   if(q){q=q.toLowerCase();h=h.filter(x=>(x.num||'').toLowerCase().includes(q)||(x.cliente||'').toLowerCase().includes(q)||(x.uf||'').toLowerCase().includes(q));}
   const el=document.getElementById('historicoList');
   if(!h.length){el.innerHTML='<div class="historico-vazio">Nenhum resultado encontrado.</div>';return;}
@@ -2378,9 +2382,15 @@ function iniciarNovaCot(){
   gerarNum();render();mostrarForm();showT('Nova cotação iniciada');
 }
 
-function loadC(num){
-  let h=[];try{h=JSON.parse(localStorage.getItem('ph')||'[]');}catch(e){}
-  const s=h.find(x=>x.num===num);if(!s)return;
+async function loadC(num){
+  let h=window._sbCotCache||[];
+  let s=h.find(x=>x.num===num);
+  // Se não achou no cache, busca direto no Supabase
+  if(!s){
+    const {data}=await sb.from('cotacoes').select('*').eq('num',num).maybeSingle();
+    if(!data)return;
+    s={num:data.num,cliente:data.cliente||'',data:data.data_cot||'',uf:data.uf||'',tab:data.tabela||'cf',modo:data.modo||'resumida',total:parseFloat(data.total)||0,itens:data.itens||[],cd:{cnpj:data.cnpj||'',razaoSocial:data.cliente||'',endereco:data.endereco||'',cidade:data.cidade||'',cep:data.cep||'',email:data.email||'',telefone:data.telefone||'',responsavel:data.responsavel||'',vendedor:data.vendedor||''},cond:data.condicoes||{}};
+  }
   tab=s.tab||'cf';uf=s.uf||'';modo=s.modo||'resumida';
   setTabela(tab);document.getElementById('estadoSel').value=uf;document.getElementById('btnAddItem').disabled=!uf;setDesc(modo);
   itens=s.itens||[];
@@ -2390,9 +2400,16 @@ function loadC(num){
   render();atualizarTot();mostrarForm();showT('Cotação carregada ✓','verde');
 }
 
-function dupC(num){
-  loadC(num);
-  let n=1;try{n=(parseInt(localStorage.getItem('pc')||'0'))+1;localStorage.setItem('pc',n);}catch(e){}
+async function dupC(num){
+  await loadC(num);
+  let n=1;
+  try{
+    const {data}=await sb.from('config').select('valor').eq('chave','contador_cotacoes').maybeSingle();
+    n=(parseInt(data?.valor||'0'))+1;
+    await sb.from('config').upsert({chave:'contador_cotacoes',valor:String(n)},{onConflict:'chave'});
+  }catch(e){
+    try{n=(parseInt(localStorage.getItem('pc')||'0'))+1;localStorage.setItem('pc',n);}catch(e2){}
+  }
   const novo=`COT-${new Date().getFullYear()}-${String(n).padStart(3,'0')}`;
   document.getElementById('numCotInput').value=novo;document.getElementById('numCotacao').textContent=novo;
   showT('Duplicada — edite e salve ✓','verde');
@@ -2400,8 +2417,11 @@ function dupC(num){
 
 function delC(num){
   if(!confirm(`Excluir ${num}?`))return;
-  try{let h=JSON.parse(localStorage.getItem('ph')||'[]');h=h.filter(x=>x.num!==num);localStorage.setItem('ph',JSON.stringify(h));carregarHist();showT('Excluída');}catch(e){}
+  // Remove do cache em memória
+  window._sbCotCache=(window._sbCotCache||[]).filter(x=>x.num!==num);
+  carregarHist();
   sbDeletarCotacao(num).catch(e=>console.error(e));
+  showT('Excluída');
 }
 
 function novaCot(){iniciarNovaCot();}
@@ -3605,7 +3625,7 @@ var PRODS_SITE=[
 var estDados={};
 var estSeg={};
 var estCodAlts={};
-try{estCodAlts=JSON.parse(localStorage.getItem('gex_est_alts')||'{}');}catch(e){}
+// estCodAlts e estSeg são carregados do Supabase via sbCarregarTudo()
 var estExpandido=null;
 
 function processarEstoque(input){
@@ -3671,37 +3691,15 @@ function processarBuffer(buffer,filename){
       if(lote||disp>0){estDados[cod].lotes.push({lote:lote,disp:disp,val:val,status:String(row[iStatus]||'')});}
       totalLinhas++;
     }
-    // Carregar seg salvo
-    try{estSeg=JSON.parse(localStorage.getItem('gex_est_seg')||'{}');}catch(e){estSeg={};}
+    // Carregar seg salvo (já em memória via sbCarregarEstoqueSeg)
     // Atualizar UI
     var agora=new Date();
     document.getElementById('estUploadInfo').textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+totalLinhas+' registros ACA processados';
     document.getElementById('estVazio').style.display='none';
     document.getElementById('estTabela').style.display='block';
     renderEstoque('');
-    // Salvar dados no localStorage para persistir
-    try{localStorage.setItem('gex_est_dados',JSON.stringify(estDados));}catch(e){}
     // Supabase — salvar snapshot de saldos
     sbSalvarEstoqueDados().catch(e=>console.error(e));
-    // Salvar histórico de saldos (7 dias)
-    try{
-      var hist={};
-      try{hist=JSON.parse(localStorage.getItem('gex_est_hist')||'{}');}catch(e){}
-      var hoje=agora.toISOString().split('T')[0];
-      // Salvar só código + saldo total de hoje
-      var snapshot={};
-      PRODS_SITE.forEach(function(p){
-        var d=estDados[p[0]];
-        var total=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
-        snapshot[p[0]]=total;
-      });
-      hist[hoje]=snapshot;
-      // Manter só 7 dias
-      var dias=Object.keys(hist).sort();
-      while(dias.length>7){var d=dias.shift();delete hist[d];}
-      localStorage.setItem('gex_est_hist',JSON.stringify(hist));
-      localStorage.setItem('gex_est_info',JSON.stringify({data:agora.toLocaleString('pt-BR'),total:totalLinhas}));
-    }catch(e){}
     showT('Estoque carregado — '+Object.keys(estDados).length+' produtos no ACA','verde');
   }catch(err){showT('Erro ao processar: '+err.message,'erro');console.error(err);}
 }
@@ -3750,10 +3748,10 @@ function renderEstoque(filtro){
     });
     var seg=parseInt(estSeg[cod])||0;
     var st=statusEstoque(total,seg);
-    // Histórico — ontem
+    // Histórico — ontem (via cache Supabase em memória)
     var ontem=-1,diff=null;
     try{
-      var hist=JSON.parse(localStorage.getItem('gex_est_hist')||'{}');
+      var hist=window._sbEstHist||{};
       var diasHist=Object.keys(hist).sort();
       if(diasHist.length>=2){var dOntem=diasHist[diasHist.length-2];ontem=hist[dOntem][cod]||0;diff=total-ontem;}
       else if(diasHist.length===1){var d0=diasHist[0];var hoje=new Date().toISOString().split('T')[0];if(d0!==hoje){ontem=hist[d0][cod]||0;diff=total-ontem;}}
@@ -3859,70 +3857,45 @@ function filtrarEstoque(v){renderEstoque(v);}
 
 function salvarSeg(cod,val){
   estSeg[cod]=parseInt(val)||0;
-  try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}
   renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
-  // Supabase sync
   sbSalvarEstoqueSeg(cod, estSeg[cod]).catch(e=>console.error(e));
 }
 
-// Carregar seg e dados ao iniciar
+// Carregar seg e dados ao iniciar — feito via sbCarregarTudo() após login
 (function(){
-  // Carregar estoques de segurança salvos
-  try{estSeg=JSON.parse(localStorage.getItem('gex_est_seg')||'{}');}catch(e){estSeg={};}
-  // Valores padrão de estoque de segurança (editáveis)
+  // Valores padrão de estoque de segurança (usados se o Supabase não tiver dados ainda)
   var SEG_DEFAULT={"33.0031.0000": 9936, "33.0058.0750": 945, "29.0012.0700": 31, "28.0034.1000": 3229, "28.0025.0005": 324, "28.0023.0001": 13, "28.0024.0005": 165, "28.0021.0750": 852, "28.0022.0001": 189, "28.0033.5000": 941, "29.0013.1000": 75, "29.0006.0001": 50, "29.0003.0750": 58, "29.0009.0005": 116, "33.0046.0750": 2809, "33.0067.1000": 21, "33.0015.0005": 217, "33.0068.5000": 217, "33.0063.5000": 2531, "33.0042.0230": 1878, "33.0064.0050": 234, "13.0027.0050": 480863, "31.0003.0001": 84, "31.0004.0005": 308, "33.0061.0000": 4004, "33.0062.0050": 996, "33.0069.5000": 403, "33.0020.0032": 398, "33.0019.0040": 136, "33.0017.0750": 9047, "33.0071.5000": 149, "33.0065.5000": 1626, "33.0066.0030": 290};
-  PRODS_SITE.forEach(function(p){
-    if(estSeg[p[0]]===undefined||estSeg[p[0]]===null){
-      estSeg[p[0]]=SEG_DEFAULT[p[0]]!==undefined?SEG_DEFAULT[p[0]]:100;
-    }
-  });
-  // Salvar os defaults
-  try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}
-  // Restaurar dados do último upload
-  try{
-    var d=localStorage.getItem('gex_est_dados');
-    var tab=document.getElementById('estTabela');
-    var vaz=document.getElementById('estVazio');
-    var el=document.getElementById('estUploadInfo');
-    if(d){
-      estDados=JSON.parse(d);
-      var info=localStorage.getItem('gex_est_info');
-      if(info&&el){var inf=JSON.parse(info);el.textContent='📅 Último upload: '+inf.data+' — '+inf.total+' registros ACA processados';}
-    } else {
-      if(el)el.textContent='⚠️ Nenhum relatório carregado. Faça o upload para ver os saldos atualizados.';
-    }
-    // Sempre mostrar a tabela com os 27 produtos
-    if(tab)tab.style.display='block';
-    if(vaz)vaz.style.display='none';
-    renderEstoque('');
-  }catch(e){
-    var tab=document.getElementById('estTabela');
-    var vaz=document.getElementById('estVazio');
-    if(tab)tab.style.display='block';
-    if(vaz)vaz.style.display='none';
-    renderEstoque('');
-  }
+  window._SEG_DEFAULT=SEG_DEFAULT;
+  // Mostrar tabela vazia enquanto carrega
+  var tab=document.getElementById('estTabela');
+  var vaz=document.getElementById('estVazio');
+  if(tab)tab.style.display='block';
+  if(vaz)vaz.style.display='none';
+  renderEstoque('');
 })();
 
 /* ── CÓDIGOS ALTERNATIVOS ESTOQUE ── */
 
-function adicionarCodAlt(codPrincipal){
+async function adicionarCodAlt(codPrincipal){
   var novo=prompt('Código alternativo a vincular com "'+codPrincipal+'":');
   if(!novo||!novo.trim())return;
   novo=novo.trim();
   if(novo===codPrincipal){showT('Código igual ao principal','erro');return;}
   if(!estCodAlts[codPrincipal])estCodAlts[codPrincipal]=[];
   if(estCodAlts[codPrincipal].indexOf(novo)>=0){showT('Código já vinculado','');return;}
+  // Salvar no Supabase
+  const {error}=await sb.from('estoque_cod_alts').insert({cod_principal:codPrincipal,cod_alt:novo});
+  if(error){showT('Erro ao salvar vínculo','erro');console.error(error);return;}
   estCodAlts[codPrincipal].push(novo);
-  try{localStorage.setItem('gex_est_alts',JSON.stringify(estCodAlts));}catch(e){}
   renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
   showT('Código '+novo+' vinculado ✓','verde');
 }
 
-function removerCodAlt(codPrincipal,codAlt){
+async function removerCodAlt(codPrincipal,codAlt){
   if(!estCodAlts[codPrincipal])return;
+  const {error}=await sb.from('estoque_cod_alts').delete().eq('cod_principal',codPrincipal).eq('cod_alt',codAlt);
+  if(error){showT('Erro ao remover vínculo','erro');console.error(error);return;}
   estCodAlts[codPrincipal]=estCodAlts[codPrincipal].filter(function(c){return c!==codAlt;});
-  try{localStorage.setItem('gex_est_alts',JSON.stringify(estCodAlts));}catch(e){}
   renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
   showT('Código '+codAlt+' removido','');
 }
@@ -4001,7 +3974,9 @@ async function sbCarregarTudo(){
   await sbCarregarCotacoes();
   await sbCarregarFretes();
   await sbCarregarEstoqueSeg();
+  await sbCarregarEstoqueCodAlts();
   await sbCarregarEstoqueDados();
+  await sbCarregarEstoqueHist();
 }
 
 /* ────────────────────────────────────
@@ -4037,9 +4012,9 @@ async function sbSalvarCotacao(snap){
 async function sbCarregarCotacoes(){
   const {data,error}=await sb.from('cotacoes').select('*').order('created_at',{ascending:false}).limit(100);
   if(error){console.error('SB load cotacoes:',error);return;}
-  if(!data||!data.length)return;
-  // Converter para formato local
-  const hist=data.map(r=>({
+  if(!data)return;
+  // Guardar em cache de memória
+  window._sbCotCache=data.map(r=>({
     num:r.num,
     cliente:r.cliente||'',
     data:r.data_cot||'',
@@ -4051,8 +4026,6 @@ async function sbCarregarCotacoes(){
     cd:{cnpj:r.cnpj||'',razaoSocial:r.cliente||'',endereco:r.endereco||'',cidade:r.cidade||'',cep:r.cep||'',email:r.email||'',telefone:r.telefone||'',responsavel:r.responsavel||'',vendedor:r.vendedor||''},
     cond:r.condicoes||{}
   }));
-  // Salvar em memória (ph) para uso local
-  try{localStorage.setItem('ph',JSON.stringify(hist));}catch(e){}
   carregarHist();
 }
 
@@ -4136,11 +4109,43 @@ async function sbSalvarEstoqueSeg(cod,qtd){
   if(error){console.error('SB est_seg erro:',error);}
 }
 
+async function sbCarregarEstoqueCodAlts(){
+  const {data,error}=await sb.from('estoque_cod_alts').select('cod_principal,cod_alt');
+  if(error){console.error('SB load cod_alts:',error);return;}
+  estCodAlts={};
+  if(data&&data.length){
+    data.forEach(r=>{
+      if(!estCodAlts[r.cod_principal])estCodAlts[r.cod_principal]=[];
+      estCodAlts[r.cod_principal].push(r.cod_alt);
+    });
+  }
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+}
+
+async function sbCarregarEstoqueHist(){
+  // Carregar os últimos 7 snapshots para o histórico de tendência
+  const {data,error}=await sb.from('estoque_saldos').select('data,saldos').order('data',{ascending:false}).limit(7);
+  if(error){console.error('SB load est_hist:',error);return;}
+  if(!data||!data.length)return;
+  const hist={};
+  data.forEach(r=>{if(r.data&&r.saldos)hist[r.data]=r.saldos;});
+  window._sbEstHist=hist;
+}
+
 async function sbCarregarEstoqueSeg(){
   const {data,error}=await sb.from('estoque_seg').select('codigo,quantidade');
   if(error){console.error('SB load est_seg:',error);return;}
-  if(!data||!data.length)return;
-  data.forEach(r=>{estSeg[r.codigo]=r.quantidade;});
+  // Aplicar defaults para produtos sem registro no banco
+  const SEG_DEFAULT=window._SEG_DEFAULT||{};
+  if(typeof PRODS_SITE!=='undefined'){
+    PRODS_SITE.forEach(function(p){
+      estSeg[p[0]]=SEG_DEFAULT[p[0]]!==undefined?SEG_DEFAULT[p[0]]:100;
+    });
+  }
+  // Sobrescrever com valores do Supabase
+  if(data&&data.length){
+    data.forEach(r=>{estSeg[r.codigo]=r.quantidade;});
+  }
   renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
 }
 
