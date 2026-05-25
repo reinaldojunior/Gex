@@ -6,6 +6,7 @@
 <title>GEx Assist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   /* Caltimes hybrid palette */
@@ -1103,71 +1104,147 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   cursor:pointer;margin-top:4px;display:block;text-decoration:underline}
 
 
-/* ── LOGIN ── */
-#loginScreen{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a 0%,#1e4aac 50%,#2d1b69 100%)}
-#loginScreen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 30% 30%,rgba(255,255,255,.06) 0%,transparent 60%)}
-.login-card{background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-radius:20px;padding:40px 44px;width:100%;max-width:380px;position:relative;box-shadow:0 32px 80px rgba(0,0,0,.3)}
-.login-logo{text-align:center;margin-bottom:32px}
-.login-logo-text{font-family:'Inter',sans-serif;font-size:24px;font-weight:800;color:#1e293b;letter-spacing:-.3px}
-.login-logo-sub{font-size:11px;color:#94a3b8;margin-top:6px;letter-spacing:.05em;text-transform:uppercase}
-.login-field{margin-bottom:16px}
-.login-field label{display:block;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.login-field input{width:100%;padding:11px 14px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;color:#1e293b;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;box-sizing:border-box}
-.login-field input:focus{border-color:#60a5fa;background:#fff}
-.login-field input::placeholder{color:#cbd5e1}
-.login-btn{width:100%;padding:13px;margin-top:8px;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:.15s;letter-spacing:.01em}
-.login-btn:hover{background:linear-gradient(135deg,#1e4aac,#3b82f6)}
-.login-btn:disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
-.login-error{background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:12px;color:#dc2626;display:none}
-.login-footer{text-align:center;margin-top:24px;font-size:10px;color:#cbd5e1;letter-spacing:.05em;text-transform:uppercase}
-#userBadge{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);transition:.15s}
-#userBadge:hover{background:rgba(255,255,255,.2)}
-#userBadge .user-avatar{width:24px;height:24px;border-radius:50%;background:#60a5fa;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
-#userBadge .user-name{font-size:11px;font-weight:500;color:rgba(255,255,255,.8)}
-
-
 /* ── ESTOQUE ── */
 .est-row{border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .15s}
 .est-row:hover{background:#f8faff}
 .est-row.expandido{background:#f0f7ff}
 .est-row td{padding:7px 10px;font-size:12px;vertical-align:middle}
 .est-nome{font-weight:600;color:#1e293b;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.est-cod{font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace;margin-top:2px}
 .est-saldo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;text-align:center}
-.est-seg-input{width:64px;padding:3px 6px;border:1px solid var(--borda);border-radius:6px;font-size:11px;text-align:center;font-family:'JetBrains Mono',monospace}
+.est-seg{font-size:11px;color:#64748b;text-align:center}
+.est-seg-input{width:60px;padding:3px 6px;border:1px solid var(--borda);border-radius:6px;font-size:11px;text-align:center;font-family:'JetBrains Mono',monospace}
 .est-status{display:inline-block;width:12px;height:12px;border-radius:50%}
 .est-val-badge{display:inline-block;width:10px;height:10px}
 .est-lotes{background:#f8fafc;border-bottom:2px solid #e2e8f0}
 .est-lotes td{padding:8px 14px}
+.lote-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px}
+.lote-row:last-child{border-bottom:none}
+.lote-num{font-family:'JetBrains Mono',monospace;color:#475569;font-size:10px;min-width:110px}
+.lote-qtd{font-family:'JetBrains Mono',monospace;font-weight:700;color:#1e293b;min-width:60px;text-align:right}
+.lote-val{color:#64748b;font-size:10px}
 .est-expand-btn{background:none;border:none;cursor:pointer;font-size:14px;color:#60a5fa;padding:2px 6px}
 
+/* ── LOGIN ── */
+#loginOverlay{
+  position:fixed;inset:0;z-index:99999;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#0a1628 0%,#0d1f5e 20%,#1a1060 40%,#2d1b69 55%,#6b2fa0 70%,#c2410c 88%,#ea580c 100%);
+  background-size:400% 400%;
+  animation:gradientBG 18s ease infinite;
+}
+#loginOverlay::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 100%,rgba(251,146,60,.35) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 50% at 0% 30%,rgba(109,40,217,.3) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 100% 20%,rgba(29,78,216,.25) 0%,transparent 45%);
+}
+.login-box{
+  position:relative;z-index:1;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:24px;
+  padding:44px 48px;
+  width:100%;max-width:420px;
+  box-shadow:0 32px 80px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.06);
+  text-align:center;
+}
+.login-brand{
+  font-family:'Inter',sans-serif;font-size:28px;font-weight:800;
+  color:#fff;letter-spacing:-.5px;margin-bottom:4px;
+}
+.login-brand span{color:#bfdbfe}
+.login-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:36px;font-weight:400}
+.login-field{
+  display:flex;flex-direction:column;gap:5px;
+  text-align:left;margin-bottom:16px;
+}
+.login-field label{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:rgba(255,255,255,.5);
+}
+.login-field input{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;
+  font-family:'Inter',sans-serif;font-size:14px;
+  color:#fff;padding:12px 16px;
+  outline:none;transition:.2s;width:100%;
+}
+.login-field input::placeholder{color:rgba(255,255,255,.3)}
+.login-field input:focus{
+  border-color:rgba(96,165,250,.6);
+  background:rgba(255,255,255,.14);
+  box-shadow:0 0 0 3px rgba(96,165,250,.15);
+}
+.login-btn{
+  width:100%;margin-top:8px;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);
+  color:#fff;border:none;border-radius:10px;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
+  padding:13px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(59,130,246,.4);
+  transition:.2s;letter-spacing:.2px;
+}
+.login-btn:hover{
+  background:linear-gradient(135deg,#60a5fa,#3b82f6);
+  box-shadow:0 6px 24px rgba(59,130,246,.5);
+  transform:translateY(-1px);
+}
+.login-btn:active{transform:translateY(0)}
+.login-erro{
+  margin-top:14px;font-size:12px;font-weight:600;
+  color:#fca5a5;background:rgba(220,38,38,.15);
+  border:1px solid rgba(220,38,38,.3);
+  border-radius:8px;padding:9px 14px;
+  display:none;
+}
+.login-user-info{
+  position:fixed;top:14px;right:16px;z-index:99998;
+  display:none;align-items:center;gap:8px;
+  background:rgba(255,255,255,.1);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.15);border-radius:10px;
+  padding:6px 14px;font-size:12px;color:rgba(255,255,255,.8);
+}
+.login-user-info.show{display:flex}
+.login-logout-btn{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.7);font-size:11px;font-weight:600;
+  padding:3px 9px;border-radius:6px;cursor:pointer;transition:.2s;
+}
+.login-logout-btn:hover{background:rgba(220,38,38,.3);border-color:rgba(220,38,38,.5);color:#fff}
 </style>
 </head>
 <body>
-<div class="sidebar-mobile-overlay" id="sidebarMobileOverlay" onclick="fecharSidebarMobile()"></div>
-<div class="app-layout">
 
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-text">G<span style="color:#60a5fa">Ex</span> Assist</div>
-      <div class="login-logo-sub">Plataforma Comercial</div>
-    </div>
+<!-- ── TELA DE LOGIN ── -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-brand">G<span>Ex</span> Assist</div>
+    <div class="login-sub">Acesso restrito — faça login para continuar</div>
     <div class="login-field">
       <label>Usuário</label>
-      <input type="text" id="loginUser" placeholder="seu usuário" autocomplete="username"
-        onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+      <input type="text" id="loginUser" placeholder="seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
     </div>
     <div class="login-field">
       <label>Senha</label>
-      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"
-        onkeydown="if(event.key==='Enter')fazerLogin()">
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLogin()">
     </div>
-    <button class="login-btn" id="loginBtn" onclick="fazerLogin()">Entrar</button>
-    <div class="login-error" id="loginError">Usuário ou senha incorretos.</div>
-    <div class="login-footer">GEx Assist v1.0</div>
+    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+    <div class="login-erro" id="loginErro">Usuário ou senha incorretos.</div>
   </div>
 </div>
 
+<!-- Info de usuário logado (canto superior direito) -->
+<div class="login-user-info" id="loginUserInfo">
+  <span id="loginUserNome">👤</span>
+  <button class="login-logout-btn" onclick="fazerLogout()">Sair</button>
+</div>
+
+<div class="sidebar-mobile-overlay" id="sidebarMobileOverlay" onclick="fecharSidebarMobile()"></div>
+<div class="app-layout">
 <aside class="sidebar" id="appSidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo-wrap">
@@ -1224,7 +1301,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         </div>
       </div>
       <span class="page-header-tag">GEx Assist</span>
-      <div id="userBadge" onclick="fazerLogout()" title="Clique para sair" style="display:none"><div class="user-avatar" id="userAvatar">?</div><span class="user-name" id="userName">—</span></div>
     </div>
   </div>
   <div style="background:rgba(255,255,255,.68);backdrop-filter:blur(12px);border-bottom:1px solid rgba(96,165,250,.12);padding:0 24px;display:none" id="configBand">
@@ -1652,6 +1728,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
   <!-- SEÇÃO ESTOQUE (placeholder) -->
   <div id="secaoEstoque" style="display:none">
+
+    <!-- Upload e status -->
     <div class="historico-card" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <div>
@@ -1663,6 +1741,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           <input type="file" id="inputEstoque" accept=".xlsx,.xls" style="display:none" onchange="processarEstoque(this)">
         </div>
       </div>
+      <!-- Legenda -->
       <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--borda)">
         <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;align-self:center">Estoque:</div>
         <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a"></span>OK</div>
@@ -1670,34 +1749,46 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316"></span>Baixo</div>
         <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#dc2626"></span>Zerado</div>
         <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;align-self:center;margin-left:8px">Validade:</div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#16a34a"></span>&gt;12m</div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#eab308"></span>6-12m</div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#dc2626"></span>&lt;6m</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#16a34a"></span>OK &gt;12m</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#eab308"></span>Atenção 6-12m</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#dc2626"></span>Crítico &lt;6m</div>
         <div style="display:flex;align-items:center;gap:4px;font-size:10px"><span style="display:inline-block;width:10px;height:10px;background:#1e293b"></span>Vencido</div>
       </div>
     </div>
-    <div class="tabela-card" id="estTabela">
+
+    <!-- Tabela de produtos -->
+    <div class="tabela-card" id="estTabela" style="display:none">
       <div class="tabela-head">
         <div class="tabela-title">Posição de Estoque</div>
-        <input type="text" id="estBusca" placeholder="🔍 Buscar produto..." onInput="filtrarEstoque(this.value)"
-          style="padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;width:220px;outline:none">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="estBusca" placeholder="🔍 Buscar produto..." onInput="filtrarEstoque(this.value)"
+            style="padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;width:220px;outline:none">
+        </div>
       </div>
       <table style="width:100%;border-collapse:collapse">
         <thead>
           <tr style="background:#f0f4fa">
-            <th style="width:32px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">ST</th>
-            <th style="padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:left">Produto</th>
-            <th style="width:100px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Código</th>
-            <th style="width:80px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Saldo</th>
-            <th style="width:90px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Est. Seg.</th>
-            <th style="width:90px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Diferença</th>
-            <th style="width:80px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Vencendo</th>
-            <th style="width:60px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center">Ação</th>
+            <th style="width:32px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">ST</th>
+            <th style="padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:left">Produto</th>
+            <th style="width:90px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Código</th>
+            <th style="width:80px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Saldo</th>
+            <th style="width:90px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Est. Seg.</th>
+            <th style="width:90px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Diferença</th>
+            <th style="width:80px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Vencendo</th>
+            <th style="width:60px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Ação</th>
           </tr>
         </thead>
         <tbody id="estTbody"></tbody>
       </table>
     </div>
+
+    <!-- Estado vazio -->
+    <div id="estVazio" style="padding:60px;text-align:center;color:var(--muted)">
+      <div style="font-size:48px;margin-bottom:12px">📦</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:6px">Carregue o relatório do ERP</div>
+      <div style="font-size:12px">Clique em "Carregar Relatório Excel" para importar o relatório diário</div>
+    </div>
+
   </div>
 
   <!-- Modal Evento -->
@@ -2234,25 +2325,11 @@ function snap(){
 
 function salvarCot(){
   const s=snap();
-  try{let h=JSON.parse(localStorage.getItem('ph')||'[]');h=h.filter(x=>x.num!==s.num);h.unshift(s);if(h.length>20)h=h.slice(0,20);localStorage.setItem('ph',JSON.stringify(h));carregarHist();}catch(e){}
-  salvarCotSupabase(s);
-}
-async function salvarCotSupabase(s){
-  try{
-    var p={num:s.num,cliente:s.cliente||'',cnpj:s.cd?.cnpj||'',endereco:s.cd?.endereco||'',cidade:s.cd?.cidade||'',estado:s.cd?.estadoCliente||'',cep:s.cd?.cep||'',email:s.cd?.email||'',telefone:s.cd?.telefone||'',responsavel:s.cd?.responsavel||'',vendedor:s.cd?.vendedor||'',tabela:s.tab,uf:s.uf,modo:s.modo,itens:s.itens,condicoes:s.cond||{},total:s.total,data_cot:s.data||null,criado_por:gexUser?gexUser.username:''};
-    var chk=await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/cotacoes?num=eq.'+encodeURIComponent(s.num)+'&select=id',{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo'}});
-    var ex=await chk.json();
-    if(ex&&ex.length){await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/cotacoes?num=eq.'+encodeURIComponent(s.num),{method:'PATCH',headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Content-Type':'application/json'},body:JSON.stringify(p)});}
-    else{await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/cotacoes',{method:'POST',headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Content-Type':'application/json'},body:JSON.stringify(p)});}
-    showT('Cotação salva ✓','verde');
-  }catch(e){showT('Salvo localmente','verde');}
-}
-async function carregarCotacoesSupabase(){
-  try{
-    var r=await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/cotacoes?select=*&order=created_at.desc&limit=50',{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo'}});
-    var d=await r.json();
-    if(d&&d.length){var h=d.map(function(c){return{num:c.num,cliente:c.cliente,uf:c.uf,tab:c.tabela,total:parseFloat(c.total)||0,data:c.data_cot,modo:c.modo,itens:c.itens||[],cd:{cnpj:c.cnpj,razaoSocial:c.cliente,endereco:c.endereco,cidade:c.cidade,estadoCliente:c.estado,cep:c.cep,email:c.email,telefone:c.telefone,responsavel:c.responsavel,vendedor:c.vendedor},cond:c.condicoes||{}};});localStorage.setItem('ph',JSON.stringify(h));carregarHist();}
-  }catch(e){}
+  try{let h=JSON.parse(localStorage.getItem('ph')||'[]');h=h.filter(x=>x.num!==s.num);h.unshift(s);if(h.length>20)h=h.slice(0,20);localStorage.setItem('ph',JSON.stringify(h));carregarHist();}
+  catch(e){}
+  // Salvar no Supabase
+  sbSalvarCotacao(s).catch(e=>console.error(e));
+  showT('Cotação salva ✓','verde');
 }
 
 function carregarHist(){
@@ -2324,6 +2401,7 @@ function dupC(num){
 function delC(num){
   if(!confirm(`Excluir ${num}?`))return;
   try{let h=JSON.parse(localStorage.getItem('ph')||'[]');h=h.filter(x=>x.num!==num);localStorage.setItem('ph',JSON.stringify(h));carregarHist();showT('Excluída');}catch(e){}
+  sbDeletarCotacao(num).catch(e=>console.error(e));
 }
 
 function novaCot(){iniciarNovaCot();}
@@ -2544,12 +2622,12 @@ function gerarHTMLTabela(tipo,uf){
       const prFmt=pr>0?'R$ '+pr.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
       const bg=idx%2===1?'background:#eff6ff':'background:#fff';
       linhas+=`<tr style="border-bottom:1px solid #e8edf5;${bg}">
-        <td style="padding:6px 10px;font-size:8.5px;font-family:'Courier New',monospace;color:#64748b">${cod}</td>
-        <td style="padding:6px 10px;font-size:9px;font-weight:600;color:#1e293b">${p.produto}</td>
-        <td style="padding:6px 10px;font-size:8.5px;text-align:center;font-family:'Courier New',monospace;color:#64748b">${ncm}</td>
-        <td style="padding:6px 10px;font-size:9px;color:#1e293b">${p.apresentacao}</td>
-        <td style="padding:6px 10px;font-size:9px;text-align:center;font-family:monospace">${qtd}</td>
-        <td style="padding:6px 10px;font-size:9px;text-align:center;font-family:monospace;font-weight:700;color:#1e3a8a;background:#dbeafe">${prFmt}</td>
+        <td style="padding:5px 9px;font-size:9px;font-family:'Courier New',monospace;color:#1e293b;font-weight:500">${cod}</td>
+        <td style="padding:5px 9px;font-size:9px;font-weight:600;color:#1e293b">${p.produto}</td>
+        <td style="padding:5px 9px;font-size:9px;text-align:center;font-family:'Courier New',monospace;color:#1e293b;font-weight:500">${ncm}</td>
+        <td style="padding:5px 9px;font-size:9px;color:#1e293b">${p.apresentacao}</td>
+        <td style="padding:5px 9px;font-size:9px;text-align:center;font-family:'Courier New',monospace;color:#1e293b">${qtd}</td>
+        <td style="padding:5px 9px;font-size:9px;text-align:center;font-family:'Courier New',monospace;font-weight:700;color:#1e3a8a;background:#dbeafe;-webkit-print-color-adjust:exact;print-color-adjust:exact">${prFmt}</td>
       </tr>`;
     });
     totalGeral+=totalCat;
@@ -2560,12 +2638,12 @@ function gerarHTMLTabela(tipo,uf){
       <table style="width:100%;border-collapse:collapse;table-layout:fixed">
         <colgroup><col style="width:100px"><col style="width:auto"><col style="width:105px"><col style="width:130px"><col style="width:55px"><col style="width:95px"></colgroup>
         <thead><tr style="background:#f0f7ff">
-          <th style="font-size:7px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 10px;text-align:left;border-bottom:1px solid #bfdbfe">Código</th>
-          <th style="font-size:7px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 10px;text-align:left;border-bottom:1px solid #bfdbfe">Produto</th>
-          <th style="font-size:7px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 10px;text-align:center;border-bottom:1px solid #bfdbfe">NCM</th>
-          <th style="font-size:7px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 10px;text-align:left;border-bottom:1px solid #bfdbfe">Apresentação</th>
-          <th style="font-size:7px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 10px;text-align:center;border-bottom:1px solid #bfdbfe">Qtd/Cx</th>
-          <th style="font-size:7px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 10px;text-align:center;border-bottom:1px solid #bfdbfe">Preço Final</th>
+          <th style="font-size:8px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 9px;text-align:left;border-bottom:1px solid #bfdbfe">Código</th>
+          <th style="font-size:8px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 9px;text-align:left;border-bottom:1px solid #bfdbfe">Produto</th>
+          <th style="font-size:8px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 9px;text-align:center;border-bottom:1px solid #bfdbfe">NCM</th>
+          <th style="font-size:8px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 9px;text-align:left;border-bottom:1px solid #bfdbfe">Apresentação</th>
+          <th style="font-size:8px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 9px;text-align:center;border-bottom:1px solid #bfdbfe">Qtd/Cx</th>
+          <th style="font-size:8px;font-weight:700;text-transform:uppercase;color:#1e3a8a;padding:6px 9px;text-align:center;border-bottom:1px solid #bfdbfe">Preço Final</th>
         </tr></thead>
         <tbody>${linhas}</tbody>
       </table>
@@ -2945,7 +3023,6 @@ function validarPrimeiroNome(el){
 ══════════════════════════════════════ */
 let fretes=[];
 try{fretes=JSON.parse(localStorage.getItem('proaction_fretes')||'[]');}catch(e){}
-carregarFretesSupabase().then(function(ok){if(ok){renderFretes(freteFilter);atualizarStatsFrete();}});
 let freteFilter='todos';
 let ftEditando=null;
 
@@ -2961,21 +3038,8 @@ const TRANSPORTADORAS={
 
 const STATUS_LABELS={aguardando:'🔴 Aguardando Coleta',transito:'🟠 Em Trânsito',entregue:'🟢 Entregue',ocorrencia:'⚠️ Ocorrência'};
 
-function salvarFretesLS(){try{localStorage.setItem('proaction_fretes',JSON.stringify(fretes));}catch(e){}}
-async function salvarFreteSupabase(f){
-  try{
-    var p={nf:f.nf||'',cliente:f.cliente||'',data_emissao:f.dataEmissao||null,valor_comercial:parseFloat(f.valorComercial)||0,valor_frete:parseFloat(f.valorFrete)||0,transportadora:f.transportadora||'',rastreio:f.rastreio||'',status:f.status||'aguardando',obs:f.obs||'',redespacho:f.redespacho||false,t1_trans:f.t1Trans||'',t1_status:f.t1Status||'aguardando',t2_trans:f.t2Trans||'',t2_status:f.t2Status||'aguardando',itens:f.itens||[],eventos:f.eventos||[],criado_por:gexUser?gexUser.username:''};
-    if(f.supaId){await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/fretes?id=eq.'+f.supaId,{method:'PATCH',headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Content-Type':'application/json'},body:JSON.stringify(p)});}
-    else{var r=await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/fretes',{method:'POST',headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(p)});var d=await r.json();if(d&&d[0])f.supaId=d[0].id;}
-    salvarFretesLS();
-  }catch(e){salvarFretesLS();}
-}
-async function carregarFretesSupabase(){
-  try{
-    var r=await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/fretes?select=*&order=created_at.desc',{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo'}});
-    var d=await r.json();
-    if(d&&d.length){fretes=d.map(function(f){return{id:f.id,supaId:f.id,nf:f.nf,cliente:f.cliente,dataEmissao:f.data_emissao,valorComercial:f.valor_comercial,valorFrete:f.valor_frete,transportadora:f.transportadora,rastreio:f.rastreio,status:f.status,obs:f.obs,redespacho:f.redespacho,t1Trans:f.t1_trans,t1Status:f.t1_status,t2Trans:f.t2_trans,t2Status:f.t2_status,itens:f.itens||[],eventos:f.eventos||[],dataCad:f.created_at};});salvarFretesLS();return true;}
-  }catch(e){}return false;
+function salvarFretesLS(){
+  localStorage.setItem('proaction_fretes',JSON.stringify(fretes));
 }
 
 function abrirFormNF(id=null){
@@ -3058,13 +3122,18 @@ function salvarNF(){
   } else {
     fretes.unshift(reg);
   }
-  salvarFretesLS();fecharFormNF();renderFretes(freteFilter);atualizarStatsFrete();showT('NF salva ✓','verde');
+  salvarFretesLS();fecharFormNF();renderFretes(freteFilter);atualizarStatsFrete();
+  // Supabase sync
+  sbSalvarFrete(reg).catch(e=>console.error(e));
+  showT('NF salva ✓','verde');
 }
 
 function excluirNF(id){
   if(!confirm('Excluir esta NF?'))return;
+  const nfNum=(fretes.find(f=>f.id===id)||{}).nf;
   fretes=fretes.filter(f=>f.id!==id);
   salvarFretesLS();renderFretes(freteFilter);atualizarStatsFrete();
+  if(nfNum)sbDeletarFrete(nfNum).catch(e=>console.error(e));
 }
 
 function atualizarStatusNF(id,status){
@@ -3074,6 +3143,7 @@ function atualizarStatusNF(id,status){
     f.eventos=f.eventos||[];
     f.eventos.push({data:new Date().toLocaleString('pt-BR'),texto:'Status atualizado: '+STATUS_LABELS[status]});
     salvarFretesLS();renderFretes(freteFilter);atualizarStatsFrete();
+    sbSalvarFrete(f).catch(e=>console.error(e));
   }
 }
 
@@ -3209,7 +3279,7 @@ function importarXML(input){
         eventos:[{data:new Date().toLocaleString('pt-BR'),texto:'NF importada via XML'}],
         dataCad:new Date().toISOString()
       };
-      fretes.unshift(reg);salvarFreteSupabase(reg);renderFretes(freteFilter);atualizarStatsFrete();
+      fretes.unshift(reg);salvarFretesLS();renderFretes(freteFilter);atualizarStatsFrete();
       showT(`NF ${nNF} importada — ${xNome} ✓`,'verde');
     }catch(err){showT('Erro ao ler XML — verifique o arquivo','erro');}
   };
@@ -3496,232 +3566,147 @@ function atualizarPageHeader(m){
 }
 
 
-/* ══ AUTENTICAÇÃO ══ */
-const SUPA_URL = 'https://vepikflqhwrqdfluzhyo.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo';
-var gexUser = null;
-
-var USUARIOS_OFFLINE = [
-  {id:'1',username:'junior', password_hash:'junior123', nome_display:'Junior', modulos:['home','cotacao','tabela','amostras','crm','agenda','licitacoes','frete','estoque'],admin:true,ativo:true},
-  {id:'2',username:'grego',  password_hash:'grego123',  nome_display:'Grego',  modulos:['home','cotacao','tabela','amostras','crm','agenda','licitacoes','frete','estoque'],admin:false,ativo:true},
-  {id:'3',username:'barril', password_hash:'barril123', nome_display:'Barril', modulos:['home','cotacao','tabela','amostras','crm','agenda','licitacoes','frete','estoque'],admin:false,ativo:true},
-  {id:'4',username:'ivo',    password_hash:'ivo123',    nome_display:'Ivo',    modulos:['home','frete','estoque'],admin:false,ativo:true},
-  {id:'5',username:'cris',   password_hash:'cris123',   nome_display:'Cris',   modulos:['home','cotacao','tabela','amostras','crm','agenda','licitacoes','frete','estoque'],admin:false,ativo:true},
-  {id:'6',username:'santos', password_hash:'santos123', nome_display:'Santos', modulos:['home','frete','estoque'],admin:false,ativo:true},
-  {id:'7',username:'junior', password_hash:'junior123', nome_display:'Junior', modulos:['home','cotacao','tabela','amostras','crm','agenda','licitacoes','frete','estoque'],admin:true,ativo:true},
-];
-
-async function fazerLogin(){
-  var user=(document.getElementById('loginUser').value||'').trim().toLowerCase();
-  var pass=(document.getElementById('loginPass').value||'').trim();
-  var btn=document.getElementById('loginBtn');
-  var err=document.getElementById('loginError');
-  if(!user||!pass){err.style.display='block';err.textContent='Preencha usuário e senha.';return;}
-  btn.disabled=true;btn.textContent='Entrando...';err.style.display='none';
-  var u=null;
-  // Verificar local
-  var localUser=USUARIOS_OFFLINE.find(function(x){return x.username===user&&x.password_hash===pass&&x.ativo;});
-  // Tentar Supabase
-  try{
-    var controller=new AbortController();
-    var timer=setTimeout(function(){controller.abort();},3000);
-    var res=await fetch(SUPA_URL+'/rest/v1/usuarios?username=eq.'+encodeURIComponent(user)+'&ativo=eq.true&select=*',{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
-      signal:controller.signal
-    });
-    clearTimeout(timer);
-    var data=await res.json();
-    if(data&&data.length&&data[0].password_hash===pass){u=data[0];}
-    else if(data&&data.length){
-      err.style.display='block';err.textContent='Usuário ou senha incorretos.';
-      btn.disabled=false;btn.textContent='Entrar';
-      document.getElementById('loginPass').value='';
-      return;
-    }
-  }catch(e){u=localUser||null;}
-  if(!u&&localUser)u=localUser;
-  if(!u){
-    err.style.display='block';err.textContent='Usuário ou senha incorretos.';
-    btn.disabled=false;btn.textContent='Entrar';
-    document.getElementById('loginPass').value='';
-    document.getElementById('loginPass').focus();
-    return;
-  }
-  gexUser=u;
-  try{fetch(SUPA_URL+'/rest/v1/usuarios?id=eq.'+u.id,{method:'PATCH',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify({last_login:new Date().toISOString()})});}catch(e){}
-  sessionStorage.setItem('gex_session',JSON.stringify({id:u.id,username:u.username,nome:u.nome_display||u.nome,modulos:u.modulos,admin:u.admin}));
-  aplicarPermissoes(u);
-  document.getElementById('loginScreen').style.display='none';
-  document.getElementById('userName').textContent=u.nome_display||u.nome;
-  document.getElementById('userAvatar').textContent=(u.nome_display||u.nome).charAt(0).toUpperCase();
-  document.getElementById('userBadge').style.display='flex';
-}
-
-function aplicarPermissoes(u){
-  var modulos=u.modulos||[];
-  var mapa={'btnHome':'home','btnCotacao':'cotacao','btnTabela':'tabela','btnAmostras':'amostras','btnCRM':'crm','btnAgenda':'agenda','btnLicitacoes':'licitacoes','btnFrete':'frete','btnEstoque':'estoque'};
-  Object.entries(mapa).forEach(function([btnId,mod]){
-    var el=document.getElementById(btnId);
-    if(!el)return;
-    if(modulos.indexOf(mod)<0&&!u.admin)el.style.display='none';
-    else el.style.display='';
-  });
-  setModoApp('home');
-}
-
-function fazerLogout(){
-  if(!confirm('Deseja sair?'))return;
-  sessionStorage.removeItem('gex_session');
-  gexUser=null;
-  document.getElementById('loginScreen').style.display='flex';
-  document.getElementById('loginUser').value='';
-  document.getElementById('loginPass').value='';
-  document.getElementById('userBadge').style.display='none';
-}
-
-(function(){
-  var sess=sessionStorage.getItem('gex_session');
-  if(sess){
-    try{
-      var u=JSON.parse(sess);
-      gexUser=u;
-      aplicarPermissoes(u);
-      document.getElementById('loginScreen').style.display='none';
-      document.getElementById('userName').textContent=u.nome;
-      document.getElementById('userAvatar').textContent=u.nome.charAt(0).toUpperCase();
-      document.getElementById('userBadge').style.display='flex';
-    }catch(e){}
-  }
-})();
-
-
-/* ── ESTOQUE SUPABASE ── */
-async function salvarEstoqueSupabase(dados){
-  try{
-    var hoje=new Date().toISOString().split('T')[0];
-    var snap={};
-    if(typeof PRODS_SITE!=='undefined')PRODS_SITE.forEach(function(p){var d=dados[p[0]];snap[p[0]]=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;});
-    await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/estoque_saldos',{method:'POST',headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({data:hoje,saldos:snap,upload_por:gexUser?gexUser.username:''})});
-  }catch(e){}
-}
-async function salvarSegSupabase(cod,qtd){
-  try{await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/estoque_seg',{method:'POST',headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({codigo:cod,quantidade:qtd})});}catch(e){}
-}
-async function carregarSegSupabase(){
-  try{
-    var r=await fetch('https://vepikflqhwrqdfluzhyo.supabase.co/rest/v1/estoque_seg?select=codigo,quantidade',{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo'}});
-    var d=await r.json();
-    if(d&&d.length&&typeof estSeg!=='undefined'){d.forEach(function(x){estSeg[x.codigo]=x.quantidade;});try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}}
-  }catch(e){}
-}
-
-
 /* ══ ESTOQUE ══ */
 var PRODS_SITE=[
-  ["33.0031.0000","D-GERMI 50 ML BLISTER"],
-  ["33.0058.0750","EXEOL SURF OPTIMAL 750 ML"],
-  ["29.0012.0700","PROACTION AC 700ML"],
-  ["28.0034.1000","PROACTION AS 100 1L"],
-  ["28.0025.0005","PROACTION AS 100 5L (DET. ENZIMÁTICO)"],
-  ["28.0023.0001","PROACTION AS 110 4E 1L COM VÁLVULA PUMP"],
-  ["28.0024.0005","PROACTION AS 110 4E 5L (DET. ENZIMÁTICO)"],
-  ["28.0021.0750","PROACTION AS 120 4E FOAM 750 ML"],
-  ["28.0022.0001","PROACTION AS 130 7E 1L"],
-  ["28.0033.5000","PROACTION AS 130 7E 5L"],
-  ["29.0013.1000","PROACTION AS 500 1L"],
-  ["29.0006.0001","PROACTION AS 500 5L"],
-  ["29.0003.0750","PROACTION AS 700 750ML (LUBRIF INSTRUM)"],
-  ["29.0009.0005","PROACTION AS 700 ULTRA 5L"],
-  ["33.0046.0750","PROACTION GERMI 750ML"],
-  ["33.0022.0001","PROACTION GERMI - PRONTO USO - NÍVEL INTERMEDIÁRIO"],
-  ["33.0067.1000","PROACTION GERMI ULTRA 1L"],
-  ["33.0068.5000","PROACTION GERMI ULTRA 5L"],
-  ["33.0063.5000","PROACTION GTA 2% 5L"],
-  ["33.0042.0230","PROACTION GTA 2% INATIVADOR 230G"],
-  ["33.0064.0050","PROACTION GTA 2% TEST STRIPS - 50 FITAS"],
-  ["13.0027.0050","PROACTION HORTIFRUTI - USO INSTITUCIONAL 50 ML"],
-  ["31.0003.0001","PROACTION INSTRUMENTAL 1L (DET NEUTRO)"],
-  ["31.0004.0005","PROACTION INSTRUMENTAL 5L (DET NEUTRO)"],
-  ["33.0061.0000","PROACTION NEUTROCEPTIC 2000"],
-  ["33.0062.0050","PROACTION NEUTROCEPTIC 2000 TEST STRIPS - 50 FITAS"],
-  ["33.0069.5000","PROACTION OPA 5L"],
-  ["33.0020.0032","PROACTION OPA INATIVADOR 30G"],
-  ["33.0019.0040","PROACTION OPA TEST STRIPS 40 UN"],
-  ["33.0017.0750","PROACTION OXI 750 ML"],
-  ["33.0071.5000","PROACTION OXI ULTRA 5L"],
-  ["33.0065.5000","PROACTION PERACETIC 0,2% 5LT"],
-  ["33.0066.0030","PROACTION PERACETIC TEST STRIPS 30UN"],
-];
-
-var SEG_DEFAULT={"33.0031.0000":9936,"33.0058.0750":945,"29.0012.0700":31,"28.0034.1000":3229,"28.0025.0005":324,"28.0023.0001":13,"28.0024.0005":165,"28.0021.0750":852,"28.0022.0001":189,"28.0033.5000":941,"29.0013.1000":75,"29.0006.0001":50,"29.0003.0750":58,"29.0009.0005":116,"33.0046.0750":2809,"33.0022.0001":100,"33.0067.1000":21,"33.0068.5000":217,"33.0063.5000":2531,"33.0042.0230":1878,"33.0064.0050":234,"13.0027.0050":480863,"31.0003.0001":84,"31.0004.0005":308,"33.0061.0000":4004,"33.0062.0050":996,"33.0069.5000":403,"33.0020.0032":398,"33.0019.0040":136,"33.0017.0750":9047,"33.0071.5000":149,"33.0065.5000":1626,"33.0066.0030":290};
-
+    ["33.0031.0000","D-GERMI 50 ML BLISTER"],
+    ["33.0058.0750","EXEOL SURF OPTIMAL 750 ML"],
+    ["29.0012.0700","PROACTION AC 700ML"],
+    ["28.0034.1000","PROACTION AS 100 1L"],
+    ["28.0025.0005","PROACTION AS 100 5L (DET. ENZIMÁTICO)"],
+    ["28.0023.0001","PROACTION AS 110 4E 1L COM VÁLVULA PUMP"],
+    ["28.0024.0005","PROACTION AS 110 4E 5L (DET. ENZIMÁTICO)"],
+    ["28.0021.0750","PROACTION AS 120 4E FOAM 750 ML"],
+    ["28.0022.0001","PROACTION AS 130 7E 1L"],
+    ["28.0033.5000","PROACTION AS 130 7E 5L"],
+    ["29.0013.1000","PROACTION AS 500 1L"],
+    ["29.0006.0001","PROACTION AS 500 5L"],
+    ["29.0003.0750","PROACTION AS 700 750ML (LUBRIF INSTRUM)"],
+    ["29.0009.0005","PROACTION AS 700 ULTRA 5L"],
+    ["33.0022.0001","PROACTION GERMI - PRONTO USO - NÍVEL INTERMEDIÁRIO"],
+    ["33.0046.0750","PROACTION GERMI 750ML"],
+    ["33.0067.1000","PROACTION GERMI ULTRA 1L"],
+    ["33.0068.5000","PROACTION GERMI ULTRA 5L"],
+    ["33.0063.5000","PROACTION GTA 2% 5L"],
+    ["33.0042.0230","PROACTION GTA 2% INATIVADOR 230G"],
+    ["33.0064.0050","PROACTION GTA 2% TEST STRIPS - 50 FITAS"],
+    ["13.0027.0050","PROACTION HORTIFRUTI - USO INSTITUCIONAL 50 ML"],
+    ["31.0003.0001","PROACTION INSTRUMENTAL 1L (DET NEUTRO)"],
+    ["31.0004.0005","PROACTION INSTRUMENTAL 5L (DET NEUTRO)"],
+    ["33.0061.0000","PROACTION NEUTROCEPTIC 2000"],
+    ["33.0062.0050","PROACTION NEUTROCEPTIC 2000 TEST STRIPS - 50 FITAS"],
+    ["33.0069.5000","PROACTION OPA 5L"],
+    ["33.0020.0032","PROACTION OPA INATIVADOR 30G"],
+    ["33.0019.0040","PROACTION OPA TEST STRIPS 40 UN"],
+    ["33.0017.0750","PROACTION OXI 750 ML"],
+    ["33.0071.5000","PROACTION OXI ULTRA 5L"],
+    ["33.0065.5000","PROACTION PERACETIC 0,2% 5LT"],
+    ["33.0066.0030","PROACTION PERACETIC TEST STRIPS 30UN"],
+  ];
 var estDados={};
 var estSeg={};
 var estCodAlts={};
 try{estCodAlts=JSON.parse(localStorage.getItem('gex_est_alts')||'{}');}catch(e){}
+var estExpandido=null;
 
 function processarEstoque(input){
   var file=input.files[0];if(!file)return;
   var reader=new FileReader();
-  reader.onload=function(e){importarXLSXEstoque(e.target.result,file.name);};
+  reader.onload=function(e){
+    try{
+      // Usar SheetJS via CDN via importação dinâmica
+      importarXLSXEstoque(e.target.result, file.name);
+    }catch(err){showT('Erro ao ler arquivo: '+err.message,'erro');}
+  };
   reader.readAsArrayBuffer(file);
   input.value='';
 }
-function importarXLSXEstoque(buffer,filename){
+
+function importarXLSXEstoque(buffer, filename){
+  // Verificar se XLSX está disponível
   if(typeof XLSX==='undefined'){
+    showT('Carregando biblioteca Excel...','');
     var s=document.createElement('script');
     s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
     s.onload=function(){processarBuffer(buffer,filename);};
     document.head.appendChild(s);
-  }else{processarBuffer(buffer,filename);}
+  }else{
+    processarBuffer(buffer,filename);
+  }
 }
+
 function processarBuffer(buffer,filename){
   try{
     var wb=XLSX.read(buffer,{type:'arraybuffer',cellDates:true});
     var ws=wb.Sheets[wb.SheetNames[0]];
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-    if(!rows||rows.length<2){showT('Arquivo vazio','erro');return;}
+    if(!rows||rows.length<2){showT('Arquivo vazio ou inválido','erro');return;}
     var header=rows[0];
-    var iCod=header.indexOf('Cód. Item'),iNome=header.indexOf('Item'),iDep=header.indexOf('Cód. Depósito');
-    var iLote=header.indexOf('Lote'),iDisp=header.indexOf('Saldo Disponível'),iVal=header.indexOf('Validade Lote'),iUnid=header.indexOf('Unid.');
-    if(iCod<0||iDep<0){showT('Colunas não encontradas','erro');return;}
-    estDados={};var total=0;
+    // Encontrar índices das colunas
+    var iCod=header.indexOf('Cód. Item');
+    var iNome=header.indexOf('Item');
+    var iDep=header.indexOf('Cód. Depósito');
+    var iLote=header.indexOf('Lote');
+    var iDisp=header.indexOf('Saldo Disponível');
+    var iVal=header.indexOf('Validade Lote');
+    var iUnid=header.indexOf('Unid.');
+    var iStatus=header.indexOf('Status');
+    if(iCod<0||iDep<0){showT('Colunas não encontradas — verifique o arquivo','erro');return;}
+    // Processar — só ACA
+    estDados={};
+    var totalLinhas=0;
     for(var i=1;i<rows.length;i++){
       var row=rows[i];
       if(!row[iDep]||String(row[iDep]).trim()!=='ACA')continue;
-      var cod=String(row[iCod]||'').trim();if(!cod)continue;
+      var cod=String(row[iCod]||'').trim();
+      if(!cod)continue;
       var disp=parseFloat(row[iDisp])||0;
       var lote=String(row[iLote]||'').trim();
-      var valRaw=row[iVal],val=null;
+      var valRaw=row[iVal];
+      var val=null;
       if(valRaw instanceof Date){val=valRaw;}
-      else if(valRaw&&String(valRaw).match(/\d{2}\/\d{2}\/\d{4}/)){var p=String(valRaw).split('/');val=new Date(p[2],p[1]-1,p[0]);}
-      if(!estDados[cod])estDados[cod]={nome:String(row[iNome]||'').trim(),unid:String(row[iUnid]||'UN').trim(),lotes:[]};
-      if(lote||disp>0)estDados[cod].lotes.push({lote:lote,disp:disp,val:val,status:String(row[20]||'')});
-      total++;
+      else if(valRaw&&String(valRaw).match(/\d{2}\/\d{2}\/\d{4}/)){
+        var p=String(valRaw).split('/');val=new Date(p[2],p[1]-1,p[0]);
+      }
+      if(!estDados[cod]){estDados[cod]={nome:String(row[iNome]||'').trim(),unid:String(row[iUnid]||'UN').trim(),lotes:[]};}
+      if(lote||disp>0){estDados[cod].lotes.push({lote:lote,disp:disp,val:val,status:String(row[iStatus]||'')});}
+      totalLinhas++;
     }
+    // Carregar seg salvo
+    try{estSeg=JSON.parse(localStorage.getItem('gex_est_seg')||'{}');}catch(e){estSeg={};}
+    // Atualizar UI
     var agora=new Date();
-    try{localStorage.setItem('gex_est_dados',JSON.stringify(estDados));localStorage.setItem('gex_est_info',JSON.stringify({data:agora.toLocaleString('pt-BR'),total:total}));}catch(e){}
-    // Salvar histórico 7 dias
-    try{
-      var hist={};try{hist=JSON.parse(localStorage.getItem('gex_est_hist')||'{}');}catch(e){}
-      var hoje=agora.toISOString().split('T')[0];
-      var snap={};PRODS_SITE.forEach(function(p){var d=estDados[p[0]];snap[p[0]]=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;});
-      hist[hoje]=snap;
-      var dias=Object.keys(hist).sort();while(dias.length>7){var dd=dias.shift();delete hist[dd];}
-      localStorage.setItem('gex_est_hist',JSON.stringify(hist));
-    }catch(e){}
-    // Supabase
-    salvarEstoqueSupabase(estDados);
-    var el=document.getElementById('estUploadInfo');
-    if(el)el.textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+total+' registros ACA';
-    var tab=document.getElementById('estTabela');var vaz=document.getElementById('estVazio');
-    if(tab)tab.style.display='block';if(vaz)vaz.style.display='none';
+    document.getElementById('estUploadInfo').textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+totalLinhas+' registros ACA processados';
+    document.getElementById('estVazio').style.display='none';
+    document.getElementById('estTabela').style.display='block';
     renderEstoque('');
-    showT('Estoque carregado ✓','verde');
-  }catch(err){showT('Erro ao processar: '+err.message,'erro');}
+    // Salvar dados no localStorage para persistir
+    try{localStorage.setItem('gex_est_dados',JSON.stringify(estDados));}catch(e){}
+    // Supabase — salvar snapshot de saldos
+    sbSalvarEstoqueDados().catch(e=>console.error(e));
+    // Salvar histórico de saldos (7 dias)
+    try{
+      var hist={};
+      try{hist=JSON.parse(localStorage.getItem('gex_est_hist')||'{}');}catch(e){}
+      var hoje=agora.toISOString().split('T')[0];
+      // Salvar só código + saldo total de hoje
+      var snapshot={};
+      PRODS_SITE.forEach(function(p){
+        var d=estDados[p[0]];
+        var total=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
+        snapshot[p[0]]=total;
+      });
+      hist[hoje]=snapshot;
+      // Manter só 7 dias
+      var dias=Object.keys(hist).sort();
+      while(dias.length>7){var d=dias.shift();delete hist[d];}
+      localStorage.setItem('gex_est_hist',JSON.stringify(hist));
+      localStorage.setItem('gex_est_info',JSON.stringify({data:agora.toLocaleString('pt-BR'),total:totalLinhas}));
+    }catch(e){}
+    showT('Estoque carregado — '+Object.keys(estDados).length+' produtos no ACA','verde');
+  }catch(err){showT('Erro ao processar: '+err.message,'erro');console.error(err);}
 }
 
-function statusEstoque(total,seg){
+function statusEstoque(total, seg){
   if(seg<=0)return{cor:'#94a3b8',label:'Sem seg.'};
   if(total<=0)return{cor:'#dc2626',label:'Zerado'};
   var pct=total/seg;
@@ -3729,6 +3714,7 @@ function statusEstoque(total,seg){
   if(pct>=0.5)return{cor:'#eab308',label:'Atenção'};
   return{cor:'#f97316',label:'Baixo'};
 }
+
 function statusValidade(val){
   if(!val)return null;
   var hoje=new Date();hoje.setHours(0,0,0,0);
@@ -3739,23 +3725,52 @@ function statusValidade(val){
   if(meses<12)return{cor:'#eab308',label:'Atenção',meses:meses};
   return{cor:'#16a34a',label:'Válido',meses:meses};
 }
-function fmtData(val){if(!val)return '—';return new Date(val).toLocaleDateString('pt-BR');}
+
+function fmtData(val){
+  if(!val)return '—';
+  var d=new Date(val);
+  return d.toLocaleDateString('pt-BR');
+}
 
 function renderEstoque(filtro){
-  var tbody=document.getElementById('estTbody');if(!tbody)return;
-  var html='';var f=(filtro||'').toLowerCase();
+  var tbody=document.getElementById('estTbody');
+  if(!tbody)return;
+  var html='';
+  var f=(filtro||'').toLowerCase();
   PRODS_SITE.forEach(function(p){
     var cod=p[0],nome=p[1];
     if(f&&!nome.toLowerCase().includes(f)&&!cod.includes(f))return;
     var dados=estDados[cod]||{nome:nome,unid:'UN',lotes:[]};
     var total=dados.lotes.reduce(function(s,l){return s+(l.disp||0);},0);
+    // Somar códigos alternativos
     var codAlts=estCodAlts[cod]||[];
-    codAlts.forEach(function(a){var d=estDados[a];if(d)total+=d.lotes.reduce(function(s,l){return s+(l.disp||0);},0);});
+    codAlts.forEach(function(altCod){
+      var altDados=estDados[altCod];
+      if(altDados)total+=altDados.lotes.reduce(function(s,l){return s+(l.disp||0);},0);
+    });
     var seg=parseInt(estSeg[cod])||0;
     var st=statusEstoque(total,seg);
+    // Histórico — ontem
+    var ontem=-1,diff=null;
+    try{
+      var hist=JSON.parse(localStorage.getItem('gex_est_hist')||'{}');
+      var diasHist=Object.keys(hist).sort();
+      if(diasHist.length>=2){var dOntem=diasHist[diasHist.length-2];ontem=hist[dOntem][cod]||0;diff=total-ontem;}
+      else if(diasHist.length===1){var d0=diasHist[0];var hoje=new Date().toISOString().split('T')[0];if(d0!==hoje){ontem=hist[d0][cod]||0;diff=total-ontem;}}
+    }catch(e){}
+    // Pior validade dos lotes com saldo
     var piorVal=null;
-    dados.lotes.forEach(function(l){if(l.disp>0&&l.val){var sv=statusValidade(l.val);if(sv&&(!piorVal||sv.meses<piorVal.meses))piorVal=sv;}});
+    dados.lotes.forEach(function(l){
+      if(l.disp>0&&l.val){
+        var sv=statusValidade(l.val);
+        if(sv){
+          if(!piorVal||sv.meses<piorVal.meses)piorVal=sv;
+        }
+      }
+    });
     var valBadge=piorVal?'<span class="est-val-badge" style="background:'+piorVal.cor+';margin-left:4px" title="'+piorVal.label+'"></span>':'';
+    // Mostrar qtd de códigos alternativos
+    var codAlts=estCodAlts[cod]||[];
     var altBadge=codAlts.length>0?'<span style="font-size:9px;background:#fff3e0;color:#f97316;border:1px solid #fed7aa;border-radius:4px;padding:1px 5px;margin-left:4px">+'+codAlts.length+' cód.</span>':'';
     var expandido=estExpandido===cod;
     html+=`<tr class="est-row${expandido?' expandido':''}" onclick="toggleEstoque('${cod}')">
@@ -3763,7 +3778,12 @@ function renderEstoque(filtro){
       <td><div class="est-nome">${dados.nome||nome}${valBadge}${altBadge}</div></td>
       <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b">${cod}</td>
       <td class="est-saldo" style="color:${st.cor}">${total} <span style="font-size:10px;font-weight:400;color:#64748b">${dados.unid}</span></td>
-      <td style="text-align:center"><input type="number" class="est-seg-input" value="${seg}" min="0" placeholder="0" onclick="event.stopPropagation()" onchange="salvarSeg('${cod}',this.value)" title="Estoque de segurança"></td>
+      <td style="text-align:center">
+        <input type="number" class="est-seg-input" value="${seg}" min="0" placeholder="0"
+          onclick="event.stopPropagation()"
+          onchange="salvarSeg('${cod}',this.value)"
+          title="Estoque de segurança">
+      </td>
       <td style="text-align:center">${(function(){
         if(seg<=0)return '<span style="font-size:10px;color:#94a3b8">—</span>';
         var dif=total-seg;
@@ -3771,60 +3791,128 @@ function renderEstoque(filtro){
         if(dif===0)return '<span style="font-size:11px;font-weight:700;color:#eab308">0</span><br><span style="font-size:9px;color:#eab308">Exato</span>';
         return '<span style="font-size:11px;font-weight:700;color:#dc2626">'+dif+'</span><br><span style="font-size:9px;color:#dc2626;font-weight:700">Produzir</span>';
       })()}</td>
-      <td style="text-align:center">${piorVal?'<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px"><span class="est-val-badge" style="background:'+piorVal.cor+'"></span>'+piorVal.label+'</span>':'<span style="font-size:10px;color:#94a3b8">—</span>'}</td>
+      <td style="text-align:center">
+        ${piorVal?'<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px"><span class=\"est-val-badge\" style=\"background:'+piorVal.cor+'\"></span>'+piorVal.label+'</span>':'<span style=\"font-size:10px;color:#94a3b8\">—</span>'}
+      </td>
       <td style="text-align:center;white-space:nowrap">
-        <button class="est-expand-btn" onclick="toggleEstoque('${cod}');event.stopPropagation()">${expandido?'▲':'▼'}</button>
+        <button class="est-expand-btn" onclick="toggleEstoque('${cod}');event.stopPropagation()" title="Ver lotes">${expandido?'▲':'▼'}</button>
         <button class="est-expand-btn" onclick="adicionarCodAlt('${cod}');event.stopPropagation()" title="Vincular código alternativo" style="font-size:14px;color:#f97316">+</button>
       </td>
     </tr>`;
     if(expandido){
       html+='<tr class="est-lotes"><td colspan="8"><div style="padding:4px 0">';
+      // Lotes do código principal + alternativos
       var todosLotes=dados.lotes.map(function(l){return Object.assign({},l,{origemCod:cod});});
-      codAlts.forEach(function(a){var d=estDados[a];if(d)d.lotes.forEach(function(l){todosLotes.push(Object.assign({},l,{origemCod:a}));});});
+      var codAltsExp=estCodAlts[cod]||[];
+      codAltsExp.forEach(function(altCod){
+        var altD=estDados[altCod];
+        if(altD)altD.lotes.forEach(function(l){todosLotes.push(Object.assign({},l,{origemCod:altCod}));});
+      });
       if(!todosLotes.length){html+='<div style="font-size:11px;color:#94a3b8;padding:8px">Sem lotes no depósito ACA.</div>';}
       else{
-        html+='<div style="display:grid;grid-template-columns:140px 100px 60px 110px 1fr;gap:0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;padding:0 4px 6px;border-bottom:1px solid #e2e8f0;margin-bottom:4px"><span>Lote</span><span style="text-align:right">Qtd</span><span style="text-align:center">Un.</span><span style="text-align:center">Validade</span><span style="text-align:center">Status</span></div>';
+        html+='<div style="display:grid;grid-template-columns:140px 120px 80px 120px 1fr;gap:0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;padding:0 4px 6px;border-bottom:1px solid #e2e8f0;margin-bottom:4px"><span>Lote</span><span style="text-align:right">Qtd Disp.</span><span style="text-align:center">Unid.</span><span style="text-align:center">Validade</span><span style="text-align:center">Status Validade</span></div>';
         todosLotes.forEach(function(l){
           var sv=statusValidade(l.val);
-          html+='<div style="display:grid;grid-template-columns:140px 100px 60px 110px 1fr;gap:0;padding:5px 4px;border-bottom:1px solid #f8fafc;align-items:center">';
+          var valBg=sv?sv.cor:'#94a3b8';
+          var valLabel=sv?sv.label:'—';
+          var mesesStr=sv&&sv.meses>=0?Math.round(sv.meses)+'m':'';
+          html+='<div style="display:grid;grid-template-columns:140px 120px 80px 120px 1fr;gap:0;padding:5px 4px;border-bottom:1px solid #f8fafc;align-items:center">';
           html+='<span style="font-family:JetBrains Mono,monospace;font-size:10px;color:#475569">'+l.lote+(l.origemCod&&l.origemCod!==cod?'<span style="font-size:9px;color:#f97316;margin-left:4px">('+l.origemCod+')</span>':'')+'</span>';
           html+='<span style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:12px;color:#1e293b;text-align:right">'+l.disp+'</span>';
           html+='<span style="text-align:center;font-size:11px;color:#64748b">'+dados.unid+'</span>';
           html+='<span style="text-align:center;font-size:11px;color:#1e293b">'+fmtData(l.val)+'</span>';
-          html+='<span style="text-align:center;display:flex;align-items:center;gap:5px">'+(sv?'<span style="display:inline-block;width:10px;height:10px;background:'+sv.cor+'"></span><span style="font-size:10px">'+sv.label+'</span>':'—')+'</span>';
+          html+='<span style="text-align:center;display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:10px;height:10px;background:'+valBg+'"></span><span style="font-size:10px">'+valLabel+(mesesStr?' ('+mesesStr+')':'')+'</span></span>';
           html+='</div>';
         });
       }
-      // Códigos alternativos
-      var alts=estCodAlts[cod]||[];
-      html+='<div style="margin-top:8px;padding-top:6px;border-top:1px solid #e2e8f0"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px">Códigos Alternativos</div>';
-      if(alts.length){alts.forEach(function(a){var ad=estDados[a];var at=ad?ad.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;html+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px"><span style="font-family:JetBrains Mono,monospace;color:#f97316">'+a+'</span><span style="color:#64748b">'+(ad?ad.nome:'não encontrado')+'</span><span style="font-weight:700;color:#1e293b;margin-left:auto">'+at+' un.</span><button onclick="removerCodAlt(''+cod+'',''+a+'');event.stopPropagation()" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px">✕</button></div>';});}
-      else{html+='<span style="font-size:11px;color:#94a3b8">Nenhum. Clique em + para adicionar.</span>';}
-      html+='</div></div></td></tr>';
+          // Gestão de códigos alternativos
+    var alts=estCodAlts[cod]||[];
+    html+='<div style="margin-top:8px;padding-top:6px;border-top:1px solid #e2e8f0">';
+    html+='<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#64748b;margin-bottom:4px">Códigos Alternativos Vinculados</div>';
+    if(alts.length){
+      alts.forEach(function(a){
+        html+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px">';
+        html+='<span style="font-family:JetBrains Mono,monospace;color:#f97316">'+a+'</span>';
+        var altD=estDados[a];var altTotal=altD?altD.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
+        html+='<span style="color:#64748b">'+(altD?altD.nome:'não encontrado no ACA')+'</span>';
+        html+='<span style="font-weight:700;color:#1e293b;margin-left:auto">'+altTotal+' un.</span>';
+        html+='<button onclick="removerCodAlt(\''+cod+'\',\''+a+'\');event.stopPropagation()" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px" title="Remover vínculo">✕</button>';
+        html+='</div>';
+      });
+    }else{
+      html+='<span style="font-size:11px;color:#94a3b8">Nenhum código vinculado. Clique em + para adicionar.</span>';
+    }
+    html+='</div>';
+    html+='</div></td></tr>';
     }
   });
-  if(!html)html='<tr><td colspan="8" style="text-align:center;padding:30px;color:#94a3b8;font-size:12px">Nenhum produto encontrado.</td></tr>';
+  if(!html)html='<tr><td colspan="7" style="text-align:center;padding:30px;color:#94a3b8;font-size:12px">Nenhum produto encontrado.</td></tr>';
   tbody.innerHTML=html;
 }
 
-var estExpandido=null;
-function toggleEstoque(cod){estExpandido=estExpandido===cod?null:cod;renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');}
+function toggleEstoque(cod){
+  estExpandido=estExpandido===cod?null:cod;
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+}
+
 function filtrarEstoque(v){renderEstoque(v);}
 
 function salvarSeg(cod,val){
   estSeg[cod]=parseInt(val)||0;
   try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}
-  salvarSegSupabase(cod,estSeg[cod]);
   renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+  // Supabase sync
+  sbSalvarEstoqueSeg(cod, estSeg[cod]).catch(e=>console.error(e));
 }
 
+// Carregar seg e dados ao iniciar
+(function(){
+  // Carregar estoques de segurança salvos
+  try{estSeg=JSON.parse(localStorage.getItem('gex_est_seg')||'{}');}catch(e){estSeg={};}
+  // Valores padrão de estoque de segurança (editáveis)
+  var SEG_DEFAULT={"33.0031.0000": 9936, "33.0058.0750": 945, "29.0012.0700": 31, "28.0034.1000": 3229, "28.0025.0005": 324, "28.0023.0001": 13, "28.0024.0005": 165, "28.0021.0750": 852, "28.0022.0001": 189, "28.0033.5000": 941, "29.0013.1000": 75, "29.0006.0001": 50, "29.0003.0750": 58, "29.0009.0005": 116, "33.0046.0750": 2809, "33.0067.1000": 21, "33.0015.0005": 217, "33.0068.5000": 217, "33.0063.5000": 2531, "33.0042.0230": 1878, "33.0064.0050": 234, "13.0027.0050": 480863, "31.0003.0001": 84, "31.0004.0005": 308, "33.0061.0000": 4004, "33.0062.0050": 996, "33.0069.5000": 403, "33.0020.0032": 398, "33.0019.0040": 136, "33.0017.0750": 9047, "33.0071.5000": 149, "33.0065.5000": 1626, "33.0066.0030": 290};
+  PRODS_SITE.forEach(function(p){
+    if(estSeg[p[0]]===undefined||estSeg[p[0]]===null){
+      estSeg[p[0]]=SEG_DEFAULT[p[0]]!==undefined?SEG_DEFAULT[p[0]]:100;
+    }
+  });
+  // Salvar os defaults
+  try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}
+  // Restaurar dados do último upload
+  try{
+    var d=localStorage.getItem('gex_est_dados');
+    var tab=document.getElementById('estTabela');
+    var vaz=document.getElementById('estVazio');
+    var el=document.getElementById('estUploadInfo');
+    if(d){
+      estDados=JSON.parse(d);
+      var info=localStorage.getItem('gex_est_info');
+      if(info&&el){var inf=JSON.parse(info);el.textContent='📅 Último upload: '+inf.data+' — '+inf.total+' registros ACA processados';}
+    } else {
+      if(el)el.textContent='⚠️ Nenhum relatório carregado. Faça o upload para ver os saldos atualizados.';
+    }
+    // Sempre mostrar a tabela com os 27 produtos
+    if(tab)tab.style.display='block';
+    if(vaz)vaz.style.display='none';
+    renderEstoque('');
+  }catch(e){
+    var tab=document.getElementById('estTabela');
+    var vaz=document.getElementById('estVazio');
+    if(tab)tab.style.display='block';
+    if(vaz)vaz.style.display='none';
+    renderEstoque('');
+  }
+})();
+
+/* ── CÓDIGOS ALTERNATIVOS ESTOQUE ── */
+
 function adicionarCodAlt(codPrincipal){
-  var novo=prompt('Código alternativo para "'+codPrincipal+'":');
+  var novo=prompt('Código alternativo a vincular com "'+codPrincipal+'":');
   if(!novo||!novo.trim())return;
   novo=novo.trim();
   if(novo===codPrincipal){showT('Código igual ao principal','erro');return;}
   if(!estCodAlts[codPrincipal])estCodAlts[codPrincipal]=[];
-  if(estCodAlts[codPrincipal].indexOf(novo)>=0){showT('Já vinculado','');return;}
+  if(estCodAlts[codPrincipal].indexOf(novo)>=0){showT('Código já vinculado','');return;}
   estCodAlts[codPrincipal].push(novo);
   try{localStorage.setItem('gex_est_alts',JSON.stringify(estCodAlts));}catch(e){}
   renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
@@ -3836,28 +3924,254 @@ function removerCodAlt(codPrincipal,codAlt){
   estCodAlts[codPrincipal]=estCodAlts[codPrincipal].filter(function(c){return c!==codAlt;});
   try{localStorage.setItem('gex_est_alts',JSON.stringify(estCodAlts));}catch(e){}
   renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+  showT('Código '+codAlt+' removido','');
 }
 
-// Inicializar estoque
+/* ── LOGIN ── */
+var USUARIOS_LOGIN={
+  'juninho':  'gex2024',
+  'grego':    'gex2024',
+  'barril':   'gex2024',
+  'cris':     'gex2024',
+  'admin':    'admin123'
+};
+
+function fazerLogin(){
+  var u=(document.getElementById('loginUser').value||'').trim().toLowerCase();
+  var p=(document.getElementById('loginPass').value||'').trim();
+  var erro=document.getElementById('loginErro');
+  if(USUARIOS_LOGIN[u]&&USUARIOS_LOGIN[u]===p){
+    erro.style.display='none';
+    try{sessionStorage.setItem('gex_user',u);}catch(e){}
+    document.getElementById('loginOverlay').style.display='none';
+    var info=document.getElementById('loginUserInfo');
+    document.getElementById('loginUserNome').textContent='👤 '+u.charAt(0).toUpperCase()+u.slice(1);
+    info.classList.add('show');
+    // Carregar dados do Supabase após login
+    sbCarregarTudo();
+  }else{
+    erro.style.display='block';
+    document.getElementById('loginPass').value='';
+    document.getElementById('loginPass').focus();
+  }
+}
+
+function fazerLogout(){
+  try{sessionStorage.removeItem('gex_user');}catch(e){}
+  document.getElementById('loginUserInfo').classList.remove('show');
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErro').style.display='none';
+  document.getElementById('loginOverlay').style.display='flex';
+}
+
+// Verificar sessão ao carregar
 (function(){
-  try{estSeg=JSON.parse(localStorage.getItem('gex_est_seg')||'{}');}catch(e){estSeg={};}
-  PRODS_SITE.forEach(function(p){if(estSeg[p[0]]===undefined||estSeg[p[0]]===null)estSeg[p[0]]=SEG_DEFAULT[p[0]]!==undefined?SEG_DEFAULT[p[0]]:100;});
-  try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}
-  carregarSegSupabase();
   try{
-    var d=localStorage.getItem('gex_est_dados');
-    var tab=document.getElementById('estTabela');
-    var el=document.getElementById('estUploadInfo');
-    if(d){
-      estDados=JSON.parse(d);
-      var info=localStorage.getItem('gex_est_info');
-      if(info&&el){var inf=JSON.parse(info);el.textContent='📅 Último upload: '+inf.data+' — '+inf.total+' registros ACA';}
-    } else if(el){el.textContent='⚠️ Nenhum relatório carregado. Faça o upload para ver os saldos.';}
-    if(tab)tab.style.display='block';
-    renderEstoque('');
-  }catch(e){renderEstoque('');}
+    var u=sessionStorage.getItem('gex_user');
+    if(u&&USUARIOS_LOGIN[u]!==undefined){
+      document.getElementById('loginOverlay').style.display='none';
+      document.getElementById('loginUserNome').textContent='👤 '+u.charAt(0).toUpperCase()+u.slice(1);
+      document.getElementById('loginUserInfo').classList.add('show');
+      // Carregar dados do Supabase ao restaurar sessão
+      setTimeout(sbCarregarTudo, 300);
+    }
+  }catch(e){}
 })();
 
+/* ══════════════════════════════════════
+   SUPABASE INTEGRATION
+══════════════════════════════════════ */
+const SB_URL='https://vepikflqhwrqdfluzhyo.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+function sbUser(){
+  try{return sessionStorage.getItem('gex_user')||'anon';}catch(e){return 'anon';}
+}
+
+// ── Indicador visual de sync ──
+function sbToast(msg,tipo){
+  // reutiliza o toast existente com ícone de nuvem
+  showT('☁️ '+msg, tipo||'');
+}
+
+// ── Carregar tudo ao iniciar ──
+async function sbCarregarTudo(){
+  await sbCarregarCotacoes();
+  await sbCarregarFretes();
+  await sbCarregarEstoqueSeg();
+  await sbCarregarEstoqueDados();
+}
+
+/* ────────────────────────────────────
+   COTAÇÕES
+──────────────────────────────────── */
+async function sbSalvarCotacao(snap){
+  const payload={
+    num: snap.num,
+    cliente: snap.cliente||null,
+    cnpj: snap.cd?.cnpj||null,
+    endereco: snap.cd?.endereco||null,
+    cidade: snap.cd?.cidade||null,
+    estado: snap.cd?.estadoSel||null,
+    cep: snap.cd?.cep||null,
+    email: snap.cd?.email||null,
+    telefone: snap.cd?.telefone||null,
+    responsavel: snap.cd?.responsavel||null,
+    vendedor: snap.cd?.vendedor||null,
+    tabela: snap.tab||null,
+    uf: snap.uf||null,
+    modo: snap.modo||'resumida',
+    itens: snap.itens||[],
+    condicoes: snap.cond||{},
+    total: snap.total||0,
+    data_cot: snap.dataCot||new Date().toISOString().split('T')[0],
+    criado_por: sbUser()
+  };
+  const {error}=await sb.from('cotacoes').upsert(payload,{onConflict:'num'});
+  if(error){console.error('SB cotacao erro:',error);sbToast('Erro ao salvar no servidor','erro');}
+  else{sbToast('Cotação salva na nuvem ✓','verde');}
+}
+
+async function sbCarregarCotacoes(){
+  const {data,error}=await sb.from('cotacoes').select('*').order('created_at',{ascending:false}).limit(100);
+  if(error){console.error('SB load cotacoes:',error);return;}
+  if(!data||!data.length)return;
+  // Converter para formato local
+  const hist=data.map(r=>({
+    num:r.num,
+    cliente:r.cliente||'',
+    data:r.data_cot||'',
+    uf:r.uf||'',
+    tab:r.tabela||'cf',
+    modo:r.modo||'resumida',
+    total:parseFloat(r.total)||0,
+    itens:r.itens||[],
+    cd:{cnpj:r.cnpj||'',razaoSocial:r.cliente||'',endereco:r.endereco||'',cidade:r.cidade||'',cep:r.cep||'',email:r.email||'',telefone:r.telefone||'',responsavel:r.responsavel||'',vendedor:r.vendedor||''},
+    cond:r.condicoes||{}
+  }));
+  // Salvar em memória (ph) para uso local
+  try{localStorage.setItem('ph',JSON.stringify(hist));}catch(e){}
+  carregarHist();
+}
+
+async function sbDeletarCotacao(num){
+  const {error}=await sb.from('cotacoes').delete().eq('num',num);
+  if(error){console.error('SB del cotacao:',error);}
+}
+
+/* ────────────────────────────────────
+   FRETES
+──────────────────────────────────── */
+async function sbSalvarFrete(reg){
+  const payload={
+    nf: reg.nf,
+    cliente: reg.cliente||null,
+    data_emissao: reg.dataEmissao||null,
+    valor_comercial: reg.valorComercial||0,
+    valor_frete: reg.valorFrete||0,
+    transportadora: reg.transportadora||null,
+    rastreio: reg.rastreio||null,
+    status: reg.status||'aguardando',
+    obs: reg.obs||null,
+    redespacho: reg.redespacho||false,
+    t1_trans: reg.t1Trans||null,
+    t1_status: reg.t1Status||'aguardando',
+    t2_trans: reg.t2Trans||null,
+    t2_status: reg.t2Status||'aguardando',
+    itens: reg.itens||[],
+    eventos: reg.eventos||[],
+    criado_por: sbUser()
+  };
+  // Verificar se já existe pelo nf
+  const {data:exist}=await sb.from('fretes').select('id').eq('nf',reg.nf).maybeSingle();
+  let error;
+  if(exist){
+    ({error}=await sb.from('fretes').update(payload).eq('nf',reg.nf));
+  } else {
+    ({error}=await sb.from('fretes').insert(payload));
+  }
+  if(error){console.error('SB frete erro:',error);sbToast('Erro ao salvar frete','erro');}
+  else{sbToast('Frete salvo na nuvem ✓','verde');}
+}
+
+async function sbCarregarFretes(){
+  const {data,error}=await sb.from('fretes').select('*').order('created_at',{ascending:false});
+  if(error){console.error('SB load fretes:',error);return;}
+  if(!data||!data.length)return;
+  fretes=data.map(r=>({
+    id:r.id,
+    nf:r.nf,
+    cliente:r.cliente||'',
+    dataEmissao:r.data_emissao||'',
+    valorComercial:parseFloat(r.valor_comercial)||0,
+    valorFrete:parseFloat(r.valor_frete)||0,
+    transportadora:r.transportadora||'',
+    rastreio:r.rastreio||'',
+    status:r.status||'aguardando',
+    obs:r.obs||'',
+    redespacho:r.redespacho||false,
+    t1Trans:r.t1_trans||'',
+    t1Status:r.t1_status||'aguardando',
+    t2Trans:r.t2_trans||'',
+    t2Status:r.t2_status||'aguardando',
+    itens:r.itens||[],
+    eventos:r.eventos||[]
+  }));
+  renderFretes(freteFilter);
+  atualizarStatsFrete();
+}
+
+async function sbDeletarFrete(nf){
+  const {error}=await sb.from('fretes').delete().eq('nf',nf);
+  if(error){console.error('SB del frete:',error);}
+}
+
+/* ────────────────────────────────────
+   ESTOQUE — seg e saldos
+──────────────────────────────────── */
+async function sbSalvarEstoqueSeg(cod,qtd){
+  const {error}=await sb.from('estoque_seg').upsert({codigo:cod,quantidade:qtd},{onConflict:'codigo'});
+  if(error){console.error('SB est_seg erro:',error);}
+}
+
+async function sbCarregarEstoqueSeg(){
+  const {data,error}=await sb.from('estoque_seg').select('codigo,quantidade');
+  if(error){console.error('SB load est_seg:',error);return;}
+  if(!data||!data.length)return;
+  data.forEach(r=>{estSeg[r.codigo]=r.quantidade;});
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+}
+
+async function sbSalvarEstoqueDados(){
+  const hoje=new Date().toISOString().split('T')[0];
+  // Snapshot: {codigo: total_disponivel}
+  const snapshot={};
+  if(typeof PRODS_SITE!=='undefined'){
+    PRODS_SITE.forEach(function(p){
+      var d=estDados[p[0]];
+      var total=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
+      snapshot[p[0]]=total;
+    });
+  }
+  const user=sbUser();
+  const {error}=await sb.from('estoque_saldos').upsert({data:hoje,saldos:snapshot,upload_por:user},{onConflict:'data'});
+  if(error){console.error('SB est_saldos erro:',error);}
+  else{sbToast('Saldos de estoque salvos na nuvem ✓','verde');}
+}
+
+async function sbCarregarEstoqueDados(){
+  // Carregar o snapshot mais recente
+  const {data,error}=await sb.from('estoque_saldos').select('*').order('data',{ascending:false}).limit(1).maybeSingle();
+  if(error||!data)return;
+  var el=document.getElementById('estUploadInfo');
+  if(el&&data.data){
+    var d=new Date(data.data+'T12:00:00');
+    var fmt=d.toLocaleDateString('pt-BR');
+    el.textContent='📅 Último upload: '+fmt+' — '+(data.upload_por||'')+(data.saldos?(' — '+Object.keys(data.saldos).length+' produtos'):'')+' (Supabase)';
+  }
+}
 </script>
 </body>
 </html>
