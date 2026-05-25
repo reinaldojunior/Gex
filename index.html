@@ -2122,8 +2122,77 @@ function snap(){
 
 function salvarCot(){
   const s=snap();
-  try{let h=JSON.parse(localStorage.getItem('ph')||'[]');h=h.filter(x=>x.num!==s.num);h.unshift(s);if(h.length>20)h=h.slice(0,20);localStorage.setItem('ph',JSON.stringify(h));carregarHist();showT('Cotação salva ✓','verde');}
-  catch(e){showT('Erro ao salvar','erro');}
+  // Local backup
+  try{let h=JSON.parse(localStorage.getItem('ph')||'[]');h=h.filter(x=>x.num!==s.num);h.unshift(s);if(h.length>20)h=h.slice(0,20);localStorage.setItem('ph',JSON.stringify(h));carregarHist();}catch(e){}
+  // Supabase
+  salvarCotSupabase(s);
+}
+
+async function salvarCotSupabase(s){
+  try{
+    var payload={
+      num:s.num, cliente:s.cliente||'', cnpj:s.cd?.cnpj||'',
+      endereco:s.cd?.endereco||'', cidade:s.cd?.cidade||'',
+      estado:s.cd?.estadoCliente||'', cep:s.cd?.cep||'',
+      email:s.cd?.email||'', telefone:s.cd?.telefone||'',
+      responsavel:s.cd?.responsavel||'', vendedor:s.cd?.vendedor||'',
+      tabela:s.tab, uf:s.uf, modo:s.modo,
+      itens:s.itens, condicoes:s.cond||{},
+      total:s.total, data_cot:s.data||null,
+      criado_por:gexUser?gexUser.username:''
+    };
+    // Verificar se já existe
+    var check=await fetch(SUPA_URL+'/rest/v1/cotacoes?num=eq.'+encodeURIComponent(s.num)+'&select=id',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+    var exists=await check.json();
+    if(exists&&exists.length){
+      await fetch(SUPA_URL+'/rest/v1/cotacoes?num=eq.'+encodeURIComponent(s.num),{
+        method:'PATCH',
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+    } else {
+      await fetch(SUPA_URL+'/rest/v1/cotacoes',{
+        method:'POST',
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+    }
+    showT('Cotação salva ✓','verde');
+  }catch(e){showT('Salvo localmente (offline)','verde');console.warn(e);}
+}
+
+async function carregarCotacoesSupabase(){
+  try{
+    var res=await fetch(SUPA_URL+'/rest/v1/cotacoes?select=*&order=created_at.desc&limit=50',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+    var data=await res.json();
+    if(data&&data.length){
+      var h=data.map(function(c){return{
+        num:c.num, cliente:c.cliente, uf:c.uf, tab:c.tabela,
+        total:parseFloat(c.total)||0, data:c.data_cot,
+        modo:c.modo, itens:c.itens||[], cd:{
+          cnpj:c.cnpj,razaoSocial:c.cliente,endereco:c.endereco,
+          cidade:c.cidade,estadoCliente:c.estado,cep:c.cep,
+          email:c.email,telefone:c.telefone,
+          responsavel:c.responsavel,vendedor:c.vendedor
+        }, cond:c.condicoes||{}
+      };});
+      localStorage.setItem('ph',JSON.stringify(h));
+      carregarHist();
+    }
+  }catch(e){console.warn('Offline — cotações locais');}
+}
+
+async function deletarCotSupabase(num){
+  try{
+    await fetch(SUPA_URL+'/rest/v1/cotacoes?num=eq.'+encodeURIComponent(num),{
+      method:'DELETE',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+  }catch(e){}
 }
 
 function carregarHist(){
@@ -2195,6 +2264,7 @@ function dupC(num){
 function delC(num){
   if(!confirm(`Excluir ${num}?`))return;
   try{let h=JSON.parse(localStorage.getItem('ph')||'[]');h=h.filter(x=>x.num!==num);localStorage.setItem('ph',JSON.stringify(h));carregarHist();showT('Excluída');}catch(e){}
+  deletarCotSupabase(num);
 }
 
 function novaCot(){iniciarNovaCot();}
@@ -3459,6 +3529,49 @@ function fazerLogout(){
     }catch(e){}
   }
 })();
+
+/* ── ESTOQUE SUPABASE ── */
+async function salvarEstoqueSupabase(dados){
+  try{
+    var hoje=new Date().toISOString().split('T')[0];
+    var snapshot={};
+    if(typeof PRODS_SITE!=='undefined'){
+      PRODS_SITE.forEach(function(p){
+        var d=dados[p[0]];
+        snapshot[p[0]]=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
+      });
+    }
+    await fetch(SUPA_URL+'/rest/v1/estoque_saldos',{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify({data:hoje,saldos:snapshot,upload_por:gexUser?gexUser.username:''})
+    });
+    console.log('Estoque salvo no Supabase ✓');
+  }catch(e){console.warn('Erro ao salvar estoque:',e);}
+}
+
+async function salvarSegSupabase(cod,qtd){
+  try{
+    await fetch(SUPA_URL+'/rest/v1/estoque_seg',{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+      body:JSON.stringify({codigo:cod,quantidade:qtd})
+    });
+  }catch(e){}
+}
+
+async function carregarSegSupabase(){
+  try{
+    var res=await fetch(SUPA_URL+'/rest/v1/estoque_seg?select=codigo,quantidade',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+    var data=await res.json();
+    if(data&&data.length&&typeof estSeg!=='undefined'){
+      data.forEach(function(r){estSeg[r.codigo]=r.quantidade;});
+      try{localStorage.setItem('gex_est_seg',JSON.stringify(estSeg));}catch(e){}
+    }
+  }catch(e){console.warn('Offline — seg local');}
+}
 
 </script>
 </body>
