@@ -2190,7 +2190,8 @@ let modoApp='cotacao',tpTipo='cf',tpUf='';
 window.addEventListener('DOMContentLoaded',function(){
   var dc=document.getElementById('dataCot');
   if(dc)dc.value=new Date().toISOString().split('T')[0];
-  gerarNum(); carregarHist(); renderHome();
+  gerarNum(); renderHome();
+  // carregarHist() é chamado pelo sbCarregarCotacoes após login
 });
 
 /* ══════════════════════════════════════
@@ -4247,7 +4248,6 @@ async function sbCarregarCotacoes(){
   const {data,error}=await sb.from('cotacoes').select('*').order('created_at',{ascending:false}).limit(100);
   if(error){console.error('SB load cotacoes:',error);return;}
   if(!data)return;
-  // Guardar em cache de memória
   window._sbCotCache=data.map(r=>({
     num:r.num,
     cliente:r.cliente||'',
@@ -4261,6 +4261,13 @@ async function sbCarregarCotacoes(){
     cond:r.condicoes||{}
   }));
   carregarHist();
+  // Atualizar contador do home
+  var hmC=document.getElementById('hmCotacoes');
+  if(hmC)hmC.textContent=window._sbCotCache.length;
+  var mesAtual=new Date().toISOString().substring(0,7);
+  var cotsMes=(window._sbCotCache||[]).filter(function(c){return(c.data||'').substring(0,7)===mesAtual;}).length;
+  var hmCM=document.getElementById('hmCotMes');
+  if(hmCM){hmCM.textContent=cotsMes+' este mês';if(cotsMes>0)hmCM.className='metric-badge up';}
 }
 
 async function sbDeletarCotacao(num){
