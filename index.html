@@ -33,18 +33,17 @@
   --shadow-lg:0 12px 32px rgba(124,58,237,.12),0 4px 12px rgba(26,31,54,.1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',system-ui,sans-serif;color:var(--texto);font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden;background:#0a0e2e}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--texto);font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden;background:#f0f4ff}
 body::before{content:'';position:fixed;inset:0;z-index:-1;
-  background:linear-gradient(160deg,#0a1628 0%,#0d1f5e 20%,#1a1060 40%,#2d1b69 55%,#6b2fa0 70%,#c2410c 88%,#ea580c 100%);
+  background:linear-gradient(135deg,#ffffff 0%,#e8f0fe 20%,#ede9fe 45%,#fce7f3 65%,#fff7ed 85%,#ffffff 100%);
   background-size:400% 400%;
-  animation:gradientBG 18s ease infinite}
+  animation:gradientBG 35s ease infinite}
 body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(ellipse 80% 40% at 50% 100%,rgba(251,146,60,.35) 0%,transparent 55%),
-    radial-gradient(ellipse 60% 50% at 0% 30%,rgba(109,40,217,.3) 0%,transparent 50%),
-    radial-gradient(ellipse 50% 40% at 100% 20%,rgba(29,78,216,.25) 0%,transparent 45%),
-    radial-gradient(ellipse 40% 30% at 50% 50%,rgba(139,92,246,.1) 0%,transparent 60%);
-  animation:blobAnim 23s ease infinite alternate}
+    radial-gradient(ellipse 70% 50% at 80% 10%,rgba(196,181,253,.25) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 45% at 10% 80%,rgba(147,197,253,.2) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(251,207,232,.15) 0%,transparent 60%);
+  animation:blobAnim 30s ease infinite alternate}
 @keyframes gradientBG{
   0%{background-position:0% 50%}
   33%{background-position:100% 0%}
@@ -500,7 +499,7 @@ tbody tr:hover{background:#f5f3ff}
 .frete-filter-btn.f-entregue.active{border-color:#16a34a;color:#16a34a;background:#f0fdf4}
 .frete-filter-btn.f-ocorrencia.active{border-color:#7c3aed;color:#7c3aed;background:#faf5ff}
 /* Cards de NF */
-.nf-card{background:var(--card);border:1.5px solid var(--borda);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:.2s;border-left:4px solid var(--borda)}
+.nf-card{background:rgba(255,255,255,.70);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.85);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:.2s;border-left:4px solid var(--borda)}
 .nf-card.aguardando{border-left-color:#ef4444}
 .nf-card.transito{border-left-color:#f97316}
 .nf-card.entregue{border-left-color:#16a34a}
@@ -632,15 +631,15 @@ tbody tr:hover{background:#f5f3ff}
 }
 
 /* ── LAYOUT SIDEBAR ── */
-.app-layout{display:flex;height:100%;background:rgba(255,255,255,0.82);
-  backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
-  border-radius:24px;overflow:hidden;
-  border:4.5px solid #000000;
-  box-shadow:0 40px 100px rgba(0,0,0,.7);
+.app-layout{display:flex;height:100%;background:rgba(255,255,255,0.60);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 8px 40px rgba(99,102,241,.08),0 2px 8px rgba(0,0,0,.05);
   position:relative;z-index:1}
 @media(min-width:769px){
   body{padding:2vh 4vw 4vh 4vw;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
-  .app-layout{width:92vw;height:94vh;max-width:1440px;overflow:hidden}
+  .app-layout{width:98vw;height:98vh;max-width:1440px;overflow:hidden}
   .main-area{overflow:hidden;display:flex;flex-direction:column;height:100%}
   .main-content{flex:1;overflow-y:auto;overflow-x:hidden;height:0}
 }
@@ -691,7 +690,7 @@ tbody tr:hover{background:#f5f3ff}
   /* Sidebar recolhido no mobile: mostrar tooltip */
   .sidebar.recolhido .sidebar-item:hover::after{left:64px!important}
 }
-.sidebar{width:fit-content;min-width:0;max-width:none;height:100%;background:linear-gradient(135deg,rgba(15,37,87,.97) 0%,rgba(26,58,122,.95) 50%,rgba(30,74,172,.93) 100%);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;flex-shrink:0;z-index:100;transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;position:relative}
+.sidebar{width:fit-content;min-width:0;max-width:none;height:100%;background:linear-gradient(135deg,rgba(30,64,175,.88) 0%,rgba(37,99,235,.82) 50%,rgba(59,130,246,.78) 100%);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-right:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;flex-shrink:0;z-index:100;transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;position:relative}
 .sidebar.recolhido{width:fit-content;min-width:0;overflow:hidden;border-right:1px solid #e8edf5}
 .main-area{flex:1;margin-left:0;display:flex;flex-direction:column;overflow:hidden}
 .main-area.expandido{margin-left:0}
@@ -958,20 +957,20 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   height:100%;background:linear-gradient(180deg,#60a5fa,#3b82f6);border-radius:14px 0 0 14px}
 .condicoes-card:hover{box-shadow:0 4px 16px rgba(96,165,250,.12);border-color:rgba(96,165,250,.25)}
 
-.tabela-card{background:rgba(255,255,255,.82);backdrop-filter:blur(8px);
-  border-radius:14px;border:1px solid rgba(96,165,250,.12);
-  overflow:hidden;box-shadow:0 2px 8px rgba(30,41,59,.06);margin-bottom:14px}
+.tabela-card{background:rgba(255,255,255,.70);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius:14px;border:1px solid rgba(255,255,255,.85);
+  overflow:hidden;box-shadow:0 2px 12px rgba(99,102,241,.07);margin-bottom:14px}
 
-.historico-card{background:rgba(255,255,255,.82);backdrop-filter:blur(8px);
-  border-radius:14px;border:1px solid rgba(96,165,250,.12);
+.historico-card{background:rgba(255,255,255,.70);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius:14px;border:1px solid rgba(255,255,255,.85);
   padding:18px 22px;margin-bottom:14px;
-  box-shadow:0 2px 8px rgba(30,41,59,.06);position:relative;overflow:hidden}
+  box-shadow:0 2px 12px rgba(99,102,241,.07);position:relative;overflow:hidden}
 .historico-card::before{content:'';position:absolute;top:0;left:0;width:3px;
   height:100%;background:linear-gradient(180deg,#60a5fa,#3b82f6);border-radius:14px 0 0 14px}
 
-.modulo-card{background:rgba(255,255,255,.82);backdrop-filter:blur(8px);
-  border-radius:14px;border:1px solid rgba(96,165,250,.12);
-  box-shadow:0 2px 8px rgba(30,41,59,.06);margin-bottom:14px;overflow:hidden}
+.modulo-card{background:rgba(255,255,255,.70);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius:14px;border:1px solid rgba(255,255,255,.85);
+  box-shadow:0 2px 12px rgba(99,102,241,.07);margin-bottom:14px;overflow:hidden}
 
 /* Acento colorido nos cards de métricas do dashboard */
 .metric-card.roxo::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
@@ -991,21 +990,21 @@ tbody tr.bonif-row:hover{background:#dcfce7}
 tbody tr.bonif-row td{padding:7px 10px}
 thead th{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
   color:var(--muted);padding:10px 10px;border-bottom:2px solid var(--borda)}
-.tabela-head{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.1);
-  background:linear-gradient(135deg,rgba(15,37,87,.97),rgba(26,58,122,.95),rgba(30,74,172,.93));
+.tabela-head{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.2);
+  background:linear-gradient(135deg,rgba(30,64,175,.88),rgba(37,99,235,.82),rgba(59,130,246,.78));
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .tabela-title{font-size:13px;font-weight:700;color:#fff;letter-spacing:-.1px}
 
 /* ── GRAIN REFINADO ── */
 body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  opacity:.025;
+  opacity:.012;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:256px 256px}
 
 /* ── DASHBOARD ── */
-.metric-card{background:rgba(255,255,255,.80);backdrop-filter:blur(8px);
-  border-radius:14px;border:1px solid rgba(96,165,250,.1);
-  padding:16px 18px;box-shadow:0 2px 8px rgba(30,41,59,.06);
+.metric-card{background:rgba(255,255,255,.70);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius:14px;border:1px solid rgba(255,255,255,.85);
+  padding:16px 18px;box-shadow:0 2px 12px rgba(99,102,241,.07);
   cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
 .metric-card::before{content:'';position:absolute;top:0;left:0;right:0;
   height:3px;border-radius:14px 14px 0 0}
@@ -1046,8 +1045,8 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 /* 2. Fundo levemente diferente no main-content */
 .main-area{background:#f0f4fa}
-.content-body{background:#fff;min-height:100%;
-  box-shadow:inset -1px 0 0 #e8edf5}
+.content-body{background:transparent;min-height:100%;
+  box-shadow:none}
 
 /* 3. Padding bottom generoso + linha de fechamento em cada seção */
 #secaoHome,#secaoCotacao,#secaoTabela,#secaoAmostras,
