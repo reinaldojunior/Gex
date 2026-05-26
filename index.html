@@ -1430,6 +1430,50 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <div id="homeFretesAtivos">
       <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum frete em andamento</div>
     </div>
+
+    <!-- Dashboard Estoque -->
+    <div id="homeEstoqueSection" style="display:none">
+      <div class="home-section-title" style="margin-top:24px">📦 Estoque — Visão Geral <span onclick="setModoApp('estoque')" style="cursor:pointer;color:#7c3aed">ver completo →</span></div>
+
+      <!-- Cards estoque -->
+      <div class="home-grid-4" style="margin-bottom:16px">
+        <div class="metric-card vermelho" onclick="setModoApp('estoque')" style="cursor:pointer">
+          <span class="metric-icon">🏭</span>
+          <div class="metric-valor" id="hmEstProduzir" style="color:#dc2626">0</div>
+          <div class="metric-label">A Produzir</div>
+          <div class="metric-sub"><span class="metric-badge" id="hmEstProduzirSub" style="background:#fef2f2;color:#dc2626">abaixo do seg.</span></div>
+        </div>
+        <div class="metric-card vermelho" onclick="setModoApp('estoque')" style="cursor:pointer">
+          <span class="metric-icon">⚠️</span>
+          <div class="metric-valor" id="hmEstZerado" style="color:#dc2626">0</div>
+          <div class="metric-label">Produtos Zerados</div>
+          <div class="metric-sub"><span class="metric-badge" style="background:#fef2f2;color:#dc2626">saldo = 0</span></div>
+        </div>
+        <div class="metric-card laranja" onclick="setModoApp('estoque')" style="cursor:pointer">
+          <span class="metric-icon">⏳</span>
+          <div class="metric-valor" id="hmEstVencendo" style="color:#f97316">0</div>
+          <div class="metric-label">Lotes Vencendo</div>
+          <div class="metric-sub"><span class="metric-badge" style="background:#fff7ed;color:#f97316">em 6 meses</span></div>
+        </div>
+        <div class="metric-card verde" onclick="setModoApp('estoque')" style="cursor:pointer">
+          <span class="metric-icon">✅</span>
+          <div class="metric-valor" id="hmEstOk" style="color:#16a34a">0</div>
+          <div class="metric-label">Produtos OK</div>
+          <div class="metric-sub"><span class="metric-badge" style="background:#f0fdf4;color:#16a34a">acima do seg.</span></div>
+        </div>
+      </div>
+
+      <!-- Gráfico top déficit -->
+      <div class="modulo-card" style="margin-bottom:14px">
+        <div class="tabela-head" style="border-radius:14px 14px 0 0">
+          <div class="tabela-title">📊 Top Produtos a Produzir</div>
+        </div>
+        <div style="padding:16px 20px" id="hmEstGrafico">
+          <div style="text-align:center;color:var(--muted);font-size:13px">Sem dados de produção</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- SEÇÃO COTAÇÃO -->
@@ -1735,8 +1779,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           <div class="card-title" style="margin-bottom:4px">📦 Estoque — Produtos Acabados (ACA)</div>
           <div id="estUploadInfo" style="font-size:11px;color:var(--muted)">Nenhum relatório carregado.</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <button class="btn-pdf" onclick="document.getElementById('inputEstoque').click()" style="font-size:12px;padding:8px 16px">📂 Carregar Relatório Excel</button>
+          <button class="btn-pdf" onclick="sbSalvarTodosSeg()" id="btnSalvarSeg" style="font-size:12px;padding:8px 16px;background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 2px 8px rgba(5,150,105,.3)">💾 Salvar Est. Segurança</button>
           <input type="file" id="inputEstoque" accept=".xlsx,.xls" style="display:none" onchange="processarEstoque(this)">
         </div>
       </div>
@@ -1786,6 +1831,54 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div style="font-size:48px;margin-bottom:12px">📦</div>
       <div style="font-size:14px;font-weight:600;margin-bottom:6px">Carregue o relatório do ERP</div>
       <div style="font-size:12px">Clique em "Carregar Relatório Excel" para importar o relatório diário</div>
+    </div>
+
+    <!-- Mini Relatório -->
+    <div id="estRelatorio" style="display:none;margin-top:14px">
+      <!-- Produzir -->
+      <div class="modulo-card" style="margin-bottom:14px">
+        <div class="tabela-head" style="border-radius:14px 14px 0 0">
+          <div class="tabela-title">🏭 Necessidade de Produção</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7)" id="estRelProduzirCount"></div>
+        </div>
+        <div style="padding:0">
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="background:#fef2f2">
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#991b1b;text-align:left">Produto</th>
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#991b1b;text-align:center;width:80px">Saldo</th>
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#991b1b;text-align:center;width:80px">Seg.</th>
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#991b1b;text-align:center;width:90px">A Produzir</th>
+              </tr>
+            </thead>
+            <tbody id="estRelProduzirBody"></tbody>
+          </table>
+          <div id="estRelProduzirVazio" style="display:none;padding:20px;text-align:center;color:#16a34a;font-size:13px;font-weight:600">✅ Todos os produtos acima do estoque de segurança!</div>
+        </div>
+      </div>
+
+      <!-- Vencimentos -->
+      <div class="modulo-card">
+        <div class="tabela-head" style="border-radius:14px 14px 0 0">
+          <div class="tabela-title">⏳ Lotes Próximos ao Vencimento <span style="font-size:10px;font-weight:400;opacity:.7">(menos de 6 meses)</span></div>
+          <div style="font-size:11px;color:rgba(255,255,255,.7)" id="estRelVencCount"></div>
+        </div>
+        <div style="padding:0">
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="background:#fffbeb">
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#92400e;text-align:left">Produto</th>
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#92400e;text-align:center;width:100px">Lote</th>
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#92400e;text-align:center;width:80px">Qtd</th>
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#92400e;text-align:center;width:100px">Validade</th>
+                <th style="padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#92400e;text-align:center;width:80px">Status</th>
+              </tr>
+            </thead>
+            <tbody id="estRelVencBody"></tbody>
+          </table>
+          <div id="estRelVencVazio" style="display:none;padding:20px;text-align:center;color:#16a34a;font-size:13px;font-weight:600">✅ Nenhum lote crítico nos próximos 6 meses!</div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -3697,6 +3790,7 @@ function processarBuffer(buffer,filename){
     document.getElementById('estVazio').style.display='none';
     document.getElementById('estTabela').style.display='block';
     renderEstoque('');
+    renderRelatorioEstoque();
     // Supabase — salvar snapshot de saldos
     sbSalvarEstoqueDados().catch(e=>console.error(e));
     showT('Estoque carregado — '+Object.keys(estDados).length+' produtos no ACA','verde');
@@ -3890,6 +3984,147 @@ async function adicionarCodAlt(codPrincipal){
   showT('Código '+novo+' vinculado ✓','verde');
 }
 
+function renderRelatorioEstoque(){
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var seisM=new Date(hoje);seisM.setMonth(seisM.getMonth()+6);
+
+  // ── Produzir ──
+  var produzir=[];
+  if(typeof PRODS_SITE!=='undefined'){
+    PRODS_SITE.forEach(function(p){
+      var cod=p[0],nome=p[1];
+      var d=estDados[cod];
+      var total=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
+      var seg=parseInt(estSeg[cod])||0;
+      if(seg>0&&total<seg){produzir.push({cod,nome,total,seg,deficit:seg-total});}
+    });
+  }
+  produzir.sort(function(a,b){return b.deficit-a.deficit;});
+
+  var tbody=document.getElementById('estRelProduzirBody');
+  var vazio=document.getElementById('estRelProduzirVazio');
+  var count=document.getElementById('estRelProduzirCount');
+  if(count)count.textContent=produzir.length+' produto'+(produzir.length!==1?'s':'');
+  if(!produzir.length){
+    if(tbody)tbody.innerHTML='';
+    if(vazio)vazio.style.display='block';
+  } else {
+    if(vazio)vazio.style.display='none';
+    if(tbody)tbody.innerHTML=produzir.map(function(r){
+      return '<tr style="border-bottom:1px solid #fee2e2">'+
+        '<td style="padding:8px 12px;font-size:12px;font-weight:500">'+r.nome+'</td>'+
+        '<td style="padding:8px 12px;font-size:12px;text-align:center;color:#64748b">'+r.total+'</td>'+
+        '<td style="padding:8px 12px;font-size:12px;text-align:center;color:#64748b">'+r.seg+'</td>'+
+        '<td style="padding:8px 12px;font-size:12px;text-align:center;font-weight:700;color:#dc2626">'+r.deficit+'</td>'+
+      '</tr>';
+    }).join('');
+  }
+
+  // ── Vencimentos ──
+  var vencendo=[];
+  if(typeof PRODS_SITE!=='undefined'){
+    PRODS_SITE.forEach(function(p){
+      var cod=p[0],nome=p[1];
+      var d=estDados[cod];
+      if(!d)return;
+      var lotesRel=[];
+      d.lotes.forEach(function(l){
+        if(!l.val||l.disp<=0)return;
+        var v=new Date(l.val);v.setHours(0,0,0,0);
+        if(v<=seisM){
+          var meses=(v-hoje)/(1000*60*60*24*30.44);
+          var cor=meses<0?'#1e293b':meses<3?'#dc2626':'#f97316';
+          var label=meses<0?'Vencido':meses<3?'Crítico <3m':'Atenção <6m';
+          lotesRel.push({lote:l.lote,disp:l.disp,val:v,meses:meses,cor:cor,label:label});
+        }
+      });
+      if(lotesRel.length){
+        lotesRel.sort(function(a,b){return a.meses-b.meses;});
+        vencendo.push({cod,nome,lotes:lotesRel});
+      }
+    });
+  }
+  vencendo.sort(function(a,b){return a.lotes[0].meses-b.lotes[0].meses;});
+
+  var tbody2=document.getElementById('estRelVencBody');
+  var vazio2=document.getElementById('estRelVencVazio');
+  var count2=document.getElementById('estRelVencCount');
+  var totalLotes=vencendo.reduce(function(s,r){return s+r.lotes.length;},0);
+  if(count2)count2.textContent=totalLotes+' lote'+(totalLotes!==1?'s':'');
+  if(!vencendo.length){
+    if(tbody2)tbody2.innerHTML='';
+    if(vazio2)vazio2.style.display='block';
+  } else {
+    if(vazio2)vazio2.style.display='none';
+    if(tbody2)tbody2.innerHTML=vencendo.map(function(r){
+      return r.lotes.map(function(l,i){
+        var dataFmt=l.val.toLocaleDateString('pt-BR');
+        return '<tr style="border-bottom:1px solid #fef3c7">'+
+          '<td style="padding:8px 12px;font-size:12px;font-weight:'+(i===0?'600':'400')+';color:'+(i===0?'#1e293b':'#64748b')+'">'+
+            (i===0?r.nome:'')+'</td>'+
+          '<td style="padding:8px 12px;font-size:11px;text-align:center;font-family:monospace;color:#64748b">'+l.lote+'</td>'+
+          '<td style="padding:8px 12px;font-size:12px;text-align:center;font-weight:600">'+l.disp+'</td>'+
+          '<td style="padding:8px 12px;font-size:12px;text-align:center">'+dataFmt+'</td>'+
+          '<td style="padding:8px 12px;text-align:center"><span style="font-size:10px;font-weight:700;color:#fff;background:'+l.cor+';padding:2px 8px;border-radius:20px">'+l.label+'</span></td>'+
+        '</tr>';
+      }).join('');
+    }).join('');
+  }
+
+  // Mostrar relatório
+  var rel=document.getElementById('estRelatorio');
+  if(rel)rel.style.display='block';
+
+  // Atualizar dashboard home
+  atualizarDashboardEstoque(produzir,vencendo);
+}
+
+function atualizarDashboardEstoque(produzir,vencendo){
+  var section=document.getElementById('homeEstoqueSection');
+  if(section)section.style.display='block';
+
+  // Zerados
+  var zerados=0;
+  if(typeof PRODS_SITE!=='undefined'){
+    PRODS_SITE.forEach(function(p){
+      var d=estDados[p[0]];
+      var total=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
+      if(total<=0)zerados++;
+    });
+  }
+
+  // OK
+  var totalProd=typeof PRODS_SITE!=='undefined'?PRODS_SITE.length:0;
+  var ok=totalProd-produzir.length-zerados;if(ok<0)ok=0;
+  var totalLotes=vencendo.reduce(function(s,r){return s+r.lotes.length;},0);
+
+  var el=function(id){return document.getElementById(id);};
+  if(el('hmEstProduzir'))el('hmEstProduzir').textContent=produzir.length;
+  if(el('hmEstZerado'))el('hmEstZerado').textContent=zerados;
+  if(el('hmEstVencendo'))el('hmEstVencendo').textContent=totalLotes;
+  if(el('hmEstOk'))el('hmEstOk').textContent=ok;
+
+  // Gráfico barras — top 8 déficit
+  var graf=el('hmEstGrafico');
+  if(!graf)return;
+  if(!produzir.length){graf.innerHTML='<div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">✅ Nenhum produto abaixo do estoque de segurança</div>';return;}
+  var top=produzir.slice(0,8);
+  var maxDef=top[0].deficit||1;
+  graf.innerHTML='<div style="display:flex;flex-direction:column;gap:8px">'+
+    top.map(function(r){
+      var pct=Math.round((r.deficit/maxDef)*100);
+      var nomeC=r.nome.length>35?r.nome.substring(0,35)+'…':r.nome;
+      return '<div style="display:flex;align-items:center;gap:10px">'+
+        '<div style="width:180px;font-size:11px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0" title="'+r.nome+'">'+nomeC+'</div>'+
+        '<div style="flex:1;background:#f1f5f9;border-radius:6px;height:20px;position:relative;overflow:hidden">'+
+          '<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#dc2626,#f87171);border-radius:6px;transition:width .4s"></div>'+
+          '<span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:#dc2626">'+r.deficit+'</span>'+
+        '</div>'+
+      '</div>';
+    }).join('')+
+  '</div>';
+}
+
 async function removerCodAlt(codPrincipal,codAlt){
   if(!estCodAlts[codPrincipal])return;
   const {error}=await sb.from('estoque_cod_alts').delete().eq('cod_principal',codPrincipal).eq('cod_alt',codAlt);
@@ -3972,9 +4207,9 @@ function sbToast(msg,tipo){
 async function sbCarregarTudo(){
   await sbCarregarCotacoes();
   await sbCarregarFretes();
-  await sbCarregarEstoqueSeg();
-  await sbCarregarEstoqueCodAlts();
-  await sbCarregarEstoqueDados();
+  await sbCarregarEstoqueSeg();      // seg primeiro
+  await sbCarregarEstoqueCodAlts();  // depois alts
+  await sbCarregarEstoqueDados();    // depois dados completos (chama renderEstoque com seg já carregado)
   await sbCarregarEstoqueHist();
 }
 
@@ -4108,6 +4343,20 @@ async function sbSalvarEstoqueSeg(cod,qtd){
   if(error){console.error('SB est_seg erro:',error);}
 }
 
+async function sbSalvarTodosSeg(){
+  const btn=document.getElementById('btnSalvarSeg');
+  if(btn){btn.textContent='⏳ Salvando...';btn.disabled=true;}
+  try{
+    const rows=Object.keys(estSeg).map(cod=>({codigo:cod,quantidade:estSeg[cod]||0}));
+    if(!rows.length){showT('Nenhum valor para salvar','');return;}
+    console.log('SB seg: salvando',rows.length,'registros, exemplo:',JSON.stringify(rows[0]));
+    const {error}=await sb.from('estoque_seg').upsert(rows,{onConflict:'codigo'});
+    if(error){console.error('SB seg_todos erro:',JSON.stringify(error));showT('Erro ao salvar: '+error.message,'erro');}
+    else{showT('Estoque de segurança salvo ✓','verde');}
+  }catch(e){console.error(e);showT('Erro ao salvar','erro');}
+  finally{if(btn){btn.textContent='💾 Salvar Est. Segurança';btn.disabled=false;}}
+}
+
 async function sbCarregarEstoqueCodAlts(){
   const {data,error}=await sb.from('estoque_cod_alts').select('cod_principal,cod_alt');
   if(error){console.error('SB load cod_alts:',error);return;}
@@ -4150,7 +4399,11 @@ async function sbCarregarEstoqueSeg(){
 
 async function sbSalvarEstoqueDados(){
   const hoje=new Date().toISOString().split('T')[0];
-  // Snapshot: {codigo: total_disponivel}
+  const user=sbUser();
+  const totalLinhas=Object.keys(estDados).length;
+  if(!totalLinhas){sbToast('Nenhum dado para salvar','');return;}
+
+  // 1. Salvar snapshot de totais em estoque_saldos (histórico)
   const snapshot={};
   if(typeof PRODS_SITE!=='undefined'){
     PRODS_SITE.forEach(function(p){
@@ -4159,22 +4412,85 @@ async function sbSalvarEstoqueDados(){
       snapshot[p[0]]=total;
     });
   }
-  const user=sbUser();
-  const {error}=await sb.from('estoque_saldos').upsert({data:hoje,saldos:snapshot,upload_por:user},{onConflict:'data'});
-  if(error){console.error('SB est_saldos erro:',error);}
-  else{sbToast('Saldos de estoque salvos na nuvem ✓','verde');}
+  await sb.from('estoque_saldos').upsert({data:hoje,saldos:snapshot,upload_por:user},{onConflict:'data'});
+
+  // 2. Salvar produto por produto na estoque_dados
+  const infoTxt=document.getElementById('estUploadInfo')?document.getElementById('estUploadInfo').textContent:'';
+  const rows=Object.keys(estDados).map(function(cod){
+    var d=estDados[cod];
+    return {
+      data:hoje,
+      codigo:cod,
+      nome:d.nome||'',
+      unid:d.unid||'UN',
+      lotes:d.lotes.map(function(l){
+        return {lote:l.lote||'',disp:l.disp||0,status:l.status||'',
+          val:l.val instanceof Date?l.val.toISOString():l.val||null};
+      }),
+      upload_por:user
+    };
+  });
+
+  // Deletar registros do dia e reinserir (mais confiável que upsert composto)
+  const {error:eDel}=await sb.from('estoque_dados').delete().eq('data',hoje);
+  if(eDel){console.error('SB del erro:',JSON.stringify(eDel));sbToast('Erro ao limpar dados antigos','erro');return;}
+
+  var erros=0;
+  for(var i=0;i<rows.length;i+=50){
+    var chunk=rows.slice(i,i+50);
+    var {error}=await sb.from('estoque_dados').insert(chunk);
+    if(error){
+      console.error('SB est_dados chunk erro:',JSON.stringify(error));
+      console.error('Primeiro item do chunk:',JSON.stringify(chunk[0]));
+      erros++;
+      break; // para no primeiro erro para não repetir
+    }
+  }
+
+  if(erros>0){sbToast('Erro ao salvar alguns produtos','erro');}
+  else{sbToast('Estoque salvo na nuvem ✓','verde');}
 }
 
 async function sbCarregarEstoqueDados(){
-  // Carregar o snapshot mais recente
-  const {data,error}=await sb.from('estoque_saldos').select('*').order('data',{ascending:false}).limit(1).maybeSingle();
-  if(error||!data)return;
+  // Buscar a data mais recente
+  const {data:datas,error:e1}=await sb.from('estoque_dados').select('data').order('data',{ascending:false}).limit(1).maybeSingle();
+  if(e1||!datas){console.log('SB est_dados: nenhum dado encontrado');return;}
+
+  const dataRecente=datas.data;
+
+  // Buscar todos os produtos dessa data
+  const {data,error:e2}=await sb.from('estoque_dados').select('codigo,nome,unid,lotes,upload_por').eq('data',dataRecente);
+  if(e2||!data||!data.length){console.log('SB est_dados: erro ao carregar produtos');return;}
+
+  console.log('SB est_dados: restaurando',data.length,'produtos de',dataRecente);
+
+  // Restaurar estDados
+  estDados={};
+  data.forEach(function(r){
+    estDados[r.codigo]={
+      nome:r.nome||'',
+      unid:r.unid||'UN',
+      lotes:(r.lotes||[]).map(function(l){
+        return {lote:l.lote||'',disp:l.disp||0,status:l.status||'',
+          val:l.val?new Date(l.val):null};
+      })
+    };
+  });
+
+  // Atualizar UI
   var el=document.getElementById('estUploadInfo');
-  if(el&&data.data){
-    var d=new Date(data.data+'T12:00:00');
-    var fmt=d.toLocaleDateString('pt-BR');
-    el.textContent='📅 Último upload: '+fmt+' — '+(data.upload_por||'')+(data.saldos?(' — '+Object.keys(data.saldos).length+' produtos'):'')+' (Supabase)';
+  if(el){
+    var dtFmt=new Date(dataRecente+'T12:00:00').toLocaleDateString('pt-BR');
+    var uploadPor=data[0].upload_por||'';
+    el.textContent='📅 Último upload: '+dtFmt+(uploadPor?' — por '+uploadPor:'')+' — '+data.length+' produtos';
   }
+  var tab=document.getElementById('estTabela');
+  var vaz=document.getElementById('estVazio');
+  if(tab)tab.style.display='block';
+  if(vaz)vaz.style.display='none';
+  renderEstoque('');
+  renderRelatorioEstoque();
+  console.log('SB est_dados: estoque restaurado com sucesso');
 }
 </script>
 </body>
