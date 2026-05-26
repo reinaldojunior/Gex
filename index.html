@@ -228,6 +228,7 @@ tbody tr:nth-child(even):hover{background:var(--teal-pale)}
 .obs-input{font-family:'Inter',system-ui,sans-serif;font-size:10px;color:var(--muted);background:transparent;border:none;border-bottom:1px dashed #c5dbd8;width:100%;margin-top:4px;padding:2px 0;outline:none;transition:.2s}
 .obs-input:focus{border-bottom-color:var(--teal-light);color:var(--texto)}
 .obs-input::placeholder{color:#b0cac8;font-style:italic}
+.obs-print{display:none}
 /* ── BUSCA MODAL ── */
 .modal-search{width:100%;padding:9px 14px;border:1px solid var(--borda);border-radius:8px;font-family:'Inter',system-ui,sans-serif;font-size:13px;color:var(--texto);background:#f5faf9;margin-bottom:14px;outline:none;transition:.2s}
 .modal-search:focus{border-color:var(--teal-light);background:#fff}
@@ -2240,7 +2241,7 @@ function renderHome(){
   lics.filter(function(l){return l.data&&l.data>=hoje&&l.data<=em7&&l.status!=='ganho'&&l.status!=='perdido'&&l.status!=='cancelado';}).forEach(function(l){
     alertas.push({cor:'azul',tag:'licit',titulo:'Licitação '+l.num+' em '+l.data.split('-').reverse().join('/'),sub:l.orgao||'—'});
   });
-  var evs=[];try{evs=JSON.parse(localStorage.getItem('proaction_agenda')||'[]');}catch(e){}
+  var evs=eventos||[];
   evs.filter(function(e){return e.data===hoje;}).forEach(function(ev){
     alertas.push({cor:'verde',tag:'agenda',titulo:ev.titulo,sub:ev.local||ev.hora||'Hoje'});
   });
@@ -2396,7 +2397,7 @@ function render(){
     const temBonif=!!BONIF_REGRAS[item.codigo]&&(item.qtd*item.preco)>=10000;
     const bonifBtn=temBonif?`<button class="btn-bonif-toggle ${item.bonifDesativada?'desativada':''}" onclick="toggleBonif('${item.id}')" title="${item.bonifDesativada?'Ativar':'Desativar'} bonificação">${item.bonifDesativada?'🎁 Ativar bonificação':'✕ Desativar bonificação'}</button>`:'';
     const nomeBadge=temBonif&&!item.bonifDesativada?` <span class="bonif-badge">🎁</span>`:'';
-    return `<tr><td class="num">${idx}</td><td><div class="prod-nome">${item.produto}${nomeBadge}</div><div class="prod-cod">${item.codigo}</div><div class="prod-desc-text ${modo}" contenteditable="true" spellcheck="false" data-id="${item.id}" onblur="sDesc('${item.id}',this.textContent)" title="Clique para editar a descrição">${item.descCustom||desc}</div><input type="text" class="obs-input" placeholder="Observação" value="${item.obs||''}" onchange="sObs('${item.id}',this.value)"><div class="obs-print" style="display:none">${item.obs||''}</div>${bonifBtn}</td><td class="apres-col">${item.apresentacao}</td><td class="center"><input type="number" class="qty-input" value="${item.qtd}" min="1" max="9999" onchange="sQ('${item.id}',this.value)"><span class="print-val">${item.qtd}</span></td><td class="un-cell">UN</td><td class="right"><input type="text" class="price-input" value="${item.preco.toFixed(2).replace('.',',')}" onblur="sP('${item.id}',this.value)"><span class="print-val">${item.preco.toFixed(2).replace('.',',')}</span></td><td class="total-cell">R$&nbsp;${parseFloat(tot).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td class="td-del c-del"><button class="btn-del" onclick="rmI('${item.id}')">✕</button></td></tr>`;
+    return `<tr><td class="num">${idx}</td><td><div class="prod-nome">${item.produto}${nomeBadge}</div><div class="prod-cod">${item.codigo}</div><div class="prod-desc-text ${modo}" contenteditable="true" spellcheck="false" data-id="${item.id}" onblur="sDesc('${item.id}',this.textContent)" title="Clique para editar a descrição">${item.descCustom||desc}</div><input type="text" class="obs-input" placeholder="Observação" value="${item.obs||''}" onchange="sObs('${item.id}',this.value)"><div class="obs-print">${item.obs||''}</div>${bonifBtn}</td><td class="apres-col">${item.apresentacao}</td><td class="center"><input type="number" class="qty-input" value="${item.qtd}" min="1" max="9999" onchange="sQ('${item.id}',this.value)"><span class="print-val">${item.qtd}</span></td><td class="un-cell">UN</td><td class="right"><input type="text" class="price-input" value="${item.preco.toFixed(2).replace('.',',')}" onblur="sP('${item.id}',this.value)"><span class="print-val">${item.preco.toFixed(2).replace('.',',')}</span></td><td class="total-cell">R$&nbsp;${parseFloat(tot).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td class="td-del c-del"><button class="btn-del" onclick="rmI('${item.id}')">✕</button></td></tr>`;
   }).join('');
   atualizarTot();
 }
@@ -2467,12 +2468,12 @@ function fecharFormCot(){
   var nc=document.getElementById('numCotacao');if(nc)nc.style.display='none';
 }
 
-function iniciarNovaCot(){
+async function iniciarNovaCot(){
   if(itens.length&&!confirm('Nova cotação? Itens não salvos serão perdidos.'))return;
   itens=[];
   ['cnpj','razaoSocial','responsavel','endereco','cidade','cep','telefone','email','condPag','prazoEntrega','validadeProp','pedidoMin','freteObs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('dataCot').value=new Date().toISOString().split('T')[0];
-  gerarNum();render();mostrarForm();showT('Nova cotação iniciada');
+  await gerarNum();render();mostrarForm();showT('Nova cotação iniciada');
 }
 
 async function loadC(num){
@@ -2517,7 +2518,7 @@ function delC(num){
   showT('Excluída');
 }
 
-function novaCot(){iniciarNovaCot();}
+async function novaCot(){await iniciarNovaCot();}
 
 let _tt;
 function showT(msg,tipo=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+tipo;clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3000);}
@@ -3437,7 +3438,7 @@ function imprimirFrete(tipo){
    AGENDA
 ══════════════════════════════════════ */
 let eventos=[];
-try{eventos=JSON.parse(localStorage.getItem('proaction_agenda')||'[]');}catch(e){}
+// eventos carregados do Supabase via sbCarregarTudo() após login
 let agendaAno=new Date().getFullYear(),agendaMes=new Date().getMonth();
 
 const MEMBROS={
@@ -3447,7 +3448,71 @@ const MEMBROS={
   cris:{nome:'Cris',cor:'#db2777'}
 };
 
-function salvarEventosLS(){localStorage.setItem('proaction_agenda',JSON.stringify(eventos));}
+function salvarEventosLS(){} // mantido por compatibilidade — dados agora no Supabase
+
+function agendaNavMes(dir){
+  agendaMes+=dir;
+  if(agendaMes>11){agendaMes=0;agendaAno++;}
+  if(agendaMes<0){agendaMes=11;agendaAno--;}
+  renderAgenda();
+}
+
+async function salvarEvento(){
+  const titulo=document.getElementById('evTitulo').value.trim();
+  const data=document.getElementById('evData').value;
+  if(!titulo||!data){showT('Informe título e data','erro');return;}
+  const membros=Array.from(document.querySelectorAll('.ev-membro:checked')).map(c=>c.value);
+  const extra={
+    hora:document.getElementById('evHora').value,
+    horaFim:document.getElementById('evHoraFim')?.value||'',
+    dataFim:document.getElementById('evDataFim')?.value||'',
+    local:document.getElementById('evLocal').value.trim(),
+    tipo:document.getElementById('evTipo').value,
+    membros,
+    email:document.getElementById('evEmail').value.trim(),
+    obs:document.getElementById('evObs').value.trim()
+  };
+
+  if(evEditando){
+    // ── EDITAR ──
+    const ev=eventos.find(e=>e.id===evEditando);
+    if(!ev){showT('Evento não encontrado','erro');return;}
+    Object.assign(ev,{titulo,data,...extra});
+    extra.id=ev.id;
+    const payload={data,titulo,descricao:JSON.stringify(extra),tipo:extra.tipo,criado_por:sbUser()};
+    if(ev.sbId){
+      const {error}=await sb.from('agenda').update(payload).eq('id',ev.sbId);
+      if(error){console.error('SB agenda update erro:',error);showT('Erro ao atualizar evento','erro');return;}
+    }
+    fecharModalEvento();renderAgenda();renderProximosEventos();
+    showT('Evento atualizado ✓','verde');
+  } else {
+    // ── NOVO ──
+    const ev={id:Date.now(),titulo,data,...extra};
+    const payload={data,titulo,descricao:JSON.stringify({...extra,id:ev.id}),tipo:extra.tipo,criado_por:sbUser()};
+    const {data:saved,error}=await sb.from('agenda').insert(payload).select().single();
+    if(error){console.error('SB agenda erro:',error);showT('Erro ao salvar evento','erro');return;}
+    ev.sbId=saved.id;
+    eventos.push(ev);
+    fecharModalEvento();renderAgenda();renderProximosEventos();
+    if(ev.email){
+      const evDate=new Date(data+'T12:00:00');
+      const diff=Math.ceil((evDate-new Date())/(1000*60*60*24));
+      if(diff<=2&&diff>=0){enviarNotificacaoEmail(ev);}
+    }
+    showT('Evento salvo ✓','verde');
+  }
+}
+
+async function excluirEvento(id){
+  if(!confirm('Excluir evento?'))return;
+  const ev=eventos.find(e=>e.id===id);
+  if(ev&&ev.sbId){
+    await sb.from('agenda').delete().eq('id',ev.sbId);
+  }
+  eventos=eventos.filter(e=>e.id!==id);
+  renderAgenda();renderProximosEventos();
+}
 
 function agendaNavMes(dir){
   agendaMes+=dir;
@@ -3504,57 +3569,51 @@ function renderProximosEventos(){
         <div class="evento-meta"><span>📅 ${data}${ev.dataFim&&ev.dataFim!==ev.data?' até '+ev.dataFim.split('-').reverse().join('/'):''}${ev.hora?' às '+ev.hora:''}</span>${ev.local?`<span>📍 ${ev.local}</span>`:''}</div>
         <div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap">${membros}</div>
       </div>
+      <button class="reg-btn" onclick="editarEvento(${ev.id})" style="margin-right:4px">✏️</button>
       <button class="reg-btn del" onclick="excluirEvento(${ev.id})">✕</button>
     </div>`;
   }).join('');
 }
 
+let evEditando=null; // id do evento sendo editado
+
 function abrirModalEvento(data=''){
+  evEditando=null;
   const el=document.getElementById('overlayEvento');
   el.style.display='flex';
+  const titulo=document.querySelector('#overlayEvento .modulo-card-title');
+  if(titulo)titulo.textContent='Novo Evento';
   if(data)document.getElementById('evData').value=data;
   else document.getElementById('evData').value=new Date().toISOString().split('T')[0];
 }
 
+function editarEvento(id){
+  const ev=eventos.find(e=>e.id===id);
+  if(!ev)return;
+  evEditando=id;
+  const el=document.getElementById('overlayEvento');
+  el.style.display='flex';
+  const titulo=document.querySelector('#overlayEvento .modulo-card-title');
+  if(titulo)titulo.textContent='Editar Evento';
+  // Preencher campos
+  document.getElementById('evTitulo').value=ev.titulo||'';
+  document.getElementById('evData').value=ev.data||'';
+  if(document.getElementById('evDataFim'))document.getElementById('evDataFim').value=ev.dataFim||'';
+  document.getElementById('evHora').value=ev.hora||'';
+  if(document.getElementById('evHoraFim'))document.getElementById('evHoraFim').value=ev.horaFim||'';
+  document.getElementById('evLocal').value=ev.local||'';
+  document.getElementById('evTipo').value=ev.tipo||'evento';
+  document.getElementById('evEmail').value=ev.email||'';
+  document.getElementById('evObs').value=ev.obs||'';
+  document.querySelectorAll('.ev-membro').forEach(c=>{c.checked=(ev.membros||[]).includes(c.value);});
+}
+
 function fecharModalEvento(){
+  evEditando=null;
   document.getElementById('overlayEvento').style.display='none';
   ['evTitulo','evData','evDataFim','evHora','evHoraFim','evLocal','evEmail','evObs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.querySelectorAll('.ev-membro').forEach(c=>c.checked=false);
   document.getElementById('evTipo').value='evento';
-}
-
-function salvarEvento(){
-  const titulo=document.getElementById('evTitulo').value.trim();
-  const data=document.getElementById('evData').value;
-  if(!titulo||!data){showT('Informe título e data','erro');return;}
-  const membros=Array.from(document.querySelectorAll('.ev-membro:checked')).map(c=>c.value);
-  const ev={
-    id:Date.now(),titulo,data,
-    hora:document.getElementById('evHora').value,horaFim:document.getElementById('evHoraFim')?.value||'',dataFim:document.getElementById('evDataFim')?.value||'',
-    local:document.getElementById('evLocal').value.trim(),
-    tipo:document.getElementById('evTipo').value,
-    membros,
-    email:document.getElementById('evEmail').value.trim(),
-    obs:document.getElementById('evObs').value.trim()
-  };
-  eventos.push(ev);
-  salvarEventosLS();fecharModalEvento();renderAgenda();renderProximosEventos();
-  // Verificar notificação por e-mail (2 dias antes)
-  if(ev.email){
-    const evDate=new Date(data+'T12:00:00');
-    const hoje=new Date();
-    const diff=Math.ceil((evDate-hoje)/(1000*60*60*24));
-    if(diff<=2&&diff>=0){
-      enviarNotificacaoEmail(ev);
-    }
-  }
-  showT('Evento salvo ✓','verde');
-}
-
-function excluirEvento(id){
-  if(!confirm('Excluir evento?'))return;
-  eventos=eventos.filter(e=>e.id!==id);
-  salvarEventosLS();renderAgenda();renderProximosEventos();
 }
 
 function enviarNotificacaoEmail(ev){
@@ -4208,10 +4267,11 @@ function sbToast(msg,tipo){
 async function sbCarregarTudo(){
   await sbCarregarCotacoes();
   await sbCarregarFretes();
-  await sbCarregarEstoqueSeg();      // seg primeiro
-  await sbCarregarEstoqueCodAlts();  // depois alts
-  await sbCarregarEstoqueDados();    // depois dados completos (chama renderEstoque com seg já carregado)
+  await sbCarregarEstoqueSeg();
+  await sbCarregarEstoqueCodAlts();
+  await sbCarregarEstoqueDados();
   await sbCarregarEstoqueHist();
+  await sbCarregarAgenda();
 }
 
 /* ────────────────────────────────────
@@ -4236,7 +4296,7 @@ async function sbSalvarCotacao(snap){
     itens: snap.itens||[],
     condicoes: snap.cond||{},
     total: snap.total||0,
-    data_cot: snap.dataCot||new Date().toISOString().split('T')[0],
+    data_cot: snap.cd?.dataCot||snap.dataCot||new Date().toISOString().split('T')[0],
     criado_por: sbUser()
   };
   const {error}=await sb.from('cotacoes').upsert(payload,{onConflict:'num'});
@@ -4498,6 +4558,32 @@ async function sbCarregarEstoqueDados(){
   renderEstoque('');
   renderRelatorioEstoque();
   console.log('SB est_dados: estoque restaurado com sucesso');
+}
+
+async function sbCarregarAgenda(){
+  const {data,error}=await sb.from('agenda').select('*').order('data',{ascending:true});
+  if(error){console.error('SB agenda load erro:',error);return;}
+  if(!data||!data.length)return;
+  eventos=data.map(function(r){
+    var extra={};
+    try{extra=JSON.parse(r.descricao||'{}');}catch(e){}
+    return {
+      id:extra.id||r.id,
+      sbId:r.id,
+      titulo:r.titulo,
+      data:r.data,
+      hora:extra.hora||'',
+      horaFim:extra.horaFim||'',
+      dataFim:extra.dataFim||'',
+      local:extra.local||'',
+      tipo:r.tipo||'evento',
+      membros:extra.membros||[],
+      email:extra.email||'',
+      obs:extra.obs||''
+    };
+  });
+  renderAgenda();
+  renderProximosEventos();
 }
 </script>
 </body>
