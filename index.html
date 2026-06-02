@@ -33,7 +33,10 @@
   --shadow-lg:0 12px 32px rgba(124,58,237,.12),0 4px 12px rgba(26,31,54,.1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',system-ui,sans-serif;color:var(--texto);font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden;background:#f0f4ff}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--texto);font-size:14px;line-height:1.5;min-height:100vh;overflow:hidden;margin:0;padding:0;
+  background:linear-gradient(160deg,#0a1628 0%,#0d1f5e 20%,#1a1060 40%,#2d1b69 55%,#6b2fa0 70%,#c2410c 88%,#ea580c 100%);
+  background-size:400% 400%;
+  animation:gradientBG 18s ease infinite}
 body::before{content:'';position:fixed;inset:0;z-index:-1;
   background:linear-gradient(135deg,#ffffff 0%,#e8f0fe 20%,#ede9fe 45%,#fce7f3 65%,#fff7ed 85%,#ffffff 100%);
   background-size:400% 400%;
@@ -436,17 +439,21 @@ tbody tr:hover{background:#f5f3ff}
     background:#fff;border-top:1px solid #ccc;padding:4px 14px;font-size:8px;color:#555;text-align:center;line-height:1.6}
   body.modo-tabela-print .corpo{padding-bottom:36px}
   body.modo-tabela-print .corpo{padding-bottom:36px}
-  .tp-cat-header{background:linear-gradient(135deg,#1e3a8a 0%,#1e4aac 50%,#2d1b69 100%)!important;color:#fff!important;font-size:9px!important;padding:5px 10px!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  .tp-cat-header{background:linear-gradient(135deg,#1e3a8a 0%,#1e4aac 50%,#2d1b69 100%)!important;color:#fff!important;font-size:9px!important;padding:5px 10px!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+    break-before:page!important;page-break-before:always!important}
+  .tp-card:first-of-type .tp-cat-header{break-before:avoid!important;page-break-before:avoid!important}
   .tp-cat-header::after{display:none!important}
   .tp-table thead th{font-size:8px!important;padding:3px 6px!important}
   .tp-table tbody td{padding:3px 7px!important;font-size:9px!important;color:#000!important}
   .tp-table td.tp-prod-cell{font-size:9px!important;font-weight:600!important;color:#000!important}
   .tp-table td.tp-preco-cell{font-size:9px!important;font-weight:700!important;color:#000!important;background:#dbeafe!important;text-align:center!important;display:table-cell!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  .tp-card{margin-bottom:3px!important;border-radius:3px!important;background:#fff!important}
+  .tp-card{margin-bottom:3px!important;border-radius:3px!important;background:#fff!important;
+    display:block!important;overflow:visible!important}
+  .tp-cond-dist.tp-cond-visible,.tp-cond-dist[style*="flex"]{
+    display:flex!important;margin-top:5px!important;flex-direction:row!important;gap:4px!important;
+    break-before:page!important;page-break-before:always!important}
   .tp-info-tag{display:none}
   .tp-linha-produtos{display:block!important;font-size:11px!important;padding:3px 0!important;margin-bottom:4px!important;font-weight:700!important}
-  .tp-cond-dist.tp-cond-visible,.tp-cond-dist[style*="flex"]{display:flex!important;margin-top:5px!important;flex-direction:row!important;gap:4px!important}
-  .tp-cond-unico{width:100%!important;background:#fff!important}
   .tp-cond-bloco{padding:3px 7px!important;box-shadow:none!important;border-radius:3px!important;background:#fff!important}
   .tp-cond-titulo{font-size:9px!important;font-weight:700!important;color:#000!important;margin-bottom:3px!important}
   .tp-cond-subtitulo{font-size:9px!important;color:#000!important;margin-bottom:3px!important}
@@ -456,6 +463,13 @@ tbody tr:hover{background:#f5f3ff}
   .tp-table tbody tr:nth-child(even){background:#f0faf8!important}
   .tp-print-header-barra{background:linear-gradient(135deg,#1e3a8a 0%,#1e4aac 50%,#2d1b69 100%)!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;margin:0 -14px;padding:8px 14px!important;width:calc(100% + 28px)!important}
   .tp-print-header{display:flex!important}
+  /* Remover overflow que bloqueia quebra de página */
+  body.modo-tabela-print .main-content,
+  body.modo-tabela-print .main-area,
+  body.modo-tabela-print #secaoTabela,
+  body.modo-tabela-print #tpConteudo,
+  body.modo-tabela-print .content-body{
+    overflow:visible!important;height:auto!important;max-height:none!important;}
 }
 /* ── MENU HIERÁRQUICO ── */
 .nav-menu{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
@@ -649,15 +663,11 @@ tbody tr:hover{background:#f5f3ff}
 }
 
 /* ── LAYOUT SIDEBAR ── */
-.app-layout{display:flex;height:100%;background:rgba(255,255,255,0.60);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.75);
-  box-shadow:0 8px 40px rgba(99,102,241,.08),0 2px 8px rgba(0,0,0,.05);
-  position:relative;z-index:1}
+.app-layout{display:flex;height:100vh;width:100vw;background:transparent;
+  overflow:hidden;position:fixed;top:0;left:0;z-index:1}
 @media(min-width:769px){
-  body{padding:2vh 4vw 4vh 4vw;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
-  .app-layout{width:98vw;height:98vh;max-width:1440px;overflow:hidden}
+  body{padding:0;margin:0;overflow:hidden}
+  .app-layout{width:100vw;height:100vh;max-width:none;overflow:hidden}
   .main-area{overflow:hidden;display:flex;flex-direction:column;height:100%}
   .main-content{flex:1;overflow-y:auto;overflow-x:hidden;height:0}
 }
@@ -708,7 +718,7 @@ tbody tr:hover{background:#f5f3ff}
   /* Sidebar recolhido no mobile: mostrar tooltip */
   .sidebar.recolhido .sidebar-item:hover::after{left:64px!important}
 }
-.sidebar{width:fit-content;min-width:0;max-width:none;height:100%;background:linear-gradient(135deg,rgba(30,64,175,.88) 0%,rgba(37,99,235,.82) 50%,rgba(59,130,246,.78) 100%);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-right:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;flex-shrink:0;z-index:100;transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;position:relative}
+.sidebar{width:fit-content;min-width:0;max-width:none;height:100%;background:linear-gradient(135deg,rgba(10,22,40,.55) 0%,rgba(13,31,94,.50) 50%,rgba(26,16,96,.48) 100%);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,.12);display:flex;flex-direction:column;flex-shrink:0;z-index:100;transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;position:relative}
 .sidebar.recolhido{width:fit-content;min-width:0;overflow:hidden;border-right:1px solid #e8edf5}
 .main-area{flex:1;margin-left:0;display:flex;flex-direction:column;overflow:hidden}
 .main-area.expandido{margin-left:0}
@@ -890,9 +900,9 @@ tbody tr:hover{background:#f5f3ff}
 @media(max-width:768px){.ham-btn{display:flex!important}}
 
 /* ── PAGE HEADER ── */
-.page-header{background:linear-gradient(135deg,rgba(15,37,87,.95) 0%,rgba(26,58,122,.92) 50%,rgba(30,74,172,.9) 100%);
+.page-header{background:linear-gradient(135deg,rgba(10,22,40,.45) 0%,rgba(13,31,94,.40) 50%,rgba(26,16,96,.38) 100%);
   backdrop-filter:blur(16px);padding:18px 28px;display:flex;align-items:center;gap:16px;
-  border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
+  border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
 .page-header-icon{font-size:28px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.2))}
 .page-header-info{flex:1}
 .page-header-title{font-size:17px;font-weight:700;color:#fff;letter-spacing:-.2px;line-height:1.2}
@@ -1246,22 +1256,23 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   --sb-1:#0e1626;--sb-2:#0a0f1c;
 }
 
-/* ── 1. Fundo calmo (remove o arco-íris animado) ── */
-body{background:#e9edf4 !important}
+/* ── 1. Fundo — gradiente animado igual ao login ── */
+body{background:linear-gradient(160deg,#0a1628 0%,#0d1f5e 20%,#1a1060 40%,#2d1b69 55%,#6b2fa0 70%,#c2410c 88%,#ea580c 100%) !important;background-size:400% 400% !important;animation:gradientBG 18s ease infinite !important}
 body::before{display:none !important}
-body::after{animation:none !important;opacity:.018 !important}
+body::after{animation:none !important;opacity:0 !important}
 
-/* ── 2. Casca: layout sem glass pesado ── */
-.app-layout{background:var(--canvas) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
-.main-area{background:var(--canvas) !important}
+/* ── 2. Casca: transparente para o gradiente aparecer ── */
+.app-layout{background:transparent !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+.main-area{background:transparent !important}
 .content-body{background:transparent !important}
+.main-content{background:#f4f6fb !important}
 .main-content::after{display:none !important}
 
-/* ── 3. SIDEBAR escura premium ── */
+/* ── 3. SIDEBAR semitransparente ── */
 .sidebar{
-  background:linear-gradient(185deg,var(--sb-1) 0%,var(--sb-2) 100%) !important;
-  backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
-  border-right:1px solid rgba(255,255,255,.06) !important;
+  background:linear-gradient(185deg,rgba(14,22,38,.55) 0%,rgba(10,15,28,.50) 100%) !important;
+  backdrop-filter:blur(20px) !important;-webkit-backdrop-filter:blur(20px) !important;
+  border-right:1px solid rgba(255,255,255,.10) !important;
   padding-bottom:10px;box-shadow:none !important}
 .sidebar:not(.recolhido){width:236px !important;min-width:236px !important}
 .sidebar-header{padding:16px 16px 14px !important;border-bottom:1px solid rgba(255,255,255,.07) !important;min-height:0 !important}
@@ -1290,10 +1301,10 @@ body::after{animation:none !important;opacity:.018 !important}
 /* Ícones SVG genéricos */
 svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
 
-/* ── 4. PAGE HEADER escuro refinado ── */
+/* ── 4. PAGE HEADER semitransparente ── */
 .page-header{
-  background:var(--ink) !important;backdrop-filter:none !important;
-  border-bottom:1px solid rgba(255,255,255,.07) !important;
+  background:rgba(10,15,28,.45) !important;backdrop-filter:blur(16px) !important;-webkit-backdrop-filter:blur(16px) !important;
+  border-bottom:1px solid rgba(255,255,255,.08) !important;
   padding:20px 30px !important;gap:14px !important}
 .page-header-icon{
   width:40px !important;height:40px !important;font-size:0 !important;line-height:1;
@@ -2241,10 +2252,17 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
     <!-- Ações -->
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
       <button class="btn-salvar-mod" onclick="abrirFormNF()">＋ Lançar NF Manual</button>
-      <label class="btn-cancel-mod" style="cursor:pointer">📎 Importar XML <input type="file" accept=".xml" style="display:none" onchange="importarXML(this)"></label>
+      <label class="btn-cancel-mod" style="cursor:pointer">📎 Importar XML <input type="file" accept=".xml" multiple style="display:none" onchange="importarXML(this)"></label>
       <button class="btn-cancel-mod" onclick="imprimirFrete('aguardando')">🖨 Aguardando</button>
       <button class="btn-cancel-mod" onclick="imprimirFrete('entregue')">🖨 Concluídos</button>
       <input type="text" class="busca-mod" style="max-width:220px;margin:0" placeholder="Buscar NF ou cliente..." oninput="renderFretes(freteFilter,this.value)">
+      <select id="freteSortSel" onchange="renderFretes(freteFilter,document.querySelector('.busca-mod')?.value||'')" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:10px;border:1px solid var(--borda);background:#fff;color:var(--texto);cursor:pointer">
+        <option value="recente">↓ Mais recente</option>
+        <option value="nf_asc">NF ↑ Crescente</option>
+        <option value="nf_desc">NF ↓ Decrescente</option>
+        <option value="valor_desc">Valor ↓</option>
+        <option value="cliente">Cliente A-Z</option>
+      </select>
     </div>
     <!-- Filtros -->
     <div class="frete-filters">
@@ -2833,9 +2851,20 @@ function showT(msg,tipo=''){const t=document.getElementById('toast');t.textConte
 /* Controle de impressão por modo */
 function imprimirTabela(){
   document.body.classList.add('modo-tabela-print');
+  // Temporariamente remover overflow dos containers para quebra de página funcionar
+  var mc=document.querySelector('.main-content');
+  var ma=document.querySelector('.main-area');
+  var oldMC=mc?mc.style.overflow:'';
+  var oldMA=ma?ma.style.overflow:'';
+  if(mc)mc.style.overflow='visible';
+  if(ma)ma.style.overflow='visible';
   setTimeout(function(){
     window.print();
-    setTimeout(function(){document.body.classList.remove('modo-tabela-print');},500);
+    setTimeout(function(){
+      document.body.classList.remove('modo-tabela-print');
+      if(mc)mc.style.overflow=oldMC;
+      if(ma)ma.style.overflow=oldMA;
+    },500);
   },100);
 }
 
@@ -3718,6 +3747,13 @@ function renderFretes(filter='todos',q=''){
   let lista=[...fretes];
   if(filter!=='todos')lista=lista.filter(f=>f.status===filter);
   if(q)lista=lista.filter(f=>f.nf.includes(q)||f.cliente.toLowerCase().includes(q.toLowerCase()));
+  // Ordenação
+  const sort=document.getElementById('freteSortSel')?.value||'recente';
+  if(sort==='nf_asc')lista.sort((a,b)=>String(a.nf).localeCompare(String(b.nf),undefined,{numeric:true}));
+  else if(sort==='nf_desc')lista.sort((a,b)=>String(b.nf).localeCompare(String(a.nf),undefined,{numeric:true}));
+  else if(sort==='valor_desc')lista.sort((a,b)=>(b.valorComercial||0)-(a.valorComercial||0));
+  else if(sort==='cliente')lista.sort((a,b)=>(a.cliente||'').localeCompare(b.cliente||''));
+  // padrão: mais recente (ordem de inserção)
   if(!lista.length){el.innerHTML='<div class="empty-mod"><div class="empty-icon">🚚</div>Nenhuma NF encontrada.</div>';return;}
   el.innerHTML=lista.map(f=>{
     const trans=TRANSPORTADORAS[f.transportadora]||{nome:f.transportadora||'—',url:''};
@@ -3791,46 +3827,66 @@ function fecharRastreio(){
 }
 
 function importarXML(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const parser=new DOMParser();
-      const xml=parser.parseFromString(e.target.result,'text/xml');
-      const ns='http://www.portalfiscal.inf.br/nfe';
-      const get=(tag)=>xml.getElementsByTagNameNS(ns,tag)[0]?.textContent||xml.getElementsByTagName(tag)[0]?.textContent||'';
-      // Buscar destinatário especificamente dentro de <dest>
-      const destEl=xml.getElementsByTagNameNS(ns,'dest')[0]||xml.getElementsByTagName('dest')[0];
-      const xNomeDest=destEl?(destEl.getElementsByTagNameNS(ns,'xNome')[0]?.textContent||destEl.getElementsByTagName('xNome')[0]?.textContent||''):'';
-      const nNF=get('nNF');
-      const xNome=xNomeDest||get('xNome'); // usa dest, fallback para primeiro xNome
-      const vNF=parseFloat(get('vNF'))||0;
-      const vFrete=parseFloat(get('vFrete'))||0;
-      const dhEmi=get('dhEmi')||get('dEmi');
-      const dataEmissao=dhEmi?dhEmi.substring(0,10):'';
-      // Itens
-      const dets=xml.getElementsByTagNameNS(ns,'det');
-      const itensXML=Array.from(dets).map(det=>{
-        const xProd=det.getElementsByTagNameNS(ns,'xProd')[0]?.textContent||'';
-        const qCom=parseFloat(det.getElementsByTagNameNS(ns,'qCom')[0]?.textContent||1);
-        const vUnCom=parseFloat(det.getElementsByTagNameNS(ns,'vUnCom')[0]?.textContent||0);
-        return{produto:xProd,qtd:qCom,preco:vUnCom};
-      });
-      const reg={
-        id:Date.now(),nf:nNF,cliente:xNome,
-        dataEmissao,valorComercial:vNF,valorFrete:vFrete,
-        transportadora:'',rastreio:'',status:'aguardando',obs:'Importado via XML',
-        redespacho:false,t1Trans:'',t1Status:'aguardando',t2Trans:'',t2Status:'aguardando',
-        itens:itensXML,
-        eventos:[{data:new Date().toLocaleString('pt-BR'),texto:'NF importada via XML'}],
-        dataCad:new Date().toISOString()
+  const files=Array.from(input.files);
+  if(!files.length)return;
+  let importados=0,erros=0;
+  const total=files.length;
+
+  function processarArquivo(file){
+    return new Promise(resolve=>{
+      const reader=new FileReader();
+      reader.onload=e=>{
+        try{
+          const parser=new DOMParser();
+          const xml=parser.parseFromString(e.target.result,'text/xml');
+          const ns='http://www.portalfiscal.inf.br/nfe';
+          const get=(tag)=>xml.getElementsByTagNameNS(ns,tag)[0]?.textContent||xml.getElementsByTagName(tag)[0]?.textContent||'';
+          const destEl=xml.getElementsByTagNameNS(ns,'dest')[0]||xml.getElementsByTagName('dest')[0];
+          const xNomeDest=destEl?(destEl.getElementsByTagNameNS(ns,'xNome')[0]?.textContent||destEl.getElementsByTagName('xNome')[0]?.textContent||''):'';
+          const nNF=get('nNF');
+          const xNome=xNomeDest||get('xNome');
+          const vNF=parseFloat(get('vNF'))||0;
+          const vFrete=parseFloat(get('vFrete'))||0;
+          const dhEmi=get('dhEmi')||get('dEmi');
+          const dataEmissao=dhEmi?dhEmi.substring(0,10):'';
+          const dets=xml.getElementsByTagNameNS(ns,'det');
+          const itensXML=Array.from(dets).map(det=>{
+            const xProd=det.getElementsByTagNameNS(ns,'xProd')[0]?.textContent||'';
+            const qCom=parseFloat(det.getElementsByTagNameNS(ns,'qCom')[0]?.textContent||1);
+            const vUnCom=parseFloat(det.getElementsByTagNameNS(ns,'vUnCom')[0]?.textContent||0);
+            return{produto:xProd,qtd:qCom,preco:vUnCom};
+          });
+          const reg={
+            id:Date.now()+Math.random(),nf:nNF,cliente:xNome,
+            dataEmissao,valorComercial:vNF,valorFrete:vFrete,
+            transportadora:'',rastreio:'',status:'aguardando',obs:'Importado via XML',
+            redespacho:false,t1Trans:'',t1Status:'aguardando',t2Trans:'',t2Status:'aguardando',
+            itens:itensXML,
+            eventos:[{data:new Date().toLocaleString('pt-BR'),texto:'NF importada via XML'}],
+            dataCad:new Date().toISOString()
+          };
+          // Evitar duplicatas
+          if(!fretes.find(f=>f.nf===nNF)){
+            fretes.unshift(reg);
+            sbSalvarFrete(reg).catch(e=>console.error(e));
+            importados++;
+          } else {
+            showT(`NF ${nNF} já existe — ignorada`,'');
+          }
+        }catch(err){erros++;console.error('Erro XML:',err);}
+        resolve();
       };
-      fretes.unshift(reg);salvarFretesLS();renderFretes(freteFilter);atualizarStatsFrete();
-      showT(`NF ${nNF} importada — ${xNome} ✓`,'verde');
-    }catch(err){showT('Erro ao ler XML — verifique o arquivo','erro');}
-  };
-  reader.readAsText(file);
-  input.value='';
+      reader.readAsText(file);
+    });
+  }
+
+  // Processar todos em paralelo
+  Promise.all(files.map(processarArquivo)).then(()=>{
+    salvarFretesLS();renderFretes(freteFilter);atualizarStatsFrete();
+    if(importados>0)showT(`${importados} NF${importados>1?'s':''} importada${importados>1?'s':''} ✓`,'verde');
+    if(erros>0)showT(`${erros} arquivo${erros>1?'s':''} com erro`,'erro');
+    input.value='';
+  });
 }
 
 function imprimirFrete(tipo){
@@ -4790,15 +4846,11 @@ async function sbSalvarFrete(reg){
     eventos: reg.eventos||[],
     criado_por: sbUser()
   };
-  // Verificar se já existe pelo nf
-  const {data:exist}=await sb.from('fretes').select('id').eq('nf',reg.nf).maybeSingle();
-  let error;
-  if(exist){
-    ({error}=await sb.from('fretes').update(payload).eq('nf',reg.nf));
-  } else {
-    ({error}=await sb.from('fretes').insert(payload));
+  const {error}=await sb.from('fretes').upsert(payload,{onConflict:'nf'});
+  if(error){
+    console.error('SB frete erro:',JSON.stringify(error));
+    sbToast('Erro ao salvar frete: '+error.message,'erro');
   }
-  if(error){console.error('SB frete erro:',error);sbToast('Erro ao salvar frete','erro');}
   else{sbToast('Frete salvo na nuvem ✓','verde');}
 }
 
