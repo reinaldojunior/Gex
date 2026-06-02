@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GEx Assist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   /* Caltimes hybrid palette */
-  --accent:#60a5fa;--accent-hover:#3b82f6;--accent-pale:#eff6ff;--accent-light:#93c5fd;
+  --accent:#3b82f6;--accent-hover:#2563eb;--accent-pale:#eff6ff;--accent-light:#60a5fa;
   --accent2:#f97316;--accent2-hover:#ea580c;
   /* Sidebar dark */
   --sb-bg:#13131f;--sb-borda:rgba(255,255,255,.06);--sb-texto:rgba(255,255,255,.55);
@@ -21,11 +21,11 @@
   /* Topo */
   --topo-bg:#ffffff;
   /* Aliases */
-  --teal:#60a5fa;--teal-mid:#3b82f6;--teal-light:#93c5fd;--teal-pale:#eff6ff;
+  --teal:#3b82f6;--teal-mid:#2563eb;--teal-light:#60a5fa;--teal-pale:#eff6ff;
   --azul:#7c3aed;--azul-mid:#6d28d9;--azul-claro:#7c3aed;
   --verde:#7c3aed;--roxo:#7c3aed;--roxo-light:#a78bfa;
   --amarelo:#fef9c3;--amarelo-b:#d97706;
-  --tag-bg:#eff6ff;--tag-c:#60a5fa;
+  --tag-bg:#eff6ff;--tag-c:#3b82f6;
   /* Layout */
   --radius:12px;
   --shadow:0 1px 3px rgba(26,31,54,.06),0 1px 2px rgba(26,31,54,.04);
@@ -64,7 +64,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .topo-inner{position:relative;z-index:1;padding:22px 32px}
 .topo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .logo-img{height:53px;width:auto;object-fit:contain;display:block}
-.num-cotacao{font-family:'JetBrains Mono',monospace;font-size:11px;color:#60a5fa;background:#eff6ff;padding:6px 14px;border-radius:8px;border:1px solid rgba(124,58,237,.2);letter-spacing:.5px}
+.num-cotacao{font-family:'Inter',system-ui,sans-serif;font-size:11px;color:#60a5fa;background:#eff6ff;padding:6px 14px;border-radius:8px;border:1px solid rgba(124,58,237,.2);letter-spacing:.5px}
 /* ── CONFIG ROW ── */
 .config-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
 .config-group{display:flex;flex-direction:column;gap:4px}
@@ -129,9 +129,9 @@ tbody tr{border-bottom:1px solid #eef4f3;transition:transform .18s ease,box-shad
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#f5f3ff}
 tbody td{padding:10px 10px;vertical-align:middle;overflow:hidden}
-td.num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-align:center}
+td.num{font-family:'Inter',system-ui,sans-serif;font-size:11px;color:var(--muted);text-align:center}
 .prod-nome{font-size:13px;font-weight:600;color:var(--texto);line-height:1.3}
-.prod-cod{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px}
+.prod-cod{font-family:'Inter',system-ui,sans-serif;font-size:10px;color:var(--muted);margin-top:1px}
 .prod-desc-text{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.45;cursor:text;border-radius:4px;padding:2px 4px;transition:.2s;outline:none}
 .prod-desc-text:hover{background:rgba(96,165,250,.06)}
 .prod-desc-text:focus{background:rgba(96,165,250,.08);outline:1px dashed rgba(96,165,250,.4);color:var(--texto)}
@@ -142,28 +142,28 @@ td.apres-col{font-size:12px;color:var(--texto);font-weight:400}
 .screen-only{display:inline}
 @media print{.screen-only{display:none!important}}
 td.right{text-align:right}td.center{text-align:center}
-.qty-input{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--teal-pale);border:1px solid transparent;border-bottom:2px dashed var(--teal-light);border-radius:4px 4px 0 0;padding:4px 5px;width:100%;text-align:center;transition:.2s;color:var(--texto)}
+.qty-input{font-family:'Inter',system-ui,sans-serif;font-size:12px;background:var(--teal-pale);border:1px solid transparent;border-bottom:2px dashed var(--teal-light);border-radius:4px 4px 0 0;padding:4px 5px;width:100%;text-align:center;transition:.2s;color:var(--texto)}
 .qty-input:focus{outline:none;background:#fff;border:1px solid var(--teal-light);border-radius:4px}
-.price-input{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--teal-pale);border:1px solid transparent;border-bottom:2px dashed var(--teal-light);border-radius:4px 4px 0 0;padding:4px 6px;width:100%;text-align:right;transition:.2s;color:var(--texto)}
+.price-input{font-family:'Inter',system-ui,sans-serif;font-size:12px;background:var(--teal-pale);border:1px solid transparent;border-bottom:2px dashed var(--teal-light);border-radius:4px 4px 0 0;padding:4px 6px;width:100%;text-align:right;transition:.2s;color:var(--texto)}
 .price-input:focus{outline:none;background:#fff;border:1px solid var(--teal-light);border-radius:4px}
 .un-cell{font-size:11px;color:var(--muted);text-align:center}
-.total-cell{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:#60a5fa;text-align:right;white-space:nowrap;background:#eff6ff;padding:3px 8px;border-radius:6px}
+.total-cell{font-family:'Inter',system-ui,sans-serif;font-size:11px;font-weight:600;color:#60a5fa;text-align:right;white-space:nowrap;background:#eff6ff;padding:3px 8px;border-radius:6px}
 /* ── TOTAL GERAL ── */
 div.total-geral{background:var(--teal-pale);border:1px solid var(--borda);border-radius:0 0 var(--radius) var(--radius);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .total-geral-left{display:flex;flex-direction:column;gap:1px}
 .total-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
 .total-itens{font-size:10px;color:var(--muted)}
-.total-valor{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--teal);letter-spacing:1px}
+.total-valor{font-family:'Inter',system-ui,sans-serif;font-size:20px;font-weight:700;color:var(--teal);letter-spacing:1px}
 /* ── HISTÓRICO ── */
 .historico-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--borda);padding:16px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
 .historico-list{display:flex;flex-direction:column;gap:7px;max-height:190px;overflow-y:auto}
 .historico-item{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-radius:10px;background:#f5faf9;border:1px solid var(--borda);transition:.2s;flex-wrap:wrap;gap:6px}
 .historico-item:hover{border-color:var(--teal-light);background:var(--teal-pale)}
 .hist-info{display:flex;flex-direction:column;gap:1px}
-.hist-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--teal-light);font-weight:600}
+.hist-num{font-family:'Inter',system-ui,sans-serif;font-size:10px;color:var(--teal-light);font-weight:600}
 .hist-cliente{font-size:12px;color:var(--texto);font-weight:500}
 .hist-data{font-size:10px;color:var(--muted)}
-.hist-total{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--teal)}
+.hist-total{font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:600;color:var(--teal)}
 .hist-acoes{display:flex;gap:5px}
 .hist-btn{background:none;border:1px solid var(--borda);color:var(--muted);font-size:10px;padding:3px 7px;border-radius:4px;cursor:pointer;transition:.15s}
 .hist-btn:hover{border-color:var(--teal-light);color:var(--teal)}
@@ -198,7 +198,7 @@ div.total-geral{background:var(--teal-pale);border:1px solid var(--borda);border
 .produto-card.selected{border-color:var(--teal);background:var(--teal-pale);box-shadow:0 0 0 3px rgba(13,74,71,.1)}
 .produto-card-nome{font-size:12px;font-weight:600;color:var(--teal);margin-bottom:2px;padding-right:20px}
 .produto-card-apres{font-size:10px;color:var(--muted)}
-.produto-card-preco{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal-mid);font-weight:600;margin-top:3px}
+.produto-card-preco{font-family:'Inter',system-ui,sans-serif;font-size:11px;color:var(--teal-mid);font-weight:600;margin-top:3px}
 .produto-card-check{position:absolute;top:8px;right:10px;font-size:15px;color:var(--teal)}
 .btn-confirm{background:#60a5fa;box-shadow:0 2px 8px rgba(96,165,250,.3);color:#fff;border:none;font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;padding:8px 20px;border-radius:6px;cursor:pointer;transition:.15s}
 .btn-confirm:hover{background:var(--teal-mid);transform:translateY(-1px);box-shadow:0 6px 18px rgba(13,74,71,.3)}
@@ -266,12 +266,12 @@ tbody tr:nth-child(even):hover{background:var(--teal-pale)}
 .tp-table tbody tr:last-child{border-bottom:none}
 .tp-table tbody tr:hover{background:#f5f3ff}
 .tp-table tbody td{padding:7px 11px;vertical-align:middle;font-size:12px;color:#1e293b}
-.tp-table td.tp-cod-cell{font-family:'JetBrains Mono',monospace;font-size:11px;color:#1e293b;font-weight:500}
+.tp-table td.tp-cod-cell{font-family:'Inter',system-ui,sans-serif;font-size:11px;color:#1e293b;font-weight:500}
 .tp-table td.tp-prod-cell{font-weight:600;color:#1e293b;font-size:12px}
 .tp-table td.tp-apres-cell{color:#1e293b;font-size:12px}
-.tp-table td.tp-ncm-cell{text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#1e293b;font-weight:500}
-.tp-table td.tp-qtd-cell{text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#1e293b}
-.tp-table td.tp-preco-cell{text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#1e3a8a;background:#dbeafe;padding:4px 10px;border-radius:6px}
+.tp-table td.tp-ncm-cell{text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:11px;color:#1e293b;font-weight:500}
+.tp-table td.tp-qtd-cell{text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:12px;color:#1e293b}
+.tp-table td.tp-preco-cell{text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:700;color:#1e3a8a;background:#dbeafe;padding:4px 10px;border-radius:6px}
 .tp-table tbody tr:nth-child(even){background:#faf8ff}
 /* ── LINHA PROACTION ── */
 .tp-linha-produtos{display:none;text-align:center;padding:8px 0;font-family:'Inter',system-ui,sans-serif;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.3px;border-top:1px solid var(--borda);border-bottom:1px solid var(--borda);margin-bottom:10px}
@@ -317,23 +317,48 @@ tbody tr:hover{background:#f5f3ff}
   @page{margin:8mm 10mm!important}
 
   /* ── OCULTAR TUDO QUE NÃO É CONTEÚDO ── */
-  .sidebar,.page-header,#configBand,.acoes,.btn-add,.btn-del,
+  .sidebar,.page-header,#pageHeader,#configBand,.acoes,.btn-add,.btn-del,
   .btn-email,.desc-toggle-wrap,.historico-card,.overlay,.toast,.tp-acoes,
   .status-wrap,.cnpj-btn,.btn-baixar-todas,.sidebar-mobile-overlay,
   .rodape-end-line,.cotacaoInicio,#cotacaoInicio,.ham-btn,
-  .app-layout::after{display:none!important}
+  #loginOverlay,#loginUserInfo,.login-user-info,
+  .app-layout::after{display:none!important;height:0!important;min-height:0!important;
+    max-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;
+    border:none!important}
 
   /* ── RESETAR LAYOUT — sem frame, sem fundo ── */
   html,body{background:#fff!important;margin:0!important;padding:0!important}
-  body::before,body::after{display:none!important}
+  body::before,body::after{display:none!important;content:none!important;background:none!important}
   .app-layout{display:block!important;border:none!important;border-radius:0!important;
     box-shadow:none!important;background:#fff!important;backdrop-filter:none!important;
-    height:auto!important;width:100%!important}
-  .main-area{display:block!important;margin-left:0!important;width:100%!important;height:auto!important;overflow:visible!important}
-  .main-content,.corpo{display:block!important;margin:0!important;padding:5px 14px!important;
-    max-width:none!important;width:100%!important;overflow:visible!important;height:auto!important}
-  #cotacaoForm{display:block!important}
+    -webkit-backdrop-filter:none!important;
+    height:auto!important;width:100%!important;padding:0!important;margin:0!important}
+  .main-area{display:block!important;margin:0!important;padding:0!important;
+    width:100%!important;height:auto!important;overflow:visible!important}
+  .main-content{display:block!important;margin:0!important;padding:0!important;
+    max-width:none!important;width:100%!important;overflow:visible!important;
+    height:auto!important;background:#fff!important;flex:none!important}
+  .content-body{background:#fff!important;padding:0 14px!important;margin:0!important;
+    max-width:none!important}
+  #cotacaoForm{display:block!important;margin:0!important;padding:0!important}
   #printHeader{display:block!important}
+  #secaoCotacao{padding:0!important;margin:0!important;min-height:0!important}
+  #secaoHome,#secaoTabela,#secaoAmostras,#secaoCRM,
+  #secaoAgenda,#secaoLicitacoes,#secaoFrete,#secaoEstoque{
+    display:none!important;height:0!important;margin:0!important;padding:0!important}
+
+  /* ── FONTES PRETAS ── */
+  .field input{background:transparent!important;border:none!important;border-bottom:1px solid #aaa!important;
+    color:#000!important;padding:2px 3px!important;font-size:9px!important;width:100%!important}
+  .field label{font-size:7px!important;color:#444!important}
+  tbody td{padding:3px 5px;font-size:9px;white-space:nowrap;color:#000!important}
+  .total-cell{color:#000!important;font-weight:700!important}
+  .prod-nome{font-size:10px;font-weight:600;color:#000!important}
+  .prod-cod{font-size:8px;color:#333!important}
+  .prod-desc-text{font-size:8px;line-height:1.35;white-space:normal!important;word-wrap:break-word!important;color:#000!important}
+  .obs-print{display:block!important;font-size:8px;color:#333!important;padding:2px 0;min-height:14px;border-bottom:1px dashed #cbd5e1;margin-top:2px;white-space:normal;word-wrap:break-word}
+  .print-val{display:block!important;font-family:monospace;font-size:9px;text-align:center;color:#000!important}
+  td.right .print-val{text-align:right}
 
   /* ── CARDS ── */
   .tabela-card,.condicoes-card{box-shadow:none!important;border:1px solid #ccc!important;margin-bottom:6px!important;background:#fff!important}
@@ -343,14 +368,10 @@ tbody tr:hover{background:#f5f3ff}
 
   /* ── CAMPOS DO CLIENTE ── */
   .cliente-row{gap:3px!important;margin-bottom:3px!important;flex-wrap:wrap!important}
-  /* Reorganizar campos do cliente na impressão */
   #cardCliente .cliente-row{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:4px!important}
   #cardCliente .cnpj-field{grid-column:1!important}
   #cardCliente .field:nth-child(2){grid-column:2/4!important}
   #cardCliente .field:nth-child(3){grid-column:4!important}
-  .field input{background:transparent!important;border:none!important;border-bottom:1px solid #aaa!important;
-    color:#1e293b!important;padding:2px 3px!important;font-size:9px!important;width:100%!important}
-  .field label{font-size:7px!important;color:#64748b!important}
 
   /* ── TABELA ── */
   col.c-num{width:16px}col.c-desc{width:360px}col.c-apres{width:78px}
@@ -359,21 +380,13 @@ tbody tr:hover{background:#f5f3ff}
   thead th{font-size:8px;padding:3px 5px;white-space:nowrap}
   thead th:last-child{display:none!important;width:0!important;padding:0!important}
   thead tr{background:#f5f9ff!important}
-  tbody td{padding:3px 5px;font-size:9px;white-space:nowrap;color:#000!important}
-  .total-cell{color:#000!important;font-weight:700!important}
   td.desc-col,td.apres-col{white-space:normal!important}
-  .prod-nome{font-size:10px;font-weight:600}
-  .prod-cod{font-size:8px}
-  .prod-desc-text{font-size:8px;line-height:1.35;white-space:normal!important;word-wrap:break-word!important;word-break:break-word!important;overflow-wrap:break-word!important}
+  td.apres-col{font-size:9px!important;font-weight:400!important}
   .qty-input,.price-input{display:none!important}
   .obs-input{display:none!important}
-  .obs-print{display:block!important;font-size:8px;color:#475569;padding:2px 0;min-height:14px;border-bottom:1px dashed #cbd5e1;margin-top:2px;white-space:normal;word-wrap:break-word}
   .c-del,.c-del *{display:none!important;width:0!important;max-width:0!important;padding:0!important;margin:0!important;overflow:hidden!important}
   col.c-del{display:none!important;width:0!important;max-width:0!important}
   .btn-del,.td-del,.c-del{display:none!important;width:0!important;max-width:0!important;min-width:0!important;padding:0!important;margin:0!important;overflow:hidden!important;border:none!important;visibility:hidden!important}
-  .print-val{display:block!important;font-family:monospace;font-size:9px;text-align:center;color:#1e293b}
-  td.right .print-val{text-align:right}
-  td.apres-col{font-size:9px!important;font-weight:400!important}
   table:not(.total-geral){table-layout:fixed;width:100%}
   tbody tr:nth-child(even){background:transparent!important}
   tbody tr{break-inside:avoid;page-break-inside:avoid;background:transparent!important}
@@ -507,9 +520,9 @@ tbody tr:hover{background:#f5f3ff}
 .nf-card.ocorrencia{border-left-color:#7c3aed}
 .nf-card:hover{box-shadow:var(--shadow);transform:translateX(2px)}
 .nf-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.nf-numero{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#60a5fa}
+.nf-numero{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;color:#60a5fa}
 .nf-cliente{font-size:13px;font-weight:600;color:var(--texto);flex:1}
-.nf-valor{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)}
+.nf-valor{font-family:'Inter',system-ui,sans-serif;font-size:12px;color:var(--muted)}
 .nf-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
 .nf-status-badge.aguardando{background:#fee2e2;color:#dc2626}
 .nf-status-badge.transito{background:#ffedd5;color:#ea580c}
@@ -546,7 +559,7 @@ tbody tr:hover{background:#f5f3ff}
 .nf-event-content{flex:1;font-size:11px;color:var(--muted)}
 .nf-event-date{font-size:9px;color:var(--muted)}
 /* % frete */
-.frete-pct{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--teal)}
+.frete-pct{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:700;color:var(--teal)}
 .frete-pct.alto{color:#ef4444}
 .frete-pct.medio{color:#f97316}
 /* Modal rastreio */
@@ -605,7 +618,7 @@ tbody tr:hover{background:#f5f3ff}
 .prod-amostra-qtd{width:44px;background:#fff;border:1px solid var(--borda);border-radius:4px;padding:2px 5px;font-size:11px;text-align:center;margin-left:auto}
 .crm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .crm-stat{background:rgba(255,255,255,0.02);backdrop-filter:blur(8px);border:1px solid rgba(96,165,250,.12);border-radius:10px;padding:12px 16px;text-align:center;box-shadow:var(--shadow)}
-.crm-stat-num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--accent)}
+.crm-stat-num{font-family:'Inter',system-ui,sans-serif;font-size:22px;font-weight:700;color:var(--accent)}
 .crm-stat-label{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
 .busca-mod{width:100%;padding:8px 12px;border:1px solid var(--borda);border-radius:8px;font-family:'Inter',system-ui,sans-serif;font-size:13px;background:#f5faf9;outline:none;transition:.2s;margin-bottom:12px}
 .busca-mod:focus{border-color:var(--teal-light);background:#fff}
@@ -617,10 +630,10 @@ tbody tr:hover{background:#f5f3ff}
 .bonif-row:hover{background:#f0fdf4!important;transform:none!important;box-shadow:none!important}
 .bonif-nome{color:#16a34a!important;font-size:12px!important;font-weight:500!important}
 .bonif-tag{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;color:#fff;background:#15803d;border:1px solid #166534;border-radius:10px;padding:2px 9px;margin-top:3px;letter-spacing:.2px}
-.bonif-zero{font-family:'JetBrains Mono',monospace;font-size:11px;color:#15803d;font-weight:700}
+.bonif-zero{font-family:'Inter',system-ui,sans-serif;font-size:11px;color:#15803d;font-weight:700}
 .bonif-total{color:#16a34a!important;background:#f0fdf4!important;font-size:10px!important}
 .bonif-badge{font-size:11px;vertical-align:middle;opacity:.7}
-.qty-display{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--texto)}
+.qty-display{font-family:'Inter',system-ui,sans-serif;font-size:12px;color:var(--texto)}
 .btn-bonif-toggle{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:#16a34a;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:2px 8px;cursor:pointer;margin-top:4px;transition:.2s}
 .btn-bonif-toggle:hover{background:#dcfce7}
 .btn-bonif-toggle.desativada{color:#9ca3af;background:#f9fafb;border-color:#e5e7eb}
@@ -810,7 +823,7 @@ tbody tr:hover{background:#f5f3ff}
 .metric-card.azul::before{background:linear-gradient(90deg,#2563eb,#60a5fa)}
 .metric-card.vermelho::before{background:linear-gradient(90deg,#dc2626,#f87171)}
 .metric-icon{font-size:26px;margin-bottom:10px;display:block}
-.metric-valor{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--texto);line-height:1;margin-bottom:4px}
+.metric-valor{font-family:'Inter',system-ui,sans-serif;font-size:26px;font-weight:700;color:var(--texto);line-height:1;margin-bottom:4px}
 .metric-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
 .metric-sub{font-size:11px;color:var(--muted-light);margin-top:6px;display:flex;align-items:center;gap:4px}
 .metric-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
@@ -898,15 +911,15 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 /* ── TIPOGRAFIA ── */
 .card-title{font-size:13px;font-weight:700;color:var(--texto);letter-spacing:-.2px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .section-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
-.valor-destaque{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;color:var(--texto);letter-spacing:-.5px;line-height:1}
+.valor-destaque{font-family:'Inter',system-ui,sans-serif;font-size:22px;font-weight:800;color:var(--texto);letter-spacing:-.5px;line-height:1}
 .valor-sub{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.2px}
 .prod-nome{font-size:13px;font-weight:700;color:var(--texto);line-height:1.3}
-.prod-cod{font-size:10px;color:var(--muted-light);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.prod-cod{font-size:10px;color:var(--muted-light);font-family:'Inter',system-ui,sans-serif;margin-top:1px}
 .prod-desc-text{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
-.hist-num{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--accent)}
+.hist-num{font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:700;color:var(--accent)}
 .hist-cliente{font-size:13px;color:var(--texto);font-weight:600}
 .hist-data{font-size:10px;color:var(--muted-light);margin-top:2px}
-.hist-total{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--texto)}
+.hist-total{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:700;color:var(--texto)}
 
 /* ── BOTÕES ── */
 /* Primário */
@@ -1012,7 +1025,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .metric-card:hover{box-shadow:0 6px 20px rgba(96,165,250,.15);transform:translateY(-2px);
   border-color:rgba(96,165,250,.25)}
 .metric-icon{font-size:28px;margin-bottom:10px;display:block;line-height:1}
-.metric-valor{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800;
+.metric-valor{font-family:'Inter',system-ui,sans-serif;font-size:28px;font-weight:800;
   color:var(--texto);line-height:1;margin-bottom:5px;letter-spacing:-1px}
 .metric-label{font-size:9px;font-weight:700;text-transform:uppercase;
   letter-spacing:.8px;color:var(--muted)}
@@ -1110,18 +1123,18 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .est-row.expandido{background:#f0f7ff}
 .est-row td{padding:7px 10px;font-size:12px;vertical-align:middle}
 .est-nome{font-weight:600;color:#1e293b;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
-.est-cod{font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace;margin-top:2px}
-.est-saldo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;text-align:center}
+.est-cod{font-size:10px;color:#64748b;font-family:'Inter',system-ui,sans-serif;margin-top:2px}
+.est-saldo{font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:13px;text-align:center}
 .est-seg{font-size:11px;color:#64748b;text-align:center}
-.est-seg-input{width:60px;padding:3px 6px;border:1px solid var(--borda);border-radius:6px;font-size:11px;text-align:center;font-family:'JetBrains Mono',monospace}
+.est-seg-input{width:60px;padding:3px 6px;border:1px solid var(--borda);border-radius:6px;font-size:11px;text-align:center;font-family:'Inter',system-ui,sans-serif}
 .est-status{display:inline-block;width:12px;height:12px;border-radius:50%}
 .est-val-badge{display:inline-block;width:10px;height:10px}
 .est-lotes{background:#f8fafc;border-bottom:2px solid #e2e8f0}
 .est-lotes td{padding:8px 14px}
 .lote-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px}
 .lote-row:last-child{border-bottom:none}
-.lote-num{font-family:'JetBrains Mono',monospace;color:#475569;font-size:10px;min-width:110px}
-.lote-qtd{font-family:'JetBrains Mono',monospace;font-weight:700;color:#1e293b;min-width:60px;text-align:right}
+.lote-num{font-family:'Inter',system-ui,sans-serif;color:#475569;font-size:10px;min-width:110px}
+.lote-qtd{font-family:'Inter',system-ui,sans-serif;font-weight:700;color:#1e293b;min-width:60px;text-align:right}
 .lote-val{color:#64748b;font-size:10px}
 .est-expand-btn{background:none;border:none;cursor:pointer;font-size:14px;color:#60a5fa;padding:2px 6px}
 
@@ -1155,7 +1168,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   font-family:'Inter',sans-serif;font-size:28px;font-weight:800;
   color:#fff;letter-spacing:-.5px;margin-bottom:4px;
 }
-.login-brand span{color:#bfdbfe}
+.login-brand span{color:#3b82f6}
 .login-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:36px;font-weight:400}
 .login-field{
   display:flex;flex-direction:column;gap:5px;
@@ -1216,8 +1229,298 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 }
 .login-logout-btn:hover{background:rgba(220,38,38,.3);border-color:rgba(220,38,38,.5);color:#fff}
 </style>
+<!-- ════════════════════════════════════════════════════════════
+     MODERN SKIN  ·  refresh visual 2026 (casca + Home)
+     Não altera estrutura de impressão, tabelas ou cotações.
+     ════════════════════════════════════════════════════════════ -->
+<style id="modern-skin">
+:root{
+  --accent:#2563eb;--accent-hover:#1d4ed8;--accent-pale:#eff5ff;--accent-light:#3b82f6;
+  --ink:#0f1727;--ink-2:#1a2233;--muted:#5a6680;--muted-light:#8a94a8;
+  --line:#e7ebf3;--line-strong:#d6dded;
+  --canvas:#eef1f7;
+  --sb-1:#0e1626;--sb-2:#0a0f1c;
+}
+
+/* ── 1. Fundo calmo (remove o arco-íris animado) ── */
+body{background:#e9edf4 !important}
+body::before{display:none !important}
+body::after{animation:none !important;opacity:.018 !important}
+
+/* ── 2. Casca: layout sem glass pesado ── */
+.app-layout{background:var(--canvas) !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+.main-area{background:var(--canvas) !important}
+.content-body{background:transparent !important}
+.main-content::after{display:none !important}
+
+/* ── 3. SIDEBAR escura premium ── */
+.sidebar{
+  background:linear-gradient(185deg,var(--sb-1) 0%,var(--sb-2) 100%) !important;
+  backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
+  border-right:1px solid rgba(255,255,255,.06) !important;
+  padding-bottom:10px;box-shadow:none !important}
+.sidebar:not(.recolhido){width:236px !important;min-width:236px !important}
+.sidebar-header{padding:16px 16px 14px !important;border-bottom:1px solid rgba(255,255,255,.07) !important;min-height:0 !important}
+.sidebar-toggle{background:rgba(255,255,255,.06) !important;border:1px solid rgba(255,255,255,.1) !important;color:rgba(255,255,255,.5) !important;border-radius:8px !important}
+.sidebar-toggle:hover{background:rgba(59,130,246,.22) !important;border-color:rgba(96,165,250,.4) !important;color:#bcd4ff !important}
+.sidebar-section{padding:3px 10px !important}
+.sidebar-section-label{font-size:9.5px !important;color:rgba(255,255,255,.34) !important;letter-spacing:1.2px !important;padding:12px 12px 4px !important}
+.sidebar-divider{background:rgba(255,255,255,.06) !important;margin:5px 14px !important}
+.sidebar:not(.recolhido) .sidebar-item{
+  width:100% !important;justify-content:flex-start !important;
+  padding:9px 12px !important;margin:2px 0 !important;
+  border-radius:10px !important;gap:12px !important;
+  font-size:13.5px !important;font-weight:500 !important;
+  color:rgba(255,255,255,.62) !important;border:none !important;
+  transition:background .15s,color .15s !important}
+.sidebar:not(.recolhido) .sidebar-item:hover{background:rgba(255,255,255,.07) !important;color:#fff !important}
+.sidebar:not(.recolhido) .sidebar-item.active{
+  background:linear-gradient(90deg,rgba(59,130,246,.26),rgba(59,130,246,.10)) !important;
+  color:#fff !important;font-weight:600 !important;
+  box-shadow:inset 0 0 0 1px rgba(96,165,250,.28) !important}
+.sidebar-item .si-icon{width:18px !important;height:18px !important;font-size:0 !important;opacity:.66 !important;flex-shrink:0}
+.sidebar-item.active .si-icon{opacity:1 !important}
+.sidebar:not(.recolhido) .sidebar-item.active .si-icon{color:#7fb0ff !important}
+.sidebar-logo-name,.sidebar-header div{letter-spacing:-.2px}
+
+/* Ícones SVG genéricos */
+svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block}
+
+/* ── 4. PAGE HEADER escuro refinado ── */
+.page-header{
+  background:var(--ink) !important;backdrop-filter:none !important;
+  border-bottom:1px solid rgba(255,255,255,.07) !important;
+  padding:20px 30px !important;gap:14px !important}
+.page-header-icon{
+  width:40px !important;height:40px !important;font-size:0 !important;line-height:1;
+  display:flex !important;align-items:center;justify-content:center;
+  background:rgba(59,130,246,.16) !important;border:1px solid rgba(96,165,250,.26) !important;
+  border-radius:11px !important;color:#7fb0ff !important;filter:none !important;flex-shrink:0}
+.page-header-icon svg{width:21px !important;height:21px !important}
+.page-header-title{font-size:19px !important;letter-spacing:-.3px !important}
+.page-header-sub{color:rgba(255,255,255,.55) !important;font-size:12.5px !important;letter-spacing:.1px !important}
+.page-header-tag{background:rgba(255,255,255,.08) !important;color:rgba(255,255,255,.62) !important;border:1px solid rgba(255,255,255,.12) !important}
+.ham-btn{color:rgba(255,255,255,.7) !important}
+
+/* ── 5. HOME · cabeçalho ── */
+.content-body{padding:30px 32px !important;max-width:1180px !important}
+.home-header{margin-bottom:28px !important}
+.home-greeting{font-size:27px !important;font-weight:800 !important;letter-spacing:-.6px !important;color:var(--ink-2) !important}
+.home-sub{font-size:14px !important;color:var(--muted) !important;margin-top:5px !important}
+.home-date{font-size:12.5px !important;color:var(--muted-light) !important;margin-top:3px !important;text-transform:capitalize}
+
+/* ── 6. Cards de métrica (sólidos + chip de ícone) ── */
+.home-grid-4,.home-grid-2,.home-grid-3{gap:18px !important;margin-bottom:26px !important}
+.metric-card{
+  background:#fff !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
+  border:1px solid var(--line) !important;border-radius:16px !important;
+  padding:20px 20px 18px !important;
+  box-shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.05) !important}
+.metric-card::before{display:none !important}
+.metric-card:hover{
+  box-shadow:0 10px 28px rgba(16,24,40,.10) !important;
+  border-color:var(--line-strong) !important;transform:translateY(-3px) !important}
+.metric-icon{
+  width:42px !important;height:42px !important;margin-bottom:16px !important;font-size:0 !important;
+  display:flex !important;align-items:center;justify-content:center;border-radius:12px !important}
+.metric-icon svg{width:21px !important;height:21px !important}
+.metric-card.roxo .metric-icon{background:#eef0ff !important;color:#4f46e5 !important}
+.metric-card.azul .metric-icon{background:var(--accent-pale) !important;color:var(--accent) !important}
+.metric-card.verde .metric-icon{background:#e7f8f0 !important;color:#059669 !important}
+.metric-card.laranja .metric-icon{background:#fff3e8 !important;color:#ea580c !important}
+.metric-card.vermelho .metric-icon{background:#fdecec !important;color:#dc2626 !important}
+.metric-valor{font-size:30px !important;letter-spacing:-1.2px !important;color:var(--ink-2) !important;margin-bottom:6px !important}
+.metric-label{font-size:11px !important;letter-spacing:.4px !important;text-transform:none !important;color:var(--muted) !important;font-weight:600 !important}
+.metric-sub{margin-top:9px !important}
+.metric-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px;background:#f1f4f9;color:var(--muted)}
+.metric-badge.up{background:#e7f8f0;color:#059669}
+.metric-badge.neutral{background:#f1f4f9;color:var(--muted)}
+
+/* ── 7. Seções da Home ── */
+.home-section-title{
+  font-size:12px !important;letter-spacing:.5px !important;text-transform:none !important;
+  font-weight:700 !important;color:var(--ink-2) !important;
+  margin:6px 0 12px !important;gap:9px !important}
+.home-section-title::before{height:15px !important;width:3px !important;background:var(--accent) !important;border-radius:3px !important}
+.home-section-title span[style*="cursor"]{color:var(--accent) !important;font-weight:600;font-size:11.5px}
+
+/* ── 8. Ações rápidas ── */
+.quick-actions{gap:16px !important}
+.quick-btn{
+  background:#fff !important;backdrop-filter:none !important;
+  border:1px solid var(--line) !important;border-radius:14px !important;
+  padding:20px 12px !important;gap:12px !important;
+  box-shadow:0 1px 2px rgba(16,24,40,.04) !important}
+.quick-btn:hover{
+  border-color:rgba(59,130,246,.4) !important;background:#fff !important;
+  box-shadow:0 10px 24px rgba(37,99,235,.12) !important;transform:translateY(-3px) !important}
+.quick-btn-icon{
+  width:44px !important;height:44px !important;font-size:0 !important;
+  display:flex !important;align-items:center;justify-content:center;
+  background:var(--accent-pale) !important;color:var(--accent) !important;border-radius:13px !important}
+.quick-btn-icon svg{width:22px !important;height:22px !important}
+.quick-btn-label{font-size:12px !important;color:var(--ink-2) !important;font-weight:600 !important}
+
+/* ── 9. Alertas / listas da Home ── */
+.alert-item{
+  background:#fff !important;backdrop-filter:none !important;
+  border:1px solid var(--line) !important;border-radius:12px !important;
+  padding:12px 14px !important;margin-bottom:10px;
+  box-shadow:0 1px 2px rgba(16,24,40,.03) !important}
+.alert-item:hover{border-color:rgba(59,130,246,.4) !important;box-shadow:0 6px 16px rgba(37,99,235,.08) !important;transform:none !important}
+
+/* ── 10. Botões primários no azul único ── */
+.btn-pdf,.btn-confirm,.btn-salvar-mod,.btn-upload-assin{
+  background:var(--accent) !important;box-shadow:0 1px 2px rgba(37,99,235,.25) !important;border-radius:9px !important}
+.btn-pdf:hover,.btn-confirm:hover,.btn-salvar-mod:hover,.btn-upload-assin:hover{
+  background:var(--accent-hover) !important;box-shadow:0 4px 14px rgba(37,99,235,.32) !important}
+.btn-salvar{color:var(--accent) !important;border-color:var(--accent) !important;border-radius:9px !important}
+.btn-salvar:hover{background:var(--accent-pale) !important}
+
+/* ── 11. Scrollbar discreta ── */
+.main-content::-webkit-scrollbar{width:9px}
+.main-content::-webkit-scrollbar-thumb{background:#c8d1e0;border-radius:10px;border:2px solid var(--canvas)}
+.main-content::-webkit-scrollbar-thumb:hover{background:#aab6cc}
+
+@media (max-width:720px){
+  .content-body{padding:20px 16px !important}
+  .home-greeting{font-size:23px !important}
+}
+
+/* ── 12. Números tabulares (zero limpo da Inter, colunas alinhadas) ── */
+.num-cotacao,td.num,.prod-cod,.prod-card-preco,.produto-card-preco,.qty-input,.price-input,
+.total-cell,.total-valor,.hist-num,.hist-total,.tp-cod-cell,.tp-ncm-cell,.tp-qtd-cell,.tp-preco-cell,
+.nf-numero,.nf-valor,.frete-pct,.crm-stat-num,.bonif-zero,.qty-display,.valor-destaque,
+.metric-valor,.est-cod,.est-saldo,.est-seg-input,.lote-num,.lote-qtd,#printNumCot,#numCotacao,#numCotInput{
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:'tnum' 1,'lnum' 1 !important;
+  letter-spacing:0 !important}
+
+/* ── 13. Cabeçalhos de módulo (Agenda, Fretes, CRM, Amostras, Licitações)
+        Meio-termo: degradê sutil na família azul-escura do menu (sem roxo) ── */
+.modulo-header{
+  background:linear-gradient(100deg,#101a2e 0%,#162540 55%,#1d3158 100%) !important;
+  border-bottom:1px solid rgba(255,255,255,.06) !important;
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.04) !important}
+.modulo-header-title{color:#fff !important;letter-spacing:-.1px}
+.modulo-header-sub{color:rgba(255,255,255,.55) !important}
+/* Agenda — navegação de mês + legenda legíveis sobre o escuro */
+.agenda-mes{color:#dce8ff !important}
+.agenda-btn-nav{
+  background:rgba(255,255,255,.08) !important;border:1px solid rgba(255,255,255,.2) !important;
+  color:#cfe0ff !important}
+.agenda-btn-nav:hover{background:var(--accent) !important;border-color:var(--accent) !important;color:#fff !important}
+.agenda-legenda .agenda-leg-item{color:rgba(255,255,255,.88) !important;font-weight:600 !important}
+.agenda-leg-dot{box-shadow:0 0 0 2px rgba(255,255,255,.16) !important}
+/* botão de fechar (✕) dos cabeçalhos de módulo, sobre o escuro */
+.modulo-header .modal-close{color:rgba(255,255,255,.7) !important}
+.modulo-header .modal-close:hover{color:#fff !important}
+
+/* ── 14. Ícone nos títulos de módulo + superfícies internas sólidas ── */
+.modulo-header-title{display:inline-flex !important;align-items:center;gap:9px}
+.modulo-header-title .mh-ico{width:18px;height:18px;flex-shrink:0;opacity:.92;color:#9ec3ff}
+.modulo-header{padding:14px 18px !important}
+
+/* Cards e listas internas: sólidos, borda e sombra do novo sistema */
+.modulo-card,.nf-card,.historico-card,.crm-stat{
+  background:#fff !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important}
+.modulo-card{border:1px solid var(--line) !important;border-radius:16px !important;
+  box-shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.05) !important;overflow:hidden}
+.modulo-body{padding:22px !important}
+.historico-card{border:1px solid var(--line) !important;border-radius:16px !important;
+  box-shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.05) !important}
+.nf-card{border:1px solid var(--line) !important;border-left-width:4px !important;border-radius:13px !important;
+  box-shadow:0 1px 2px rgba(16,24,40,.04) !important}
+.nf-card:hover{box-shadow:0 8px 22px rgba(16,24,40,.09) !important;transform:none !important}
+.nf-numero{color:var(--accent) !important}
+
+/* Tiles de estatística (CRM, Fretes, Amostras, Licitações) */
+.crm-stat{border:1px solid var(--line) !important;border-radius:14px !important;
+  box-shadow:0 1px 2px rgba(16,24,40,.04) !important;padding:14px 16px !important}
+.crm-stat-num{color:var(--accent) !important;font-size:24px !important;letter-spacing:-.5px}
+.crm-stat-label{color:var(--muted) !important}
+
+/* Itens de lista (registros, eventos) */
+.registro-item,.evento-item{
+  background:#fbfcff !important;border:1px solid var(--line) !important;border-radius:12px !important}
+.registro-item:hover{background:#fff !important;border-color:rgba(59,130,246,.35) !important;box-shadow:0 4px 14px rgba(16,24,40,.06) !important}
+.registro-item.expandido{border-color:var(--accent) !important;background:#fff !important}
+.reg-titulo{color:var(--ink-2) !important}
+
+/* Campos de formulário e busca: foco azul */
+.form-field input,.form-field select,.form-field textarea,.busca-mod{
+  background:#f6f8fc !important;border:1px solid var(--line) !important;border-radius:10px !important}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus,.busca-mod:focus{
+  border-color:var(--accent) !important;background:#fff !important;
+  box-shadow:0 0 0 3px rgba(37,99,235,.12) !important}
+
+/* Estados vazios mais discretos */
+.empty-mod{padding:48px 20px !important}
+.empty-mod .empty-icon{font-size:30px !important;opacity:.45}
+
+/* Chips de filtro (Fretes): raio e base consistentes */
+.frete-filter-btn{border-radius:10px !important;border-width:1px !important}
+
+/* Botão "novo" de módulo no azul único */
+.btn-novo-mod{background:var(--accent) !important;border-radius:9px !important}
+.btn-novo-mod:hover{background:var(--accent-hover) !important}
+
+/* ── 15. Ícones em botões/títulos, modais e buscas ── */
+.btn-ico{width:15px;height:15px;flex-shrink:0}
+.card-title{display:inline-flex !important;align-items:center;gap:8px}
+.card-title svg{width:17px;height:17px;flex-shrink:0;color:var(--accent)}
+.tabela-title{display:inline-flex !important;align-items:center;gap:8px}
+.tabela-title svg{width:17px;height:17px;flex-shrink:0;color:rgba(255,255,255,.92)}
+
+/* Modais alinhados ao padrão escuro do menu */
+.modal-header,.rastreio-header{
+  background:linear-gradient(100deg,#101a2e 0%,#162540 55%,#1d3158 100%) !important;
+  border-bottom:1px solid rgba(255,255,255,.06) !important}
+.modal-title,.rastreio-title{color:#fff !important;display:inline-flex;align-items:center;gap:9px}
+.modal-title svg{width:18px;height:18px;color:#9ec3ff}
+.modal-header .modal-close,.rastreio-header .modal-close{
+  background:rgba(255,255,255,.1) !important;color:rgba(255,255,255,.85) !important;border-radius:7px !important}
+.modal-header .modal-close:hover,.rastreio-header .modal-close:hover{background:rgba(255,255,255,.2) !important;color:#fff !important}
+
+/* Lupa nas buscas de módulo */
+.busca-mod,.modal-search{
+  background-color:#f6f8fc !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a94a8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m20 20-4.2-4.2'/%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;background-position:13px 50% !important;background-size:16px !important;
+  padding-left:38px !important}
+#estBusca{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='.7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m20 20-4.2-4.2'/%3E%3C/svg%3E") !important;
+  background-repeat:no-repeat !important;background-position:10px 50% !important;background-size:15px !important;
+  padding-left:32px !important}
+</style>
 </head>
 <body>
+
+<!-- ── SPRITE DE ÍCONES (linha) ── -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9.5 21v-6h5v6"/></symbol>
+  <symbol id="i-cot" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3.4h6a1 1 0 0 1 1 1V6H8V4.4a1 1 0 0 1 1-1Z"/><path d="M8.5 11h7M8.5 15h7M8.5 18h4"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9.2 9.5v10M14.8 9.5v10"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6.2l-4.4 7.9A1.6 1.6 0 0 0 7 19.5h10a1.6 1.6 0 0 0 1.4-2.4L14 9.2V3"/><path d="M7.6 15h8.8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.6 20a5.4 5.4 0 0 1 10.8 0"/><path d="M16 5.3a3 3 0 0 1 0 5.4"/><path d="M17.2 14.6a5.4 5.4 0 0 1 3.2 5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-gavel" viewBox="0 0 24 24"><path d="M12 4v16M7.5 20h9"/><path d="M5 8h14"/><path d="M9 4.6 5 8M15 4.6 19 8"/><path d="M3 13.2a2 2 0 0 0 4 0L5 8l-2 5.2Z"/><path d="M17 13.2a2 2 0 0 0 4 0L19 8l-2 5.2Z"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="11.5" height="9" rx="1.4"/><path d="M14 9.5h3.6l2.9 3.1v2.9H14z"/><circle cx="7" cy="17.6" r="1.8"/><circle cx="17.2" cy="17.6" r="1.8"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3 4 7.2v9.6L12 21l8-4.2V7.2L12 3Z"/><path d="M4 7.2 12 11.5l8-4.3M12 11.5V21"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13.2h5.6L9.4 21l8-10.2H11.8L13 3Z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6.5 9.5a5.5 5.5 0 0 1 11 0c0 4.6 1.8 6 1.8 6H4.7s1.8-1.4 1.8-6Z"/><path d="M10 19a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-factory" viewBox="0 0 24 24"><path d="M3 20V10l5 3V10l5 3V7l5 3v10H3Z"/><path d="M7 20v-3M12 20v-3M17 20v-3"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 22 19.5H2L12 4Z"/><path d="M12 10v4.5M12 17.5h.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.4V12l3.2 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.4 12 2.6 2.6 4.6-5.2"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8.5 6.5h11M8.5 12h11M8.5 17.5h11"/><circle cx="4.3" cy="6.5" r="1.1"/><circle cx="4.3" cy="12" r="1.1"/><circle cx="4.3" cy="17.5" r="1.1"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M16.5 4.5l3 3L8 19l-4 1 1-4 11.5-11.5Z"/><path d="M14.5 6.5l3 3"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5Z"/><path d="M8 4v5h7"/><rect x="8" y="13" width="8" height="5"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15.5V4.5"/><path d="m7.5 9 4.5-4.5L16.5 9"/><path d="M5 15.5v2.5A1.5 1.5 0 0 0 6.5 19.5h11A1.5 1.5 0 0 0 19 18v-2.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M9.8 14.2 14.2 9.8"/><path d="M8.5 11 6.6 12.9a3.4 3.4 0 0 0 4.8 4.8l1.9-1.9"/><path d="M15.5 13l1.9-1.9a3.4 3.4 0 0 0-4.8-4.8l-1.9 1.9"/></symbol>
+</svg>
 
 <!-- ── TELA DE LOGIN ── -->
 <div id="loginOverlay">
@@ -1248,33 +1551,33 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 <aside class="sidebar" id="appSidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo-wrap">
-      <div style="font-family:'Inter',sans-serif;font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px">G<span style="color:#bfdbfe">Ex</span> <span style="font-weight:300;font-size:13px;color:rgba(255,255,255,.65);letter-spacing:.5px">Assist</span></div>
+      <div style="font-family:'Inter',sans-serif;font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px">G<span style="color:#3b82f6">Ex</span> <span style="font-weight:300;font-size:13px;color:rgba(255,255,255,.65);letter-spacing:.5px">Assist</span></div>
       
     </div>
     <button class="sidebar-toggle" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Recolher menu">◀</button>
   </div>
   <div class="sidebar-section">
-    <button class="sidebar-item active" id="btnModoHome" data-label="Home" onclick="setModoApp('home')"><span class="si-icon">🏠</span><span class="si-text">Home</span></button>
+    <button class="sidebar-item active" id="btnModoHome" data-label="Home" onclick="setModoApp('home')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-home"></use></svg><span class="si-text">Home</span></button>
   </div>
   <div class="sidebar-divider"></div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Comercial</div>
-    <button class="sidebar-item" id="btnModoCot" data-label="Cotação" onclick="setModoApp('cotacao')"><span class="si-icon">📋</span><span class="si-text">Cotação</span></button>
-    <button class="sidebar-item" id="btnModoTab" data-label="Tabelas" onclick="setModoApp('tabela')"><span class="si-icon">📊</span><span class="si-text">Tabelas</span></button>
-    <button class="sidebar-item" id="btnModoAmostras" data-label="Amostras" onclick="setModoApp('amostras')"><span class="si-icon">🧪</span><span class="si-text">Amostras</span></button>
-    <button class="sidebar-item" id="btnModoCRM" data-label="CRM" onclick="setModoApp('crm')"><span class="si-icon">👥</span><span class="si-text">CRM</span></button>
-    <button class="sidebar-item" id="btnModoAgenda" data-label="Agenda" onclick="setModoApp('agenda')"><span class="si-icon">📅</span><span class="si-text">Agenda</span></button>
-    <button class="sidebar-item" id="btnModoLicit" data-label="Licitações" onclick="setModoApp('licitacoes')"><span class="si-icon">⚖️</span><span class="si-text">Licitação</span></button>
+    <button class="sidebar-item" id="btnModoCot" data-label="Cotação" onclick="setModoApp('cotacao')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-cot"></use></svg><span class="si-text">Cotação</span></button>
+    <button class="sidebar-item" id="btnModoTab" data-label="Tabelas" onclick="setModoApp('tabela')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-table"></use></svg><span class="si-text">Tabelas</span></button>
+    <button class="sidebar-item" id="btnModoAmostras" data-label="Amostras" onclick="setModoApp('amostras')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-flask"></use></svg><span class="si-text">Amostras</span></button>
+    <button class="sidebar-item" id="btnModoCRM" data-label="CRM" onclick="setModoApp('crm')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-users"></use></svg><span class="si-text">CRM</span></button>
+    <button class="sidebar-item" id="btnModoAgenda" data-label="Agenda" onclick="setModoApp('agenda')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-calendar"></use></svg><span class="si-text">Agenda</span></button>
+    <button class="sidebar-item" id="btnModoLicit" data-label="Licitações" onclick="setModoApp('licitacoes')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-gavel"></use></svg><span class="si-text">Licitação</span></button>
   </div>
   <div class="sidebar-divider"></div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Logística</div>
-    <button class="sidebar-item" id="btnModoFrete" data-label="Fretes" onclick="setModoApp('frete')"><span class="si-icon">🚚</span><span class="si-text">Fretes</span></button>
+    <button class="sidebar-item" id="btnModoFrete" data-label="Fretes" onclick="setModoApp('frete')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg><span class="si-text">Fretes</span></button>
   </div>
   <div class="sidebar-divider"></div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Estoque</div>
-    <button class="sidebar-item" id="btnModoEstoque" data-label="Estoque" onclick="setModoApp('estoque')"><span class="si-icon">📦</span><span class="si-text">Estoque</span></button>
+    <button class="sidebar-item" id="btnModoEstoque" data-label="Estoque" onclick="setModoApp('estoque')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-box"></use></svg><span class="si-text">Estoque</span></button>
   </div>
 </aside>
 <div class="main-area" id="mainArea">
@@ -1283,7 +1586,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   <!-- PAGE HEADER DINÂMICO -->
   <div class="page-header" id="pageHeader">
     <button class="ham-btn" id="btnMenuMobile" onclick="toggleSidebarMobile()">☰</button>
-    <span class="page-header-icon" id="pageHeaderIcon">🏠</span>
+    <span class="page-header-icon" id="pageHeaderIcon"><svg data-ico viewBox="0 0 24 24"><use href="#i-home"></use></svg></span>
     <div class="page-header-info">
       <div class="page-header-title" id="pageHeaderTitle">Dashboard</div>
       <div class="page-header-sub" id="pageHeaderSub">Resumo do dia — GEx Assist</div>
@@ -1362,25 +1665,25 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <!-- Métricas principais -->
     <div class="home-grid-4" id="homeMetrics">
       <div class="metric-card roxo" onclick="setModoApp('cotacao')">
-        <span class="metric-icon">📋</span>
+        <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-cot"></use></svg>
         <div class="metric-valor" id="hmCotacoes">0</div>
         <div class="metric-label">Cotações Salvas</div>
         <div class="metric-sub"><span class="metric-badge neutral" id="hmCotMes">0 este mês</span></div>
       </div>
       <div class="metric-card laranja" onclick="setModoApp('frete')">
-        <span class="metric-icon">🚚</span>
+        <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg>
         <div class="metric-valor" id="hmFretes">0</div>
         <div class="metric-label">Fretes em Trânsito</div>
         <div class="metric-sub"><span class="metric-badge neutral" id="hmFretesTotal">0 total</span></div>
       </div>
       <div class="metric-card verde" onclick="setModoApp('crm')">
-        <span class="metric-icon">👥</span>
+        <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-users"></use></svg>
         <div class="metric-valor" id="hmClientes">0</div>
         <div class="metric-label">Clientes no CRM</div>
         <div class="metric-sub"><span class="metric-badge neutral" id="hmEstados">0 estados</span></div>
       </div>
       <div class="metric-card azul" onclick="setModoApp('licitacoes')">
-        <span class="metric-icon">⚖️</span>
+        <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-gavel"></use></svg>
         <div class="metric-valor" id="hmLicit">0</div>
         <div class="metric-label">Licitações Ativas</div>
         <div class="metric-sub"><span class="metric-badge neutral" id="hmLicitGanho">0 ganhas</span></div>
@@ -1388,22 +1691,22 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     </div>
 
     <!-- Ações rápidas -->
-    <div class="home-section-title">⚡ Ações Rápidas</div>
+    <div class="home-section-title">Ações Rápidas</div>
     <div class="quick-actions">
       <div class="quick-btn" onclick="setModoApp('cotacao');novaCot()">
-        <span class="quick-btn-icon">📋</span>
+        <svg class="quick-btn-icon" data-ico viewBox="0 0 24 24"><use href="#i-cot"></use></svg>
         <span class="quick-btn-label">Nova Cotação</span>
       </div>
       <div class="quick-btn" onclick="setModoApp('frete');abrirFormNF()">
-        <span class="quick-btn-icon">🚚</span>
+        <svg class="quick-btn-icon" data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg>
         <span class="quick-btn-label">Lançar NF</span>
       </div>
       <div class="quick-btn" onclick="setModoApp('agenda');abrirModalEvento()">
-        <span class="quick-btn-icon">📅</span>
+        <svg class="quick-btn-icon" data-ico viewBox="0 0 24 24"><use href="#i-calendar"></use></svg>
         <span class="quick-btn-label">Novo Evento</span>
       </div>
       <div class="quick-btn" onclick="setModoApp('amostras')">
-        <span class="quick-btn-icon">🧪</span>
+        <svg class="quick-btn-icon" data-ico viewBox="0 0 24 24"><use href="#i-flask"></use></svg>
         <span class="quick-btn-label">Registrar Amostra</span>
       </div>
     </div>
@@ -1411,7 +1714,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <div class="home-grid-2">
       <!-- Alertas e pendências -->
       <div>
-        <div class="home-section-title">🔔 Pendências <span id="homePendCount"></span></div>
+        <div class="home-section-title">Pendências <span id="homePendCount"></span></div>
         <div class="alert-list" id="homeAlertList">
           <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">✅ Tudo em dia!</div>
         </div>
@@ -1419,7 +1722,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
       <!-- Próximos eventos -->
       <div>
-        <div class="home-section-title">📅 Próximos Eventos <span onclick="setModoApp('agenda')" style="cursor:pointer;color:#7c3aed">ver todos →</span></div>
+        <div class="home-section-title">Próximos Eventos <span onclick="setModoApp('agenda')" style="cursor:pointer;color:#7c3aed">ver todos →</span></div>
         <div id="homeEventosList">
           <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum evento próximo</div>
         </div>
@@ -1427,37 +1730,37 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     </div>
 
     <!-- Fretes em andamento -->
-    <div class="home-section-title">🚚 Fretes em Andamento <span onclick="setModoApp('frete')" style="cursor:pointer;color:#7c3aed">ver todos →</span></div>
+    <div class="home-section-title">Fretes em Andamento <span onclick="setModoApp('frete')" style="cursor:pointer;color:#7c3aed">ver todos →</span></div>
     <div id="homeFretesAtivos">
       <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum frete em andamento</div>
     </div>
 
     <!-- Dashboard Estoque -->
     <div id="homeEstoqueSection" style="display:none">
-      <div class="home-section-title" style="margin-top:24px">📦 Estoque — Visão Geral <span onclick="setModoApp('estoque')" style="cursor:pointer;color:#7c3aed">ver completo →</span></div>
+      <div class="home-section-title" style="margin-top:24px">Estoque — Visão Geral <span onclick="setModoApp('estoque')" style="cursor:pointer;color:#7c3aed">ver completo →</span></div>
 
       <!-- Cards estoque -->
       <div class="home-grid-4" style="margin-bottom:16px">
         <div class="metric-card vermelho" onclick="setModoApp('estoque')" style="cursor:pointer">
-          <span class="metric-icon">🏭</span>
+          <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg>
           <div class="metric-valor" id="hmEstProduzir" style="color:#dc2626">0</div>
           <div class="metric-label">A Produzir</div>
           <div class="metric-sub"><span class="metric-badge" id="hmEstProduzirSub" style="background:#fef2f2;color:#dc2626">abaixo do seg.</span></div>
         </div>
         <div class="metric-card vermelho" onclick="setModoApp('estoque')" style="cursor:pointer">
-          <span class="metric-icon">⚠️</span>
+          <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-alert"></use></svg>
           <div class="metric-valor" id="hmEstZerado" style="color:#dc2626">0</div>
           <div class="metric-label">Produtos Zerados</div>
           <div class="metric-sub"><span class="metric-badge" style="background:#fef2f2;color:#dc2626">saldo = 0</span></div>
         </div>
         <div class="metric-card laranja" onclick="setModoApp('estoque')" style="cursor:pointer">
-          <span class="metric-icon">⏳</span>
+          <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-clock"></use></svg>
           <div class="metric-valor" id="hmEstVencendo" style="color:#f97316">0</div>
           <div class="metric-label">Lotes Vencendo</div>
           <div class="metric-sub"><span class="metric-badge" style="background:#fff7ed;color:#f97316">em 6 meses</span></div>
         </div>
         <div class="metric-card verde" onclick="setModoApp('estoque')" style="cursor:pointer">
-          <span class="metric-icon">✅</span>
+          <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-check"></use></svg>
           <div class="metric-valor" id="hmEstOk" style="color:#16a34a">0</div>
           <div class="metric-label">Produtos OK</div>
           <div class="metric-sub"><span class="metric-badge" style="background:#f0fdf4;color:#16a34a">acima do seg.</span></div>
@@ -1467,7 +1770,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <!-- Gráfico top déficit -->
       <div class="modulo-card" style="margin-bottom:14px">
         <div class="tabela-head" style="border-radius:14px 14px 0 0">
-          <div class="tabela-title">📊 Top Produtos a Produzir</div>
+          <div class="tabela-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg>Top Produtos a Produzir</div>
         </div>
         <div style="padding:16px 20px" id="hmEstGrafico">
           <div style="text-align:center;color:var(--muted);font-size:13px">Sem dados de produção</div>
@@ -1506,7 +1809,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         </div>
       </div>
       <div style="text-align:right">
-        <div id="printNumCot" style="font-size:13px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace"></div>
+        <div id="printNumCot" style="font-size:13px;font-weight:700;color:#fff;font-family:'Inter',system-ui,sans-serif"></div>
         <div id="printDataCot" style="font-size:9px;color:rgba(255,255,255,.75);margin-top:2px"></div>
       </div>
     </div>
@@ -1638,7 +1941,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
             <img src="https://growqf.com.br/wp-content/uploads/2024/07/GROW-EXEOL-BRANO-2.png" alt="GROW-EXEOL" class="tp-print-logo-img" onerror="this.style.display='none'">
             <div style="border-left:2px solid rgba(255,255,255,.3);padding-left:14px">
               <div class="tp-print-header-titulo">TABELA DE PREÇOS</div>
-              <div style="font-size:8px;color:rgba(255,255,255,.75);margin-top:3px">Grow Química e Farmacêutica Ltda. · comercial@growqf.com.br · (19) 3935-9696</div>
+              <div style="font-size:8px;color:rgba(255,255,255,.75);margin-top:3px">Grow Química e Farmacêutica Ltda. · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9dfef2f0f8effef4fcf1ddfaeff2eaecfbb3fef2f0b3ffef">[email&#160;protected]</a> · (19) 3935-9696</div>
             </div>
           </div>
           <div style="text-align:right">
@@ -1689,7 +1992,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     </div>
     <!-- Rodapé fixo visível apenas na impressão da tabela -->
     <div class="tp-rodape-fixo">
-      <strong>Grow Química e Farmacêutica Ltda.</strong> · Av. Vitória Rossi Martini - Comercial Vitoria Martini, Indaiatuba - SP, 13347-613 · comercial@growqf.com.br · (19) 3935-9696
+      <strong>Grow Química e Farmacêutica Ltda.</strong> · Av. Vitória Rossi Martini - Comercial Vitoria Martini, Indaiatuba - SP, 13347-613 · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d7b4b8bab2a5b4beb6bb97b0a5b8a0a6b1f9b4b8baf9b5a5">[email&#160;protected]</a> · (19) 3935-9696
     </div>
   </div>
 
@@ -1709,7 +2012,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
             <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#ea580c"></span>Barril</span>
             <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#db2777"></span>Cris</span>
           </div>
-          <button class="btn-salvar-mod" onclick="abrirModalEvento()">＋ Novo Evento</button>
+          <button class="btn-salvar-mod" onclick="abrirModalEvento()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-plus"></use></svg> Novo Evento</button>
         </div>
       </div>
       <div class="modulo-body" style="padding:12px">
@@ -1722,7 +2025,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       </div>
     </div>
     <div class="modulo-card">
-      <div class="modulo-header"><div class="modulo-header-title">📌 Próximos Eventos</div></div>
+      <div class="modulo-header"><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-calendar"></use></svg>Próximos Eventos</div></div>
       <div class="modulo-body"><div class="eventos-list" id="proximosEventos"><div class="empty-mod"><div class="empty-icon">📅</div>Nenhum evento cadastrado.</div></div></div>
     </div>
   </div>
@@ -1735,7 +2038,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="crm-stat"><div class="crm-stat-num" id="licitGanho" style="color:#16a34a">0</div><div class="crm-stat-label">Ganhas</div></div>
     </div>
     <div class="modulo-card">
-      <div class="modulo-header"><div class="modulo-header-title">⚖️ Nova Licitação</div></div>
+      <div class="modulo-header"><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-gavel"></use></svg>Nova Licitação</div></div>
       <div class="modulo-body">
         <div class="modulo-grid-3" style="margin-bottom:12px">
           <div class="form-field"><label>Nº do Edital / Pregão</label><input type="text" id="licitNum" placeholder=""></div>
@@ -1757,14 +2060,14 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <div class="form-field" style="margin-bottom:12px"><label>Observações</label><textarea id="licitObs" placeholder="Produtos, condições, prazos..." style="min-height:60px"></textarea></div>
         <div class="form-actions">
           <button class="btn-cancel-mod" onclick="limparFormLicit()">Limpar</button>
-          <button class="btn-salvar-mod" onclick="salvarLicit()">💾 Salvar</button>
+          <button class="btn-salvar-mod" onclick="salvarLicit()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-save"></use></svg> Salvar</button>
         </div>
       </div>
     </div>
     <div class="modulo-card">
-      <div class="modulo-header"><div class="modulo-header-title">📋 Licitações Cadastradas</div></div>
+      <div class="modulo-header"><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-list"></use></svg>Licitações Cadastradas</div></div>
       <div class="modulo-body">
-        <input type="text" class="busca-mod" placeholder="🔍 Buscar edital ou órgão..." oninput="renderLicit(this.value)">
+        <input type="text" class="busca-mod" placeholder="Buscar edital ou órgão..." oninput="renderLicit(this.value)">
         <div class="registros-list" id="licitList"><div class="empty-mod"><div class="empty-icon">⚖️</div>Nenhuma licitação cadastrada.</div></div>
       </div>
     </div>
@@ -1777,12 +2080,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <div class="historico-card" style="margin-bottom:14px">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <div>
-          <div class="card-title" style="margin-bottom:4px">📦 Estoque — Produtos Acabados (ACA)</div>
+          <div class="card-title" style="margin-bottom:4px"><svg data-ico viewBox="0 0 24 24"><use href="#i-box"></use></svg>Estoque — Produtos Acabados (ACA)</div>
           <div id="estUploadInfo" style="font-size:11px;color:var(--muted)">Nenhum relatório carregado.</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn-pdf" onclick="document.getElementById('inputEstoque').click()" style="font-size:12px;padding:8px 16px">📂 Carregar Relatório Excel</button>
-          <button class="btn-pdf" onclick="sbSalvarTodosSeg()" id="btnSalvarSeg" style="font-size:12px;padding:8px 16px;background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 2px 8px rgba(5,150,105,.3)">💾 Salvar Est. Segurança</button>
+          <button class="btn-pdf" onclick="document.getElementById('inputEstoque').click()" style="font-size:12px;padding:8px 16px">​<svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-upload"></use></svg> Carregar Relatório Excel</button>
+          <button class="btn-pdf" onclick="sbSalvarTodosSeg()" id="btnSalvarSeg" style="font-size:12px;padding:8px 16px;background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 2px 8px rgba(5,150,105,.3)">​<svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-save"></use></svg> Salvar Est. Segurança</button>
           <input type="file" id="inputEstoque" accept=".xlsx,.xls" style="display:none" onchange="processarEstoque(this)">
         </div>
       </div>
@@ -1806,7 +2109,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="tabela-head">
         <div class="tabela-title">Posição de Estoque</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" id="estBusca" placeholder="🔍 Buscar produto..." onInput="filtrarEstoque(this.value)"
+          <input type="text" id="estBusca" placeholder="Buscar produto..." onInput="filtrarEstoque(this.value)"
             style="padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;width:220px;outline:none">
         </div>
       </div>
@@ -1829,7 +2132,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
     <!-- Estado vazio -->
     <div id="estVazio" style="padding:60px;text-align:center;color:var(--muted)">
-      <div style="font-size:48px;margin-bottom:12px">📦</div>
+      <svg data-ico viewBox="0 0 24 24" style="width:46px;height:46px;margin:0 auto 12px;color:#b7c2d6"><use href="#i-box"></use></svg>
       <div style="font-size:14px;font-weight:600;margin-bottom:6px">Carregue o relatório do ERP</div>
       <div style="font-size:12px">Clique em "Carregar Relatório Excel" para importar o relatório diário</div>
     </div>
@@ -1839,7 +2142,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <!-- Produzir -->
       <div class="modulo-card" style="margin-bottom:14px">
         <div class="tabela-head" style="border-radius:14px 14px 0 0">
-          <div class="tabela-title">🏭 Necessidade de Produção</div>
+          <div class="tabela-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg>Necessidade de Produção</div>
           <div style="font-size:11px;color:rgba(255,255,255,.7)" id="estRelProduzirCount"></div>
         </div>
         <div style="padding:0">
@@ -1861,7 +2164,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <!-- Vencimentos -->
       <div class="modulo-card">
         <div class="tabela-head" style="border-radius:14px 14px 0 0">
-          <div class="tabela-title">⏳ Lotes Próximos ao Vencimento <span style="font-size:10px;font-weight:400;opacity:.7">(menos de 6 meses)</span></div>
+          <div class="tabela-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-clock"></use></svg>Lotes Próximos ao Vencimento <span style="font-size:10px;font-weight:400;opacity:.7">(menos de 6 meses)</span></div>
           <div style="font-size:11px;color:rgba(255,255,255,.7)" id="estRelVencCount"></div>
         </div>
         <div style="padding:0">
@@ -1887,7 +2190,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   <!-- Modal Evento -->
   <div class="overlay" id="overlayEvento" onclick="if(event.target===this)fecharModalEvento()">
     <div class="modal" style="max-width:500px">
-      <div class="modal-header"><div class="modal-title">📅 Novo Evento</div><button class="modal-close" onclick="fecharModalEvento()">✕</button></div>
+      <div class="modal-header"><div class="modal-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-calendar"></use></svg>Novo Evento</div><button class="modal-close" onclick="fecharModalEvento()">✕</button></div>
       <div class="modal-body">
         <div style="display:grid;gap:12px">
           <div class="form-field"><label>Título</label><input type="text" id="evTitulo" placeholder=""></div>
@@ -1917,7 +2220,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       </div>
       <div class="modal-footer">
         <button class="btn-cancel-mod" onclick="fecharModalEvento()">Cancelar</button>
-        <button class="btn-confirm" onclick="salvarEvento()">💾 Salvar</button>
+        <button class="btn-confirm" onclick="salvarEvento()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-save"></use></svg> Salvar</button>
       </div>
     </div>
   </div>
@@ -1937,7 +2240,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <label class="btn-cancel-mod" style="cursor:pointer">📎 Importar XML <input type="file" accept=".xml" style="display:none" onchange="importarXML(this)"></label>
       <button class="btn-cancel-mod" onclick="imprimirFrete('aguardando')">🖨 Aguardando</button>
       <button class="btn-cancel-mod" onclick="imprimirFrete('entregue')">🖨 Concluídos</button>
-      <input type="text" class="busca-mod" style="max-width:220px;margin:0" placeholder="🔍 Buscar NF ou cliente..." oninput="renderFretes(freteFilter,this.value)">
+      <input type="text" class="busca-mod" style="max-width:220px;margin:0" placeholder="Buscar NF ou cliente..." oninput="renderFretes(freteFilter,this.value)">
     </div>
     <!-- Filtros -->
     <div class="frete-filters">
@@ -1950,7 +2253,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <!-- Form NF (oculto por padrão) -->
     <div class="modulo-card" id="formNFCard" style="display:none">
       <div class="modulo-header">
-        <div><div class="modulo-header-title" id="formNFTitulo">＋ Nova NF</div></div>
+        <div><div class="modulo-header-title" id="formNFTitulo"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-plus"></use></svg>Nova NF</div></div>
         <button class="modal-close" onclick="fecharFormNF()">✕</button>
       </div>
       <div class="modulo-body">
@@ -2014,7 +2317,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <input type="hidden" id="ftEditId">
         <div class="form-actions">
           <button class="btn-cancel-mod" onclick="fecharFormNF()">Cancelar</button>
-          <button class="btn-salvar-mod" onclick="salvarNF()">💾 Salvar</button>
+          <button class="btn-salvar-mod" onclick="salvarNF()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-save"></use></svg> Salvar</button>
         </div>
       </div>
     </div>
@@ -2028,7 +2331,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="rastreio-header">
         <div class="rastreio-title" id="rastreioTitle">Rastreamento</div>
         <div style="display:flex;gap:8px">
-          <a id="rastreioLink" href="#" target="_blank" class="btn-nf" style="color:#fff;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);text-decoration:none;font-size:11px">🔗 Abrir no site</a>
+          <a id="rastreioLink" href="#" target="_blank" class="btn-nf" style="color:#fff;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);text-decoration:none;font-size:11px"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-link"></use></svg> Abrir no site</a>
           <button class="modal-close" onclick="fecharRastreio()">✕</button>
         </div>
       </div>
@@ -2037,7 +2340,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <div style="font-size:40px">🔒</div>
         <strong>Este site não permite visualização integrada</strong>
         <p>O site da transportadora bloqueou a exibição. Clique em "Abrir no site" para consultar em nova aba.</p>
-        <a id="rastreioBtnExterno" href="#" target="_blank" class="btn-salvar-mod" style="text-decoration:none">🔗 Abrir site da transportadora</a>
+        <a id="rastreioBtnExterno" href="#" target="_blank" class="btn-salvar-mod" style="text-decoration:none"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-link"></use></svg> Abrir site da transportadora</a>
       </div>
     </div>
   </div>
@@ -2049,7 +2352,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     </div>
     <div class="modulo-card">
       <div class="modulo-header">
-        <div><div class="modulo-header-title">🧪 Nova Solicitação de Amostra</div><div class="modulo-header-sub">Registre o envio de amostras para clientes</div></div>
+        <div><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-flask"></use></svg>Nova Solicitação de Amostra</div><div class="modulo-header-sub">Registre o envio de amostras para clientes</div></div>
       </div>
       <div class="modulo-body">
         <div class="modulo-grid-3" style="margin-bottom:14px">
@@ -2079,14 +2382,14 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <div class="form-field" style="margin-bottom:14px"><label>Observações</label><textarea id="amostObs" placeholder="Anotações sobre a visita, interesse do cliente..."></textarea></div>
         <div class="form-actions">
           <button class="btn-cancel-mod" onclick="limparFormAmostra()">Limpar</button>
-          <button class="btn-salvar-mod" onclick="salvarAmostra()">💾 Registrar Amostra</button>
+          <button class="btn-salvar-mod" onclick="salvarAmostra()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-save"></use></svg> Registrar Amostra</button>
         </div>
       </div>
     </div>
     <div class="modulo-card">
-      <div class="modulo-header"><div class="modulo-header-title">📋 Histórico de Amostras</div></div>
+      <div class="modulo-header"><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-list"></use></svg>Histórico de Amostras</div></div>
       <div class="modulo-body">
-        <input type="text" class="busca-mod" placeholder="🔍 Buscar por cliente, vendedor ou produto..." oninput="renderAmostras(this.value)">
+        <input type="text" class="busca-mod" placeholder="Buscar por cliente, vendedor ou produto..." oninput="renderAmostras(this.value)">
         <div class="registros-list" id="amostList"><div class="empty-mod"><div class="empty-icon">🧪</div>Nenhuma amostra registrada ainda.</div></div>
       </div>
     </div>
@@ -2101,7 +2404,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     </div>
     <div class="modulo-card">
       <div class="modulo-header">
-        <div><div class="modulo-header-title">👥 Novo Cliente</div><div class="modulo-header-sub">Cadastre ou atualize um cliente</div></div>
+        <div><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-users"></use></svg>Novo Cliente</div><div class="modulo-header-sub">Cadastre ou atualize um cliente</div></div>
       </div>
       <div class="modulo-body">
         <div class="modulo-grid-3" style="margin-bottom:14px">
@@ -2123,14 +2426,14 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <div class="form-field" style="margin-bottom:14px"><label>Observações</label><textarea id="crmObs" placeholder="Informações sobre o cliente, preferências, histórico..."></textarea></div>
         <div class="form-actions">
           <button class="btn-cancel-mod" onclick="limparFormCRM()">Limpar</button>
-          <button class="btn-salvar-mod" onclick="salvarCliente()">💾 Salvar Cliente</button>
+          <button class="btn-salvar-mod" onclick="salvarCliente()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-save"></use></svg> Salvar Cliente</button>
         </div>
       </div>
     </div>
     <div class="modulo-card">
-      <div class="modulo-header"><div class="modulo-header-title">📋 Clientes Cadastrados</div></div>
+      <div class="modulo-header"><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-list"></use></svg>Clientes Cadastrados</div></div>
       <div class="modulo-body">
-        <input type="text" class="busca-mod" placeholder="🔍 Buscar por razão social, CNPJ ou cidade..." oninput="renderCRM(this.value)">
+        <input type="text" class="busca-mod" placeholder="Buscar por razão social, CNPJ ou cidade..." oninput="renderCRM(this.value)">
         <div class="registros-list" id="crmList"><div class="empty-mod"><div class="empty-icon">👥</div>Nenhum cliente cadastrado ainda.</div></div>
       </div>
     </div>
@@ -2142,7 +2445,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   <div style="text-align:center">
     <strong>Grow Química e Farmacêutica Ltda.</strong><br>
     <span style="font-size:10px">Av. Vitória Rossi Martini - Comercial Vitoria Martini, Indaiatuba - SP, 13347-613</span><br>
-    <span style="font-size:10px">comercial@growqf.com.br · (19) 3935-9696 · www.growqf.com.br</span>
+    <span style="font-size:10px"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9cfff3f1f9eefff5fdf0dcfbeef3ebedfab2fff3f1b2feee">[email&#160;protected]</a> · (19) 3935-9696 · www.growqf.com.br</span>
   </div>
 </div>
 </div></div><!-- /content-body /main-content -->
@@ -2153,13 +2456,13 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   <div class="modal">
     <div class="modal-header"><div class="modal-title">Adicionar produtos</div><button class="modal-close" onclick="fecharModal()">✕</button></div>
     <div class="modal-body" id="modalBody">
-      <input type="text" class="modal-search" id="modalSearch" placeholder="🔍 Buscar produto..." oninput="filtrarModal(this.value)"></div>
+      <input type="text" class="modal-search" id="modalSearch" placeholder="Buscar produto..." oninput="filtrarModal(this.value)"></div>
     <div class="modal-footer"><span class="selected-count" id="modalSelCount">0 selecionados</span><button class="btn-cancel" onclick="fecharModal()">Cancelar</button><button class="btn-confirm" onclick="confirmarModal()">Adicionar selecionados</button></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const PRODUTOS=[{"codigo":"33.0063.5000","produto":"Proaction GTA 2%","apresentacao":"Galão 5 Lt","cf":{"AC":70.23,"AL":71.17,"AM":70.86,"AP":69.61,"BA":71.17,"CE":70.86,"DF":70.86,"ES":65.84,"GO":70.23,"MA":72.74,"MG":66.47,"MS":68.98,"MT":68.98,"PA":70.23,"PB":70.86,"PE":71.17,"PI":72.43,"PR":67.41,"RJ":68.98,"RN":70.86,"RO":70.55,"RR":70.86,"RS":65.84,"SC":65.84,"SE":70.86,"SP":62.71,"TO":70.86},"dist":{"AC":62.71,"AL":62.71,"AM":62.71,"AP":62.71,"BA":62.71,"CE":62.71,"DF":62.71,"ES":62.71,"GO":62.71,"MA":62.71,"MG":62.71,"MS":62.71,"MT":62.71,"PA":62.71,"PB":62.71,"PE":62.71,"PI":62.71,"PR":62.71,"RJ":62.71,"RN":62.71,"RO":62.71,"RR":62.71,"RS":62.71,"SC":62.71,"SE":62.71,"SP":62.71,"TO":62.71}},{"codigo":"33.0064.0050","produto":"Proaction GTA 2% Test Strips","apresentacao":"Frasco c/ 50 tiras","cf":{"AC":72.06,"AL":73.02,"AM":72.7,"AP":71.41,"BA":73.02,"CE":72.7,"DF":72.7,"ES":67.55,"GO":72.06,"MA":74.63,"MG":68.2,"MS":70.77,"MT":70.77,"PA":72.06,"PB":72.7,"PE":73.02,"PI":74.31,"PR":69.16,"RJ":70.77,"RN":72.7,"RO":72.38,"RR":72.7,"RS":67.55,"SC":67.55,"SE":72.7,"SP":72.48,"TO":72.7},"dist":{"AC":63.62,"AL":63.62,"AM":63.62,"AP":63.62,"BA":63.62,"CE":63.62,"DF":63.62,"ES":63.62,"GO":63.62,"MA":63.62,"MG":63.62,"MS":63.62,"MT":63.62,"PA":63.62,"PB":63.62,"PE":63.62,"PI":63.62,"PR":63.62,"RJ":63.62,"RN":63.62,"RO":63.62,"RR":63.62,"RS":63.62,"SC":63.62,"SE":63.62,"SP":63.62,"TO":63.62}},{"codigo":"33.0042.0230","produto":"Proaction GTA Inativador","apresentacao":"Inativador 230g","cf":{"AC":5.5,"AL":5.57,"AM":5.55,"AP":5.45,"BA":5.57,"CE":5.55,"DF":5.55,"ES":5.16,"GO":5.5,"MA":5.7,"MG":5.21,"MS":5.4,"MT":5.4,"PA":5.5,"PB":5.55,"PE":5.57,"PI":5.67,"PR":5.28,"RJ":5.4,"RN":5.55,"RO":5.53,"RR":5.55,"RS":5.16,"SC":5.16,"SE":5.55,"SP":4.91,"TO":5.55},"dist":{"AC":4.91,"AL":4.91,"AM":4.91,"AP":4.91,"BA":4.91,"CE":4.91,"DF":4.91,"ES":4.91,"GO":4.91,"MA":4.91,"MG":4.91,"MS":4.91,"MT":4.91,"PA":4.91,"PB":4.91,"PE":4.91,"PI":4.91,"PR":4.91,"RJ":4.91,"RN":4.91,"RO":4.91,"RR":4.91,"RS":4.91,"SC":4.91,"SE":4.91,"SP":4.91,"TO":4.91}},{"codigo":"33.0069.5000","produto":"Proaction OPA","apresentacao":"Galão 5 Lt","cf":{"AC":194.16,"AL":196.76,"AM":195.89,"AP":192.43,"BA":196.76,"CE":195.89,"DF":195.89,"ES":182.02,"GO":194.16,"MA":201.09,"MG":183.76,"MS":190.69,"MT":190.69,"PA":194.16,"PB":195.89,"PE":196.76,"PI":200.23,"PR":186.36,"RJ":190.69,"RN":195.89,"RO":195.03,"RR":195.89,"RS":182.02,"SC":182.02,"SE":195.89,"SP":173.36,"TO":195.89},"dist":{"AC":173.36,"AL":173.36,"AM":173.36,"AP":173.36,"BA":173.36,"CE":173.36,"DF":173.36,"ES":173.36,"GO":173.36,"MA":173.36,"MG":173.36,"MS":173.36,"MT":173.36,"PA":173.36,"PB":173.36,"PE":173.36,"PI":173.36,"PR":173.36,"RJ":173.36,"RN":173.36,"RO":173.36,"RR":173.36,"RS":173.36,"SC":173.36,"SE":173.36,"SP":173.36,"TO":173.36}},{"codigo":"33.0019.0040","produto":"Proaction OPA Test Strips","apresentacao":"Frasco c/ 40 tiras","cf":{"AC":127.09,"AL":128.79,"AM":128.22,"AP":125.95,"BA":128.79,"CE":128.22,"DF":128.22,"ES":119.15,"GO":127.09,"MA":131.63,"MG":120.28,"MS":124.82,"MT":124.82,"PA":127.09,"PB":128.22,"PE":128.79,"PI":131.06,"PR":121.98,"RJ":124.82,"RN":128.22,"RO":127.66,"RR":128.22,"RS":119.15,"SC":119.15,"SE":128.22,"SP":127.84,"TO":128.22},"dist":{"AC":112.21,"AL":112.21,"AM":112.21,"AP":112.21,"BA":112.21,"CE":112.21,"DF":112.21,"ES":112.21,"GO":112.21,"MA":112.21,"MG":112.21,"MS":112.21,"MT":112.21,"PA":112.21,"PB":112.21,"PE":112.21,"PI":112.21,"PR":112.21,"RJ":112.21,"RN":112.21,"RO":112.21,"RR":112.21,"RS":112.21,"SC":112.21,"SE":112.21,"SP":112.21,"TO":112.21}},{"codigo":"33.0020.0032","produto":"Proaction OPA Inativador (Glicina)","apresentacao":"Inativador 30g","cf":{"AC":7.9,"AL":8.0,"AM":7.97,"AP":7.83,"BA":8.0,"CE":7.97,"DF":7.97,"ES":7.4,"GO":7.9,"MA":8.18,"MG":7.47,"MS":7.76,"MT":7.76,"PA":7.9,"PB":7.97,"PE":8.0,"PI":8.14,"PR":7.58,"RJ":7.76,"RN":7.97,"RO":7.93,"RR":7.97,"RS":7.4,"SC":7.4,"SE":7.97,"SP":7.05,"TO":7.97},"dist":{"AC":7.05,"AL":7.05,"AM":7.05,"AP":7.05,"BA":7.05,"CE":7.05,"DF":7.05,"ES":7.05,"GO":7.05,"MA":7.05,"MG":7.05,"MS":7.05,"MT":7.05,"PA":7.05,"PB":7.05,"PE":7.05,"PI":7.05,"PR":7.05,"RJ":7.05,"RN":7.05,"RO":7.05,"RR":7.05,"RS":7.05,"SC":7.05,"SE":7.05,"SP":7.05,"TO":7.05}},{"codigo":"33.0065.5000","produto":"Proaction Peracetic 0,2%","apresentacao":"Galão 5 Lt","cf":{"AC":89.55,"AL":90.75,"AM":90.35,"AP":88.76,"BA":90.75,"CE":90.35,"DF":90.35,"ES":83.96,"GO":89.55,"MA":92.75,"MG":84.76,"MS":87.96,"MT":87.96,"PA":89.55,"PB":90.35,"PE":90.75,"PI":92.35,"PR":85.96,"RJ":87.96,"RN":90.35,"RO":89.95,"RR":90.35,"RS":83.96,"SC":83.96,"SE":90.35,"SP":79.96,"TO":90.35},"dist":{"AC":79.96,"AL":79.96,"AM":79.96,"AP":79.96,"BA":79.96,"CE":79.96,"DF":79.96,"ES":79.96,"GO":79.96,"MA":79.96,"MG":79.96,"MS":79.96,"MT":79.96,"PA":79.96,"PB":79.96,"PE":79.96,"PI":79.96,"PR":79.96,"RJ":79.96,"RN":79.96,"RO":79.96,"RR":79.96,"RS":79.96,"SC":79.96,"SE":79.96,"SP":79.96,"TO":79.96}},{"codigo":"33.0066.0030","produto":"Proaction Peracetic Test Strips","apresentacao":"Frasco c/ 30 tiras","cf":{"AC":74.07,"AL":75.06,"AM":74.73,"AP":73.41,"BA":75.06,"CE":74.73,"DF":74.73,"ES":69.44,"GO":74.07,"MA":76.72,"MG":70.1,"MS":72.75,"MT":72.75,"PA":74.07,"PB":74.73,"PE":75.06,"PI":76.39,"PR":71.09,"RJ":72.75,"RN":74.73,"RO":74.4,"RR":74.73,"RS":69.44,"SC":69.44,"SE":74.73,"SP":74.51,"TO":74.73},"dist":{"AC":65.4,"AL":65.4,"AM":65.4,"AP":65.4,"BA":65.4,"CE":65.4,"DF":65.4,"ES":65.4,"GO":65.4,"MA":65.4,"MG":65.4,"MS":65.4,"MT":65.4,"PA":65.4,"PB":65.4,"PE":65.4,"PI":65.4,"PR":65.4,"RJ":65.4,"RN":65.4,"RO":65.4,"RR":65.4,"RS":65.4,"SC":65.4,"SE":65.4,"SP":65.4,"TO":65.4}},{"codigo":"28.0034.1000","produto":"Proaction AS 100 - 4 Enzimas","apresentacao":"Frasco 1 Lt - Pump","cf":{"AC":55.3,"AL":56.04,"AM":55.8,"AP":54.81,"BA":56.04,"CE":55.8,"DF":55.8,"ES":51.85,"GO":55.3,"MA":57.28,"MG":52.34,"MS":54.31,"MT":54.31,"PA":55.3,"PB":55.8,"PE":56.04,"PI":57.03,"PR":53.08,"RJ":54.31,"RN":55.8,"RO":55.55,"RR":55.8,"RS":51.85,"SC":51.85,"SE":55.8,"SP":49.38,"TO":55.8},"dist":{"AC":49.38,"AL":60.59,"AM":49.38,"AP":58.83,"BA":49.38,"CE":49.38,"DF":61.36,"ES":59.6,"GO":49.38,"MA":49.38,"MG":57.33,"MS":49.38,"MT":59.76,"PA":49.38,"PB":49.38,"PE":49.38,"PI":49.38,"PR":49.38,"RJ":59.88,"RN":49.38,"RO":49.38,"RR":49.38,"RS":49.38,"SC":49.38,"SE":49.38,"SP":49.38,"TO":49.38}},{"codigo":"28.0025.0005","produto":"Proaction AS 100 - 4 Enzimas","apresentacao":"Galão 5 Lt","cf":{"AC":233.07,"AL":236.19,"AM":235.15,"AP":230.98,"BA":236.19,"CE":235.15,"DF":235.15,"ES":218.5,"GO":233.07,"MA":241.39,"MG":220.58,"MS":228.9,"MT":228.9,"PA":233.07,"PB":235.15,"PE":236.19,"PI":240.35,"PR":223.7,"RJ":228.9,"RN":235.15,"RO":234.11,"RR":235.15,"RS":218.5,"SC":218.5,"SE":235.15,"SP":208.09,"TO":235.15},"dist":{"AC":208.09,"AL":255.35,"AM":208.09,"AP":247.92,"BA":208.09,"CE":208.09,"DF":258.6,"ES":251.19,"GO":208.09,"MA":208.09,"MG":241.6,"MS":208.09,"MT":251.84,"PA":208.09,"PB":208.09,"PE":208.09,"PI":208.09,"PR":208.09,"RJ":252.38,"RN":208.09,"RO":208.09,"RR":208.09,"RS":208.09,"SC":208.09,"SE":208.09,"SP":208.09,"TO":208.09}},{"codigo":"28.0023.0001","produto":"Proaction AS 110 4E - 4 Enzimas","apresentacao":"Frasco 1 Lt - Pump","cf":{"AC":87.59,"AL":88.77,"AM":88.38,"AP":86.81,"BA":88.77,"CE":88.38,"DF":88.38,"ES":82.12,"GO":87.59,"MA":90.72,"MG":82.9,"MS":86.03,"MT":86.03,"PA":87.59,"PB":88.38,"PE":88.77,"PI":90.33,"PR":84.07,"RJ":86.03,"RN":88.38,"RO":87.98,"RR":88.38,"RS":82.12,"SC":82.12,"SE":88.38,"SP":78.21,"TO":88.38},"dist":{"AC":78.21,"AL":95.97,"AM":78.21,"AP":93.18,"BA":78.21,"CE":78.21,"DF":97.19,"ES":94.41,"GO":78.21,"MA":78.21,"MG":90.8,"MS":78.21,"MT":94.65,"PA":78.21,"PB":78.21,"PE":78.21,"PI":78.21,"PR":78.21,"RJ":94.85,"RN":78.21,"RO":78.21,"RR":78.21,"RS":78.21,"SC":78.21,"SE":78.21,"SP":78.21,"TO":78.21}},{"codigo":"28.0024.0005","produto":"Proaction AS 110 4E - 4 Enzimas","apresentacao":"Galão 5 Lt","cf":{"AC":394.27,"AL":399.55,"AM":397.79,"AP":390.75,"BA":399.55,"CE":397.79,"DF":397.79,"ES":369.63,"GO":394.27,"MA":408.36,"MG":373.15,"MS":387.23,"MT":387.23,"PA":394.27,"PB":397.79,"PE":399.55,"PI":406.59,"PR":378.43,"RJ":387.23,"RN":397.79,"RO":396.03,"RR":397.79,"RS":369.63,"SC":369.63,"SE":397.79,"SP":352.03,"TO":397.79},"dist":{"AC":352.03,"AL":431.98,"AM":352.03,"AP":419.41,"BA":352.03,"CE":352.03,"DF":437.47,"ES":424.94,"GO":352.03,"MA":352.03,"MG":408.71,"MS":352.03,"MT":426.03,"PA":352.03,"PB":352.03,"PE":352.03,"PI":352.03,"PR":352.03,"RJ":426.94,"RN":352.03,"RO":352.03,"RR":352.03,"RS":352.03,"SC":352.03,"SE":352.03,"SP":352.03,"TO":352.03}},{"codigo":"28.0021.0750","produto":"Proaction AS 120 4E Foam","apresentacao":"Frasco 750 mL","cf":{"AC":34.72,"AL":35.19,"AM":35.03,"AP":34.41,"BA":35.19,"CE":35.03,"DF":35.03,"ES":32.55,"GO":34.72,"MA":35.96,"MG":32.86,"MS":34.1,"MT":34.1,"PA":34.72,"PB":35.03,"PE":35.19,"PI":35.81,"PR":33.33,"RJ":34.1,"RN":35.03,"RO":34.88,"RR":35.03,"RS":32.55,"SC":32.55,"SE":35.03,"SP":31.0,"TO":35.03},"dist":{"AC":31.0,"AL":38.04,"AM":31.0,"AP":36.93,"BA":31.0,"CE":31.0,"DF":38.53,"ES":37.42,"GO":31.0,"MA":31.0,"MG":35.99,"MS":31.0,"MT":37.52,"PA":31.0,"PB":31.0,"PE":31.0,"PI":31.0,"PR":31.0,"RJ":37.6,"RN":31.0,"RO":31.0,"RR":31.0,"RS":31.0,"SC":31.0,"SE":31.0,"SP":31.0,"TO":31.0}},{"codigo":"28.0022.0001","produto":"Proaction AS 130 7E - 7 Enzimas","apresentacao":"Frasco 1 Lt - Pump","cf":{"AC":91.08,"AL":92.3,"AM":91.89,"AP":90.26,"BA":92.3,"CE":91.89,"DF":91.89,"ES":85.39,"GO":91.08,"MA":94.33,"MG":86.2,"MS":89.45,"MT":89.45,"PA":91.08,"PB":91.89,"PE":92.3,"PI":93.92,"PR":87.42,"RJ":89.45,"RN":91.89,"RO":91.48,"RR":91.89,"RS":85.39,"SC":85.39,"SE":91.89,"SP":81.32,"TO":91.89},"dist":{"AC":81.32,"AL":99.79,"AM":81.32,"AP":96.88,"BA":81.32,"CE":81.32,"DF":101.06,"ES":98.16,"GO":81.32,"MA":81.32,"MG":94.41,"MS":81.32,"MT":98.41,"PA":81.32,"PB":81.32,"PE":81.32,"PI":81.32,"PR":81.32,"RJ":98.62,"RN":81.32,"RO":81.32,"RR":81.32,"RS":81.32,"SC":81.32,"SE":81.32,"SP":81.32,"TO":81.32}},{"codigo":"28.0033.5000","produto":"Proaction AS 130 7E - 7 Enzimas","apresentacao":"Galão 5 Lt","cf":{"AC":446.08,"AL":452.05,"AM":450.06,"AP":442.09,"BA":452.05,"CE":450.06,"DF":450.06,"ES":418.2,"GO":446.08,"MA":462.01,"MG":422.18,"MS":438.11,"MT":438.11,"PA":446.08,"PB":450.06,"PE":452.05,"PI":460.02,"PR":428.15,"RJ":438.11,"RN":450.06,"RO":448.07,"RR":450.06,"RS":418.2,"SC":418.2,"SE":450.06,"SP":398.28,"TO":450.06},"dist":{"AC":398.28,"AL":488.73,"AM":398.28,"AP":474.52,"BA":398.28,"CE":398.28,"DF":494.95,"ES":480.77,"GO":398.28,"MA":398.28,"MG":462.41,"MS":398.28,"MT":482.0,"PA":398.28,"PB":398.28,"PE":398.28,"PI":398.28,"PR":398.28,"RJ":483.04,"RN":398.28,"RO":398.28,"RR":398.28,"RS":398.28,"SC":398.28,"SE":398.28,"SP":398.28,"TO":398.28}},{"codigo":"33.0046.0750","produto":"Proaction Germi - Pronto uso — Nível Intermediário","apresentacao":"Frasco 750 mL","cf":{"AC":18.29,"AL":18.54,"AM":18.46,"AP":18.13,"BA":18.54,"CE":18.46,"DF":18.46,"ES":17.15,"GO":18.29,"MA":18.95,"MG":17.31,"MS":17.97,"MT":17.97,"PA":18.29,"PB":18.46,"PE":18.54,"PI":18.87,"PR":17.56,"RJ":17.97,"RN":18.46,"RO":18.38,"RR":18.46,"RS":17.15,"SC":17.15,"SE":18.46,"SP":16.33,"TO":18.46},"dist":{"AC":16.33,"AL":16.33,"AM":16.33,"AP":16.33,"BA":16.33,"CE":16.33,"DF":16.33,"ES":16.33,"GO":16.33,"MA":16.33,"MG":16.33,"MS":16.33,"MT":16.33,"PA":16.33,"PB":16.33,"PE":16.33,"PI":16.33,"PR":16.33,"RJ":16.33,"RN":16.33,"RO":16.33,"RR":16.33,"RS":16.33,"SC":16.33,"SE":16.33,"SP":16.33,"TO":16.33}},{"codigo":"33.0067.1000","produto":"Proaction Germi Ultra - Concentrado","apresentacao":"Frasco dosador 1 Lt","cf":{"AC":55.92,"AL":56.67,"AM":56.42,"AP":55.42,"BA":56.67,"CE":56.42,"DF":56.42,"ES":52.42,"GO":55.92,"MA":57.91,"MG":52.92,"MS":54.92,"MT":54.92,"PA":55.92,"PB":56.42,"PE":56.67,"PI":57.66,"PR":53.67,"RJ":54.92,"RN":56.42,"RO":56.17,"RR":56.42,"RS":52.42,"SC":52.42,"SE":56.42,"SP":49.93,"TO":56.42},"dist":{"AC":49.93,"AL":49.93,"AM":49.93,"AP":49.93,"BA":49.93,"CE":49.93,"DF":49.93,"ES":49.93,"GO":49.93,"MA":49.93,"MG":49.93,"MS":49.93,"MT":49.93,"PA":49.93,"PB":49.93,"PE":49.93,"PI":49.93,"PR":49.93,"RJ":49.93,"RN":49.93,"RO":49.93,"RR":49.93,"RS":49.93,"SC":49.93,"SE":49.93,"SP":49.93,"TO":49.93}},{"codigo":"33.0068.5000","produto":"Proaction Germi Ultra - Concentrado","apresentacao":"Galão 5 Lt","cf":{"AC":257.35,"AL":260.8,"AM":259.65,"AP":255.05,"BA":260.8,"CE":259.65,"DF":259.65,"ES":241.27,"GO":257.35,"MA":266.54,"MG":243.56,"MS":252.75,"MT":252.75,"PA":257.35,"PB":259.65,"PE":260.8,"PI":265.39,"PR":247.01,"RJ":252.75,"RN":259.65,"RO":258.5,"RR":259.65,"RS":241.27,"SC":241.27,"SE":259.65,"SP":229.78,"TO":259.65},"dist":{"AC":229.78,"AL":229.78,"AM":229.78,"AP":229.78,"BA":229.78,"CE":229.78,"DF":229.78,"ES":229.78,"GO":229.78,"MA":229.78,"MG":229.78,"MS":229.78,"MT":229.78,"PA":229.78,"PB":229.78,"PE":229.78,"PI":229.78,"PR":229.78,"RJ":229.78,"RN":229.78,"RO":229.78,"RR":229.78,"RS":229.78,"SC":229.78,"SE":229.78,"SP":229.78,"TO":229.78}},{"codigo":"33.0022.0001","produto":"Proaction OXI Ultra - Concentrado — Nível Intermediário","apresentacao":"Frasco dosador 1 Lt","cf":{"AC":36.07,"AL":36.55,"AM":36.39,"AP":35.75,"BA":36.55,"CE":36.39,"DF":36.39,"ES":33.81,"GO":36.07,"MA":37.36,"MG":34.14,"MS":35.42,"MT":35.42,"PA":36.07,"PB":36.39,"PE":36.55,"PI":37.2,"PR":34.62,"RJ":35.42,"RN":36.39,"RO":36.23,"RR":36.39,"RS":33.81,"SC":33.81,"SE":36.39,"SP":32.2,"TO":36.39},"dist":{"AC":32.2,"AL":32.2,"AM":32.2,"AP":32.2,"BA":32.2,"CE":32.2,"DF":32.2,"ES":32.2,"GO":32.2,"MA":32.2,"MG":32.2,"MS":32.2,"MT":32.2,"PA":32.2,"PB":32.2,"PE":32.2,"PI":32.2,"PR":32.2,"RJ":32.2,"RN":32.2,"RO":32.2,"RR":32.2,"RS":32.2,"SC":32.2,"SE":32.2,"SP":32.2,"TO":32.2}},{"codigo":"33.0071.5000","produto":"Proaction OXI Ultra - Concentrado — Nível Intermediário","apresentacao":"Galão 5 Lt","cf":{"AC":140.32,"AL":142.2,"AM":141.57,"AP":139.06,"BA":142.2,"CE":141.57,"DF":141.57,"ES":131.55,"GO":140.32,"MA":145.33,"MG":132.8,"MS":137.81,"MT":137.81,"PA":140.32,"PB":141.57,"PE":142.2,"PI":144.7,"PR":134.68,"RJ":137.81,"RN":141.57,"RO":140.94,"RR":141.57,"RS":131.55,"SC":131.55,"SE":141.57,"SP":125.28,"TO":141.57},"dist":{"AC":125.28,"AL":125.28,"AM":125.28,"AP":125.28,"BA":125.28,"CE":125.28,"DF":125.28,"ES":125.28,"GO":125.28,"MA":125.28,"MG":125.28,"MS":125.28,"MT":125.28,"PA":125.28,"PB":125.28,"PE":125.28,"PI":125.28,"PR":125.28,"RJ":125.28,"RN":125.28,"RO":125.28,"RR":125.28,"RS":125.28,"SC":125.28,"SE":125.28,"SP":125.28,"TO":125.28}},{"codigo":"29.0012.0700","produto":"Proaction AC - Limpeza de autoclave","apresentacao":"Frasco 700 mL","cf":{"AC":24.2,"AL":24.52,"AM":24.41,"AP":23.98,"BA":24.52,"CE":24.41,"DF":24.41,"ES":22.68,"GO":24.2,"MA":25.06,"MG":22.9,"MS":23.76,"MT":23.76,"PA":24.2,"PB":24.41,"PE":24.52,"PI":24.95,"PR":23.22,"RJ":23.76,"RN":24.41,"RO":24.3,"RR":24.41,"RS":22.68,"SC":22.68,"SE":24.41,"SP":21.6,"TO":24.41},"dist":{"AC":21.6,"AL":26.51,"AM":21.6,"AP":25.74,"BA":21.6,"CE":21.6,"DF":26.85,"ES":26.08,"GO":21.6,"MA":21.6,"MG":25.08,"MS":21.6,"MT":26.15,"PA":21.6,"PB":21.6,"PE":21.6,"PI":21.6,"PR":21.6,"RJ":26.2,"RN":21.6,"RO":21.6,"RR":21.6,"RS":21.6,"SC":21.6,"SE":21.6,"SP":21.6,"TO":21.6}},{"codigo":"29.0013.1000","produto":"Proaction AS 500","apresentacao":"Frasco dosador 1 Lt","cf":{"AC":58.23,"AL":59.01,"AM":58.75,"AP":57.71,"BA":59.01,"CE":58.75,"DF":58.75,"ES":54.59,"GO":58.23,"MA":60.31,"MG":55.11,"MS":57.19,"MT":57.19,"PA":58.23,"PB":58.75,"PE":59.01,"PI":60.05,"PR":55.89,"RJ":57.19,"RN":58.75,"RO":58.49,"RR":58.75,"RS":54.59,"SC":54.59,"SE":58.75,"SP":51.99,"TO":58.75},"dist":{"AC":51.99,"AL":63.8,"AM":51.99,"AP":61.94,"BA":51.99,"CE":51.99,"DF":64.61,"ES":62.76,"GO":51.99,"MA":51.99,"MG":60.36,"MS":51.99,"MT":62.92,"PA":51.99,"PB":51.99,"PE":51.99,"PI":51.99,"PR":51.99,"RJ":63.05,"RN":51.99,"RO":51.99,"RR":51.99,"RS":51.99,"SC":51.99,"SE":51.99,"SP":51.99,"TO":51.99}},{"codigo":"29.0006.0001","produto":"Proaction AS 500","apresentacao":"Galão 5 Lt","cf":{"AC":311.41,"AL":315.58,"AM":314.19,"AP":308.63,"BA":315.58,"CE":314.19,"DF":314.19,"ES":291.95,"GO":311.41,"MA":322.53,"MG":294.73,"MS":305.85,"MT":305.85,"PA":311.41,"PB":314.19,"PE":315.58,"PI":321.14,"PR":298.9,"RJ":305.85,"RN":314.19,"RO":312.8,"RR":314.19,"RS":291.95,"SC":291.95,"SE":314.19,"SP":278.04,"TO":314.19},"dist":{"AC":278.04,"AL":341.19,"AM":278.04,"AP":331.26,"BA":278.04,"CE":278.04,"DF":345.52,"ES":335.63,"GO":278.04,"MA":278.04,"MG":322.81,"MS":278.04,"MT":336.49,"PA":278.04,"PB":278.04,"PE":278.04,"PI":278.04,"PR":278.04,"RJ":337.21,"RN":278.04,"RO":278.04,"RR":278.04,"RS":278.04,"SC":278.04,"SE":278.04,"SP":278.04,"TO":278.04}},{"codigo":"29.0003.0750","produto":"Proaction AS 700 - Com borrifador","apresentacao":"Frasco 750 mL","cf":{"AC":27.58,"AL":27.95,"AM":27.82,"AP":27.33,"BA":27.95,"CE":27.82,"DF":27.82,"ES":25.85,"GO":27.58,"MA":28.56,"MG":26.1,"MS":27.09,"MT":27.09,"PA":27.58,"PB":27.82,"PE":27.95,"PI":28.44,"PR":26.47,"RJ":27.09,"RN":27.82,"RO":27.7,"RR":27.82,"RS":25.85,"SC":25.85,"SE":27.82,"SP":24.62,"TO":27.82},"dist":{"AC":24.62,"AL":30.22,"AM":24.62,"AP":29.34,"BA":24.62,"CE":24.62,"DF":30.6,"ES":29.72,"GO":24.62,"MA":24.62,"MG":28.59,"MS":24.62,"MT":29.8,"PA":24.62,"PB":24.62,"PE":24.62,"PI":24.62,"PR":24.62,"RJ":29.86,"RN":24.62,"RO":24.62,"RR":24.62,"RS":24.62,"SC":24.62,"SE":24.62,"SP":24.62,"TO":24.62}},{"codigo":"29.0009.0005","produto":"Proaction AS 700 Ultra - Limpeza manual e automatizada","apresentacao":"Galão 5 Lt","cf":{"AC":85.12,"AL":86.26,"AM":85.88,"AP":84.36,"BA":86.26,"CE":85.88,"DF":85.88,"ES":79.8,"GO":85.12,"MA":88.16,"MG":80.56,"MS":83.6,"MT":83.6,"PA":85.12,"PB":85.88,"PE":86.26,"PI":87.78,"PR":81.7,"RJ":83.6,"RN":85.88,"RO":85.5,"RR":85.88,"RS":79.8,"SC":79.8,"SE":85.88,"SP":76.0,"TO":85.88},"dist":{"AC":76.0,"AL":93.26,"AM":76.0,"AP":90.55,"BA":76.0,"CE":76.0,"DF":94.45,"ES":91.74,"GO":76.0,"MA":76.0,"MG":88.24,"MS":76.0,"MT":91.98,"PA":76.0,"PB":76.0,"PE":76.0,"PI":76.0,"PR":76.0,"RJ":92.17,"RN":76.0,"RO":76.0,"RR":76.0,"RS":76.0,"SC":76.0,"SE":76.0,"SP":76.0,"TO":76.0}},{"codigo":"31.0003.0001","produto":"Proaction Instrumental","apresentacao":"Frasco 1 Lt","cf":{"AC":19.64,"AL":19.91,"AM":19.82,"AP":19.47,"BA":19.91,"CE":19.82,"DF":19.82,"ES":18.42,"GO":19.64,"MA":20.35,"MG":18.59,"MS":19.29,"MT":19.29,"PA":19.64,"PB":19.82,"PE":19.91,"PI":20.26,"PR":18.85,"RJ":19.29,"RN":19.82,"RO":19.73,"RR":19.82,"RS":18.42,"SC":18.42,"SE":19.82,"SP":17.54,"TO":19.82},"dist":{"AC":17.54,"AL":21.52,"AM":17.54,"AP":20.9,"BA":17.54,"CE":17.54,"DF":21.8,"ES":21.17,"GO":17.54,"MA":17.54,"MG":20.36,"MS":17.54,"MT":21.23,"PA":17.54,"PB":17.54,"PE":17.54,"PI":17.54,"PR":17.54,"RJ":21.27,"RN":17.54,"RO":17.54,"RR":17.54,"RS":17.54,"SC":17.54,"SE":17.54,"SP":17.54,"TO":17.54}},{"codigo":"33.0031.0000","produto":"Proaction Neutroceptic 2000","apresentacao":"Galão 5 Lt","cf":{},"dist":{},"ta":{"AC":200.34,"AL":200.34,"AM":200.34,"AP":200.34,"BA":200.34,"CE":200.34,"DF":200.34,"ES":200.34,"GO":200.34,"MA":200.34,"MG":200.34,"MS":200.34,"MT":200.34,"PA":200.34,"PB":200.34,"PE":200.34,"PI":200.34,"PR":200.34,"RJ":200.34,"RN":200.34,"RO":200.34,"RR":200.34,"RS":200.34,"SC":200.34,"SE":200.34,"SP":200.34,"TO":200.34}},{"codigo":"33.0039.0001","produto":"Proaction Neutroceptic 2000 Test Strips","apresentacao":"Frasco c/ 50 tiras","cf":{},"dist":{},"ta":{"AC":98.37,"AL":98.37,"AM":98.37,"AP":98.37,"BA":98.37,"CE":98.37,"DF":98.37,"ES":98.37,"GO":98.37,"MA":98.37,"MG":98.37,"MS":98.37,"MT":98.37,"PA":98.37,"PB":98.37,"PE":98.37,"PI":98.37,"PR":98.37,"RJ":98.37,"RN":98.37,"RO":98.37,"RR":98.37,"RS":98.37,"SC":98.37,"SE":98.37,"SP":98.37,"TO":98.37}},{"codigo":"31.0004.0005","produto":"Proaction Instrumental","apresentacao":"Galão 5 Lt","cf":{"AC":50.88,"AL":51.56,"AM":51.34,"AP":50.43,"BA":51.56,"CE":51.34,"DF":51.34,"ES":47.7,"GO":50.88,"MA":52.7,"MG":48.16,"MS":49.97,"MT":49.97,"PA":50.88,"PB":51.34,"PE":51.56,"PI":52.47,"PR":48.84,"RJ":49.97,"RN":51.34,"RO":51.11,"RR":51.34,"RS":47.7,"SC":47.7,"SE":51.34,"SP":45.43,"TO":51.34},"dist":{"AC":45.43,"AL":55.75,"AM":45.43,"AP":54.13,"BA":45.43,"CE":45.43,"DF":56.46,"ES":54.84,"GO":45.43,"MA":45.43,"MG":52.74,"MS":45.43,"MT":54.98,"PA":45.43,"PB":45.43,"PE":45.43,"PI":45.43,"PR":45.43,"RJ":55.1,"RN":45.43,"RO":45.43,"RR":45.43,"RS":45.43,"SC":45.43,"SE":45.43,"SP":45.43,"TO":45.43}}];
 
 const DR={"Proaction GTA 2%":"Desinfetante de alto nível, glutaraldeído 2%, pronto uso. Para endoscópios e materiais semicríticos. Amplo espectro em 10 min. Reutilizável 30 dias.","Proaction GTA 2% Test Strips":"Fitas indicadoras semiquantitativas de glutaraldeído. Mudança de cor amarelo → esverdeado. Leitura em até 10 s.","Proaction GTA Inativador":"Inativador para glutaraldeído. Metabissulfito de Sódio ≥ 98%. 46g por litro de solução.","Proaction OPA":"Desinfetante de alto nível, OPA 0,55%, pH neutro, sem ativação. Para endoscópios e semicríticos. Esporos em 10 min. Reutilizável 40 dias.","Proaction OPA Test Strips":"Fitas semiquantitativas de ortoftalaldeído. Cor violácea. Leitura após 90 s. Atende RDC 700/2022.","Proaction OPA Inativador (Glicina)":"Inativador para OPA. Glicina ≥ 98%. 6g por litro de solução.","Proaction Peracetic 0,2%":"Desinfetante de alto nível, ácido peracético 0,2%, pronto uso, livre de aldeídos. Para endoscópios e superfícies. Reutilizável 30 dias.","Proaction Peracetic Test Strips":"Fitas semiquantitativas de ácido peracético. Leitura em até 5 s. Atende RDC 700/2022.","Proaction AS 100 - 4 Enzimas":"Detergente multienzimático 4 enzimas (protease, amilase, lipase, carboidrase). pH 6–8. Diluição 0,1%. Manual e automatizado.","Proaction AS 110 4E - 4 Enzimas":"Detergente multienzimático 4 enzimas. pH neutro, baixa espuma, biodegradável. Diluição 0,1%.","Proaction AS 120 4E Foam":"Detergente enzimático em espuma 4 enzimas, pronto uso. Pré-limpeza de instrumentos no transporte.","Proaction AS 130 7E - 7 Enzimas":"Detergente multienzimático 7 enzimas. Maior cobertura enzimática. pH neutro, baixa espuma. Diluição 0,1%.","Proaction Germi - Pronto uso — Nível Intermediário":"Quaternário amônio 5ª geração + PHMB. Pronto uso. Limpa e desinfeta em 1 etapa. Compatível com eletrônicos e incubadoras.","Proaction Germi Ultra - Concentrado":"Quaternário amônio 5ª geração + PHMB concentrado. Diluição 1:250. Rende até 1.255 L por galão.","Proaction OXI Ultra - Concentrado":"Peróxido de hidrogênio 4,5% concentrado. Esporicida (C. difficile) e virucida. 4 diluições. Soluções válidas 40 dias.","Proaction AC - Limpeza de autoclave":"Spray removedor de manchas e ferrugem em autoclaves. Pronto uso. Prolonga a vida útil do equipamento.","Proaction AS 500":"Detergente ácido (ác. fosfórico) para remoção de manchas e ferrugem em instrumentais inox e vidrarias.","Proaction AS 700 - Com borrifador":"Lubrificante hidrossolúvel spray para instrumentais. Sem silicone, atóxico. Compatível com esterilização. Sem enxágue.","Proaction AS 700 Ultra - Limpeza manual e automatizada":"Emulsão lubrificante concentrada para termodesinfectoras (0,2%). Sem silicone. Previne corrosão e enrijecimento.","Proaction Instrumental":"Detergente neutro concentrado, sem corante/fragrância. Para limpeza de materiais hospitalares e superfícies. Biodegradável."};
@@ -2599,6 +2902,105 @@ function limparAssinatura(){
   }
 })();
 
+/* ── KITS CF ── */
+const KITS_CF=[
+  {
+    id:'KIT_PERAC',
+    codigo:'KIT-PERAC-5L',
+    ref:'Kit-Peracetic',
+    produto:'Kit Proaction Peracetic 0,2%',
+    apresentacao:'Galão 5L + Fitas',
+    desconto:0.02,
+    descricao:'Proaction Peracetic 0,2% 5L + 2 Frascos Test Strips 30 tiras a cada 4 galões',
+    itens:[
+      {cod:'33.0065.5000',nome:'Proaction Peracetic 0,2%',apres:'Galão 5 Lt',qtdPorGalao:1},
+      {cod:'33.0066.0030',nome:'Proaction Peracetic Test Strips',apres:'Frasco c/ 30 tiras',qtdPorGalao:0,qtdPor4Galaos:2}
+    ]
+  },
+  {
+    id:'KIT_GTA',
+    codigo:'KIT-GTA-5L',
+    ref:'Kit-GTA',
+    produto:'Kit Proaction GTA 2%',
+    apresentacao:'Galão 5L + Inativador + Fita',
+    desconto:0.03,
+    descricao:'Proaction GTA 2% 5L + 1 Inativador 230g por galão + 1 Frasco Test Strips 50 tiras a cada 4 galões',
+    itens:[
+      {cod:'33.0063.5000',nome:'Proaction GTA 2%',apres:'Galão 5 Lt',qtdPorGalao:1},
+      {cod:'33.0042.0230',nome:'Proaction GTA Inativador',apres:'Inativador 230g',qtdPorGalao:1},
+      {cod:'33.0064.0050',nome:'Proaction GTA 2% Test Strips',apres:'Frasco c/ 50 tiras',qtdPorGalao:0,qtdPor4Galaos:1}
+    ]
+  },
+  {
+    id:'KIT_OPA',
+    codigo:'KIT-OPA-5L',
+    ref:'Kit-OPA',
+    produto:'Kit Proaction OPA 5L',
+    apresentacao:'Galão 5L + Inativador + Fita',
+    desconto:0.04,
+    descricao:'Proaction OPA 5L + 1 Inativador Glicina 30g por galão + 1 Frasco Test Strips 40 tiras a cada 4 galões',
+    itens:[
+      {cod:'33.0069.5000',nome:'Proaction OPA',apres:'Galão 5 Lt',qtdPorGalao:1},
+      {cod:'33.0020.0032',nome:'Proaction OPA Inativador (Glicina)',apres:'Inativador 30g',qtdPorGalao:1},
+      {cod:'33.0019.0040',nome:'Proaction OPA Test Strips',apres:'Frasco c/ 40 tiras',qtdPorGalao:0,qtdPor4Galaos:1}
+    ]
+  }
+];
+
+function calcPrecoKit(kit,qtdGalaos,uf,tabela){
+  if(!qtdGalaos||qtdGalaos<1)return{total:0,subtotal:0,desconto:0,composicao:[]};
+  const composicao=[];
+  let subtotal=0;
+  kit.itens.forEach(function(ki){
+    var qtd=0;
+    if(ki.qtdPorGalao)qtd=ki.qtdPorGalao*qtdGalaos;
+    if(ki.qtdPor4Galaos)qtd+=Math.floor(qtdGalaos/4)*ki.qtdPor4Galaos;
+    if(qtd<=0)return;
+    var prod=PRODUTOS.find(function(p){return p.codigo===ki.cod;});
+    var preco=0;
+    if(prod){
+      if(tabela==='cf'&&uf&&prod.cf&&prod.cf[uf])preco=prod.cf[uf];
+      else if(tabela==='dist'&&uf&&prod.dist&&prod.dist[uf])preco=prod.dist[uf];
+    }
+    var total=preco*qtd;
+    subtotal+=total;
+    composicao.push({cod:ki.cod,nome:ki.nome,apres:ki.apres,qtd:qtd,preco:preco,total:total});
+  });
+  var descVal=subtotal*kit.desconto;
+  return{total:subtotal-descVal,subtotal:subtotal,desconto:descVal,composicao:composicao};
+}
+
+function adicionarKit(kitId){
+  const kit=KITS_CF.find(function(k){return k.id===kitId;});
+  if(!kit)return;
+  const qtd=parseInt(prompt('Quantidade de galões para o Kit '+kit.produto+':'));
+  if(!qtd||qtd<1){showT('Quantidade inválida','erro');return;}
+  const calc=calcPrecoKit(kit,qtd,uf,tab);
+  if(!calc.total){showT('Selecione UF e tabela antes de adicionar o kit','erro');return;}
+  // Descrição detalhada
+  const descComp=calc.composicao.map(function(c){
+    return c.qtd+'x '+c.nome+' (R$ '+c.preco.toFixed(2).replace('.',',')+'/un)';
+  }).join(' + ');
+  const descFinal='📦 Kit: '+descComp+' | Desconto: '+(kit.desconto*100)+'% | Total: R$ '+calc.total.toFixed(2).replace('.',',');
+  const id=Date.now();
+  itens.push({
+    id:id,
+    codigo:kit.codigo,
+    produto:kit.produto,
+    apresentacao:kit.apresentacao,
+    qtd:1,
+    preco:parseFloat(calc.total.toFixed(2)),
+    descCustom:descFinal,
+    obs:'Kit com '+qtd+' galões — '+kit.descricao,
+    isKit:true,
+    kitId:kitId,
+    kitQtdGalaos:qtd,
+    kitComposicao:calc.composicao
+  });
+  fecharModal();render();atualizarTot();
+  showT('Kit adicionado ✓','verde');
+}
+
 /* ── BONIFICAÇÃO ── */
 const BONIF_REGRAS={
   '33.0063.5000':{tipo:'gta',  galaoMin:10000, inativCod:'33.0042.0230', fitaCod:'33.0064.0050'},
@@ -2670,8 +3072,7 @@ function renderModal(){
   const corpo=document.getElementById('modalBody');
   const linhas=[];
   // Manter busca
-  linhas.push(`<input type="text" class="modal-search" id="modalSearch" placeholder="🔍 Buscar produto..." value="${_modalQuery.replace(/"/g,'&quot;')}" oninput="filtrarModal(this.value)">`);
-  const catCores={'🔬 Desinfetantes de Alto Nível':'#2563a8','🧪 Detergentes Enzimáticos':'#06a77d','🧴 Desinfetantes de Superfície':'#7c3aed','🔧 Limpeza e Manutenção':'#d97706'};
+  linhas.push(`<input type="text" class="modal-search" id="modalSearch" placeholder="Buscar produto..." value="${_modalQuery.replace(/"/g,'&quot;')}" oninput="filtrarModal(this.value)">`);
   CATS.forEach(cat=>{
     const produtos=cat.cods.map(cod=>PRODUTOS.find(p=>p.codigo===cod)).filter(Boolean);
     const filtrados=_modalQuery?produtos.filter(p=>p.produto.toLowerCase().includes(_modalQuery)||p.apresentacao.toLowerCase().includes(_modalQuery)):produtos;
@@ -2993,6 +3394,25 @@ const catEmojis={'🔬 Desinfetantes de Alto Nível':'🔬','🧪 Detergentes En
     });
     html+='</tbody></table></div>';
   });
+  // Kits especiais — só para Cliente Final
+  if(tpTipo==='cf'){
+    html+=`<div class="tp-card"><div class="tp-cat-header" data-emoji="📦">📦 Kits Especiais</div><table class="tp-table"><colgroup><col style="width:120px"><col><col style="width:100px"><col style="width:130px"></colgroup><thead><tr><th>Referência</th><th>Descrição</th><th class="c">Qtd Mín.</th><th class="c">Preço (1 galão)</th></tr></thead><tbody>`;
+    KITS_CF.forEach(function(kit){
+      var calc=calcPrecoKit(kit,4,tpUf,'cf');
+      var precoPor1=calc.total>0?(calc.total/4):0;
+      var prFmt=precoPor1>0?'R$ '+precoPor1.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+      html+='<tr>'+
+        '<td class="tp-cod-cell" style="color:#d97706;font-weight:700;vertical-align:middle">'+kit.ref+'</td>'+
+        '<td style="vertical-align:middle;padding:10px">'+
+          '<div style="font-weight:700;font-size:12px;color:#1e293b;margin-bottom:3px">'+kit.produto+'</div>'+
+          '<div style="font-size:12px;color:#1e293b"><span style="font-weight:600">Acompanha: </span>'+kit.descricao+'</div>'+
+        '</td>'+
+        '<td style="text-align:center;vertical-align:middle;font-size:12px;font-weight:600;color:#475569">4 galões</td>'+
+        '<td class="tp-preco-cell" style="color:#d97706;font-weight:700;vertical-align:middle">'+prFmt+'</td>'+
+      '</tr>';
+    });
+    html+='</tbody></table></div>';
+  }
   el.innerHTML=html;
 }
 
@@ -3158,7 +3578,7 @@ function salvarFretesLS(){
 
 function abrirFormNF(id=null){
   ftEditando=id;
-  document.getElementById('formNFTitulo').textContent=id?'✏️ Editar NF':'＋ Nova NF';
+  document.getElementById('formNFTitulo').innerHTML=(id?'<svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-edit"></use></svg>Editar NF':'<svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-plus"></use></svg>Nova NF');
   if(id){
     const f=fretes.find(x=>x.id===id);
     if(f){
@@ -3703,7 +4123,7 @@ function renderLicit(q=''){
       </div>
       <div class="reg-detalhe">
         ${l.obs?`<strong>Obs:</strong> ${l.obs}<br>`:''}
-        ${l.link?`<a href="${l.link}" target="_blank" style="color:var(--teal);font-size:11px">🔗 Abrir edital</a><br>`:''}
+        ${l.link?`<a href="${l.link}" target="_blank" style="color:var(--teal);font-size:11px"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-link"></use></svg> Abrir edital</a><br>`:''}
         <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
           <select onchange="atualizarStatusLicit(${l.id},this.value)" onclick="event.stopPropagation()" style="font-size:11px;border:1px solid var(--borda);border-radius:6px;padding:3px 8px">
             ${Object.entries(LICIT_STATUS).map(([k,v])=>`<option value="${k}"${l.status===k?' selected':''}>${v}</option>`).join('')}
@@ -3717,22 +4137,22 @@ function renderLicit(q=''){
 
 /* ── PAGE HEADER DINÂMICO ── */
 var PAGE_HEADERS = {
-  home:       {icon:'🏠', title:'Dashboard',        sub:'Resumo do dia — GEx Assist'},
-  cotacao:    {icon:'📋', title:'Cotação',           sub:'Crie e gerencie cotações de produtos'},
-  tabela:     {icon:'📊', title:'Tabelas de Preços', sub:'Consulte preços por tabela e estado'},
-  amostras:   {icon:'🧪', title:'Amostras',          sub:'Registre e acompanhe envios de amostras'},
-  crm:        {icon:'👥', title:'CRM',               sub:'Cadastro e histórico de clientes'},
-  agenda:     {icon:'📅', title:'Agenda',            sub:'Eventos e compromissos da equipe comercial'},
-  licitacoes: {icon:'⚖️', title:'Licitações',        sub:'Acompanhamento de editais e pregões'},
-  frete:      {icon:'🚚', title:'Fretes',            sub:'Monitoramento de notas fiscais e entregas'},
-  estoque:    {icon:'📦', title:'Estoque',           sub:'Gestão e alertas de estoque de produtos'},
+  home:       {icon:'i-home',     title:'Dashboard',        sub:'Resumo do dia — GEx Assist'},
+  cotacao:    {icon:'i-cot',      title:'Cotação',           sub:'Crie e gerencie cotações de produtos'},
+  tabela:     {icon:'i-table',    title:'Tabelas de Preços', sub:'Consulte preços por tabela e estado'},
+  amostras:   {icon:'i-flask',    title:'Amostras',          sub:'Registre e acompanhe envios de amostras'},
+  crm:        {icon:'i-users',    title:'CRM',               sub:'Cadastro e histórico de clientes'},
+  agenda:     {icon:'i-calendar', title:'Agenda',            sub:'Eventos e compromissos da equipe comercial'},
+  licitacoes: {icon:'i-gavel',    title:'Licitações',        sub:'Acompanhamento de editais e pregões'},
+  frete:      {icon:'i-truck',    title:'Fretes',            sub:'Monitoramento de notas fiscais e entregas'},
+  estoque:    {icon:'i-box',      title:'Estoque',           sub:'Gestão e alertas de estoque de produtos'},
 };
 function atualizarPageHeader(m){
   var d=PAGE_HEADERS[m]||PAGE_HEADERS['home'];
   var icon=document.getElementById('pageHeaderIcon');
   var title=document.getElementById('pageHeaderTitle');
   var sub=document.getElementById('pageHeaderSub');
-  if(icon)icon.textContent=d.icon;
+  if(icon)icon.innerHTML='<svg data-ico viewBox="0 0 24 24"><use href="#'+d.icon+'"></use></svg>';
   if(title)title.textContent=d.title;
   if(sub)sub.textContent=d.sub;
 }
@@ -3927,7 +4347,7 @@ function renderEstoque(filtro){
     html+=`<tr class="est-row${expandido?' expandido':''}" onclick="toggleEstoque('${cod}')">
       <td style="text-align:center"><span class="est-status" style="background:${st.cor}" title="${st.label}"></span></td>
       <td><div class="est-nome">${dados.nome||nome}${valBadge}${altBadge}</div></td>
-      <td style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748b">${cod}</td>
+      <td style="text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:11px;color:#64748b">${cod}</td>
       <td class="est-saldo" style="color:${st.cor}">${total} <span style="font-size:10px;font-weight:400;color:#64748b">${dados.unid}</span></td>
       <td style="text-align:center">
         <input type="number" class="est-seg-input" value="${seg}" min="0" placeholder="0"
@@ -3968,8 +4388,8 @@ function renderEstoque(filtro){
           var valLabel=sv?sv.label:'—';
           var mesesStr=sv&&sv.meses>=0?Math.round(sv.meses)+'m':'';
           html+='<div style="display:grid;grid-template-columns:140px 120px 80px 120px 1fr;gap:0;padding:5px 4px;border-bottom:1px solid #f8fafc;align-items:center">';
-          html+='<span style="font-family:JetBrains Mono,monospace;font-size:10px;color:#475569">'+l.lote+(l.origemCod&&l.origemCod!==cod?'<span style="font-size:9px;color:#f97316;margin-left:4px">('+l.origemCod+')</span>':'')+'</span>';
-          html+='<span style="font-family:JetBrains Mono,monospace;font-weight:700;font-size:12px;color:#1e293b;text-align:right">'+l.disp+'</span>';
+          html+='<span style="font-family:Inter,system-ui,sans-serif;font-size:10px;color:#475569">'+l.lote+(l.origemCod&&l.origemCod!==cod?'<span style="font-size:9px;color:#f97316;margin-left:4px">('+l.origemCod+')</span>':'')+'</span>';
+          html+='<span style="font-family:Inter,system-ui,sans-serif;font-weight:700;font-size:12px;color:#1e293b;text-align:right">'+l.disp+'</span>';
           html+='<span style="text-align:center;font-size:11px;color:#64748b">'+dados.unid+'</span>';
           html+='<span style="text-align:center;font-size:11px;color:#1e293b">'+fmtData(l.val)+'</span>';
           html+='<span style="text-align:center;display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:10px;height:10px;background:'+valBg+'"></span><span style="font-size:10px">'+valLabel+(mesesStr?' ('+mesesStr+')':'')+'</span></span>';
@@ -3983,7 +4403,7 @@ function renderEstoque(filtro){
     if(alts.length){
       alts.forEach(function(a){
         html+='<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px">';
-        html+='<span style="font-family:JetBrains Mono,monospace;color:#f97316">'+a+'</span>';
+        html+='<span style="font-family:Inter,system-ui,sans-serif;color:#f97316">'+a+'</span>';
         var altD=estDados[a];var altTotal=altD?altD.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
         html+='<span style="color:#64748b">'+(altD?altD.nome:'não encontrado no ACA')+'</span>';
         html+='<span style="font-weight:700;color:#1e293b;margin-left:auto">'+altTotal+' un.</span>';
