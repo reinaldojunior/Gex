@@ -2129,45 +2129,181 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
 
   <!-- SEÇÃO LICITAÇÕES -->
   <div id="secaoLicitacoes" style="display:none">
+
+    <!-- Stats -->
     <div class="crm-stats">
-      <div class="crm-stat"><div class="crm-stat-num" id="licitTotal">0</div><div class="crm-stat-label">Total</div></div>
-      <div class="crm-stat"><div class="crm-stat-num" id="licitAndamento" style="color:#075985">0</div><div class="crm-stat-label">Em Andamento</div></div>
-      <div class="crm-stat"><div class="crm-stat-num" id="licitGanho" style="color:#16a34a">0</div><div class="crm-stat-label">Ganhas</div></div>
+      <div class="crm-stat"><div class="crm-stat-num" id="licitTotal">0</div><div class="crm-stat-label">Pregões</div></div>
+      <div class="crm-stat"><div class="crm-stat-num" id="licitVencemos" style="color:#16a34a">0</div><div class="crm-stat-label">🏆 Vencemos</div></div>
+      <div class="crm-stat"><div class="crm-stat-num" id="licitEm1" style="color:#7c3aed">0</div><div class="crm-stat-label">🥇 Em 1° Lugar</div></div>
+      <div class="crm-stat"><div class="crm-stat-num" id="licitAtras" style="color:#f97316">0</div><div class="crm-stat-label">⚔️ Atrás</div></div>
+      <div class="crm-stat"><div class="crm-stat-num" id="licitPerdemos" style="color:#dc2626">0</div><div class="crm-stat-label">❌ Perdemos</div></div>
     </div>
-    <div class="modulo-card">
-      <div class="modulo-header"><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-gavel"></use></svg>Nova Licitação</div></div>
-      <div class="modulo-body">
-        <div class="modulo-grid-3" style="margin-bottom:12px">
-          <div class="form-field"><label>Nº do Edital / Pregão</label><input type="text" id="licitNum" placeholder=""></div>
-          <div class="form-field" style="grid-column:span 2"><label>Órgão / Instituição</label><input type="text" id="licitOrgao" placeholder="Nome do órgão público"></div>
+
+    <!-- Abas -->
+    <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:4px;width:fit-content;margin-bottom:16px">
+      <button id="licitAbaAgenda" onclick="setLicitAba('agenda')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:#0f6e5f;color:#fff">📅 Agenda</button>
+      <button id="licitAbaPregoes" onclick="setLicitAba('pregoes')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:#64748b">⚖️ Pregões</button>
+      <button id="licitAbaUpload" onclick="setLicitAba('upload')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:#64748b">📤 Importar HTML</button>
+      <button id="licitAbaEdital" onclick="setLicitAba('edital')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:#64748b">🤖 Analisar Edital</button>
+    </div>
+
+    <!-- ABA AGENDA -->
+    <div id="licitPainelAgenda">
+      <!-- Navegador do calendário -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <button onclick="navCalendario(-1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--borda);background:#fff;font-size:16px;cursor:pointer;color:#0f6e5f;font-weight:700">‹</button>
+          <div id="calMesLabel" style="font-size:16px;font-weight:700;color:var(--texto);min-width:160px;text-align:center"></div>
+          <button onclick="navCalendario(1)" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--borda);background:#fff;font-size:16px;cursor:pointer;color:#0f6e5f;font-weight:700">›</button>
         </div>
-        <div class="modulo-grid-3" style="margin-bottom:12px">
-          <div class="form-field"><label>Data de Abertura</label><input type="date" id="licitData"></div>
-          <div class="form-field"><label>Valor Estimado (R$)</label><input type="number" id="licitValor" placeholder="0,00" step="0.01"></div>
-          <div class="form-field"><label>Responsável</label>
-            <select id="licitResp"><option value="">—</option><option value="juninho">Juninho</option><option value="grego">Grego</option><option value="barril">Barril</option><option value="cris">Cris</option></select>
+        <button class="acoes-btn" onclick="setLicitAba('pregoes');setTimeout(function(){document.getElementById('licitNum').focus();},200)">+ Novo Pregão</button>
+      </div>
+
+      <!-- Calendário -->
+      <div class="modulo-card" style="margin-bottom:16px">
+        <div class="modulo-body" style="padding:8px">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:4px">Dom</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:4px">Seg</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:4px">Ter</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:4px">Qua</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:4px">Qui</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:4px">Sex</div>
+            <div style="text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:4px">Sáb</div>
           </div>
+          <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px"></div>
         </div>
-        <div class="modulo-grid" style="margin-bottom:12px">
-          <div class="form-field"><label>Status</label>
-            <select id="licitStatus"><option value="aguardando">⏳ Aguardando Abertura</option><option value="andamento">🔵 Em Andamento</option><option value="ganho">✅ Ganho</option><option value="perdido">❌ Perdido</option><option value="cancelado">⛔ Cancelado</option></select>
-          </div>
-          <div class="form-field"><label>Link do Edital</label><input type="url" id="licitLink" placeholder="https://..."></div>
+      </div>
+
+      <!-- Lista -->
+      <div class="modulo-card">
+        <div class="modulo-header">
+          <div class="modulo-header-title">📅 Próximas Licitações</div>
         </div>
-        <div class="form-field" style="margin-bottom:12px"><label>Observações</label><textarea id="licitObs" placeholder="Produtos, condições, prazos..." style="min-height:60px"></textarea></div>
-        <div class="form-actions">
-          <button class="btn-cancel-mod" onclick="limparFormLicit()">Limpar</button>
-          <button class="btn-salvar-mod" onclick="salvarLicit()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-save"></use></svg> Salvar</button>
+        <div class="modulo-body">
+          <div id="licitAgendaList"><div class="empty-mod"><div class="empty-icon">📅</div>Nenhuma licitação agendada.</div></div>
         </div>
       </div>
     </div>
-    <div class="modulo-card">
-      <div class="modulo-header"><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-list"></use></svg>Licitações Cadastradas</div></div>
-      <div class="modulo-body">
-        <input type="text" class="busca-mod" placeholder="Buscar edital ou órgão..." oninput="renderLicit(this.value)">
-        <div class="registros-list" id="licitList"><div class="empty-mod"><div class="empty-icon">⚖️</div>Nenhuma licitação cadastrada.</div></div>
+
+    <!-- ABA PREGÕES -->
+    <div id="licitPainelPregoes" style="display:none">
+      <!-- Formulário -->
+      <div class="modulo-card" style="margin-bottom:12px">
+        <div class="modulo-header"><div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-gavel"></use></svg><span id="licitFormTitulo">Novo Pregão</span></div></div>
+        <div class="modulo-body">
+          <div class="modulo-grid-3" style="margin-bottom:12px">
+            <div class="form-field"><label>Nº do Pregão</label><input type="text" id="licitNum" placeholder="Ex: 90056/2026"></div>
+            <div class="form-field" style="grid-column:span 2"><label>Órgão / Instituição</label><input type="text" id="licitOrgao" placeholder="Nome do órgão público"></div>
+          </div>
+          <div class="modulo-grid-3" style="margin-bottom:12px">
+            <div class="form-field"><label>Data de Abertura</label><input type="date" id="licitData"></div>
+            <div class="form-field"><label>UASG</label><input type="text" id="licitUasg" placeholder="Código UASG"></div>
+            <div class="form-field"><label>Status</label>
+              <select id="licitStatus">
+                <option value="agendado">⏳ Agendado</option>
+                <option value="andamento">🔵 Em Andamento</option>
+                <option value="concluido">✅ Concluído</option>
+                <option value="cancelado">⛔ Cancelado</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-cancel-mod" onclick="limparFormLicit()">Limpar</button>
+            <button class="btn-salvar-mod" onclick="salvarPregao()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-save"></use></svg> Salvar</button>
+          </div>
+        </div>
+      </div>
+      <!-- Lista -->
+      <div class="modulo-card">
+        <div class="modulo-header">
+          <div class="modulo-header-title"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-list"></use></svg>Pregões Cadastrados</div>
+        </div>
+        <div class="modulo-body">
+          <input type="text" class="busca-mod" placeholder="Buscar pregão ou órgão..." oninput="renderPregoes(this.value)">
+          <div id="licitList"><div class="empty-mod"><div class="empty-icon">⚖️</div>Nenhum pregão cadastrado.</div></div>
+        </div>
       </div>
     </div>
+
+    <!-- ABA ANALISAR EDITAL -->
+    <div id="licitPainelEdital" style="display:none">
+      <div class="modulo-card">
+        <div class="modulo-header">
+          <div class="modulo-header-title">🤖 Análise de Edital com IA</div>
+        </div>
+        <div class="modulo-body">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Faça upload do PDF do edital. A IA irá extrair todas as informações e comparar os itens com o portfólio Proaction automaticamente.</p>
+
+          <!-- Upload PDF -->
+          <label id="editalUploadLabel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;border:2px dashed var(--borda);border-radius:12px;cursor:pointer;background:#fafafa;transition:.2s;margin-bottom:16px" onmouseover="this.style.background='var(--teal-pale)'" onmouseout="this.style.background='#fafafa'">
+            <div style="font-size:40px">📑</div>
+            <div style="font-size:13px;font-weight:600;color:var(--texto)">Clique para selecionar o PDF do edital</div>
+            <div style="font-size:11px;color:var(--muted)">Arquivo .pdf — o sistema analisa automaticamente</div>
+            <input type="file" accept=".pdf" onchange="selecionarEdital(this)" style="display:none">
+          </label>
+
+          <!-- Arquivo selecionado -->
+          <div id="editalArquivoInfo" style="display:none;background:#f0fdf4;border:1px solid #6ee7b7;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:none;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:20px">📑</span>
+              <div>
+                <div id="editalNomeArquivo" style="font-size:12px;font-weight:700;color:#065f46"></div>
+                <div id="editalTamArquivo" style="font-size:10px;color:#6b7280;margin-top:2px"></div>
+              </div>
+            </div>
+            <button onclick="limparEdital()" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px">✕ Remover</button>
+          </div>
+
+          <!-- Botões de análise -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+            <button id="btnAnaliseGeral" onclick="analisarEditalGeral()" class="acoes-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)" disabled>
+              📋 Análise Geral
+            </button>
+            <button id="btnAnaliseItens" onclick="analisarEditalItens()" class="acoes-btn" disabled>
+              🔍 Analisar Itens + Portfólio
+            </button>
+          </div>
+
+          <!-- Status / Loading -->
+          <div id="editalStatus" style="display:none;margin-bottom:16px"></div>
+
+          <!-- Resultado Análise Geral -->
+          <div id="editalResultadoGeral" style="display:none">
+            <div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--borda)">📋 Visão Geral do Edital</div>
+            <div id="editalGeralContent"></div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button onclick="salvarEditalSupabase()" class="acoes-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">💾 Salvar no Sistema</button>
+            </div>
+          </div>
+
+          <!-- Resultado Itens -->
+          <div id="editalResultadoItens" style="display:none;margin-top:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--texto);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--borda)">🔍 Itens × Portfólio Proaction</div>
+            <div id="editalItensContent"></div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button onclick="abrirHTMLEdital()" class="acoes-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">📄 Ver HTML Completo</button>
+              <button onclick="salvarEditalSupabase()" class="acoes-btn">💾 Salvar no Sistema</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      <div class="modulo-card">
+        <div class="modulo-header"><div class="modulo-header-title">📤 Importar Classificação de Pregão</div></div>
+        <div class="modulo-body">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Faça upload do HTML gerado pelo seu prompt de classificação. O sistema extrai automaticamente os itens, concorrentes, marcas e posições.</p>
+          <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;border:2px dashed var(--borda);border-radius:12px;cursor:pointer;background:#fafafa;transition:.2s" onmouseover="this.style.background='var(--teal-pale)'" onmouseout="this.style.background='#fafafa'">
+            <div style="font-size:40px">📄</div>
+            <div style="font-size:13px;font-weight:600;color:var(--texto)">Clique para selecionar um ou mais arquivos HTML</div>
+            <div style="font-size:11px;color:var(--muted)">classificacao_pregao_XXXXX_XXXX.html</div>
+            <input type="file" accept=".html" multiple onchange="importarPregaoHTML(this)" style="display:none">
+          </label>
+          <div id="licitImportStatus" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- SEÇÃO CADASTROS -->
@@ -2322,6 +2458,7 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
         <div style="display:flex;gap:8px;align-items:center">
           <input type="text" id="estBusca" placeholder="Buscar produto..." onInput="filtrarEstoque(this.value)"
             style="padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;width:220px;outline:none">
+          <button class="acoes-btn" onclick="abrirRelatorioEstoque()" style="white-space:nowrap">🖨️ Imprimir</button>
         </div>
       </div>
       <table style="width:100%;border-collapse:collapse">
@@ -5745,7 +5882,7 @@ function setModoApp(m){
   if(m==='crm'){renderCRM();atualizarStatsCRM();}
   if(m==='frete'){renderFretes();atualizarStatsFrete();}
   if(m==='agenda'){renderAgenda();renderProximosEventos();}
-  if(m==='licitacoes'){renderLicit();atualizarStatsLicit();}
+  if(m==='licitacoes'){sbCarregarPregoes();}
 }
 
 function setTpTipo(t){
@@ -6516,75 +6653,635 @@ function enviarNotificacaoEmail(ev){
 })();
 
 /* ══════════════════════════════════════
-   LICITAÇÕES
+   LICITAÇÕES / PREGÕES
 ══════════════════════════════════════ */
-let licitacoes=[];
-try{licitacoes=JSON.parse(localStorage.getItem('proaction_licitacoes')||'[]');}catch(e){}
+let pregoes=[];
+let licitacoes=[]; // mantido para compatibilidade
+let licitAbaAtual='agenda';
 
-function salvarLicitLS(){localStorage.setItem('proaction_licitacoes',JSON.stringify(licitacoes));}
+let _calAno=new Date().getFullYear();
+let _calMes=new Date().getMonth();
+const MESES_CAL=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIAS_SEMANA=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
-function salvarLicit(){
+function navCalendario(dir){
+  _calMes+=dir;
+  if(_calMes>11){_calMes=0;_calAno++;}
+  if(_calMes<0){_calMes=11;_calAno--;}
+  renderCalendario();
+}
+
+function renderCalendario(){
+  const label=document.getElementById('calMesLabel');
+  if(label)label.textContent=MESES_CAL[_calMes]+' '+_calAno;
+
+  const grid=document.getElementById('calGrid');
+  if(!grid)return;
+
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const primeiroDia=new Date(_calAno,_calMes,1);
+  const ultimoDia=new Date(_calAno,_calMes+1,0);
+  const inicioDiaSemana=primeiroDia.getDay();
+
+  // Mapear pregões por data
+  const porData={};
+  pregoes.forEach(function(p){
+    if(!p.data_abertura)return;
+    const d=p.data_abertura.substring(0,10);
+    if(!porData[d])porData[d]=[];
+    porData[d].push(p);
+  });
+
+  let html='';
+  // Células vazias antes do primeiro dia
+  for(let i=0;i<inicioDiaSemana;i++){
+    html+='<div style="min-height:40px;border-radius:6px;background:#fafafa"></div>';
+  }
+  // Dias do mês
+  for(let d=1;d<=ultimoDia.getDate();d++){
+    const data=new Date(_calAno,_calMes,d);
+    data.setHours(0,0,0,0);
+    const dataStr=_calAno+'-'+String(_calMes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const eventos=porData[dataStr]||[];
+    const isHoje=data.getTime()===hoje.getTime();
+    const temEvento=eventos.length>0;
+    const bg=isHoje?'#0f6e5f':temEvento?'#f0fdf4':'#fff';
+    const txtCor=isHoje?'#fff':temEvento?'#0f6e5f':'#334155';
+    const border=isHoje?'2px solid #0f6e5f':temEvento?'1px solid #6ee7b7':'1px solid #f1f5f9';
+
+    html+='<div style="min-height:40px;border-radius:6px;background:'+bg+';border:'+border+';padding:4px;cursor:'+(temEvento?'pointer':'default')+';position:relative"'+
+      (temEvento?' onclick="mostrarEventosDia(\''+dataStr+'\')"':'')+'>'+
+      '<div style="font-size:11px;font-weight:'+(isHoje||temEvento?'700':'400')+';color:'+txtCor+'">'+d+'</div>'+
+      (temEvento?'<div style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:'+(isHoje?'#fff':'#0f6e5f')+'"></div>':'')+
+    '</div>';
+  }
+  grid.innerHTML=html;
+}
+
+function mostrarEventosDia(dataStr){
+  const d=new Date(dataStr+'T12:00:00').toLocaleDateString('pt-BR');
+  const eventos=pregoes.filter(function(p){return p.data_abertura&&p.data_abertura.substring(0,10)===dataStr;});
+  if(!eventos.length)return;
+  const nomes=eventos.map(function(p){return(p.orgao||'Pregão '+p.numero)+' ('+p.numero+')'}).join('\n');
+  alert('📅 '+d+'\n\n'+nomes);
+}
+
+function setLicitAba(aba){
+  licitAbaAtual=aba;
+  ['agenda','pregoes','upload','edital'].forEach(function(a){
+    const key=a.charAt(0).toUpperCase()+a.slice(1);
+    const btn=document.getElementById('licitAba'+key);
+    const painel=document.getElementById('licitPainel'+key);
+    if(btn){btn.style.background=a===aba?'#0f6e5f':'transparent';btn.style.color=a===aba?'#fff':'#64748b';}
+    if(painel)painel.style.display=a===aba?'block':'none';
+  });
+  if(aba==='agenda'){renderAgendaLicit();renderCalendario();}
+  if(aba==='pregoes')renderPregoes();
+}
+
+// ── SUPABASE PREGÕES
+async function sbCarregarPregoes(){
+  const {data,error}=await sb.from('pregoes').select('*').order('data_abertura',{ascending:true});
+  if(error){console.error('Erro carregar pregoes:',error);return;}
+  pregoes=data||[];
+  await atualizarStatsLicit();
+  renderAgendaLicit();
+  renderPregoes();
+  renderCalendario();
+}
+
+async function salvarPregao(){
   const num=document.getElementById('licitNum').value.trim();
   const orgao=document.getElementById('licitOrgao').value.trim();
   if(!num||!orgao){showT('Informe o número e o órgão','erro');return;}
-  const reg={
-    id:Date.now(),num,orgao,
-    data:document.getElementById('licitData').value,
-    valor:parseFloat(document.getElementById('licitValor').value)||0,
-    resp:document.getElementById('licitResp').value,
+  const payload={
+    numero:num,
+    orgao:orgao,
+    uasg:document.getElementById('licitUasg').value.trim(),
+    data_abertura:document.getElementById('licitData').value||null,
     status:document.getElementById('licitStatus').value,
-    link:document.getElementById('licitLink').value.trim(),
-    obs:document.getElementById('licitObs').value.trim(),
-    dataCad:new Date().toISOString()
   };
-  licitacoes.unshift(reg);salvarLicitLS();limparFormLicit();renderLicit();atualizarStatsLicit();showT('Licitação salva ✓','verde');
+  const editId=document.getElementById('licitFormTitulo').dataset.editId;
+  let error;
+  if(editId){
+    const r=await sb.from('pregoes').update(payload).eq('id',editId);
+    error=r.error;
+  } else {
+    const r=await sb.from('pregoes').insert([payload]);
+    error=r.error;
+  }
+  if(error){showT('Erro ao salvar: '+error.message,'erro');return;}
+  limparFormLicit();
+  await sbCarregarPregoes();
+  showT('Pregão salvo ✓','verde');
+  setLicitAba('pregoes');
+}
+
+async function excluirPregao(id){
+  if(!confirm('Excluir este pregão e todos os seus itens?'))return;
+  const {error}=await sb.from('pregoes').delete().eq('id',id);
+  if(error){showT('Erro ao excluir','erro');return;}
+  await sbCarregarPregoes();
+  showT('Pregão excluído ✓','verde');
+}
+
+async function atualizarStatusPregao(id,status){
+  await sb.from('pregoes').update({status:status}).eq('id',id);
+  const p=pregoes.find(function(x){return x.id===id;});
+  if(p)p.status=status;
+  atualizarStatsLicit();
+  renderAgendaLicit();
+  renderPregoes();
 }
 
 function limparFormLicit(){
-  ['licitNum','licitOrgao','licitData','licitValor','licitLink','licitObs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('licitResp').value='';document.getElementById('licitStatus').value='aguardando';
+  ['licitNum','licitOrgao','licitUasg','licitData'].forEach(function(id){const el=document.getElementById(id);if(el)el.value='';});
+  const st=document.getElementById('licitStatus');if(st)st.value='agendado';
+  const titulo=document.getElementById('licitFormTitulo');
+  if(titulo){titulo.textContent='Novo Pregão';titulo.dataset.editId='';}
 }
 
-function excluirLicit(id){if(!confirm('Excluir?'))return;licitacoes=licitacoes.filter(l=>l.id!==id);salvarLicitLS();renderLicit();atualizarStatsLicit();}
-
-function atualizarStatusLicit(id,status){const l=licitacoes.find(x=>x.id===id);if(l){l.status=status;salvarLicitLS();renderLicit();atualizarStatsLicit();}}
-
-function atualizarStatsLicit(){
-  document.getElementById('licitTotal').textContent=licitacoes.length;
-  document.getElementById('licitAndamento').textContent=licitacoes.filter(l=>l.status==='andamento').length;
-  document.getElementById('licitGanho').textContent=licitacoes.filter(l=>l.status==='ganho').length;
+function editarPregao(p){
+  setLicitAba('pregoes');
+  document.getElementById('licitNum').value=p.numero||'';
+  document.getElementById('licitOrgao').value=p.orgao||'';
+  document.getElementById('licitUasg').value=p.uasg||'';
+  document.getElementById('licitData').value=p.data_abertura||'';
+  document.getElementById('licitStatus').value=p.status||'agendado';
+  const titulo=document.getElementById('licitFormTitulo');
+  if(titulo){titulo.textContent='Editar Pregão';titulo.dataset.editId=p.id;}
+  window.scrollTo(0,0);
 }
 
-const LICIT_STATUS={aguardando:'⏳ Aguardando',andamento:'🔵 Em Andamento',ganho:'✅ Ganho',perdido:'❌ Perdido',cancelado:'⛔ Cancelado'};
+async function atualizarStatsLicit(){
+  document.getElementById('licitTotal').textContent=pregoes.length;
 
-function renderLicit(q=''){
+  // Buscar todos os itens para calcular as dash
+  const {data:itens}=await sb.from('pregao_itens').select('concorrentes,nosso_status');
+  if(!itens){return;}
+
+  let vencemos=0,em1=0,atras=0,perdemos=0;
+
+  itens.forEach(function(it){
+    const concs=it.concorrentes||[];
+    const grow=concs.find(function(c){return c.is_grow;});
+    if(!grow)return;
+
+    // Líder atual = primeiro não desclassificado
+    const concsSorted=[...concs].sort(function(a,b){return a.pos-b.pos;});
+    const lider=concsSorted.find(function(c){return c.status!=='desclassificado';});
+    if(!lider)return;
+
+    const growEhLider=lider.is_grow;
+
+    if(growEhLider&&lider.status==='habilitado'){
+      vencemos++; // Habilitado para a Grow
+    } else if(growEhLider&&(lider.status==='em_analise'||lider.status==='aceito')){
+      em1++; // Grow em 1º aguardando
+    } else if(!growEhLider&&(lider.status==='em_analise'||lider.status==='aceito')){
+      atras++; // Outro em 1º ainda em análise
+    } else if(!growEhLider&&lider.status==='habilitado'){
+      perdemos++; // Habilitado para outro
+    }
+  });
+
+  const set=function(id,v){const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('licitVencemos',vencemos);
+  set('licitEm1',em1);
+  set('licitAtras',atras);
+  set('licitPerdemos',perdemos);
+}
+
+const PREGAO_STATUS={
+  agendado:{label:'⏳ Agendado',cor:'#075985',bg:'#e0f2fe'},
+  andamento:{label:'🔵 Em Andamento',cor:'#7c3aed',bg:'#f5f3ff'},
+  concluido:{label:'✅ Concluído',cor:'#16a34a',bg:'#dcfce7'},
+  cancelado:{label:'⛔ Cancelado',cor:'#64748b',bg:'#f1f5f9'},
+};
+
+function renderAgendaLicit(){
+  const el=document.getElementById('licitAgendaList');if(!el)return;
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const proximos=pregoes.filter(function(p){
+    if(!p.data_abertura)return p.status==='agendado'||p.status==='andamento';
+    const d=new Date(p.data_abertura);
+    return d>=hoje||p.status==='andamento';
+  }).sort(function(a,b){
+    if(!a.data_abertura&&!b.data_abertura)return 0;
+    if(!a.data_abertura)return 1;
+    if(!b.data_abertura)return -1;
+    return new Date(a.data_abertura)-new Date(b.data_abertura); // mais antigo primeiro
+  });
+  if(!proximos.length){el.innerHTML='<div class="empty-mod"><div class="empty-icon">📅</div>Nenhuma licitação agendada.</div>';return;}
+  el.innerHTML=proximos.map(function(p){
+    const st=PREGAO_STATUS[p.status]||PREGAO_STATUS.agendado;
+    const d=p.data_abertura?new Date(p.data_abertura+'T12:00:00'):null;
+    const dias=d?Math.ceil((d-hoje)/(1000*60*60*24)):null;
+    const diasStr=dias!==null?(dias===0?'Hoje':dias===1?'Amanhã':dias>0?'Em '+dias+' dias':'Há '+Math.abs(dias)+' dias'):'—';
+    const diasCor=dias!==null?(dias<=1?'#dc2626':dias<=7?'#f97316':'#16a34a'):'#64748b';
+    return '<div class="registro-item" style="border-left:3px solid '+st.cor+'" onclick="abrirPregao('+p.id+')">'+
+      '<div class="reg-info">'+
+        '<div class="reg-titulo" style="display:flex;align-items:center;gap:8px">'+
+          '<span>'+(p.orgao||'Pregão '+p.numero)+'</span>'+
+          '<span style="font-size:10px;font-weight:700;color:'+st.cor+';background:'+st.bg+';padding:2px 8px;border-radius:10px">'+st.label+'</span>'+
+        '</div>'+
+        '<div class="reg-sub">'+
+          '<span>📋 Pregão '+p.numero+'</span>'+
+          (p.uasg?'<span>UASG: '+p.uasg+'</span>':'')+
+          (d?'<span>📅 '+d.toLocaleDateString('pt-BR')+'</span>':'')+
+          '<span style="font-weight:700;color:'+diasCor+'">'+diasStr+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="reg-acoes" onclick="event.stopPropagation()">'+
+        '<button class="reg-btn" onclick="abrirPregao('+p.id+')" title="Ver itens" style="color:#0f6e5f">📋</button>'+
+        '<button class="reg-btn del" onclick="excluirPregao('+p.id+')" title="Excluir">✕</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function renderPregoes(q){
   const el=document.getElementById('licitList');if(!el)return;
-  const lst=q?licitacoes.filter(l=>l.num.includes(q)||l.orgao.toLowerCase().includes(q.toLowerCase())):licitacoes;
-  if(!lst.length){el.innerHTML='<div class="empty-mod"><div class="empty-icon">⚖️</div>Nenhuma licitação encontrada.</div>';return;}
-  el.innerHTML=lst.map(l=>`<div class="registro-item" id="lc_${l.id}" onclick="toggleReg('lc_${l.id}')">
-    <div class="reg-info">
-      <div class="reg-titulo">${l.num} — ${l.orgao}</div>
-      <div class="reg-sub">
-        <span>📅 ${l.data?l.data.split('-').reverse().join('/'):'—'}</span>
-        ${l.valor?`<span>💰 R$ ${l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`:''}
-        ${l.resp?`<span class="evento-membro-tag" style="background:${MEMBROS[l.resp]?.cor||'#888'};font-size:9px;padding:1px 7px">${MEMBROS[l.resp]?.nome||l.resp}</span>`:''}
-        <span class="licit-status-badge ${l.status}">${LICIT_STATUS[l.status]||l.status}</span>
-      </div>
-      <div class="reg-detalhe">
-        ${l.obs?`<strong>Obs:</strong> ${l.obs}<br>`:''}
-        ${l.link?`<a href="${l.link}" target="_blank" style="color:var(--teal);font-size:11px"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-link"></use></svg> Abrir edital</a><br>`:''}
-        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-          <select onchange="atualizarStatusLicit(${l.id},this.value)" onclick="event.stopPropagation()" style="font-size:11px;border:1px solid var(--borda);border-radius:6px;padding:3px 8px">
-            ${Object.entries(LICIT_STATUS).map(([k,v])=>`<option value="${k}"${l.status===k?' selected':''}>${v}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="reg-acoes" onclick="event.stopPropagation()"><button class="reg-btn del" onclick="excluirLicit(${l.id})">✕</button></div>
-  </div>`).join('');
+  let lst=q?pregoes.filter(function(p){return(p.numero||'').includes(q)||(p.orgao||'').toLowerCase().includes(q.toLowerCase());}):pregoes;
+  lst=[...lst].sort(function(a,b){
+    if(!a.data_abertura&&!b.data_abertura)return 0;
+    if(!a.data_abertura)return 1;
+    if(!b.data_abertura)return -1;
+    return new Date(a.data_abertura)-new Date(b.data_abertura); // mais antigo primeiro
+  });
+  if(!lst.length){el.innerHTML='<div class="empty-mod"><div class="empty-icon">⚖️</div>Nenhum pregão encontrado.</div>';return;}
+  el.innerHTML=lst.map(function(p){
+    const st=PREGAO_STATUS[p.status]||PREGAO_STATUS.agendado;
+    const d=p.data_abertura?new Date(p.data_abertura+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+    return '<div class="registro-item" onclick="abrirPregao('+p.id+')">'+
+      '<div class="reg-info">'+
+        '<div class="reg-titulo" style="display:flex;align-items:center;gap:8px">'+
+          '<span>'+(p.orgao||'Pregão '+p.numero)+'</span>'+
+          '<span style="font-size:10px;font-weight:700;color:'+st.cor+';background:'+st.bg+';padding:2px 8px;border-radius:10px">'+st.label+'</span>'+
+        '</div>'+
+        '<div class="reg-sub">'+
+          '<span>📋 Pregão '+p.numero+'</span>'+
+          (p.uasg?'<span>UASG: '+p.uasg+'</span>':'')+
+          '<span>📅 '+d+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="reg-acoes" onclick="event.stopPropagation()">'+
+        '<button class="reg-btn" onclick="editarPregao('+JSON.stringify(p).replace(/"/g,"'")+')">✏️</button>'+
+        '<button class="reg-btn del" onclick="excluirPregao('+p.id+')">✕</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
 }
 
-/* ── PAGE HEADER DINÂMICO ── */
+// ── IMPORTAR HTML DO PREGÃO
+async function importarPregaoHTML(input){
+  const files=Array.from(input.files||[]);
+  if(!files.length)return;
+  const statusEl=document.getElementById('licitImportStatus');
+  statusEl.innerHTML='<div style="color:#0f6e5f;font-size:12px">⏳ Preparando importação de '+files.length+' arquivo(s)...</div>';
+
+  for(let fi=0;fi<files.length;fi++){
+    const file=files[fi];
+    statusEl.innerHTML='<div style="color:#0f6e5f;font-size:12px">⏳ Lendo arquivo '+(fi+1)+'/'+files.length+': '+file.name+'</div>';
+    const text=await file.text();
+
+    // Extrair número, órgão, UASG
+    const numMatch=file.name.match(/(\d{4,})[_\-](\d{4})/);
+    const numero=numMatch?numMatch[1]+'/'+numMatch[2]:'';
+    const uasgMatch=text.match(/UASG\s+(\d{5,})/);
+    const uasg=uasgMatch?uasgMatch[1]:'';
+    const orgaoMatch=text.match(/class="topo-sub"[^>]*>([\s\S]*?)<\/div>/);
+    const orgaoRaw=orgaoMatch?orgaoMatch[1]
+      .replace(/<[^>]+>/g,'')
+      .replace(/&nbsp;/g,' ')
+      .replace(/UASG\s*\d+\s*[·—\-]?\s*/gi,'')
+      .replace(/Lei\s*[\d.\/]+/gi,'')
+      .replace(/\s{2,}/g,' ')
+      .replace(/^\s*[·—\-]\s*/,'')
+      .replace(/\s*[·—\-]\s*$/,'')
+      .trim():'';
+
+    // Pedir data ao usuário
+    const dataStr=prompt('📅 Data de abertura do pregão '+numero+':\n(formato DD/MM/AAAA)','');
+    if(dataStr===null){statusEl.innerHTML='<div style="color:#f97316;font-size:12px">⚠️ Importação cancelada para '+file.name+'</div>';continue;}
+    let dataISO=null;
+    if(dataStr){
+      const partes=dataStr.split('/');
+      if(partes.length===3)dataISO=partes[2]+'-'+partes[1].padStart(2,'0')+'-'+partes[0].padStart(2,'0');
+    }
+
+    // Extrair itens — suporta formato 1 (pos-badge/forn-name) e formato 2 (rank-badge/fornecedor-name)
+    const itemBlocks=text.split(/(?=<section[^>]+class="item-card")/);
+    const itensList=[];
+
+    itemBlocks.forEach(function(block,bi){
+      if(!block.includes('item-card'))return;
+      // Número do item
+      let itemNum='';
+      const idM=block.match(/id="item-(\d+)"/);
+      const badgeM=block.match(/(?:item-num-badge|badge-item)[^>]*>(?:Item\s*)?(\d+)/);
+      const printM=block.match(/printItem\('(\d+)'\)/)||block.match(/imprimirItem\('item-(\d+)'\)/);
+      if(idM)itemNum=idM[1];
+      else if(badgeM)itemNum=badgeM[1];
+      else if(printM)itemNum=printM[1];
+      else itemNum=String(bi);
+      if(!itemNum||itemNum==='0')return; // pular item inválido
+      // Descrição
+      const nomeM=block.match(/class="(?:item-name|item-title)"[^>]*>([\s\S]*?)<\/span>/);
+      const descricao=(nomeM?nomeM[1]:'Item '+itemNum).replace(/<[^>]+>/g,'').trim();
+      // Meta
+      const qtdeM=block.match(/Qtde[^<]*<strong>([\d.,]+)/);
+      const valorM=block.match(/estimado[^<]*<strong>(?:R\$\s*)?([\d.,]+)/);
+      const propM=block.match(/Propostas[^<]*<strong>(\d+)/);
+      const quantidade=qtdeM?parseFloat(qtdeM[1].replace(/\./g,'').replace(',','.'))||0:0;
+      const valorEstimado=valorM?parseFloat(valorM[1].replace(/\./g,'').replace(',','.'))||0:0;
+      const numPropostas=propM?parseInt(propM[1])||0:0;
+      // Concorrentes
+      const tbodyM=block.match(/<tbody[^>]*>([\s\S]*?)<\/tbody>/);
+      const concorrentes=[];
+      let nossaPos=null,nossaValor=0;
+      if(tbodyM){
+        const tbody=tbodyM[1];
+        const fmt1=tbody.includes('pos-badge');
+        const trParts=tbody.split(/<tr[\s\S]*?(?=>)>/);
+        trParts.forEach(function(tr){
+          if(!tr.includes('badge'))return;
+          let pos=0,empresa='',cnpj='',valor=0,marca='',modelo='',isGrow=false;
+          if(fmt1){
+            const pM=tr.match(/class="pos-badge[^"]*">(\d+)/);if(!pM)return;pos=parseInt(pM[1]);
+            const eM=tr.match(/class="forn-name[^"]*">([\s\S]*?)<\/div>/);
+            const cM=tr.match(/class="forn-cnpj">([\s\S]*?)<\/div>/);
+            const vM=tr.match(/class="vl-unit[^"]*">([\s\S]*?)<\/span>/);
+            const mnM=tr.match(/class="marca-nome"[^>]*>([\s\S]*?)<\/div>/);
+            const mmM=tr.match(/class="marca-modelo"[^>]*>([\s\S]*?)<\/div>/);
+            empresa=(eM?eM[1]:'').replace(/<[^>]+>/g,'').trim();
+            cnpj=(cM?cM[1]:'').replace(/<[^>]+>/g,'').trim();
+            valor=parseFloat(((vM?vM[1]:'0').replace(/<[^>]+>/g,'').replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.'))||0);
+            marca=(mnM?mnM[1]:'').replace(/<[^>]+>/g,'').trim();
+            modelo=(mmM?mmM[1]:'').replace(/<[^>]+>/g,'').trim();
+          } else {
+            const pM=tr.match(/class="rank-badge[^"]*">(\d+)/);if(!pM)return;pos=parseInt(pM[1]);
+            const eM=tr.match(/class="fornecedor-name">([\s\S]*?)<\/div>/);
+            const ufM=tr.match(/class="fornecedor-uf">([\s\S]*?)<\/div>/);
+            const vM=tr.match(/class="val">([\s\S]*?)<\/span>/);
+            const mnM=tr.match(/class="marca-text"[^>]*>([\s\S]*?)<\/div>/);
+            const mmM=tr.match(/class="modelo-text"[^>]*>([\s\S]*?)<\/div>/);
+            empresa=(eM?eM[1]:'').replace(/<[^>]+>/g,'').trim();
+            const cnpjM=(ufM?ufM[1]:'').match(/CNPJ\s*([\d.\/\-]+)/);
+            cnpj=cnpjM?cnpjM[1]:'';
+            valor=parseFloat(((vM?vM[1]:'0').replace(/<[^>]+>/g,'').replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.'))||0);
+            marca=(mnM?mnM[1]:'').replace(/<[^>]+>/g,'').trim();
+            modelo=(mmM?mmM[1]:'').replace(/<[^>]+>/g,'').trim();
+          }
+          isGrow=tr.includes('row-grow')||tr.includes('tag-grow');
+          const conc={pos,empresa,cnpj,valor,marca,modelo};
+          if(isGrow){conc.is_grow=true;nossaPos=pos;nossaValor=valor;}
+          if(pos===1)conc.status='em_analise';
+          concorrentes.push(conc);
+        });
+      }
+      itensList.push({item_num:itemNum,descricao:descricao.substring(0,300),quantidade,valor_estimado:valorEstimado,num_propostas:numPropostas,nossa_posicao_inicial:nossaPos,nosso_status:'em_analise',nosso_valor:nossaValor,concorrentes:concorrentes});
+    });
+
+    if(!itensList.length){statusEl.innerHTML='<div style="color:#dc2626;font-size:12px">❌ Nenhum item encontrado em '+file.name+'</div>';continue;}
+
+    statusEl.innerHTML='<div style="color:#0f6e5f;font-size:12px">⏳ Salvando pregão '+numero+' ('+itensList.length+' itens)...</div>';
+
+    const {data:pregData,error:pregError}=await sb.from('pregoes').insert([{
+      numero:numero||file.name,orgao:orgaoRaw,uasg,status:'andamento',
+      total_itens:itensList.length,data_abertura:dataISO
+    }]).select();
+    if(pregError){statusEl.innerHTML='<div style="color:#dc2626;font-size:12px">❌ Erro: '+pregError.message+'</div>';continue;}
+
+    const pregaoId=pregData[0].id;
+    const BATCH=20;
+    for(let i=0;i<itensList.length;i+=BATCH){
+      const batch=itensList.slice(i,i+BATCH).map(function(it){return Object.assign({pregao_id:pregaoId},it);});
+      const {error:itError}=await sb.from('pregao_itens').insert(batch);
+      if(itError){statusEl.innerHTML='<div style="color:#dc2626;font-size:12px">❌ Erro itens: '+itError.message+'</div>';break;}
+      statusEl.innerHTML='<div style="color:#0f6e5f;font-size:12px">⏳ '+(fi+1)+'/'+files.length+' — '+Math.min(i+BATCH,itensList.length)+'/'+itensList.length+' itens</div>';
+    }
+    statusEl.innerHTML='<div style="color:#16a34a;font-size:12px">✅ Pregão '+numero+' importado! ('+itensList.length+' itens)</div>';
+  }
+
+  statusEl.innerHTML+='<div style="color:#16a34a;font-size:13px;font-weight:700;margin-top:8px">✅ Importação concluída!</div>';
+  input.value='';
+  await sbCarregarPregoes();
+  showT('Pregões importados! ✓','verde');
+}
+
+// ── VER ITENS DO PREGÃO
+function abrirPregao(id){
+  const p=pregoes.find(function(x){return x.id===id;});
+  if(!p)return;
+  abrirModalItensPregao(p);
+}
+
+function renderLicit(){} // compatibilidade
+function salvarLicit(){salvarPregao();}
+function atualizarStatsLicit(){}
+
+let _aiPregaoId=null;
+let _aiConcCount=0;
+
+function abrirAddItemPregao(){
+  _aiConcCount=0;
+  ['aiItemNum','aiQtde','aiValorEst','aiDesc'].forEach(function(id){const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('aiConcList').innerHTML='';
+  aiAdicionarConc(); // linha inicial vazia
+  document.getElementById('overlayAddItemPregao').style.display='flex';
+}
+
+function fecharAddItemPregao(){
+  document.getElementById('overlayAddItemPregao').style.display='none';
+}
+
+function aiAdicionarConc(){
+  const i=_aiConcCount++;
+  const div=document.createElement('div');
+  div.id='aiConc_'+i;
+  div.style.cssText='display:grid;grid-template-columns:40px 1fr 1fr 100px 32px;gap:6px;align-items:center;background:#f8fafc;padding:7px;border-radius:8px;border:1px solid var(--borda)';
+  div.innerHTML=
+    '<input type="number" id="aiPos_'+i+'" value="'+(i+1)+'" min="1" placeholder="#" style="padding:4px 6px;border:1px solid var(--borda);border-radius:6px;font-size:11px;width:100%">'+
+    '<input type="text" id="aiEmp_'+i+'" placeholder="Empresa" style="padding:4px 8px;border:1px solid var(--borda);border-radius:6px;font-size:11px;width:100%">'+
+    '<input type="text" id="aiMarca_'+i+'" placeholder="Marca / Modelo" style="padding:4px 8px;border:1px solid var(--borda);border-radius:6px;font-size:11px;width:100%">'+
+    '<input type="text" id="aiValor_'+i+'" placeholder="R$ 0,00" style="padding:4px 8px;border:1px solid var(--borda);border-radius:6px;font-size:11px;width:100%">'+
+    '<button onclick="document.getElementById(\'aiConc_'+i+'\').remove()" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:4px 6px;cursor:pointer;font-size:12px">✕</button>';
+  // Checkbox nossa empresa
+  const check=document.createElement('label');
+  check.style.cssText='grid-column:span 5;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;padding:0 2px';
+  check.innerHTML='<input type="checkbox" id="aiGrow_'+i+'"> Nossa empresa (Grow)';
+  div.style.gridTemplateRows='auto auto';
+  const wrapper=document.createElement('div');
+  wrapper.id='aiConc_'+i;
+  wrapper.style.cssText='display:flex;flex-direction:column;gap:4px;background:#f8fafc;padding:8px;border-radius:8px;border:1px solid var(--borda)';
+  const row=document.createElement('div');
+  row.style.cssText='display:grid;grid-template-columns:40px 1fr 1fr 100px 32px;gap:6px;align-items:center';
+  row.innerHTML=
+    '<input type="number" id="aiPos_'+i+'" value="'+(i+1)+'" min="1" placeholder="#" style="padding:4px 6px;border:1px solid var(--borda);border-radius:6px;font-size:11px;width:100%">'+
+    '<input type="text" id="aiEmp_'+i+'" placeholder="Empresa" style="padding:4px 8px;border:1px solid var(--borda);border-radius:6px;font-size:11px;width:100%">'+
+    '<input type="text" id="aiMarca_'+i+'" placeholder="Marca / Modelo" style="padding:4px 8px;border:1px solid var(--borda);border-radius:6px;font-size:11px;width:100%">'+
+    '<input type="text" id="aiValor_'+i+'" placeholder="R$ 0,00" style="padding:4px 8px;border:1px solid var(--borda);border-radius:6px;font-size:11px;width:100%">'+
+    '<button onclick="document.getElementById(\'aiConc_'+i+'\').remove()" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:4px 6px;cursor:pointer;font-size:12px">✕</button>';
+  wrapper.appendChild(row);
+  wrapper.appendChild(check);
+  document.getElementById('aiConcList').appendChild(wrapper);
+}
+
+async function salvarAddItemPregao(){
+  if(!_aiPregaoId){showT('Erro: pregão não identificado','erro');return;}
+  const itemNum=document.getElementById('aiItemNum').value.trim();
+  const desc=document.getElementById('aiDesc').value.trim();
+  const qtde=parseFloat(document.getElementById('aiQtde').value)||0;
+  const valorEst=parseFloat((document.getElementById('aiValorEst').value||'0').replace(',','.'))||0;
+  if(!itemNum||!desc){showT('Informe o número e descrição do item','erro');return;}
+
+  // Coletar concorrentes
+  const concorrentes=[];
+  let nossaPos=null,nossaValor=0;
+  const wrappers=document.getElementById('aiConcList').children;
+  Array.from(wrappers).forEach(function(w){
+    const id=w.id.replace('aiConc_','');
+    const pos=parseInt(document.getElementById('aiPos_'+id)?.value)||0;
+    const empresa=(document.getElementById('aiEmp_'+id)?.value||'').trim();
+    const marca=(document.getElementById('aiMarca_'+id)?.value||'').trim();
+    const vlText=(document.getElementById('aiValor_'+id)?.value||'0').replace(/[R$\s]/g,'').replace(',','.');
+    const valor=parseFloat(vlText)||0;
+    const isGrow=document.getElementById('aiGrow_'+id)?.checked||false;
+    const conc={pos,empresa,valor,marca,modelo:''};
+    if(isGrow){conc.is_grow=true;nossaPos=pos;nossaValor=valor;}
+    if(pos===1)conc.status='em_analise';
+    if(empresa||valor>0)concorrentes.push(conc);
+  });
+  concorrentes.sort(function(a,b){return a.pos-b.pos;});
+
+  const {error}=await sb.from('pregao_itens').insert([{
+    pregao_id:_aiPregaoId,item_num:itemNum,descricao:desc,
+    quantidade:qtde,valor_estimado:valorEst,num_propostas:concorrentes.length,
+    nossa_posicao_inicial:nossaPos,nosso_status:'em_analise',nosso_valor:nossaValor,
+    concorrentes:concorrentes
+  }]);
+  if(error){showT('Erro: '+error.message,'erro');return;}
+  showT('Item salvo ✓','verde');
+  fecharAddItemPregao();
+  // Reabrir modal de itens
+  const p=pregoes.find(function(x){return x.id===_aiPregaoId;});
+  if(p)abrirModalItensPregao(p);
+}
+
+async function abrirModalItensPregao(p){
+  _aiPregaoId=p.id;
+  document.getElementById('itensPregaoTitulo').textContent='Pregão '+p.numero+' — '+p.orgao;
+  document.getElementById('itensPregaoBody').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted)">⏳ Carregando itens...</div>';
+  document.getElementById('overlayItensPregao').style.display='flex';
+
+  const {data:itens,error}=await sb.from('pregao_itens').select('*').eq('pregao_id',p.id).order('item_num');
+  if(error){document.getElementById('itensPregaoBody').innerHTML='<div style="color:#dc2626">Erro ao carregar itens.</div>';return;}
+
+  const fmt=function(v){return'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2});};
+  const STATUS_ITEM={em_analise:{l:'🔵 Em Análise',c:'#075985',bg:'#e0f2fe'},aceito:{l:'✅ Aceito',c:'#16a34a',bg:'#dcfce7'},desclassificado:{l:'❌ Desclassificado',c:'#dc2626',bg:'#fee2e2'},homologado:{l:'📋 Homologado',c:'#7c3aed',bg:'#f5f3ff'}};
+  const STATUS_CONC={em_analise:{l:'🔵 Em Análise',c:'#075985'},aceito:{l:'✅ Aceito',c:'#16a34a'},habilitado:{l:'🏆 Habilitado',c:'#7c3aed'},desclassificado:{l:'❌ Desclassificado',c:'#dc2626'}};
+
+  if(!itens||!itens.length){
+    document.getElementById('itensPregaoBody').innerHTML='<div class="empty-mod"><div class="empty-icon">📋</div>Nenhum item cadastrado. Importe o HTML do pregão.</div>';
+    return;
+  }
+
+  document.getElementById('itensPregaoBody').innerHTML=itens.map(function(it){
+    const concs=it.concorrentes||[];
+    // Calcular posição atual da Grow
+    const grow=concs.find(function(c){return c.is_grow;});
+    const posLance=grow?grow.pos:null;
+    let posAtual=null;
+    if(posLance){
+      const descAcima=concs.filter(function(c){return c.pos<posLance&&c.status==='desclassificado';}).length;
+      posAtual=posLance-descAcima;
+    }
+    const st=STATUS_ITEM[it.nosso_status]||STATUS_ITEM.em_analise;
+    const posStr=posAtual?'<span style="font-size:12px;font-weight:800;color:'+(posAtual===1?'#16a34a':'#0f172a')+'">'+posAtual+'º lugar</span>':'';
+
+    // 1º colocado atual = primeiro sem status desclassificado
+    const concsSorted=[...concs].sort(function(a,b){return a.pos-b.pos;});
+    const liderAtual=concsSorted.find(function(c){return c.status!=='desclassificado';})||null;
+
+    // Status só aparece se Grow é 1ª atual
+    const growEh1=posAtual===1;
+
+    return '<div style="margin-bottom:16px;border:1px solid var(--borda);border-radius:10px;overflow:hidden">'+
+      '<div style="background:#f8fafc;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
+        '<div>'+
+          '<div style="font-size:12px;font-weight:700;color:var(--texto)">Item '+it.item_num+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+it.descricao+'</div>'+
+          '<div style="font-size:10px;color:var(--muted);margin-top:2px">Qtde: '+it.quantidade+' · Est.: '+fmt(it.valor_estimado)+' · '+it.num_propostas+' propostas</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+          posStr+
+          (growEh1?
+            '<span style="font-size:10px;font-weight:700;color:'+st.c+';background:'+st.bg+';padding:3px 10px;border-radius:10px">'+st.l+'</span>'+
+            '<select onchange="atualizarStatusItem('+it.id+',this.value)" style="font-size:11px;padding:3px 8px;border:1px solid var(--borda);border-radius:6px">'+
+              Object.entries(STATUS_ITEM).map(function(e){return'<option value="'+e[0]+'"'+(it.nosso_status===e[0]?' selected':'')+'>'+e[1].l+'</option>';}).join('')+
+            '</select>'
+          :'')+
+        '</div>'+
+      '</div>'+
+      // Tabela de concorrentes
+      '<div style="overflow-x:auto">'+
+      '<table style="width:100%;border-collapse:collapse;font-size:11px">'+
+        '<thead><tr style="background:#1e293b">'+
+          '<th style="padding:6px 10px;color:#fff;font-weight:600;text-align:center;width:40px">#</th>'+
+          '<th style="padding:6px 10px;color:#fff;font-weight:600;text-align:left">Empresa</th>'+
+          '<th style="padding:6px 10px;color:#fff;font-weight:600;text-align:left">Marca / Modelo</th>'+
+          '<th style="padding:6px 10px;color:#fff;font-weight:600;text-align:right">Valor Unit.</th>'+
+          '<th style="padding:6px 10px;color:#fff;font-weight:600;text-align:center">Status</th>'+
+        '</tr></thead>'+
+        '<tbody>'+
+        concs.map(function(c,i){
+          const isGrow=c.is_grow;
+          const bg=isGrow?'#f0fdf4':i%2===0?'#fff':'#f8fafc';
+          const txt=isGrow?'#16a34a':'#334155';
+          const isLider=liderAtual&&c.pos===liderAtual.pos;
+          const isDesclas=c.status==='desclassificado';
+          const stConc=STATUS_CONC[c.status||'em_analise']||STATUS_CONC.em_analise;
+          return '<tr style="background:'+bg+(isDesclas?';opacity:.5;text-decoration:line-through':'')+'">' +
+            '<td style="padding:5px 10px;text-align:center;font-weight:700;color:'+(isLider?'#f59e0b':txt)+'">'+c.pos+'º</td>'+
+            '<td style="padding:5px 10px;color:'+txt+'">'+(isGrow?'<strong>'+c.empresa+' 🟢</strong>':c.empresa)+'<div style="font-size:9px;color:#94a3b8">'+c.cnpj+'</div></td>'+
+            '<td style="padding:5px 10px;color:#475569">'+c.marca+'<div style="font-size:9px;color:#94a3b8">'+c.modelo+'</div></td>'+
+            '<td style="padding:5px 10px;text-align:right;font-weight:700;color:'+(isGrow?'#16a34a':txt)+'">'+fmt(c.valor)+'</td>'+
+            '<td style="padding:5px 10px;text-align:center">'+
+              (isLider?
+                '<select onchange="atualizarStatusConc('+it.id+','+i+',this.value)" style="font-size:10px;padding:2px 6px;border:1px solid var(--borda);border-radius:4px">'+
+                  Object.entries(STATUS_CONC).map(function(e){return'<option value="'+e[0]+'"'+((c.status||'em_analise')===e[0]?' selected':'')+'>'+e[1].l+'</option>';}).join('')+
+                '</select>'
+              :(isDesclas?'<span style="font-size:10px;color:#dc2626;font-weight:700">❌ Desclas.</span>':'<span style="color:#94a3b8;font-size:10px">—</span>'))+
+            '</td>'+
+          '</tr>';
+        }).join('')+
+        '</tbody>'+
+      '</table></div></div>';
+  }).join('');
+}
+
+function fecharModalItensPregao(){
+  document.getElementById('overlayItensPregao').style.display='none';
+}
+
+async function atualizarStatusItem(itemId,status){
+  await sb.from('pregao_itens').update({nosso_status:status}).eq('id',itemId);
+  showT('Status atualizado ✓','verde');
+}
+
+async function atualizarStatusConc(itemId,concIdx,status){
+  const {data}=await sb.from('pregao_itens').select('concorrentes,pregao_id').eq('id',itemId).single();
+  if(!data)return;
+  const concs=data.concorrentes||[];
+  if(concs[concIdx])concs[concIdx].status=status;
+  await sb.from('pregao_itens').update({concorrentes:concs}).eq('id',itemId);
+  showT('Status atualizado ✓','verde');
+  await atualizarStatsLicit();
+  // Recarregar modal para refletir novo líder
+  const p=pregoes.find(function(x){return x.id===data.pregao_id;});
+  if(p)abrirModalItensPregao(p);
+}
 var PAGE_HEADERS = {
   home:       {icon:'i-home',     title:'Dashboard',        sub:'Resumo do dia — GEx Assist'},
   cotacao:    {icon:'i-cot',      title:'Cotação',           sub:'Crie e gerencie cotações de produtos'},
@@ -6914,6 +7611,524 @@ async function adicionarCodAlt(codPrincipal){
   showT('Código '+novo+' vinculado ✓','verde');
 }
 
+/* ── ANÁLISE DE EDITAL COM IA ── */
+let _editalPDFBase64=null;
+let _editalAnaliseGeral=null;
+let _editalAnaliseItens=null;
+let _portfolioCache=null;
+
+function selecionarEdital(input){
+  const file=input.files[0];
+  if(!file)return;
+  const info=document.getElementById('editalArquivoInfo');
+  document.getElementById('editalNomeArquivo').textContent=file.name;
+  document.getElementById('editalTamArquivo').textContent=(file.size/1024/1024).toFixed(2)+' MB';
+  info.style.display='flex';
+  // Converter para base64
+  const reader=new FileReader();
+  reader.onload=function(e){
+    _editalPDFBase64=e.target.result.split(',')[1];
+    document.getElementById('btnAnaliseGeral').disabled=false;
+    document.getElementById('btnAnaliseItens').disabled=false;
+  };
+  reader.readAsDataURL(file);
+}
+
+function limparEdital(){
+  _editalPDFBase64=null;
+  _editalAnaliseGeral=null;
+  _editalAnaliseItens=null;
+  document.getElementById('editalArquivoInfo').style.display='none';
+  document.getElementById('editalStatus').style.display='none';
+  document.getElementById('editalResultadoGeral').style.display='none';
+  document.getElementById('editalResultadoItens').style.display='none';
+  document.getElementById('btnAnaliseGeral').disabled=true;
+  document.getElementById('btnAnaliseItens').disabled=true;
+  document.querySelector('#editalUploadLabel input').value='';
+}
+
+function mostrarStatus(msg,tipo){
+  const el=document.getElementById('editalStatus');
+  const cores={loading:'#0f6e5f',erro:'#dc2626',ok:'#16a34a'};
+  const bg={loading:'#f0fdf4',erro:'#fee2e2',ok:'#dcfce7'};
+  el.style.display='block';
+  el.innerHTML='<div style="background:'+bg[tipo]+';border-radius:8px;padding:12px 16px;font-size:12px;color:'+cores[tipo]+';font-weight:600">'+msg+'</div>';
+}
+
+async function analisarEditalGeral(){
+  if(!_editalPDFBase64){showT('Selecione o PDF primeiro','erro');return;}
+  mostrarStatus('⏳ Analisando edital... Isso pode levar 20-40 segundos.','loading');
+  document.getElementById('btnAnaliseGeral').disabled=true;
+
+  const prompt=`Você é um analista sênior de licitações. Analise o edital em PDF e extraia as informações abaixo em formato JSON. Responda APENAS com o JSON, sem texto adicional.
+
+{
+  "orgao": "nome do órgão licitante",
+  "numero": "número do edital/processo",
+  "modalidade": "ex: Pregão Eletrônico",
+  "objeto": "descrição resumida do objeto",
+  "valor_estimado": "valor total estimado",
+  "data_abertura": "data e hora de abertura",
+  "criterio": "critério de julgamento",
+  "exclusividade_me_epp": "Sim/Não/Cota reservada",
+  "prazo_entrega": "prazo de entrega após emissão",
+  "prazo_contrato": "prazo para assinatura do contrato",
+  "validade_proposta": "prazo de validade da proposta",
+  "documentos_habilitacao": ["lista", "de", "documentos"],
+  "documentos_proposta": ["FISPQ", "Registro ANVISA", "outros"],
+  "clausulas_atencao": ["cláusulas restritivas ou incomuns"],
+  "checklist": ["1. documento", "2. documento"]
+}`;
+
+  try{
+    const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_KEY,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[
+          {inline_data:{mime_type:'application/pdf',data:_editalPDFBase64}},
+          {text:prompt}
+        ]}],
+        generationConfig:{maxOutputTokens:8192,temperature:0.1}
+      })
+    });
+    const data=await resp.json();
+    if(data.error){mostrarStatus('\u274c Erro da API: '+data.error.message,'erro');document.getElementById('btnAnaliseGeral').disabled=false;document.getElementById('btnAnaliseItens').disabled=false;return;}
+    const txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    let clean=txt.replace(/```json|```/g,'').trim();
+    // Tentar reparar JSON truncado
+    try{_editalAnaliseGeral=JSON.parse(clean);}
+    catch(e){
+      // Fechar chaves/colchetes abertos
+      let opens=(clean.match(/\{/g)||[]).length-(clean.match(/\}/g)||[]).length;
+      let openBr=(clean.match(/\[/g)||[]).length-(clean.match(/\]/g)||[]).length;
+      if(clean.endsWith('"')||clean.endsWith(',')){clean=clean.replace(/,\s*$/,'');}
+      for(let i=0;i<openBr;i++)clean+=']';
+      for(let i=0;i<opens;i++)clean+='}';
+      _editalAnaliseGeral=JSON.parse(clean);
+    }
+    renderAnaliseGeral(_editalAnaliseGeral);
+    mostrarStatus('✅ Análise geral concluída!','ok');
+  }catch(e){
+    console.error(e);
+    mostrarStatus('❌ Erro na análise: '+e.message,'erro');
+  }
+  document.getElementById('btnAnaliseGeral').disabled=false;
+}
+
+function renderAnaliseGeral(d){
+  const el=document.getElementById('editalGeralContent');
+  const row=function(label,val){
+    if(!val||val==='-')return'';
+    return'<div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:11px;font-weight:600;color:#64748b;min-width:140px">'+label+'</span><span style="font-size:12px;color:#0f172a">'+val+'</span></div>';
+  };
+  const lista=function(label,arr){
+    if(!arr||!arr.length)return'';
+    return'<div style="padding:8px 0;border-bottom:1px solid #f1f5f9"><div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">'+label+'</div>'+
+      arr.map(function(i){return'<div style="font-size:11px;color:#334155;padding:2px 0 2px 12px">• '+i+'</div>';}).join('')+'</div>';
+  };
+  el.innerHTML=
+    '<div style="background:#fff;border:1px solid var(--borda);border-radius:10px;padding:14px">'+
+    row('Órgão',d.orgao)+row('Nº Edital',d.numero)+row('Modalidade',d.modalidade)+
+    row('Objeto',d.objeto)+row('Valor Estimado',d.valor_estimado)+
+    row('Abertura',d.data_abertura)+row('Critério',d.criterio)+
+    row('ME/EPP',d.exclusividade_me_epp)+row('Prazo Entrega',d.prazo_entrega)+
+    row('Prazo Contrato',d.prazo_contrato)+row('Validade Proposta',d.validade_proposta)+
+    lista('📄 Documentos de Habilitação',d.documentos_habilitacao)+
+    lista('📎 Documentos da Proposta',d.documentos_proposta)+
+    lista('⚠️ Cláusulas de Atenção',d.clausulas_atencao)+
+    lista('✅ Checklist de Documentos',d.checklist)+
+    '</div>';
+  document.getElementById('editalResultadoGeral').style.display='block';
+}
+
+async function analisarEditalItens(){
+  if(!_editalPDFBase64){showT('Selecione o PDF primeiro','erro');return;}
+  mostrarStatus('⏳ Carregando portfólio...','loading');
+  document.getElementById('btnAnaliseItens').disabled=true;
+
+  // Buscar portfólio do Supabase
+  if(!_portfolioCache){
+    const {data,error}=await sb.from('portfolio').select('*').eq('ativo',true).order('categoria');
+    if(error){mostrarStatus('❌ Erro ao carregar portfólio','erro');return;}
+    _portfolioCache=data||[];
+  }
+
+  const portfolioTexto=_portfolioCache.map(function(p){
+    return '['+p.nome+']\nCat: '+p.categoria+'\nPesquisa: '+p.pesquisa;
+  }).join('\n\n');
+
+  mostrarStatus('⏳ Analisando itens com IA... Aguarde 30-60 segundos.','loading');
+
+  const prompt=`Analise o edital PDF e compare cada item com o portfólio abaixo. Responda APENAS com JSON válido e completo, sem texto adicional.
+
+PORTFÓLIO PROACTION:
+${portfolioTexto}
+
+Critérios de matching (nessa ordem):
+1. Princípio ativo/composição química
+2. Finalidade/aplicação
+3. Categoria do produto
+
+IMPORTANTE: Retorne APENAS os itens que têm correspondência com o portfólio. Itens sem correspondência NÃO devem aparecer no JSON. Justificativas máximo 10 palavras.
+
+JSON esperado:
+{"itens":[{"num":"1","descricao":"desc","quantidade":0,"unidade":"UN","valor_estimado":0,"participar":true,"produtos":[{"nome":"Proaction X","exibicao":"texto exibição","marca":"marca","embalagem":"emb","anvisa":"reg","justificativa":"motivo curto"}]}]}`;
+
+  try{
+    const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_KEY,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[
+          {inline_data:{mime_type:'application/pdf',data:_editalPDFBase64}},
+          {text:prompt}
+        ]}],
+        generationConfig:{maxOutputTokens:8192,temperature:0.1}
+      })
+    });
+    const data=await resp.json();
+    if(data.error){mostrarStatus('❌ Erro da API: '+data.error.message,'erro');document.getElementById('btnAnaliseItens').disabled=false;return;}
+    const txt=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    let clean=txt.replace(/```json|```/g,'').trim();
+
+    // Extrair apenas o JSON válido
+    const jsonStart=clean.indexOf('{');
+    if(jsonStart>0)clean=clean.substring(jsonStart);
+
+    // Reparar JSON truncado
+    try{
+      _editalAnaliseItens=JSON.parse(clean);
+    }catch(e){
+      // Tentar fechar estruturas abertas
+      clean=clean.replace(/,\s*$/,'').replace(/"\s*$/,'"');
+      // Fechar arrays e objetos abertos
+      const opens=(clean.match(/\{/g)||[]).length-(clean.match(/\}/g)||[]).length;
+      const openBr=(clean.match(/\[/g)||[]).length-(clean.match(/\]/g)||[]).length;
+      for(let i=0;i<openBr;i++)clean+=']';
+      for(let i=0;i<opens;i++)clean+='}';
+      try{
+        _editalAnaliseItens=JSON.parse(clean);
+        mostrarStatus('⚠️ Análise parcial — edital muito grande. Itens extraídos: '+(_editalAnaliseItens?.itens?.length||0),'loading');
+      }catch(e2){
+        mostrarStatus('❌ JSON inválido mesmo após reparo. Tente com um edital menor.','erro');
+        document.getElementById('btnAnaliseItens').disabled=false;
+        return;
+      }
+    }
+    renderAnaliseItens(_editalAnaliseItens);
+    const total=_editalAnaliseItens?.itens?.length||0;
+    const comMatch=(_editalAnaliseItens?.itens||[]).filter(function(i){return i.produtos&&i.produtos.length;}).length;
+    mostrarStatus('✅ '+total+' itens analisados · '+comMatch+' com correspondência no portfólio','ok');
+  }catch(e){
+    console.error(e);
+    mostrarStatus('❌ Erro na análise: '+e.message,'erro');
+  }
+  document.getElementById('btnAnaliseItens').disabled=false;
+}
+
+function renderAnaliseItens(d){
+  const todos=d.itens||[];
+  const itens=todos.filter(function(i){return i.produtos&&i.produtos.length>0;});
+  const semProduto=todos.length-itens.length;
+  const fmt=function(v){return v?'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—';};
+
+  let html='<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">'+
+    '<div style="background:#dcfce7;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:#16a34a">✅ '+itens.length+' itens com correspondência</div>'+
+    '<div style="background:#f1f5f9;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:#64748b">⚪ '+semProduto+' sem correspondência (não exibidos)</div>'+
+  '</div>';
+
+  if(!itens.length){
+    html+='<div class="empty-mod"><div class="empty-icon">🔍</div>Nenhum item do edital corresponde ao portfólio Proaction.</div>';
+    document.getElementById('editalItensContent').innerHTML=html;
+    document.getElementById('editalResultadoItens').style.display='block';
+    return;
+  }
+
+  html+=itens.map(function(it,idx){
+    return '<div id="editalItem_'+idx+'" style="border:1px solid var(--borda);border-radius:10px;overflow:hidden;margin-bottom:10px;background:#fff">'+
+      '<div style="background:#f0fdf4;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">'+
+        '<div>'+
+          '<span style="font-size:11px;font-weight:700;color:#64748b">Item '+it.num+'</span>'+
+          '<div style="font-size:12px;font-weight:600;color:#0f172a;margin-top:2px">'+it.descricao+'</div>'+
+          '<div style="font-size:10px;color:#94a3b8;margin-top:1px">Qtde: '+it.quantidade+' '+it.unidade+' · '+fmt(it.valor_estimado)+'</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;background:#dcfce7;color:#16a34a">✅ Participar</span>'+
+          '<button onclick="excluirItemEdital('+idx+')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600">✕ Excluir</button>'+
+        '</div>'+
+      '</div>'+
+      it.produtos.map(function(p,pi){
+        return '<div style="padding:10px 14px;border-top:1px solid #f1f5f9'+(pi>0?';background:#fafff8':'')+'" >'+
+          (it.produtos.length>1?'<div style="font-size:10px;font-weight:700;color:#0369a1;margin-bottom:6px">Opção '+(pi+1)+'</div>':'')+
+          '<div style="font-size:12px;font-weight:700;color:#0f172a">'+p.nome+'</div>'+
+          '<div style="font-size:11px;color:#64748b;margin-top:2px">'+p.exibicao+'</div>'+
+          '<div style="font-size:10px;color:#94a3b8;margin-top:4px;font-style:italic">'+p.justificativa+'</div>'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;font-size:10px">'+
+            '<div><span style="color:#64748b">Marca:</span> <strong>'+p.marca+'</strong></div>'+
+            '<div><span style="color:#64748b">ANVISA:</span> <strong>'+p.anvisa+'</strong></div>'+
+            '<div><span style="color:#64748b">Embalagem:</span> '+p.embalagem+'</div>'+
+          '</div>'+
+        '</div>';
+      }).join('')+
+    '</div>';
+  }).join('');
+
+  document.getElementById('editalItensContent').innerHTML=html;
+  document.getElementById('editalResultadoItens').style.display='block';
+}
+
+function abrirHTMLEdital(){
+  if(!_editalAnaliseItens||!_editalAnaliseGeral){showT('Execute as duas análises primeiro','erro');return;}
+  showT('Gerando HTML...','');
+  // Gerar HTML no estilo do prompt original
+  const g=_editalAnaliseGeral;
+  const itens=_editalAnaliseItens.itens||[];
+  const fmt=function(v){return v?'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2}):'';};
+  let rows=itens.filter(function(i){return i.produtos&&i.produtos.length;}).map(function(it){
+    return it.produtos.map(function(p,pi){
+      return'<tr><td>'+it.num+'</td><td>'+it.quantidade+'</td><td>'+it.unidade+'</td><td>'+
+        (it.produtos.length>1?'<span style="color:#1a3a5c;font-weight:700">Opção '+(pi+1)+'</span><br>':'')+
+        '<strong>'+p.nome+'</strong><br><span style="color:#888;font-size:11px">'+p.exibicao+'</span><br>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;font-size:11px">'+
+        '<div><b>Marca:</b> '+p.marca+'</div>'+
+        '<div><b>Embalagem:</b> <span style="background:#fffde7;padding:1px 4px" contenteditable="true">'+p.embalagem+'</span></div>'+
+        '<div><b>ANVISA:</b> <span style="background:#fffde7;padding:1px 4px" contenteditable="true">'+p.anvisa+'</span></div>'+
+        '<div><b>Valor Est.:</b> <span style="background:#fffde7;padding:1px 4px" contenteditable="true">'+fmt(it.valor_estimado)+'</span></div>'+
+        '</div>'+
+        '<div style="margin-top:6px;font-size:11px"><b>Observação:</b> <span style="background:#fffde7;display:block;min-height:40px;padding:4px" contenteditable="true"></span></div>'+
+        '</td><td><button onclick="this.closest(\'tr\').remove()" style="background:#fee2e2;color:#dc2626;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">✕</button></td></tr>';
+    }).join('');
+  }).join('');
+
+  const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Análise — '+g.numero+'</title>'+
+    '<style>body{font-family:Arial,sans-serif;font-size:12px}'+
+    '.cab{background:#1a3a5c;color:#fff;padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:8px}'+
+    '.cab input,.cab select{background:#fffde7;border:none;border-radius:4px;padding:4px 8px;width:100%;font-size:12px}'+
+    'table{width:100%;border-collapse:collapse}th{background:#1a3a5c;color:#fff;padding:6px 10px;text-align:left;font-size:11px}'+
+    'td{padding:8px 10px;border-bottom:1px solid #e2e8f0;vertical-align:top}'+
+    '@media print{button{display:none}}</style></head><body>'+
+    '<div class="cab">'+
+    '<div><div style="font-size:20px;font-weight:700">Análise dos Itens</div></div>'+
+    '<div><label>Órgão</label><input value="'+g.orgao+'"></div>'+
+    '<div><label>Edital</label><input value="'+g.numero+'"></div>'+
+    '<div><label>Modalidade</label><select><option>Pregão Eletrônico</option></select></div>'+
+    '<div><label>Data</label><input value="'+g.data_abertura+'"></div>'+
+    '<div><label>ME/EPP</label><select><option>'+g.exclusividade_me_epp+'</option><option>Sim</option><option>Não</option><option>Cota reservada</option></select></div>'+
+    '<div style="grid-column:span 3"><label>Observação</label><input placeholder=""></div>'+
+    '</div>'+
+    '<p style="font-size:10px;color:#888;margin-bottom:8px">Campos em amarelo são editáveis</p>'+
+    '<table><thead><tr><th>Item</th><th>Qtd.</th><th>Un.</th><th>Descrição do Produto</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<p style="text-align:center;margin-top:16px"><button onclick="window.print()" style="background:#1a3a5c;color:#fff;border:none;padding:10px 24px;border-radius:6px;cursor:pointer;font-size:13px">⬇ Gerar PDF</button></p>'+
+    '</body></html>';
+
+  const win=window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+async function salvarEditalSupabase(){
+  if(!_editalAnaliseGeral){showT('Execute a análise geral primeiro','erro');return;}
+  const g=_editalAnaliseGeral;
+  mostrarStatus('⏳ Salvando edital...','loading');
+
+  // Converter data para ISO
+  let dataISO=null;
+  if(g.data_abertura){
+    const dm=g.data_abertura.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if(dm)dataISO=dm[3]+'-'+dm[2]+'-'+dm[1];
+    else{const dm2=g.data_abertura.match(/(\d{4})-(\d{2})-(\d{2})/);if(dm2)dataISO=g.data_abertura.substring(0,10);}
+  }
+
+  // 1. Salvar edital
+  const payloadEdital={
+    numero:g.numero||'—',orgao:g.orgao||'—',uasg:'',
+    modalidade:g.modalidade||'Pregão Eletrônico',data_abertura:dataISO,
+    prazo_entrega:g.prazo_entrega||'',criterio:g.criterio||'',
+    status:'analisando',
+    documentos_exigidos:g.documentos_proposta||[],
+    itens:_editalAnaliseItens?.itens||[],
+    observacoes:(g.clausulas_atencao||[]).join('\n')
+  };
+  const {data:edData,error:edError}=await sb.from('editais').insert([payloadEdital]).select();
+  if(edError){mostrarStatus('❌ Erro ao salvar edital: '+edError.message,'erro');showT('Erro: '+edError.message,'erro');return;}
+  const editalId=edData[0].id;
+
+  // 2. Criar pregão automaticamente vinculado ao edital
+  mostrarStatus('⏳ Criando pregão na agenda...','loading');
+  const payloadPregao={
+    numero:g.numero||'—',orgao:g.orgao||'—',uasg:'',
+    modalidade:g.modalidade||'Pregão Eletrônico',data_abertura:dataISO,
+    status:'agendado',total_itens:(_editalAnaliseItens?.itens||[]).length,
+    edital_id:editalId
+  };
+  const {error:pregError}=await sb.from('pregoes').insert([payloadPregao]);
+  if(pregError){mostrarStatus('❌ Erro ao criar pregão: '+pregError.message,'erro');showT('Erro: '+pregError.message,'erro');return;}
+
+  mostrarStatus('✅ Edital salvo e pregão criado na agenda!','ok');
+  showT('Salvo com sucesso ✓','verde');
+  await sbCarregarPregoes();
+  setTimeout(function(){setLicitAba('agenda');},1500);
+}
+function excluirItemEdital(idx){
+  if(!confirm('Remover este item da análise?'))return;
+  // Remove do array
+  if(_editalAnaliseItens&&_editalAnaliseItens.itens){
+    const itens=_editalAnaliseItens.itens.filter(function(i){return i.produtos&&i.produtos.length;});
+    itens.splice(idx,1);
+    // Atualizar somente os com produto
+    const semProduto=_editalAnaliseItens.itens.filter(function(i){return !i.produtos||!i.produtos.length;});
+    _editalAnaliseItens.itens=[...itens,...semProduto];
+  }
+  // Remover visualmente
+  const el=document.getElementById('editalItem_'+idx);
+  if(el)el.remove();
+  // Atualizar contador
+  const restantes=document.querySelectorAll('[id^="editalItem_"]').length;
+  showT('Item removido. '+restantes+' itens restantes.','');
+}
+
+function abrirRelatorioEstoque(){
+  document.getElementById('overlayRelatorioEstoque').style.display='flex';
+}
+function fecharRelatorioEstoque(){
+  document.getElementById('overlayRelatorioEstoque').style.display='none';
+}
+
+function gerarRelatorioEstoque(modo){
+  modo=modo||'imprimir';
+  fecharRelatorioEstoque();
+  const opts={
+    posicao:document.getElementById('estRelPosicao').checked,
+    produzir:document.getElementById('estRelProduzir').checked,
+    vencimento:document.getElementById('estRelVencimento').checked,
+    lotes:document.getElementById('estRelLotes').checked,
+  };
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  const seisM=new Date(hoje);seisM.setMonth(seisM.getMonth()+6);
+
+  const css='*{margin:0;padding:0;box-sizing:border-box}'+
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:11px;color:#0f172a;padding:24px 28px;background:#fff}'+
+    '.header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0f6e5f;padding-bottom:12px}'+
+    '.header h1{font-size:18px;font-weight:700;letter-spacing:-.3px}'+
+    '.header p{font-size:10px;color:#94a3b8;margin-top:4px}'+
+    '.secao{margin-bottom:24px;page-break-inside:avoid}'+
+    '.secao-title{font-size:12px;font-weight:700;color:#0f172a;letter-spacing:.3px;padding:0 0 8px 10px;border-left:3px solid #0f6e5f;margin-bottom:6px}'+
+    'table{width:100%;border-collapse:collapse}'+
+    'th{padding:5px 9px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:#334155;text-align:left}'+
+    'th.c{text-align:center}th.r{text-align:right}'+
+    'td{padding:4px 9px;font-size:10px;color:#334155;border-bottom:1px solid #f1f5f9}'+
+    'td.c{text-align:center}td.r{text-align:right;font-weight:600}'+
+    'tr:nth-child(even) td{background:#f8fafc}'+
+    '.def{color:#dc2626;font-weight:700}'+
+    '.alerta{background:#fffbeb;border-left:3px solid #f59e0b;padding:6px 11px;font-size:10px;color:#92400e;margin-bottom:8px;border-radius:0 4px 4px 0}'+
+    '@page{size:A4;margin:14mm}@media print{body{padding:0}}';
+
+  let body='';
+
+  // ── Posição de Estoque
+  if(opts.posicao){
+    const linhas=[];
+    PRODS_SITE.forEach(function(p){
+      const cod=p[0],nome=p[1];
+      const d=estDados[cod];
+      let total=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
+      (estCodAlts[cod]||[]).forEach(function(ac){if(estDados[ac])total+=estDados[ac].lotes.reduce(function(s,l){return s+(l.disp||0);},0);});
+      const seg=parseInt(estSeg[cod])||0;
+      linhas.push({nome,total,seg,dif:total-seg});
+    });
+    body+='<div class="secao"><div class="secao-title">📦 Posição de Estoque</div><table>'+
+      '<thead><tr><th>Produto</th><th class="c">Saldo</th><th class="c">Est. Seg.</th><th class="c">Diferença</th></tr></thead><tbody>';
+    linhas.forEach(function(r){
+      body+='<tr><td>'+r.nome+'</td><td class="c">'+r.total+'</td><td class="c">'+r.seg+'</td><td class="c'+(r.dif<0?' def':'')+'">'+(r.dif>=0?'+':'')+r.dif+'</td></tr>';
+    });
+    body+='</tbody></table></div>';
+  }
+
+  // ── Produzir
+  if(opts.produzir){
+    const produzir=[];
+    PRODS_SITE.forEach(function(p){
+      const cod=p[0],nome=p[1];
+      const d=estDados[cod];
+      let total=d?d.lotes.reduce(function(s,l){return s+(l.disp||0);},0):0;
+      (estCodAlts[cod]||[]).forEach(function(ac){if(estDados[ac])total+=estDados[ac].lotes.reduce(function(s,l){return s+(l.disp||0);},0);});
+      const seg=parseInt(estSeg[cod])||0;
+      if(seg>0&&total<seg)produzir.push({nome,total,seg,deficit:seg-total});
+    });
+    produzir.sort(function(a,b){return b.deficit-a.deficit;});
+    body+='<div class="secao"><div class="secao-title">🏭 Produtos a Produzir</div>';
+    if(!produzir.length){body+='<div class="alerta">✓ Nenhum produto abaixo do estoque de segurança.</div>';}
+    else{
+      body+='<table><thead><tr><th>Produto</th><th class="c">Saldo</th><th class="c">Est. Seg.</th><th class="c">Déficit</th></tr></thead><tbody>';
+      produzir.forEach(function(r){body+='<tr><td>'+r.nome+'</td><td class="c">'+r.total+'</td><td class="c">'+r.seg+'</td><td class="c def">'+r.deficit+'</td></tr>';});
+      body+='</tbody></table>';
+    }
+    body+='</div>';
+  }
+
+  // ── Vencimentos
+  if(opts.vencimento){
+    const vencendo=[];
+    PRODS_SITE.forEach(function(p){
+      const cod=p[0],nome=p[1];
+      const d=estDados[cod];
+      if(!d)return;
+      d.lotes.forEach(function(l){
+        if(l.disp>0&&l.val){
+          const partes=l.val.split('/');
+          let dv;
+          if(partes.length===3)dv=new Date(partes[2],partes[1]-1,partes[0]);
+          else dv=new Date(l.val);
+          if(dv<=seisM)vencendo.push({nome,lote:l.lote||'-',val:l.val,disp:l.disp,dv});
+        }
+      });
+    });
+    vencendo.sort(function(a,b){return a.dv-b.dv;});
+    body+='<div class="secao"><div class="secao-title">⏰ Vencimentos Próximos (6 meses)</div>';
+    if(!vencendo.length){body+='<div class="alerta">✓ Nenhum lote vencendo nos próximos 6 meses.</div>';}
+    else{
+      body+='<table><thead><tr><th>Produto</th><th class="c">Lote</th><th class="c">Validade</th><th class="c">Saldo</th></tr></thead><tbody>';
+      vencendo.forEach(function(r){body+='<tr><td>'+r.nome+'</td><td class="c">'+r.lote+'</td><td class="c">'+r.val+'</td><td class="c">'+r.disp+'</td></tr>';});
+      body+='</tbody></table>';
+    }
+    body+='</div>';
+  }
+
+  // ── Detalhamento por lote
+  if(opts.lotes){
+    body+='<div class="secao"><div class="secao-title">📋 Detalhamento por Lote</div><table>'+
+      '<thead><tr><th>Produto</th><th class="c">Lote</th><th class="c">Validade</th><th class="c">Saldo</th></tr></thead><tbody>';
+    PRODS_SITE.forEach(function(p){
+      const cod=p[0],nome=p[1];
+      const d=estDados[cod];
+      if(!d||!d.lotes.length)return;
+      d.lotes.forEach(function(l){
+        if(l.disp>0)body+='<tr><td>'+nome+'</td><td class="c">'+(l.lote||'-')+'</td><td class="c">'+(l.val||'-')+'</td><td class="c">'+l.disp+'</td></tr>';
+      });
+    });
+    body+='</tbody></table></div>';
+  }
+
+  const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relatório de Estoque</title><style>'+css+'</style></head><body>'+
+    '<div class="header"><div><h1>Relatório de Estoque</h1><p>Gerado em '+new Date().toLocaleString('pt-BR')+'</p></div></div>'+body+'</body></html>';
+
+  if(modo==='pdf'){
+    showT('Gerando PDF...','');
+    html2pdf().set({
+      margin:[10,8,10,8],
+      filename:'Estoque_'+new Date().toISOString().split('T')[0]+'.pdf',
+      image:{type:'jpeg',quality:0.98},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy'],avoid:['tr']}
+    }).from(html,'string').save().then(function(){showT('PDF baixado! ✓','verde');});
+  } else {
+    const win=window.open('','_blank','width=900,height=700');
+    win.document.write(html);win.document.close();win.onload=function(){win.print();};
+  }
+}
+
 function renderRelatorioEstoque(){
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var seisM=new Date(hoje);seisM.setMonth(seisM.getMonth()+6);
@@ -7120,6 +8335,8 @@ function fazerLogout(){
    SUPABASE INTEGRATION
 ══════════════════════════════════════ */
 const SB_URL='https://vepikflqhwrqdfluzhyo.supabase.co';
+const ANTHROPIC_KEY='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';
+const GEMINI_KEY='AQ.Ab8RN6KYynAPSKBXfrgSjybmi1DRlzNnFKYPn2tHMVvxvkoMww'; // Google AI Studio
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
@@ -7478,6 +8695,70 @@ async function sbCarregarAgenda(){
     <div style="padding:12px 16px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
       <button class="btn-cancel-mod" onclick="fecharEditarNF()">Cancelar</button>
       <button class="acoes-btn" onclick="salvarEdicaoNF()">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal adicionar item manual ao pregão -->
+<div id="overlayAddItemPregao" onclick="if(event.target===this)fecharAddItemPregao()" style="position:fixed;inset:0;z-index:1000000;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:640px;max-width:100%;max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="padding:14px 20px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="font-size:14px;font-weight:700;color:var(--texto)">➕ Novo Item do Pregão</div>
+      <button class="modulo-card-close" onclick="fecharAddItemPregao()">✕</button>
+    </div>
+    <div style="padding:14px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="form-field"><label>Nº do Item</label><input type="text" id="aiItemNum" placeholder="Ex: 01" style="width:100%"></div>
+        <div class="form-field"><label>Quantidade</label><input type="number" id="aiQtde" placeholder="0" style="width:100%"></div>
+        <div class="form-field"><label>Vlr. Estimado (R$)</label><input type="text" id="aiValorEst" placeholder="0,00" style="width:100%"></div>
+      </div>
+      <div class="form-field" style="margin-bottom:12px"><label>Descrição do Item</label><input type="text" id="aiDesc" placeholder="Ex: Desinfetante" style="width:100%"></div>
+
+      <div style="font-size:12px;font-weight:700;color:var(--texto);margin-bottom:8px;margin-top:4px">Concorrentes</div>
+      <div id="aiConcList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+      <button onclick="aiAdicionarConc()" style="width:100%;padding:7px;border:1.5px dashed var(--borda);border-radius:8px;background:transparent;color:var(--accent);font-size:12px;cursor:pointer">+ Adicionar Concorrente</button>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
+      <button class="btn-cancel-mod" onclick="fecharAddItemPregao()">Cancelar</button>
+      <button class="acoes-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="salvarAddItemPregao()">💾 Salvar Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal itens do pregão -->
+<div id="overlayItensPregao" onclick="if(event.target===this)fecharModalItensPregao()" style="position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:900px;max-width:100%;max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="padding:14px 20px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div id="itensPregaoTitulo" style="font-size:15px;font-weight:700;color:var(--texto)"></div>
+      <div style="display:flex;gap:8px">
+        <button class="acoes-btn" onclick="abrirAddItemPregao()" style="font-size:11px">➕ Adicionar Item</button>
+        <button class="modulo-card-close" onclick="fecharModalItensPregao()">✕</button>
+      </div>
+    </div>
+    <div id="itensPregaoBody" style="padding:14px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1"></div>
+  </div>
+</div>
+
+<!-- Modal configurar relatório ESTOQUE -->
+<div id="overlayRelatorioEstoque" onclick="if(event.target===this)fecharRelatorioEstoque()" style="position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:520px;max-width:100%;max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">🖨️ Relatório de Estoque</div>
+      <button class="modulo-card-close" onclick="fecharRelatorioEstoque()">✕</button>
+    </div>
+    <div style="padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Seções a incluir</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--borda);border-radius:8px;cursor:pointer;font-size:12px"><input type="checkbox" id="estRelPosicao" checked style="width:15px;height:15px;accent-color:#0f6e5f">📦 Posição de Estoque (todos os produtos)</label>
+        <label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--borda);border-radius:8px;cursor:pointer;font-size:12px"><input type="checkbox" id="estRelProduzir" checked style="width:15px;height:15px;accent-color:#0f6e5f">🏭 Produtos a Produzir (abaixo do mínimo)</label>
+        <label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--borda);border-radius:8px;cursor:pointer;font-size:12px"><input type="checkbox" id="estRelVencimento" checked style="width:15px;height:15px;accent-color:#0f6e5f">⏰ Vencimentos Próximos (6 meses)</label>
+        <label style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--borda);border-radius:8px;cursor:pointer;font-size:12px"><input type="checkbox" id="estRelLotes" style="width:15px;height:15px;accent-color:#0f6e5f">📋 Detalhamento por Lote</label>
+      </div>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
+      <button class="btn-cancel-mod" onclick="fecharRelatorioEstoque()">Cancelar</button>
+      <button class="acoes-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="gerarRelatorioEstoque('imprimir')">🖨️ Imprimir</button>
+      <button class="acoes-btn btn-danger" onclick="gerarRelatorioEstoque('pdf')">📄 PDF</button>
     </div>
   </div>
 </div>
