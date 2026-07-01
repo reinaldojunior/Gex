@@ -1900,9 +1900,12 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
 
   <!-- ESTADO INICIAL: só busca e nova cotação -->
   <div class="historico-card" id="cotacaoInicio">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div class="card-title" style="margin-bottom:0">📋 Cotações Salvas</div>
-      <button class="btn-pdf" onclick="iniciarNovaCot()" style="padding:8px 18px;font-size:13px">＋ Nova Cotação</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin-bottom:0">📋 Cotações Salvas <span id="histCount" style="font-size:12px;color:var(--muted);font-weight:500"></span></div>
+      <div style="display:flex;gap:8px">
+        <button class="acoes-btn" onclick="abrirRelatorioCotacoes()">📊 Relatório</button>
+        <button class="btn-pdf" onclick="iniciarNovaCot()" style="padding:8px 18px;font-size:13px">＋ Nova Cotação</button>
+      </div>
     </div>
     <div style="position:relative;margin-bottom:12px">
       <input type="text" id="histSearch" placeholder="🔍  Buscar por número, cliente ou estado..." 
@@ -6397,11 +6400,12 @@ function toggleSidebarMobile(){
 /* ═══════════ PAINEL TV / PAREDE ═══════════ */
 let _tvTimer=null,_tvRelogioTimer=null;
 
-// Comparativo de vendas por grupo: mês atual vs mês anterior
+// Comparativo de vendas por grupo: mês ativo vs mês anterior
 function calcularComparativoGrupos(){
-  const hoje=new Date();
-  const mesAtual=String(hoje.getMonth()+1).padStart(2,'0')+'/'+hoje.getFullYear();
-  const dAnt=new Date(hoje.getFullYear(),hoje.getMonth()-1,1);
+  const p=tvGetMesAtivo();
+  const [m,a]=p.mesAno.split('/');
+  const mesAtual=p.mesAno;
+  const dAnt=new Date(parseInt(a),parseInt(m)-2,1);
   const mesAnt=String(dAnt.getMonth()+1).padStart(2,'0')+'/'+dAnt.getFullYear();
 
   const grupos={};
@@ -6454,6 +6458,8 @@ function calcularEstoqueResumo(){
 
 function abrirPainelTV(){
   document.getElementById('painelTV').style.display='flex';
+  _tvMesOffset=0; // começa sempre no mês atual
+  tvAtualizarPeriodoLabel();
   atualizarPainelTV();
   const el=document.documentElement;
   if(el.requestFullscreen){el.requestFullscreen().catch(function(){});}
@@ -6461,9 +6467,43 @@ function abrirPainelTV(){
   tvTickRelogio();
   _tvRelogioTimer=setInterval(tvTickRelogio,1000);
   _tvTimer=setInterval(atualizarPainelTV,30000);
-  // alterna o ranking (clientes→produtos→estados) a cada 8s
   _tvRankTimer=setInterval(tvProximoRank,8000);
   document.addEventListener('keydown',tvEscHandler);
+}
+
+let _tvMesOffset=0; // 0=atual, -1=anterior, -2=retrasado...
+
+function tvGetMesAtivo(){
+  // retorna {mesAno:'MM/AAAA', label:'Junho 2026', isMesAtual:bool}
+  const base=new Date();
+  const d=new Date(base.getFullYear(),base.getMonth()+_tvMesOffset,1);
+  const mes=String(d.getMonth()+1).padStart(2,'0');
+  const ano=d.getFullYear();
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return{mesAno:mes+'/'+ano,label:meses[d.getMonth()]+' '+ano,isMesAtual:_tvMesOffset===0};
+}
+
+function tvNavMes(delta){
+  if(delta===0){_tvMesOffset=0;}
+  else{
+    _tvMesOffset+=delta;
+    // não deixa ir além do mês atual (futuro)
+    if(_tvMesOffset>0)_tvMesOffset=0;
+  }
+  tvAtualizarPeriodoLabel();
+  atualizarPainelTV();
+}
+
+function tvAtualizarPeriodoLabel(){
+  const p=tvGetMesAtivo();
+  const lb=document.getElementById('tvPeriodoLabel');
+  if(lb)lb.textContent=p.label;
+  const sb=document.getElementById('tvPeriodoSub');
+  if(sb)sb.textContent=p.isMesAtual?'mês atual':'período selecionado';
+  const btnHoje=document.getElementById('tvBtnHoje');
+  if(btnHoje)btnHoje.style.display=p.isMesAtual?'none':'inline-block';
+  const btnProx=document.getElementById('tvBtnProxMes');
+  if(btnProx){btnProx.style.opacity=p.isMesAtual?'0.2':'1';btnProx.style.cursor=p.isMesAtual?'default':'pointer';}
 }
 
 let _tvRankAtual='clientes',_tvRankTimer=null;
@@ -6507,8 +6547,9 @@ function tvTickRelogio(){
 function atualizarPainelTV(){
   const set=function(id,val){const e=document.getElementById(id);if(e)e.textContent=val;};
 
-  // Faturamento do mês atual
-  const mesAnoFat=String(new Date().getMonth()+1).padStart(2,'0')+'/'+new Date().getFullYear();
+  // Faturamento do mês ativo (pode ser diferente do atual se usuário navegou)
+  const mesInfo=tvGetMesAtivo();
+  const mesAnoFat=mesInfo.mesAno;
   const fatMes=(fatDados||[]).filter(function(r){return r.mes_ano===mesAnoFat&&!r.excluida;});
   const fatTotal=fatMes.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
   set('tvFatTotal','R$ '+fatTotal.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}));
@@ -6565,11 +6606,11 @@ function atualizarPainelTV(){
       lista.innerHTML=est.listaProduzir.map(function(r,idx){
         const pct=Math.round((r.deficit/maxDef)*100);
         const zebra=idx%2===0?'rgba(255,255,255,.03)':'transparent';
-        return '<div style="display:grid;grid-template-columns:2.5fr .7fr .7fr .7fr;gap:1vw;padding:.85vh 1vw;align-items:center;background:'+zebra+';border-bottom:1px solid rgba(255,255,255,.05)">'
-          +'<div style="font-size:1.6vh;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">'+escHtml(r.nome)+'</div>'
-          +'<div style="text-align:center;font-size:1.6vh;color:#94a3b8;font-variant-numeric:tabular-nums">'+r.total+'</div>'
-          +'<div style="text-align:center;font-size:1.6vh;color:#64748b;font-variant-numeric:tabular-nums">'+r.seg+'</div>'
-          +'<div style="text-align:center;font-size:1.7vh;font-weight:800;color:#f87171;font-variant-numeric:tabular-nums">'+r.deficit+'</div>'
+        return '<div style="display:grid;grid-template-columns:2.5fr .7fr .7fr .7fr;gap:1vw;padding:1vh 1vw;align-items:center;background:'+zebra+';border-bottom:1px solid rgba(255,255,255,.04)">'
+          +'<div style="font-size:1.8vh;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">'+escHtml(r.nome)+'</div>'
+          +'<div style="text-align:center;font-size:1.7vh;color:#94a3b8;font-variant-numeric:tabular-nums">'+r.total+'</div>'
+          +'<div style="text-align:center;font-size:1.7vh;color:#64748b;font-variant-numeric:tabular-nums">'+r.seg+'</div>'
+          +'<div style="text-align:center;font-size:1.9vh;font-weight:800;color:#fbbf24;font-variant-numeric:tabular-nums">'+r.deficit+'</div>'
           +'</div>';
       }).join('');
     }
@@ -6599,38 +6640,35 @@ function atualizarPainelTV(){
     let h=comp.lista.map(function(g){
       const setaUp=g.diff>=0;
       const seta=setaUp?'▲':'▼';
-      const corDiff=setaUp?'#34d399':'#f87171';
+      const corDiff=setaUp?'#4ade80':'#f87171';
       const pctTxt=(g.anterior===0&&g.atual===0)?'—':(setaUp?'+':'')+g.pct.toFixed(0)+'%';
       const wAtual=Math.round((g.atual/maxVal)*100);
       const wAnt=Math.round((g.anterior/maxVal)*100);
-      return '<div style="background:rgba(255,255,255,.04);border-radius:1vh;padding:1.2vh 1.2vw;border-left:.5vh solid '+g.cor+'">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6vh">'
-        +'<span style="font-size:1.7vh;font-weight:700;color:#f1f5f9">'+escHtml(g.label)+'</span>'
-        +'<span style="font-size:1.7vh;font-weight:800;color:'+corDiff+'">'+seta+' '+pctTxt+'</span>'
+      return '<div style="background:rgba(255,255,255,.04);border-radius:1vh;padding:1.2vh 1.2vw;border-left:.4vh solid '+g.cor+';flex:1">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7vh">'
+        +'<span style="font-size:1.8vh;font-weight:800;color:#f1f5f9">'+escHtml(g.label)+'</span>'
+        +'<span style="font-size:1.9vh;font-weight:900;color:'+corDiff+'">'+seta+' '+pctTxt+'</span>'
         +'</div>'
-        // barra mês atual
-        +'<div style="display:flex;align-items:center;gap:.6vw;margin-bottom:.3vh">'
-        +'<div style="width:3.2vw;font-size:1.1vh;color:#64748b;text-align:right">atual</div>'
-        +'<div style="flex:1;background:rgba(255,255,255,.06);border-radius:.5vh;height:1.8vh;position:relative;overflow:hidden">'
+        +'<div style="display:flex;align-items:center;gap:.6vw;margin-bottom:.4vh">'
+        +'<div style="width:3.5vw;font-size:1.2vh;color:#64748b;text-align:right">atual</div>'
+        +'<div style="flex:1;background:rgba(255,255,255,.07);border-radius:.5vh;height:2vh;position:relative;overflow:hidden">'
         +'<div style="width:'+wAtual+'%;height:100%;background:'+g.cor+';border-radius:.5vh"></div></div>'
-        +'<div style="width:5vw;font-size:1.4vh;font-weight:700;color:#f1f5f9;text-align:right">'+fmtK(g.atual)+'</div>'
+        +'<div style="width:5.5vw;font-size:1.6vh;font-weight:800;color:#fff;text-align:right">'+fmtK(g.atual)+'</div>'
         +'</div>'
-        // barra mês anterior
         +'<div style="display:flex;align-items:center;gap:.6vw">'
-        +'<div style="width:3.2vw;font-size:1.1vh;color:#64748b;text-align:right">ant.</div>'
-        +'<div style="flex:1;background:rgba(255,255,255,.06);border-radius:.5vh;height:1.2vh;position:relative;overflow:hidden">'
-        +'<div style="width:'+wAnt+'%;height:100%;background:rgba(255,255,255,.25);border-radius:.5vh"></div></div>'
-        +'<div style="width:5vw;font-size:1.2vh;color:#94a3b8;text-align:right">'+fmtK(g.anterior)+'</div>'
+        +'<div style="width:3.5vw;font-size:1.2vh;color:#64748b;text-align:right">ant.</div>'
+        +'<div style="flex:1;background:rgba(255,255,255,.07);border-radius:.5vh;height:1.2vh;position:relative;overflow:hidden">'
+        +'<div style="width:'+wAnt+'%;height:100%;background:rgba(255,255,255,.2);border-radius:.5vh"></div></div>'
+        +'<div style="width:5.5vw;font-size:1.3vh;color:#94a3b8;text-align:right">'+fmtK(g.anterior)+'</div>'
         +'</div>'
         +'</div>';
     }).join('');
-    // linha de total
     const setaT=comp.totDiff>=0;
-    h+='<div style="margin-top:auto;background:linear-gradient(135deg,rgba(15,110,95,.3),rgba(22,163,74,.2));border-radius:1vh;padding:1.4vh 1.2vw;display:flex;justify-content:space-between;align-items:center">'
-      +'<div><div style="font-size:1.3vh;color:#86efac;text-transform:uppercase;letter-spacing:.5px;font-weight:700">Total Geral</div>'
-      +'<div style="font-size:2.6vh;font-weight:800;color:#fff">'+fmtK(comp.totAtual)+'</div></div>'
-      +'<div style="text-align:right"><div style="font-size:2vh;font-weight:800;color:'+(setaT?'#34d399':'#f87171')+'">'+(setaT?'▲':'▼')+' '+(setaT?'+':'')+comp.totPct.toFixed(0)+'%</div>'
-      +'<div style="font-size:1.2vh;color:#94a3b8">ant. '+fmtK(comp.totAnt)+'</div></div>'
+    h+='<div style="background:linear-gradient(135deg,rgba(15,110,95,.25),rgba(22,163,74,.15));border-radius:1vh;padding:1.6vh 1.4vw;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">'
+      +'<div><div style="font-size:1.4vh;color:#86efac;text-transform:uppercase;letter-spacing:.5px;font-weight:700">Total Geral</div>'
+      +'<div style="font-size:3vh;font-weight:900;color:#fff;letter-spacing:-.5px">'+fmtK(comp.totAtual)+'</div></div>'
+      +'<div style="text-align:right"><div style="font-size:2.4vh;font-weight:900;color:'+(setaT?'#4ade80':'#f87171')+'">'+(setaT?'▲':'▼')+' '+(setaT?'+':'')+comp.totPct.toFixed(0)+'%</div>'
+      +'<div style="font-size:1.3vh;color:#94a3b8">ant. '+fmtK(comp.totAnt)+'</div></div>'
       +'</div>';
     compEl.innerHTML=h;
   }
@@ -6661,9 +6699,8 @@ function configurarMetaTV(){
 }
 
 function atualizarMetaVendas(){
-  const hoje=new Date();
-  const mesAtual=String(hoje.getMonth()+1).padStart(2,'0')+'/'+hoje.getFullYear();
-  const vendasMes=(fatDados||[]).filter(function(r){return r.mes_ano===mesAtual&&!r.excluida;});
+  const mesAnoFat=tvGetMesAtivo().mesAno;
+  const vendasMes=(fatDados||[]).filter(function(r){return r.mes_ano===mesAnoFat&&!r.excluida;});
   const totMes=vendasMes.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
   const meta=getMetaTV();
   const set=function(id,v){const e=document.getElementById(id);if(e)e.textContent=v;};
@@ -6681,9 +6718,8 @@ function atualizarMetaVendas(){
 // Rankings: calcula clientes, produtos e estados do mês
 let _tvRankings={clientes:[],produtos:[],estados:[]};
 function calcularRankings(){
-  const hoje=new Date();
-  const mesAtual=String(hoje.getMonth()+1).padStart(2,'0')+'/'+hoje.getFullYear();
-  const vendasMes=(fatDados||[]).filter(function(r){return r.mes_ano===mesAtual&&!r.excluida;});
+  const mesAnoFat=tvGetMesAtivo().mesAno;
+  const vendasMes=(fatDados||[]).filter(function(r){return r.mes_ano===mesAnoFat&&!r.excluida;});
   const porCli={},porProd={},porEst={};
   vendasMes.forEach(function(r){
     const v=parseFloat(r.v_total||0);
@@ -6707,11 +6743,11 @@ function renderRankTV(){
   const max=lista[0].total||1;
   el.innerHTML=lista.map(function(item,i){
     const pct=(item.total/max)*100;
-    return '<div style="background:rgba(148,163,184,.04);border-radius:.7vh;padding:.6vh .9vw">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25vh">'
-      +'<span style="font-size:1.35vh;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:11vw"><b style="color:'+cor+'">'+(i+1)+'.</b> '+escHtml(item.nome)+'</span>'
-      +'<span style="font-size:1.35vh;font-weight:700;color:#f1f5f9;white-space:nowrap;margin-left:.5vw">'+fmtBR(item.total)+'</span></div>'
-      +'<div style="background:rgba(148,163,184,.08);border-radius:.4vh;height:.7vh;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+cor+';border-radius:.4vh"></div></div>'
+    return '<div style="background:rgba(255,255,255,.04);border-radius:.8vh;padding:.8vh 1vw">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3vh">'
+      +'<span style="font-size:1.6vh;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:11vw"><b style="color:'+cor+'">'+(i+1)+'.</b> '+escHtml(item.nome)+'</span>'
+      +'<span style="font-size:1.6vh;font-weight:800;color:#fff;white-space:nowrap;margin-left:.5vw">'+fmtBR(item.total)+'</span></div>'
+      +'<div style="background:rgba(255,255,255,.07);border-radius:.4vh;height:.9vh;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+cor+';border-radius:.4vh"></div></div>'
       +'</div>';
   }).join('');
 }
@@ -7592,6 +7628,336 @@ function exportarExcelSolicitacao(reg){
   const nome='Solicitacao_'+(reg.instituicao||'amostra').replace(/[^a-zA-Z0-9]/g,'_').slice(0,30)+'.xlsx';
   XLSX.writeFile(wb,nome);
   showT('Excel exportado ✓','verde');
+}
+
+/* ══════════════════════════════════════
+   EXPORTAÇÃO EXCEL — FATURAMENTO
+══════════════════════════════════════ */
+function exportarExcelFaturamento(){
+  fecharRelatorio();
+  if(typeof XLSX==='undefined'){
+    showT('Carregando biblioteca Excel...','');
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=function(){_gerarXlsFaturamento();};
+    document.head.appendChild(s);
+  }else{_gerarXlsFaturamento();}
+}
+
+function _gerarXlsFaturamento(){
+  const XLSX=window.XLSX;
+  const allDados=getDadosFiltrados();
+  if(!allDados.length){showT('Nenhum dado no período selecionado','erro');return;}
+  const filtrar=function(g){return g?allDados.filter(function(r){return(fatGrupos[r.cod_cliente]||'venda_direta')===g;}):allDados;};
+
+  // Período
+  const meses=getMesesDisp();
+  let periodo='';
+  if(fatModo==='mes')periodo=formatMesAno(meses[fatMesIdx])||'';
+  else if(fatModo==='trimestre')periodo=(fatTrimIdx+1)+'º Trimestre '+getAnosDisp()[fatAnoIdx];
+  else if(fatModo==='ano')periodo='Ano '+getAnosDisp()[fatAnoIdx];
+  else{
+    const de=document.getElementById('fatPerDe')?.value;
+    const ate=document.getElementById('fatPerAte')?.value;
+    const fmtBR=function(iso){if(!iso)return'';const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0];};
+    periodo=(de||ate)?(fmtBR(de)+' a '+fmtBR(ate)):'Período selecionado';
+  }
+  const totalGeral=allDados.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+  const wb=XLSX.utils.book_new();
+
+  // ── Estilos comuns ──
+  const COR_HEADER='1E3A5F';  // azul escuro Grow
+  const COR_GRUPO='0F6E5F';   // verde Grow
+  const COR_TOTAL='F0FDF9';   // fundo verde claro
+  const COR_SUBTOT='F8FAFC';  // fundo cinza claríssimo
+  const st={
+    h:{font:{bold:true,color:{rgb:'FFFFFF'},name:'Arial',sz:10},fill:{fgColor:{rgb:COR_HEADER}},alignment:{horizontal:'center',vertical:'center'},border:{bottom:{style:'thin',color:{rgb:'FFFFFF'}}}},
+    grp:{font:{bold:true,color:{rgb:'FFFFFF'},name:'Arial',sz:10},fill:{fgColor:{rgb:COR_GRUPO}},alignment:{horizontal:'left'}},
+    tot:{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}},numFmt:'R$ #,##0.00'},
+    sub:{font:{bold:true,name:'Arial',sz:9},fill:{fgColor:{rgb:COR_SUBTOT}}},
+    dat:{font:{name:'Arial',sz:9},alignment:{horizontal:'left'}},
+    num:{font:{name:'Arial',sz:9},alignment:{horizontal:'right'},numFmt:'R$ #,##0.00'},
+    pct:{font:{name:'Arial',sz:9},alignment:{horizontal:'right'},numFmt:'0.0%'},
+    tit:{font:{bold:true,name:'Arial',sz:14,color:{rgb:COR_HEADER}}},
+    sub2:{font:{name:'Arial',sz:9,color:{rgb:'475569'}}},
+    res_num:{font:{bold:true,name:'Arial',sz:13,color:{rgb:COR_GRUPO}},alignment:{horizontal:'center'}},
+    res_lab:{font:{name:'Arial',sz:8,color:{rgb:'64748B'}},alignment:{horizontal:'center'}},
+  };
+  function cel(v,s){return{v:v,s:s||{font:{name:'Arial',sz:9}}};}
+  function celN(v,s){return{v:parseFloat(v)||0,t:'n',s:Object.assign({numFmt:'R$ #,##0.00',font:{name:'Arial',sz:9},alignment:{horizontal:'right'}},s||{})};}
+  function celP(v,s){return{v:parseFloat(v)||0,t:'n',s:Object.assign({numFmt:'0.0%',font:{name:'Arial',sz:9},alignment:{horizontal:'right'}},s||{})};}
+
+  // ═══════════════════════════════════
+  // ABA 1: RESUMO GERAL
+  // ═══════════════════════════════════
+  const wRes=[];
+  // Título
+  wRes.push([{v:'RELATÓRIO DE FATURAMENTO — '+periodo.toUpperCase(),s:{font:{bold:true,name:'Arial',sz:14,color:{rgb:COR_HEADER}}}}]);
+  wRes.push([{v:'Gerado em '+new Date().toLocaleDateString('pt-BR'),s:{font:{name:'Arial',sz:9,color:{rgb:'64748B'}}}}]);
+  wRes.push([]);
+  // Cards de resumo
+  wRes.push([cel('INDICADOR',st.h),cel('VALOR',st.h),cel('',st.h)]);
+  const nNfs=new Set(allDados.map(function(r){return r.nf;}).filter(Boolean)).size;
+  const nClis=new Set(allDados.map(function(r){return r.cod_cliente;}).filter(Boolean)).size;
+  const ticketMed=nClis>0?totalGeral/nClis:0;
+  [
+    ['Total Faturado',totalGeral],
+    ['Nº de Notas Fiscais',nNfs],
+    ['Clientes Ativos',nClis],
+    ['Ticket Médio por Cliente',ticketMed],
+  ].forEach(function(row){
+    wRes.push([
+      {v:row[0],s:{font:{bold:true,name:'Arial',sz:10}}},
+      {v:row[1],t:'n',s:{numFmt:'R$ #,##0.00',font:{bold:true,name:'Arial',sz:12,color:{rgb:COR_GRUPO}},alignment:{horizontal:'right'}}},
+      cel(''),
+    ]);
+  });
+  wRes.push([]);
+  // Faturamento por grupo
+  wRes.push([{v:'FATURAMENTO POR GRUPO',s:st.grp},{v:'',s:st.grp},{v:'',s:st.grp},{v:'',s:st.grp}]);
+  wRes.push([cel('Grupo',st.h),cel('Valor (R$)',st.h),cel('%',st.h),cel('Nº Clientes',st.h)]);
+  Object.keys(GRUPOS).forEach(function(g){
+    const gd=filtrar(g);
+    const gv=gd.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+    const gnc=new Set(gd.map(function(r){return r.cod_cliente;})).size;
+    if(gv>0){
+      wRes.push([cel(GRUPOS[g].label),celN(gv),celP(totalGeral>0?gv/totalGeral:0),{v:gnc,t:'n',s:{font:{name:'Arial',sz:9},alignment:{horizontal:'right'}}}]);
+    }
+  });
+  wRes.push([cel('TOTAL GERAL',{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}),celN(totalGeral,{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}),celP(1,{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}),cel('')]);
+  const wsRes=XLSX.utils.aoa_to_sheet(wRes);
+  wsRes['!cols']=[{wch:32},{wch:18},{wch:10},{wch:14}];
+  wsRes['!merges']=[{s:{r:0,c:0},e:{r:0,c:3}}];
+  XLSX.utils.book_append_sheet(wb,wsRes,'Resumo');
+
+  // ═══════════════════════════════════
+  // ABA 2: CLIENTES POR GRUPO
+  // ═══════════════════════════════════
+  const wCli=[];
+  wCli.push([{v:'CLIENTES POR GRUPO — '+periodo,s:{font:{bold:true,name:'Arial',sz:12,color:{rgb:COR_HEADER}}}}]);
+  wCli.push([]);
+  Object.keys(GRUPOS).forEach(function(g){
+    const gd=filtrar(g);
+    if(!gd.length)return;
+    const porC={};
+    gd.forEach(function(r){
+      if(!r.cod_cliente)return;
+      if(!porC[r.cod_cliente])porC[r.cod_cliente]={nome:r.cliente||r.cod_cliente,cidade:r.cidade||'',estado:r.estado||'',total:0,nNFs:new Set()};
+      porC[r.cod_cliente].total+=parseFloat(r.v_total||0);
+      if(r.nf)porC[r.cod_cliente].nNFs.add(r.nf);
+    });
+    const clList=Object.values(porC).sort(function(a,b){return b.total-a.total;});
+    const gTotal=clList.reduce(function(s,c){return s+c.total;},0);
+    wCli.push([{v:GRUPOS[g].label.toUpperCase(),s:st.grp},{v:'',s:st.grp},{v:'',s:st.grp},{v:'',s:st.grp},{v:'',s:st.grp}]);
+    wCli.push([cel('Cliente',st.h),cel('Cidade',st.h),cel('Estado',st.h),cel('Valor (R$)',st.h),cel('%',st.h)]);
+    clList.forEach(function(c){
+      wCli.push([cel(c.nome),cel(c.cidade),cel(c.estado),celN(c.total),celP(gTotal>0?c.total/gTotal:0)]);
+    });
+    wCli.push([{v:'Subtotal '+GRUPOS[g].label,s:{font:{bold:true,name:'Arial',sz:9},fill:{fgColor:{rgb:COR_SUBTOT}}}},cel('',st.sub),cel('',st.sub),celN(gTotal,{font:{bold:true,name:'Arial',sz:9},fill:{fgColor:{rgb:COR_SUBTOT}}}),celP(totalGeral>0?gTotal/totalGeral:0)]);
+    wCli.push([]);
+  });
+  // Total geral
+  wCli.push([{v:'TOTAL GERAL',s:{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}},cel(''),cel(''),celN(totalGeral,{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}),celP(1,{font:{bold:true,name:'Arial',sz:9},fill:{fgColor:{rgb:COR_TOTAL}}})]);
+  const wsCli=XLSX.utils.aoa_to_sheet(wCli);
+  wsCli['!cols']=[{wch:38},{wch:18},{wch:8},{wch:18},{wch:9}];
+  XLSX.utils.book_append_sheet(wb,wsCli,'Clientes por Grupo');
+
+  // ═══════════════════════════════════
+  // ABA 3: POR ESTADO
+  // ═══════════════════════════════════
+  const wEst=[];
+  wEst.push([{v:'FATURAMENTO POR ESTADO — '+periodo,s:{font:{bold:true,name:'Arial',sz:12,color:{rgb:COR_HEADER}}}}]);
+  wEst.push([]);
+  wEst.push([cel('Estado',st.h),cel('Valor (R$)',st.h),cel('%',st.h),cel('Nº Clientes',st.h)]);
+  const porEst={};
+  allDados.forEach(function(r){
+    const e=r.estado||'N/D';
+    if(!porEst[e])porEst[e]={total:0,clis:new Set()};
+    porEst[e].total+=parseFloat(r.v_total||0);
+    if(r.cod_cliente)porEst[e].clis.add(r.cod_cliente);
+  });
+  Object.entries(porEst).sort(function(a,b){return b[1].total-a[1].total;}).forEach(function(e){
+    wEst.push([cel(e[0]),celN(e[1].total),celP(totalGeral>0?e[1].total/totalGeral:0),{v:e[1].clis.size,t:'n',s:{font:{name:'Arial',sz:9},alignment:{horizontal:'right'}}}]);
+  });
+  wEst.push([{v:'TOTAL',s:{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}},celN(totalGeral,{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}),celP(1,{font:{bold:true},fill:{fgColor:{rgb:COR_TOTAL}}}),cel('')]);
+  const wsEst=XLSX.utils.aoa_to_sheet(wEst);
+  wsEst['!cols']=[{wch:18},{wch:18},{wch:10},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,wsEst,'Por Estado');
+
+  // ═══════════════════════════════════
+  // ABA 4: PRODUTOS
+  // ═══════════════════════════════════
+  const wProd=[];
+  wProd.push([{v:'TOP PRODUTOS — '+periodo,s:{font:{bold:true,name:'Arial',sz:12,color:{rgb:COR_HEADER}}}}]);
+  wProd.push([]);
+  wProd.push([cel('Produto',st.h),cel('Valor (R$)',st.h),cel('%',st.h)]);
+  const porProd={};
+  allDados.forEach(function(r){
+    const p=r.produto||r.descricao||r.item||'(sem produto)';
+    if(!porProd[p])porProd[p]=0;
+    porProd[p]+=parseFloat(r.v_total||0);
+  });
+  Object.entries(porProd).sort(function(a,b){return b[1]-a[1];}).forEach(function(p){
+    if(p[1]>0)wProd.push([cel(p[0]),celN(p[1]),celP(totalGeral>0?p[1]/totalGeral:0)]);
+  });
+  wProd.push([{v:'TOTAL',s:{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}},celN(totalGeral,{font:{bold:true,name:'Arial',sz:10},fill:{fgColor:{rgb:COR_TOTAL}}}),celP(1,{font:{bold:true},fill:{fgColor:{rgb:COR_TOTAL}}})]);
+  const wsProd=XLSX.utils.aoa_to_sheet(wProd);
+  wsProd['!cols']=[{wch:40},{wch:18},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,wsProd,'Produtos');
+
+  // ═══════════════════════════════════
+  // ABA 5: DADOS BRUTOS (todas as NFs)
+  // ═══════════════════════════════════
+  const cabBrut=[cel('NF',st.h),cel('Mês/Ano',st.h),cel('Cliente',st.h),cel('Cidade',st.h),cel('Estado',st.h),cel('Grupo',st.h),cel('Produto',st.h),cel('Valor (R$)',st.h)];
+  const rowsBrut=allDados.map(function(r){
+    const g=fatGrupos[r.cod_cliente]||'venda_direta';
+    return [cel(r.nf||''),cel(r.mes_ano||''),cel(r.cliente||''),cel(r.cidade||''),cel(r.estado||''),cel(GRUPOS[g]?GRUPOS[g].label:g),cel(r.produto||r.descricao||''),celN(r.v_total)];
+  });
+  const wsBrut=XLSX.utils.aoa_to_sheet([cabBrut].concat(rowsBrut));
+  wsBrut['!cols']=[{wch:12},{wch:10},{wch:36},{wch:18},{wch:8},{wch:14},{wch:36},{wch:18}];
+  // Congela a linha de cabeçalho
+  wsBrut['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft'};
+  XLSX.utils.book_append_sheet(wb,wsBrut,'Dados Brutos');
+
+  // Exportar
+  const nomePeriodo=periodo.replace(/[^a-zA-Z0-9À-ú\s]/g,'').replace(/\s+/g,'_').slice(0,30);
+  XLSX.writeFile(wb,'Faturamento_'+nomePeriodo+'.xlsx');
+  showT('Excel exportado com sucesso ✓','verde');
+}
+function abrirRelatorioCotacoes(){
+  // Define período padrão: mês atual
+  setRelCotPeriodo('mes');
+  document.getElementById('overlayRelatorioCotacoes').style.display='flex';
+}
+function fecharRelatorioCotacoes(){
+  document.getElementById('overlayRelatorioCotacoes').style.display='none';
+}
+function setRelCotPeriodo(tipo){
+  const hoje=new Date();
+  const fmt=function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+  let de,ate=fmt(hoje);
+  if(tipo==='mes'){de=fmt(new Date(hoje.getFullYear(),hoje.getMonth(),1));}
+  else if(tipo==='mespassado'){de=fmt(new Date(hoje.getFullYear(),hoje.getMonth()-1,1));ate=fmt(new Date(hoje.getFullYear(),hoje.getMonth(),0));}
+  else if(tipo==='ano'){de=fmt(new Date(hoje.getFullYear(),0,1));}
+  else{de='';ate='';}
+  document.getElementById('relCotDe').value=de||'';
+  document.getElementById('relCotAte').value=ate||'';
+}
+
+function gerarRelatorioCotacoes(){
+  const de=document.getElementById('relCotDe').value;
+  const ate=document.getElementById('relCotAte').value;
+  const statusFiltro=[];
+  if(document.getElementById('relCotAguard').checked)statusFiltro.push('aguardando');
+  if(document.getElementById('relCotConv').checked)statusFiltro.push('convertida');
+  if(document.getElementById('relCotPerd').checked)statusFiltro.push('perdida');
+  if(document.getElementById('relCotCanc').checked)statusFiltro.push('cancelada');
+  const agrup=document.querySelector('input[name="relCotGrupo"]:checked')?.value||'cliente';
+
+  // Filtra cotações
+  let cots=window._sbCotCache||[];
+  if(de)cots=cots.filter(function(c){return c.data&&c.data>=de;});
+  if(ate)cots=cots.filter(function(c){return c.data&&c.data<=ate;});
+  cots=cots.filter(function(c){return statusFiltro.includes(c.status||'aguardando');});
+
+  if(!cots.length){showT('Nenhuma cotação no período/filtro selecionado','erro');return;}
+
+  // Formatadores
+  const fmtV=function(v){return 'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  const fmtD=function(iso){if(!iso)return'—';const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0];};
+  const ST={aguardando:{l:'⏳ Aguardando',c:'#d97706'},convertida:{l:'✅ Convertida',c:'#059669'},perdida:{l:'❌ Perdida',c:'#dc2626'},cancelada:{l:'⛔ Cancelada',c:'#64748b'}};
+
+  // Totais gerais
+  const totGeral=cots.reduce(function(s,c){return s+parseFloat(c.total||0);},0);
+  const totConv=cots.filter(function(c){return c.status==='convertida';}).reduce(function(s,c){return s+parseFloat(c.total||0);},0);
+  const totPerda=cots.filter(function(c){return c.status==='perdida';}).reduce(function(s,c){return s+parseFloat(c.total||0);},0);
+  const nConv=cots.filter(function(c){return c.status==='convertida';}).length;
+  const taxa=cots.length>0?Math.round((nConv/cots.length)*100):0;
+
+  const periodoTxt=(de||ate)?(fmtD(de)+' a '+fmtD(ate)):'Todas as cotações';
+
+  // Monta HTML do relatório
+  let corpoHTML='';
+
+  if(agrup==='nenhum'){
+    corpoHTML=renderTabelaCotacoes(cots,fmtV,fmtD,ST);
+  }else{
+    // Agrupa
+    const grupos={};
+    cots.forEach(function(c){
+      const chave=agrup==='cliente'?(c.cliente||'(sem cliente)'):(c.uf||'(sem estado)');
+      if(!grupos[chave])grupos[chave]=[];
+      grupos[chave].push(c);
+    });
+    Object.keys(grupos).sort().forEach(function(g){
+      const grpCots=grupos[g];
+      const grpTot=grpCots.reduce(function(s,c){return s+parseFloat(c.total||0);},0);
+      const grpConv=grpCots.filter(function(c){return c.status==='convertida';}).length;
+      corpoHTML+='<div style="margin-bottom:20px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;border-left:4px solid #0f6e5f;padding-left:8px;margin-bottom:6px">'
+        +'<strong style="font-size:13px;color:#0f172a">'+escHtml(g)+'</strong>'
+        +'<span style="font-size:11px;color:#475569">'+grpCots.length+' cotações · '+grpConv+' convertidas · '+fmtV(grpTot)+'</span>'
+        +'</div>'
+        +renderTabelaCotacoes(grpCots,fmtV,fmtD,ST)
+        +'</div>';
+    });
+  }
+
+  const css='*{margin:0;padding:0;box-sizing:border-box}'
+    +'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:11px;color:#0f172a;padding:20px 24px;background:#fff}'
+    +'.header{margin-bottom:16px}'
+    +'.header h1{font-size:17px;font-weight:700;color:#0f172a}'
+    +'.header p{font-size:11px;color:#475569;margin-top:2px}'
+    +'.resumo{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:8px}'
+    +'.res-item{text-align:center}'
+    +'.res-num{font-size:17px;font-weight:800;color:#0f172a}'
+    +'.res-label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.3px;font-weight:600}'
+    +'table{width:100%;border-collapse:collapse;margin-bottom:8px}'
+    +'th{padding:4px 8px;font-size:9.5px;font-weight:700;color:#475569;border-bottom:1.5px solid #cbd5e1;text-align:left;text-transform:uppercase;letter-spacing:.3px}'
+    +'th.r{text-align:right}'
+    +'td{padding:4px 8px;font-size:10.5px;color:#1e293b;border-bottom:1px solid #f1f5f9}'
+    +'td.r{text-align:right;font-weight:600}'
+    +'.obs{font-size:9.5px;color:#64748b;font-style:italic}'
+    +'@page{size:A4;margin:12mm}@media print{body{padding:0}}';
+
+  const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relatório de Cotações</title><style>'+css+'</style></head><body>'
+    +'<div class="header"><h1>📊 Relatório de Cotações</h1><p>Período: '+escHtml(periodoTxt)+' · Gerado em '+fmtD(new Date().toISOString().split('T')[0])+'</p></div>'
+    +'<div class="resumo">'
+    +'<div class="res-item"><div class="res-num">'+cots.length+'</div><div class="res-label">Total</div></div>'
+    +'<div class="res-item"><div class="res-num" style="color:#059669">'+nConv+'</div><div class="res-label">Convertidas</div></div>'
+    +'<div class="res-item"><div class="res-num" style="color:#0f6e5f">'+taxa+'%</div><div class="res-label">Conversão</div></div>'
+    +'<div class="res-item"><div class="res-num">'+fmtV(totConv)+'</div><div class="res-label">Valor Convertido</div></div>'
+    +'</div>'
+    +corpoHTML
+    +'<div style="margin-top:12px;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:11px;font-weight:700">'
+    +'<span>TOTAL GERAL ('+cots.length+' cotações)</span><span>'+fmtV(totGeral)+'</span>'
+    +'</div>'
+    +'</body></html>';
+
+  fecharRelatorioCotacoes();
+  const w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(function(){w.print();},400);
+}
+
+function renderTabelaCotacoes(cots,fmtV,fmtD,ST){
+  return '<table><thead><tr>'
+    +'<th>Nº</th><th>Cliente</th><th>UF</th><th>Data</th><th>Status</th><th>Observação</th><th class="r">Valor</th>'
+    +'</tr></thead><tbody>'
+    +cots.map(function(c){
+      const st=ST[c.status||'aguardando']||ST.aguardando;
+      return '<tr>'
+        +'<td>'+escHtml(c.num||'—')+'</td>'
+        +'<td>'+escHtml(c.cliente||'—')+'</td>'
+        +'<td>'+escHtml(c.uf||'—')+'</td>'
+        +'<td>'+fmtD(c.data)+'</td>'
+        +'<td style="color:'+st.c+';font-weight:600">'+st.l+'</td>'
+        +'<td class="obs">'+escHtml(c.obs_followup||'')+'</td>'
+        +'<td class="r">'+fmtV(c.total)+'</td>'
+        +'</tr>';
+    }).join('')
+    +'</tbody></table>';
 }
 
 /* ══════════════════════════════════════
@@ -9308,7 +9674,7 @@ var PRODS_SITE=[
     ["29.0006.0001","PROACTION AS 500 5L"],
     ["29.0003.0750","PROACTION AS 700 750ML (LUBRIF INSTRUM)"],
     ["29.0009.0005","PROACTION AS 700 ULTRA 5L"],
-    ["33.0022.0001","PROACTION GERMI - PRONTO USO - NÍVEL INTERMEDIÁRIO"],
+    ["33.0022.0001","PROACTION OXI ULTRA 1L"],
     ["33.0046.0750","PROACTION GERMI 750ML"],
     ["33.0067.1000","PROACTION GERMI ULTRA 1L"],
     ["33.0068.5000","PROACTION GERMI ULTRA 5L"],
@@ -11197,8 +11563,49 @@ async function sbCarregarAgenda(){
     </div>
     <div style="padding:12px 16px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
       <button class="btn-cancel-mod" onclick="fecharRelatorio()">Cancelar</button>
+      <button class="acoes-btn" onclick="exportarExcelFaturamento()">📊 Excel</button>
       <button class="acoes-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="gerarRelatorioFaturamento('imprimir')">🖨️ Imprimir</button>
       <button class="acoes-btn btn-danger" onclick="gerarRelatorioFaturamento('pdf')">📄 Baixar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay Relatório de Cotações -->
+<div id="overlayRelatorioCotacoes" onclick="if(event.target===this)fecharRelatorioCotacoes()" style="position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:480px;max-width:100%;max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">📊 Relatório de Cotações</div>
+      <button class="modulo-card-close" onclick="fecharRelatorioCotacoes()">✕</button>
+    </div>
+    <div style="padding:16px;overflow-y:auto;flex:1">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Período</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div class="form-field"><label>De</label><input type="date" id="relCotDe"></div>
+        <div class="form-field"><label>Até</label><input type="date" id="relCotAte"></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+        <button onclick="setRelCotPeriodo('mes')" class="fat-atalho-btn" style="padding:4px 10px;border-radius:50px;border:1px solid var(--borda);background:#fff;color:#64748b;font-size:11px;font-weight:600;cursor:pointer">Este mês</button>
+        <button onclick="setRelCotPeriodo('mespassado')" class="fat-atalho-btn" style="padding:4px 10px;border-radius:50px;border:1px solid var(--borda);background:#fff;color:#64748b;font-size:11px;font-weight:600;cursor:pointer">Mês passado</button>
+        <button onclick="setRelCotPeriodo('ano')" class="fat-atalho-btn" style="padding:4px 10px;border-radius:50px;border:1px solid var(--borda);background:#fff;color:#64748b;font-size:11px;font-weight:600;cursor:pointer">Este ano</button>
+        <button onclick="setRelCotPeriodo('tudo')" class="fat-atalho-btn" style="padding:4px 10px;border-radius:50px;border:1px solid var(--borda);background:#fff;color:#64748b;font-size:11px;font-weight:600;cursor:pointer">Tudo</button>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Filtrar por status</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--borda);border-radius:20px;cursor:pointer;font-size:12px"><input type="checkbox" id="relCotAguard" checked style="accent-color:#d97706"> ⏳ Aguardando</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--borda);border-radius:20px;cursor:pointer;font-size:12px"><input type="checkbox" id="relCotConv" checked style="accent-color:#059669"> ✅ Convertida</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--borda);border-radius:20px;cursor:pointer;font-size:12px"><input type="checkbox" id="relCotPerd" checked style="accent-color:#dc2626"> ❌ Perdida</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--borda);border-radius:20px;cursor:pointer;font-size:12px"><input type="checkbox" id="relCotCanc" checked style="accent-color:#64748b"> ⛔ Cancelada</label>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Agrupamento</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--borda);border-radius:20px;cursor:pointer;font-size:12px"><input type="radio" name="relCotGrupo" value="cliente" checked style="accent-color:#0f6e5f"> Por Cliente</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--borda);border-radius:20px;cursor:pointer;font-size:12px"><input type="radio" name="relCotGrupo" value="uf" style="accent-color:#0f6e5f"> Por Estado</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--borda);border-radius:20px;cursor:pointer;font-size:12px"><input type="radio" name="relCotGrupo" value="nenhum" style="accent-color:#0f6e5f"> Sem agrupamento</label>
+      </div>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--borda);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0">
+      <button class="btn-cancel-mod" onclick="fecharRelatorioCotacoes()">Cancelar</button>
+      <button class="acoes-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)" onclick="gerarRelatorioCotacoes()">🖨️ Gerar Relatório</button>
     </div>
   </div>
 </div>
@@ -11323,82 +11730,93 @@ async function sbCarregarAgenda(){
 </div>
 
 <!-- ═══════════ PAINEL TV / PAREDE (fullscreen) ═══════════ -->
-<div id="painelTV" style="display:none;position:fixed;inset:0;z-index:9999999;background:#0b1220;color:#e2e8f0;overflow:hidden;font-family:'Inter',system-ui,sans-serif;flex-direction:column">
+<div id="painelTV" style="display:none;position:fixed;inset:0;z-index:9999999;background:#060e1a;color:#f1f5f9;overflow:hidden;font-family:'Inter',system-ui,sans-serif;flex-direction:column">
+
   <!-- Cabeçalho -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:1.6vh 2.5vw .8vh;flex-shrink:0;border-bottom:1px solid rgba(148,163,184,.12)">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:1.8vh 2.5vw .8vh;flex-shrink:0;border-bottom:2px solid rgba(255,255,255,.07)">
     <div style="display:flex;align-items:center;gap:1.2vw">
-      <img src="https://vepikflqhwrqdfluzhyo.supabase.co/storage/v1/object/public/assets/GROW-EXEOL-BRANO-2.png" style="height:4.4vh;width:auto" onerror="this.style.display='none'">
+      <img src="https://vepikflqhwrqdfluzhyo.supabase.co/storage/v1/object/public/assets/GROW-EXEOL-BRANO-2.png" style="height:5.2vh;width:auto" onerror="this.style.display='none'">
       <div>
-        <div style="font-size:2.2vh;font-weight:700;letter-spacing:.3px;color:#f1f5f9">GEx Assist · Painel Geral</div>
-        <div style="font-size:1.3vh;color:#64748b" id="tvDataExtenso">—</div>
+        <div style="font-size:2.6vh;font-weight:800;letter-spacing:.3px;color:#fff">GEx Assist · Painel Geral</div>
+        <div style="font-size:1.5vh;color:#64748b" id="tvDataExtenso">—</div>
       </div>
     </div>
-    <div style="text-align:right">
-      <div id="tvRelogio" style="font-size:3.8vh;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:#f1f5f9">--:--</div>
-      <div id="tvAtualizado" style="font-size:1.1vh;color:#475569;margin-top:.3vh">atualizando…</div>
+    <!-- Seletor de período -->
+    <div style="display:flex;align-items:center;gap:.8vw;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:1vh;padding:1vh 1.4vw">
+      <button onclick="tvNavMes(-1)" style="background:none;border:none;color:#94a3b8;font-size:2.4vh;cursor:pointer;padding:0 .4vw;line-height:1">‹</button>
+      <div style="text-align:center;min-width:7vw">
+        <div id="tvPeriodoLabel" style="font-size:1.9vh;font-weight:800;color:#fff">—</div>
+        <div id="tvPeriodoSub" style="font-size:1.2vh;color:#64748b">período</div>
+      </div>
+      <button onclick="tvNavMes(1)" id="tvBtnProxMes" style="background:none;border:none;color:#94a3b8;font-size:2.4vh;cursor:pointer;padding:0 .4vw;line-height:1">›</button>
+      <button onclick="tvNavMes(0)" id="tvBtnHoje" style="background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:#4ade80;border-radius:.5vh;font-size:1.3vh;font-weight:700;cursor:pointer;padding:.5vh 1vw;margin-left:.4vw">hoje</button>
     </div>
-    <button onclick="fecharPainelTV()" style="position:absolute;top:1.5vh;right:1.2vw;background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.2);color:#cbd5e1;border-radius:8px;width:3.4vh;height:3.4vh;font-size:1.7vh;cursor:pointer" title="Sair (Esc)">✕</button>
+    <div style="text-align:right;margin-right:3.5vh">
+      <div id="tvRelogio" style="font-size:5vh;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:#fff;letter-spacing:-.5px">--:--</div>
+      <div id="tvAtualizado" style="font-size:1.2vh;color:#475569;margin-top:.3vh">atualizando…</div>
+    </div>
+    <button onclick="fecharPainelTV()" style="position:absolute;top:1.6vh;right:1.2vw;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#cbd5e1;border-radius:8px;width:3.8vh;height:3.8vh;font-size:2vh;cursor:pointer">✕</button>
   </div>
 
   <!-- Faixa de cards-resumo -->
-  <div style="display:grid;grid-template-columns:1.7fr repeat(5,1fr);gap:.9vw;padding:1.2vh 2.5vw;flex-shrink:0">
+  <div style="display:grid;grid-template-columns:1.7fr repeat(5,1fr);gap:1vw;padding:1.4vh 2.5vw;flex-shrink:0">
     <!-- Faturamento + meta -->
-    <div style="background:#111c30;border:1px solid rgba(148,163,184,.14);border-radius:1.1vh;padding:1.3vh 1.2vw">
+    <div style="background:linear-gradient(135deg,#0d2137,#0f2d1a);border:1px solid rgba(34,197,94,.2);border-radius:1.2vh;padding:1.6vh 1.4vw;border-left:.5vw solid #22c55e">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <div style="font-size:1.15vh;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px">Faturamento do Mês</div>
-        <button onclick="configurarMetaTV()" style="background:none;border:none;color:#475569;font-size:1.3vh;cursor:pointer;padding:0" title="Definir meta">⚙</button>
+        <div style="font-size:1.4vh;font-weight:700;color:#86efac;text-transform:uppercase;letter-spacing:.6px">💰 Faturamento</div>
+        <button onclick="configurarMetaTV()" style="background:none;border:none;color:#475569;font-size:1.5vh;cursor:pointer;padding:0">⚙</button>
       </div>
-      <div id="tvFatTotal" style="font-size:3.2vh;font-weight:800;line-height:1.1;color:#f1f5f9;margin:.2vh 0">R$ 0</div>
-      <div style="background:rgba(148,163,184,.12);border-radius:.6vh;height:1.4vh;overflow:hidden;position:relative;margin-top:.4vh">
-        <div id="tvMetaBarra" style="height:100%;width:0%;background:#22c55e;border-radius:.6vh;transition:width .8s ease"></div>
+      <div id="tvFatTotal" style="font-size:4vh;font-weight:900;line-height:1.1;color:#fff;margin:.3vh 0;letter-spacing:-.5px">R$ 0</div>
+      <div style="background:rgba(255,255,255,.08);border-radius:.6vh;height:1.6vh;overflow:hidden;margin:.5vh 0">
+        <div id="tvMetaBarra" style="height:100%;width:0%;background:linear-gradient(90deg,#16a34a,#4ade80);border-radius:.6vh;transition:width .8s ease"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:.3vh">
-        <span id="tvFatNfs" style="font-size:1.1vh;color:#64748b">0 notas</span>
-        <span id="tvMetaPct" style="font-size:1.1vh;color:#22c55e;font-weight:600">meta: defina ⚙</span>
+      <div style="display:flex;justify-content:space-between">
+        <span id="tvFatNfs" style="font-size:1.3vh;color:#64748b">0 notas</span>
+        <span id="tvMetaPct" style="font-size:1.3vh;color:#4ade80;font-weight:700">—</span>
       </div>
     </div>
     <!-- A produzir -->
-    <div style="background:#111c30;border:1px solid rgba(148,163,184,.14);border-radius:1.1vh;padding:1.3vh .8vw;text-align:center;border-top:.4vh solid #f59e0b">
-      <div style="font-size:1.1vh;color:#94a3b8;text-transform:uppercase;font-weight:600">A Produzir</div>
-      <div id="tvProduzir" style="font-size:3.6vh;font-weight:800;line-height:1.1;color:#fbbf24">0</div>
-      <div id="tvProduzirSub" style="font-size:1.05vh;color:#64748b">—</div>
+    <div style="background:#0d1f2b;border:1px solid rgba(251,191,36,.25);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #f59e0b">
+      <div style="font-size:1.3vh;color:#fbbf24;text-transform:uppercase;font-weight:700;letter-spacing:.5px">🏭 A Produzir</div>
+      <div id="tvProduzir" style="font-size:5vh;font-weight:900;line-height:1.1;color:#fde68a;margin:.2vh 0">0</div>
+      <div id="tvProduzirSub" style="font-size:1.2vh;color:#78716c">—</div>
     </div>
     <!-- Zerados -->
-    <div style="background:#111c30;border:1px solid rgba(148,163,184,.14);border-radius:1.1vh;padding:1.3vh .8vw;text-align:center;border-top:.4vh solid #ef4444">
-      <div style="font-size:1.1vh;color:#94a3b8;text-transform:uppercase;font-weight:600">Zerados</div>
-      <div id="tvZerados" style="font-size:3.6vh;font-weight:800;line-height:1.1;color:#f87171">0</div>
-      <div id="tvZeradosSub" style="font-size:1.05vh;color:#64748b">saldo = 0</div>
+    <div style="background:#1a0a0a;border:1px solid rgba(239,68,68,.3);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #ef4444">
+      <div style="font-size:1.3vh;color:#f87171;text-transform:uppercase;font-weight:700;letter-spacing:.5px">⛔ Zerados</div>
+      <div id="tvZerados" style="font-size:5vh;font-weight:900;line-height:1.1;color:#fca5a5;margin:.2vh 0">0</div>
+      <div id="tvZeradosSub" style="font-size:1.2vh;color:#78716c">saldo = 0</div>
     </div>
     <!-- Licitações -->
-    <div style="background:#111c30;border:1px solid rgba(148,163,184,.14);border-radius:1.1vh;padding:1.3vh .8vw;text-align:center;border-top:.4vh solid #3b82f6">
-      <div style="font-size:1.1vh;color:#94a3b8;text-transform:uppercase;font-weight:600">Licitações</div>
-      <div id="tvLicit" style="font-size:3.6vh;font-weight:800;line-height:1.1;color:#60a5fa">0</div>
-      <div id="tvLicitTotal" style="font-size:1.05vh;color:#64748b">ativas</div>
+    <div style="background:#080f1f;border:1px solid rgba(96,165,250,.25);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #3b82f6">
+      <div style="font-size:1.3vh;color:#93c5fd;text-transform:uppercase;font-weight:700;letter-spacing:.5px">⚖️ Licitações</div>
+      <div id="tvLicit" style="font-size:5vh;font-weight:900;line-height:1.1;color:#bfdbfe;margin:.2vh 0">0</div>
+      <div id="tvLicitTotal" style="font-size:1.2vh;color:#64748b">ativas</div>
     </div>
     <!-- Fretes -->
-    <div style="background:#111c30;border:1px solid rgba(148,163,184,.14);border-radius:1.1vh;padding:1.3vh .8vw;text-align:center;border-top:.4vh solid #8b5cf6">
-      <div style="font-size:1.1vh;color:#94a3b8;text-transform:uppercase;font-weight:600">Fretes</div>
-      <div id="tvFretes" style="font-size:3.6vh;font-weight:800;line-height:1.1;color:#a78bfa">0</div>
-      <div id="tvFretesTotal" style="font-size:1.05vh;color:#64748b">em trânsito</div>
+    <div style="background:#0e0a1f;border:1px solid rgba(167,139,250,.25);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #8b5cf6">
+      <div style="font-size:1.3vh;color:#c4b5fd;text-transform:uppercase;font-weight:700;letter-spacing:.5px">🚚 Fretes</div>
+      <div id="tvFretes" style="font-size:5vh;font-weight:900;line-height:1.1;color:#ddd6fe;margin:.2vh 0">0</div>
+      <div id="tvFretesTotal" style="font-size:1.2vh;color:#64748b">em trânsito</div>
     </div>
     <!-- Amostras -->
-    <div style="background:#111c30;border:1px solid rgba(148,163,184,.14);border-radius:1.1vh;padding:1.3vh .8vw;text-align:center;border-top:.4vh solid #14b8a6">
-      <div style="font-size:1.1vh;color:#94a3b8;text-transform:uppercase;font-weight:600">Amostras</div>
-      <div id="tvAmostras" style="font-size:3.6vh;font-weight:800;line-height:1.1;color:#2dd4bf">0</div>
-      <div id="tvAmostrasTotal" style="font-size:1.05vh;color:#64748b">pendentes</div>
+    <div style="background:#061a18;border:1px solid rgba(45,212,191,.25);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #14b8a6">
+      <div style="font-size:1.3vh;color:#5eead4;text-transform:uppercase;font-weight:700;letter-spacing:.5px">🧪 Amostras</div>
+      <div id="tvAmostras" style="font-size:5vh;font-weight:900;line-height:1.1;color:#99f6e4;margin:.2vh 0">0</div>
+      <div id="tvAmostrasTotal" style="font-size:1.2vh;color:#64748b">pendentes</div>
     </div>
   </div>
 
   <!-- Área principal: 3 colunas -->
-  <div style="flex:1;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:1.4vw;padding:.4vh 2.5vw 1vh;min-height:0">
+  <div style="flex:1;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:1.2vw;padding:.2vh 2.5vw 1.2vh;min-height:0">
 
     <!-- COLUNA 1: itens a produzir -->
-    <div style="display:flex;flex-direction:column;min-height:0;background:#0f1829;border:1px solid rgba(148,163,184,.1);border-radius:1.1vh;padding:1.2vh 1vw">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8vh;flex-shrink:0">
-        <div style="font-size:1.7vh;font-weight:700;color:#fbbf24">Itens a Produzir <span id="tvProduzirCount" style="font-size:1.3vh;color:#64748b;font-weight:600"></span></div>
+    <div style="display:flex;flex-direction:column;min-height:0;background:#0a111e;border:1px solid rgba(251,191,36,.15);border-radius:1.2vh;padding:1.4vh 1.2vw">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1vh;flex-shrink:0">
+        <div style="font-size:2vh;font-weight:800;color:#fbbf24;letter-spacing:.3px">🏭 Itens a Produzir <span id="tvProduzirCount" style="font-size:1.5vh;color:#78716c;font-weight:600"></span></div>
       </div>
-      <div style="display:grid;grid-template-columns:2.5fr .7fr .7fr .7fr;gap:.8vw;padding:.5vh .5vw;border-bottom:1px solid rgba(148,163,184,.15);font-size:1.05vh;color:#64748b;text-transform:uppercase;letter-spacing:.3px;font-weight:600;flex-shrink:0">
-        <div>Produto</div><div style="text-align:center">Saldo</div><div style="text-align:center">Seg.</div><div style="text-align:center">Faltam</div>
+      <div style="display:grid;grid-template-columns:2.5fr .7fr .7fr .7fr;gap:.8vw;padding:.6vh .6vw;border-bottom:1px solid rgba(255,255,255,.08);font-size:1.3vh;color:#64748b;text-transform:uppercase;letter-spacing:.4px;font-weight:700;flex-shrink:0">
+        <div>Produto</div><div style="text-align:center">Saldo</div><div style="text-align:center">Seg.</div><div style="text-align:center">Falta</div>
       </div>
       <div id="tvProduzirViewport" style="flex:1;overflow:hidden;position:relative;min-height:0">
         <div id="tvProduzirLista" style="position:absolute;top:0;left:0;right:0;will-change:transform"></div>
@@ -11406,38 +11824,38 @@ async function sbCarregarAgenda(){
     </div>
 
     <!-- COLUNA 2: comparativo de vendas por grupo -->
-    <div style="display:flex;flex-direction:column;min-height:0;background:#0f1829;border:1px solid rgba(148,163,184,.1);border-radius:1.1vh;padding:1.2vh 1vw">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8vh;flex-shrink:0">
-        <div style="font-size:1.7vh;font-weight:700;color:#4ade80">Vendas por Grupo</div>
-        <div style="font-size:1.1vh;color:#64748b" id="tvCompMeses">—</div>
+    <div style="display:flex;flex-direction:column;min-height:0;background:#0a111e;border:1px solid rgba(74,222,128,.15);border-radius:1.2vh;padding:1.4vh 1.2vw">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1vh;flex-shrink:0">
+        <div style="font-size:2vh;font-weight:800;color:#4ade80">📊 Vendas por Grupo</div>
+        <div style="font-size:1.3vh;color:#64748b" id="tvCompMeses">—</div>
       </div>
-      <div id="tvComparativo" style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:.8vh"></div>
+      <div id="tvComparativo" style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:.9vh"></div>
     </div>
 
-    <!-- COLUNA 3: rankings (alterna clientes/produtos/estados) -->
-    <div style="display:flex;flex-direction:column;min-height:0;background:#0f1829;border:1px solid rgba(148,163,184,.1);border-radius:1.1vh;padding:1.2vh 1vw">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8vh;flex-shrink:0">
-        <div id="tvRankTitulo" style="font-size:1.7vh;font-weight:700;color:#60a5fa">Top Clientes</div>
+    <!-- COLUNA 3: rankings -->
+    <div style="display:flex;flex-direction:column;min-height:0;background:#0a111e;border:1px solid rgba(96,165,250,.15);border-radius:1.2vh;padding:1.4vh 1.2vw">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1vh;flex-shrink:0">
+        <div id="tvRankTitulo" style="font-size:2vh;font-weight:800;color:#60a5fa">🏆 Top Clientes</div>
         <div style="display:flex;gap:.4vw">
-          <button onclick="tvSetRank('clientes')" id="tvRankBtn-clientes" style="background:#1e3a5f;border:none;color:#93c5fd;border-radius:.5vh;padding:.3vh .7vw;font-size:1.05vh;cursor:pointer;font-weight:600">Clientes</button>
-          <button onclick="tvSetRank('produtos')" id="tvRankBtn-produtos" style="background:rgba(148,163,184,.1);border:none;color:#64748b;border-radius:.5vh;padding:.3vh .7vw;font-size:1.05vh;cursor:pointer;font-weight:600">Produtos</button>
-          <button onclick="tvSetRank('estados')" id="tvRankBtn-estados" style="background:rgba(148,163,184,.1);border:none;color:#64748b;border-radius:.5vh;padding:.3vh .7vw;font-size:1.05vh;cursor:pointer;font-weight:600">Estados</button>
+          <button onclick="tvSetRank('clientes')" id="tvRankBtn-clientes" style="background:#1e3a5f;border:none;color:#93c5fd;border-radius:.5vh;padding:.4vh .8vw;font-size:1.2vh;cursor:pointer;font-weight:700">Clientes</button>
+          <button onclick="tvSetRank('produtos')" id="tvRankBtn-produtos" style="background:rgba(255,255,255,.06);border:none;color:#64748b;border-radius:.5vh;padding:.4vh .8vw;font-size:1.2vh;cursor:pointer;font-weight:700">Produtos</button>
+          <button onclick="tvSetRank('estados')" id="tvRankBtn-estados" style="background:rgba(255,255,255,.06);border:none;color:#64748b;border-radius:.5vh;padding:.4vh .8vw;font-size:1.2vh;cursor:pointer;font-weight:700">Estados</button>
         </div>
       </div>
-      <div id="tvRankLista" style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:.5vh"></div>
+      <div id="tvRankLista" style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:.6vh"></div>
     </div>
 
   </div>
 
   <!-- Rodapé: ticker de zerados -->
-  <div style="flex-shrink:0;background:#0f1829;border-top:1px solid rgba(239,68,68,.2);padding:.9vh 2.5vw;overflow:hidden">
+  <div style="flex-shrink:0;background:#0d0808;border-top:2px solid rgba(239,68,68,.25);padding:1vh 2.5vw;overflow:hidden">
     <div style="display:flex;align-items:center;gap:1vw">
-      <span style="font-size:1.3vh;font-weight:700;color:#f87171;white-space:nowrap;flex-shrink:0">⛔ ZERADOS</span>
-      <div style="flex:1;overflow:hidden;white-space:nowrap"><span id="tvZeradosTicker" style="font-size:1.4vh;color:#cbd5e1;display:inline-block">—</span></div>
+      <span style="font-size:1.5vh;font-weight:800;color:#f87171;white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px">⛔ Zerados</span>
+      <div style="flex:1;overflow:hidden;white-space:nowrap"><span id="tvZeradosTicker" style="font-size:1.6vh;color:#cbd5e1;display:inline-block">—</span></div>
     </div>
   </div>
 </div>
-</div>
+
 
 <!-- Modal classificar clientes — FORA do app-layout -->
 <div id="overlayClassificacao" onclick="if(event.target===this)fecharClassificacao()" style="position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:16px 8px">
