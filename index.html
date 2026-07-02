@@ -1578,6 +1578,362 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
   background-repeat:no-repeat !important;background-position:10px 50% !important;background-size:15px !important;
   padding-left:32px !important}
 </style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1220'/%3E%3Ctext x='32' y='42' font-family='Inter,Arial,sans-serif' font-size='28' font-weight='800' fill='%23ffffff' text-anchor='middle'%3EG%3C/text%3E%3Ccircle cx='46' cy='20' r='5' fill='%232563eb'/%3E%3C/svg%3E">
+<style id="pro-skin-v35">
+/* ════════════════════════════════════════════════════════════
+   PRO SKIN v3.5 · Identidade corporativa GEx Assist
+   Sobrepõe o "modern-skin". Não altera lógica, dados ou impressão.
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --pro-navy-1:#0b1220;   /* chrome escuro (sidebar/header)  */
+  --pro-navy-2:#101a2e;
+  --pro-accent:#2563eb;   /* azul institucional único        */
+  --pro-accent-2:#1d4ed8;
+  --pro-canvas:#f2f4f8;   /* fundo de trabalho               */
+  --pro-line:#e5e9f1;
+  --pro-ink:#0f1727;
+  --pro-muted:#5c687f;
+}
+
+/* ── 1. Fundo estático e sóbrio (remove gradiente animado) ── */
+body{
+  background:linear-gradient(180deg,#0b1220 0%,#0e1729 60%,#101c33 100%) !important;
+  background-size:100% 100% !important;
+  animation:none !important;
+}
+body::before,body::after{display:none !important;animation:none !important}
+.main-content{background:var(--pro-canvas) !important}
+
+/* ── 2. Sidebar sólida, sem vidro ── */
+.sidebar{
+  background:linear-gradient(185deg,#0e1728 0%,#0a1120 100%) !important;
+  backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
+  border-right:1px solid rgba(255,255,255,.07) !important;
+}
+.sidebar:not(.recolhido) .sidebar-item:hover{transform:none !important}
+.sidebar:not(.recolhido) .sidebar-item.active{
+  background:linear-gradient(90deg,rgba(37,99,235,.30),rgba(37,99,235,.10)) !important;
+  box-shadow:inset 0 0 0 1px rgba(96,165,250,.25) !important;
+}
+
+/* ── 3. Page header sólido ── */
+.page-header{
+  background:linear-gradient(100deg,#0d1626 0%,#111d33 100%) !important;
+  backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
+  border-bottom:1px solid rgba(255,255,255,.07) !important;
+}
+
+/* ── 4. Área de conteúdo mais ampla ── */
+.content-body{padding:28px 34px 40px !important;max-width:1320px !important}
+
+/* ── 5. Cabeçalho do dashboard ── */
+.dash-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px !important}
+.dash-header .home-greeting{font-size:26px !important;font-weight:800 !important;letter-spacing:-.6px !important;color:var(--pro-ink) !important}
+.dash-header .home-sub{font-size:13.5px !important;color:var(--pro-muted) !important;margin-top:4px !important}
+.dash-meta-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.dash-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#fff;border:1px solid var(--pro-line);border-radius:8px;
+  padding:5px 12px;font-size:12px !important;font-weight:600;color:var(--pro-muted) !important;
+  margin:0 !important;text-transform:capitalize;
+  font-variant-numeric:tabular-nums;
+}
+.btn-tv{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#fff;border:1px solid var(--pro-line);color:var(--pro-ink);
+  border-radius:10px;padding:9px 16px;font-family:'Inter',sans-serif;
+  font-size:12.5px;font-weight:600;cursor:pointer;transition:.18s;
+  box-shadow:0 1px 2px rgba(16,24,40,.05);
+}
+.btn-tv:hover{border-color:var(--pro-accent);color:var(--pro-accent);box-shadow:0 4px 12px rgba(37,99,235,.12)}
+.btn-tv svg{stroke:currentColor}
+
+/* ── 6. Console de KPIs: um único cartão com divisórias ── */
+.kpi-console{
+  display:grid !important;grid-template-columns:repeat(5,1fr) !important;
+  gap:0 !important;margin-bottom:22px !important;
+  background:#fff;border:1px solid var(--pro-line);border-radius:16px;
+  box-shadow:0 1px 3px rgba(16,24,40,.05),0 8px 28px rgba(16,24,40,.04);
+  overflow:hidden;
+}
+.kpi-console .metric-card{
+  background:transparent !important;border:none !important;border-radius:0 !important;
+  box-shadow:none !important;padding:20px 22px 18px !important;
+  border-right:1px solid var(--pro-line) !important;
+  transition:background .15s !important;
+}
+.kpi-console .metric-card:last-child{border-right:none !important}
+.kpi-console .metric-card:hover{
+  background:#f8faff !important;transform:none !important;
+  border-color:var(--pro-line) !important;box-shadow:none !important;
+}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.kpi-console .kpi-label{font-size:11px !important;font-weight:600 !important;color:var(--pro-muted) !important;letter-spacing:.2px !important;line-height:1.3}
+.kpi-console .metric-icon{width:32px !important;height:32px !important;margin:0 !important;border-radius:9px !important;flex-shrink:0}
+.kpi-console .metric-icon svg{width:16px !important;height:16px !important}
+.kpi-console .metric-valor{font-size:26px !important;letter-spacing:-1px !important;font-weight:800;margin-bottom:6px !important;font-variant-numeric:tabular-nums}
+.kpi-console .metric-sub{margin-top:6px !important}
+
+/* ── 7. Ações rápidas compactas ── */
+.dash-quick{grid-template-columns:repeat(4,1fr) !important;gap:14px !important;margin-bottom:24px !important}
+.dash-quick .quick-btn{
+  flex-direction:row !important;justify-content:flex-start !important;
+  padding:13px 16px !important;gap:12px !important;border-radius:12px !important;
+}
+.dash-quick .quick-btn-icon{width:36px !important;height:36px !important;border-radius:10px !important}
+.dash-quick .quick-btn-icon svg{width:18px !important;height:18px !important}
+.dash-quick .quick-btn-label{font-size:12.5px !important;text-align:left !important}
+
+/* ── 8. Cartões padrão do dashboard ── */
+.dash-card{
+  background:#fff;border:1px solid var(--pro-line);border-radius:16px;
+  box-shadow:0 1px 3px rgba(16,24,40,.04);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.dash-card-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 18px;border-bottom:1px solid var(--pro-line);
+}
+.dash-card-title{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:13px;font-weight:700;color:var(--pro-ink);letter-spacing:-.1px;
+}
+.dash-card-title svg{width:16px;height:16px;color:var(--pro-accent)}
+.dash-card-title #homePendCount{font-weight:600;font-size:11.5px;color:var(--pro-muted)}
+.dash-card-body{padding:16px 18px;flex:1;min-height:0}
+.dash-scroll{max-height:290px;overflow-y:auto}
+.dash-link{cursor:pointer;color:var(--pro-accent);font-size:11.5px;font-weight:600;white-space:nowrap;transition:.15s}
+.dash-link:hover{color:var(--pro-accent-2);text-decoration:underline}
+.dash-empty{text-align:center;padding:26px 10px;color:var(--pro-muted);font-size:13px}
+
+/* ── 9. Grades do dashboard ── */
+.dash-grid-main{display:grid;grid-template-columns:1.7fr 1fr;gap:18px;margin-bottom:18px;align-items:stretch}
+.dash-grid-main .dash-card[id="homeFatTrend"]{min-height:100%}
+.dash-grid-2{display:grid !important;grid-template-columns:1fr 1fr !important;gap:18px !important;margin-bottom:18px !important}
+.dash-est-grid{margin:14px 0 16px !important;gap:14px !important;display:grid !important;grid-template-columns:repeat(4,1fr) !important}
+.dash-section-head{display:flex;align-items:center;justify-content:space-between;margin:26px 0 4px}
+.dash-section-title{font-size:14px;font-weight:800;color:var(--pro-ink);letter-spacing:-.2px;display:inline-flex;align-items:center;gap:9px}
+.dash-section-title::before{content:'';width:3px;height:16px;background:var(--pro-accent);border-radius:3px}
+
+/* Alertas dentro dos cartões: sem borda dupla */
+.dash-card .alert-item{box-shadow:none !important;margin-bottom:8px !important}
+.dash-card .alert-item:last-child{margin-bottom:0 !important}
+.dash-card .evento-home{margin-bottom:8px}
+
+/* ── 10. Rodapé institucional ── */
+.dash-footer{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:28px;padding-top:16px;border-top:1px solid var(--pro-line);
+  font-size:11.5px;color:var(--pro-muted);flex-wrap:wrap;
+}
+
+/* ── 11. Login corporativo ── */
+#loginOverlay{
+  background:
+    radial-gradient(ellipse 60% 50% at 85% 8%,rgba(37,99,235,.16) 0%,transparent 55%),
+    radial-gradient(ellipse 55% 45% at 8% 92%,rgba(37,99,235,.10) 0%,transparent 55%),
+    linear-gradient(180deg,#0b1220 0%,#0e1729 100%) !important;
+  animation:none !important;background-size:100% 100% !important;
+}
+#loginOverlay::before,#loginOverlay::after{display:none !important;animation:none !important}
+.login-box{
+  background:rgba(255,255,255,.045) !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:0 24px 80px rgba(0,0,0,.5) !important;
+  backdrop-filter:blur(18px) !important;
+}
+.login-btn{
+  background:var(--pro-accent) !important;
+  box-shadow:0 4px 16px rgba(37,99,235,.35) !important;
+}
+.login-btn:hover{background:var(--pro-accent-2) !important}
+
+/* ── 12. Refinamentos globais ── */
+.metric-valor,.kpi-valor,td.num,.tabela-mod td{font-variant-numeric:tabular-nums}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c7cedd;border-radius:8px;border:2px solid var(--pro-canvas)}
+::-webkit-scrollbar-thumb:hover{background:#aab3c7}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visible,input:focus-visible{
+  outline:2px solid var(--pro-accent) !important;outline-offset:2px;
+}
+.login-user-info{background:rgba(255,255,255,.08) !important;border-color:rgba(255,255,255,.14) !important}
+
+/* ── 13. Responsivo ── */
+@media(max-width:1180px){
+  .kpi-console{grid-template-columns:repeat(3,1fr) !important}
+  .kpi-console .metric-card:nth-child(3n){border-right:none !important}
+  .kpi-console .metric-card{border-bottom:1px solid var(--pro-line) !important}
+  .dash-grid-main{grid-template-columns:1fr}
+  .dash-est-grid{grid-template-columns:repeat(2,1fr) !important}
+}
+@media(max-width:760px){
+  .content-body{padding:18px 16px 32px !important}
+  .kpi-console{grid-template-columns:1fr 1fr !important}
+  .kpi-console .metric-card:nth-child(3n){border-right:1px solid var(--pro-line) !important}
+  .kpi-console .metric-card:nth-child(2n){border-right:none !important}
+  .dash-quick{grid-template-columns:1fr 1fr !important}
+  .dash-grid-2{grid-template-columns:1fr !important}
+  .dash-header{flex-direction:column}
+  .dash-est-grid{grid-template-columns:1fr !important}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+@media print{
+  body{background:#fff !important}
+  .dash-footer,.btn-tv{display:none !important}
+}
+
+</style>
+<style id="dashkit-skin">
+/* ════ DASHKIT LAYER v3.6 · destaques analíticos + header tools ════ */
+
+/* Linha de destaques: 2 cards + coluna de mini-stats */
+.dash-grid-hi{display:grid;grid-template-columns:1fr 1fr 1.05fr;gap:18px;margin-bottom:22px;align-items:stretch}
+
+.hi-card{position:relative;overflow:hidden}
+.hi-body{padding:20px 20px 12px;position:relative;z-index:2}
+.hi-num{font-size:34px;font-weight:800;letter-spacing:-1.4px;color:var(--pro-ink);font-variant-numeric:tabular-nums;line-height:1.05}
+.hi-title{font-size:13px;font-weight:700;color:var(--pro-accent);margin-top:4px}
+.hi-sub{font-size:11.5px;color:var(--pro-muted);margin-top:6px;line-height:1.45;max-width:270px}
+.hi-chart{position:absolute;left:0;right:0;bottom:53px;height:54px;z-index:1;pointer-events:none;opacity:.9}
+.hi-chart-bars{bottom:58px;height:50px;padding:0 16px}
+.hi-foot{position:relative;z-index:2;margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--pro-line)}
+.hi-foot-item{padding:12px 8px;text-align:center;border-right:1px solid var(--pro-line)}
+.hi-foot-item:last-child{border-right:none}
+.hi-foot-item b{display:block;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.hi-foot-item span{display:block;font-size:10.5px;color:var(--pro-muted);font-weight:600;margin-top:2px}
+.hi-foot-accent{background:linear-gradient(135deg,var(--pro-accent),#3b82f6);border-top:none}
+.hi-foot-accent .hi-foot-item{border-right:1px solid rgba(255,255,255,.18)}
+.hi-foot-accent .hi-foot-item b{color:#fff}
+.hi-foot-accent .hi-foot-item span{color:rgba(255,255,255,.75)}
+.hi-card{display:flex;flex-direction:column;min-height:238px}
+
+/* Coluna de mini-stats (2x2) */
+.dk-stats-col{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px}
+.dk-stat{
+  background:#fff;border:1px solid var(--pro-line);border-radius:14px;
+  padding:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  cursor:pointer;transition:.18s;box-shadow:0 1px 3px rgba(16,24,40,.04);
+}
+.dk-stat:hover{border-color:var(--pro-accent);box-shadow:0 8px 20px rgba(37,99,235,.10);transform:translateY(-2px)}
+.dk-stat-label{font-size:10px;font-weight:600;color:var(--pro-muted);letter-spacing:.2px;line-height:1.3}
+.dk-stat-num{font-size:17.5px;white-space:nowrap;font-weight:800;letter-spacing:-.6px;color:var(--pro-ink);margin-top:4px;font-variant-numeric:tabular-nums}
+.dk-stat-ico{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--accent-pale,#eff5ff);color:var(--pro-accent);
+}
+.dk-stat-ico svg{width:17px;height:17px}
+.dk-stat-solid{background:linear-gradient(135deg,var(--pro-accent),#1d4ed8);border-color:transparent}
+.dk-stat-solid .dk-stat-label{color:rgba(255,255,255,.8)}
+.dk-stat-solid .dk-stat-num{color:#fff}
+.dk-stat-solid .dk-stat-ico{background:rgba(255,255,255,.16);color:#fff}
+.dk-stat-solid:hover{border-color:transparent;box-shadow:0 10px 26px rgba(37,99,235,.35)}
+
+/* Cabeçalho do Relatório de Vendas (Total + Média) */
+.dk-sales-head{align-items:flex-start !important;padding:16px 18px 12px !important}
+.dk-sales-stats{display:flex;gap:28px;margin-top:10px}
+.dk-sales-stats>div span{display:block;font-size:22px;font-weight:800;letter-spacing:-.8px;color:var(--pro-ink);font-variant-numeric:tabular-nums}
+.dk-sales-stats>div label{display:block;font-size:10.5px;font-weight:600;color:var(--pro-muted);margin-top:2px}
+
+.page-header-tag{display:none !important}
+/* ── Ferramentas do header: sino + usuário ── */
+.login-user-info{display:none !important}
+#dkTools{
+  position:fixed;top:14px;right:18px;z-index:99998;
+  display:none;align-items:center;gap:10px;
+}
+#dkTools.show{display:flex}
+.dk-bell{
+  position:relative;width:38px;height:38px;border-radius:11px;cursor:pointer;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;transition:.18s;
+}
+.dk-bell:hover{background:rgba(37,99,235,.28);border-color:rgba(96,165,250,.45);color:#fff}
+.dk-bell svg{width:17px;height:17px}
+.dk-bell-badge{
+  position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;
+  background:#ef4444;color:#fff;border-radius:9px;font-size:10px;font-weight:800;
+  display:none;align-items:center;justify-content:center;border:2px solid #0d1626;
+  font-variant-numeric:tabular-nums;
+}
+.dk-bell-badge.show{display:flex}
+.dk-user{
+  display:flex;align-items:center;gap:9px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  border-radius:11px;padding:5px 12px 5px 6px;
+}
+.dk-avatar{
+  width:27px;height:27px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;
+}
+.dk-user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dk-logout{
+  background:none;border:none;color:rgba(255,255,255,.45);font-size:11px;font-weight:700;
+  cursor:pointer;padding:2px 4px;transition:.15s;font-family:'Inter',sans-serif;
+}
+.dk-logout:hover{color:#f87171}
+.dk-bell-drop{
+  position:fixed;top:60px;right:18px;z-index:99999;width:340px;max-width:calc(100vw - 24px);
+  background:#fff;border:1px solid var(--pro-line);border-radius:14px;
+  box-shadow:0 16px 48px rgba(16,24,40,.18);display:none;overflow:hidden;
+}
+.dk-bell-drop.show{display:block}
+.dk-bell-drop-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--pro-line);
+  font-size:13px;font-weight:700;color:var(--pro-ink);
+}
+.dk-bell-drop-head small{font-size:11px;color:var(--pro-muted);font-weight:600}
+.dk-bell-drop-body{max-height:340px;overflow-y:auto;padding:10px 12px}
+.dk-bell-drop-body .alert-item{margin-bottom:8px}
+.dk-bell-empty{text-align:center;padding:28px 10px;color:var(--pro-muted);font-size:12.5px}
+
+/* Responsivo */
+@media(max-width:1180px){
+  .dash-grid-hi{grid-template-columns:1fr 1fr}
+  .dk-stats-col{grid-column:1/-1;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr}
+}
+@media(max-width:760px){
+  .dash-grid-hi{grid-template-columns:1fr}
+  .dk-stats-col{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .dk-user-name{display:none}
+  .dk-bell-drop{right:8px}
+}
+
+/* ════ TV SKIN · Painel TV redesenhado ════ */
+#painelTV{background:radial-gradient(ellipse 70% 55% at 80% 0%,rgba(37,99,235,.10) 0%,transparent 55%),linear-gradient(180deg,#070d18 0%,#0a1322 100%) !important}
+.tv-head{display:flex;align-items:center;justify-content:space-between;padding:1.8vh 2.4vw 1.2vh;flex-shrink:0;border-bottom:1px solid rgba(148,163,184,.14)}
+.tv-brand{display:flex;align-items:center;gap:1.1vw}
+.tv-brand img{height:5vh;width:auto}
+.tv-brand-title{font-size:2.5vh;font-weight:800;letter-spacing:-.3px;color:#fff}
+.tv-brand-sub{font-size:1.4vh;color:#64748b;margin-top:.2vh}
+.tv-period{display:flex;align-items:center;gap:.7vw;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.18);border-radius:1.1vh;padding:.9vh 1.2vw}
+.tv-period button.nav{background:none;border:none;color:#94a3b8;font-size:2.4vh;cursor:pointer;padding:0 .4vw;line-height:1;transition:.15s}
+.tv-period button.nav:hover{color:#fff}
+.tv-clock{font-size:4.8vh;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:#fff;letter-spacing:-1px}
+.tv-clock-sub{font-size:1.2vh;color:#475569;margin-top:.3vh}
+.tv-close{position:absolute;top:1.6vh;right:1.2vw;background:rgba(255,255,255,.07);border:1px solid rgba(148,163,184,.2);color:#cbd5e1;border-radius:1vh;width:3.8vh;height:3.8vh;font-size:1.9vh;cursor:pointer;transition:.15s}
+.tv-close:hover{background:rgba(239,68,68,.25);border-color:rgba(239,68,68,.5);color:#fff}
+
+.tv-kpis{display:grid;grid-template-columns:1.7fr repeat(6,1fr);gap:1vw;padding:1.4vh 2.4vw;flex-shrink:0}
+.tv-kpi{background:rgba(255,255,255,.035);border:1px solid rgba(148,163,184,.14);border-radius:1.3vh;padding:1.5vh 1vw;text-align:center;position:relative;overflow:hidden}
+.tv-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:.45vh;background:var(--tvc,#3b82f6)}
+.tv-kpi-label{display:inline-flex;align-items:center;gap:.5vw;font-size:1.35vh;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--tvc,#93c5fd)}
+.tv-kpi-label svg{width:1.7vh;height:1.7vh}
+.tv-kpi-num{font-size:5vh;font-weight:900;line-height:1.1;color:#fff;margin:.25vh 0;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.tv-kpi-sub{font-size:1.2vh;color:#64748b}
+.tv-kpi-fat{text-align:left;padding:1.5vh 1.3vw}
+.tv-meta-track{background:rgba(255,255,255,.08);border-radius:.6vh;height:1.5vh;overflow:hidden;margin:.6vh 0}
+.tv-cols{flex:1;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:1.1vw;padding:.2vh 2.4vw 1.2vh;min-height:0}
+.tv-panel{display:flex;flex-direction:column;min-height:0;background:rgba(255,255,255,.03);border:1px solid rgba(148,163,184,.14);border-radius:1.3vh;padding:1.4vh 1.1vw}
+.tv-panel-title{display:inline-flex;align-items:center;gap:.6vw;font-size:1.95vh;font-weight:800;letter-spacing:.2px}
+.tv-panel-title svg{width:2vh;height:2vh}
+.tv-ticker{flex-shrink:0;background:rgba(239,68,68,.06);border-top:1px solid rgba(239,68,68,.3);padding:1vh 2.4vw;overflow:hidden}
+
+</style>
 </head>
 <body>
 
@@ -1606,6 +1962,8 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
   <symbol id="i-chart" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15.5V4.5"/><path d="m7.5 9 4.5-4.5L16.5 9"/><path d="M5 15.5v2.5A1.5 1.5 0 0 0 6.5 19.5h11A1.5 1.5 0 0 0 19 18v-2.5"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-money" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v.01M18 14.5v.01"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 0 1-8 0V4Z"/><path d="M8 5H4.5a3.5 3.5 0 0 0 3.6 3.5M16 5h3.5a3.5 3.5 0 0 1-3.6 3.5"/><path d="M12 14v4M8.5 21h7M10 18h4"/></symbol>
   <symbol id="i-link" viewBox="0 0 24 24"><path d="M9.8 14.2 14.2 9.8"/><path d="M8.5 11 6.6 12.9a3.4 3.4 0 0 0 4.8 4.8l1.9-1.9"/><path d="M15.5 13l1.9-1.9a3.4 3.4 0 0 0-4.8-4.8l-1.9 1.9"/></symbol>
 </svg>
 
@@ -1613,7 +1971,7 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
 <div id="loginOverlay">
   <div class="login-box">
     <div class="login-brand">G<span>Ex</span> Assist</div>
-    <div class="login-sub">Acesso restrito — faça login para continuar</div>
+    <div class="login-sub">Plataforma de gestão comercial · Acesso restrito</div>
     <div class="login-field">
       <label>Usuário</label>
       <input type="text" id="loginUser" placeholder="seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
@@ -1636,7 +1994,7 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
 </style>
 <a href="#mainArea" class="skip-link">Ir para conteúdo principal</a>
 <div class="login-user-info" id="loginUserInfo">
-  <span id="loginUserNome">👤</span>
+  <span id="loginUserNome"></span>
   <button class="login-logout-btn" onclick="fazerLogout()">Sair</button>
 </div>
 
@@ -1688,7 +2046,7 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
     <span class="page-header-icon" id="pageHeaderIcon"><svg data-ico viewBox="0 0 24 24"><use href="#i-home"></use></svg></span>
     <div class="page-header-info">
       <div class="page-header-title" id="pageHeaderTitle">Dashboard</div>
-      <div class="page-header-sub" id="pageHeaderSub">Resumo do dia — GEx Assist</div>
+      <div class="page-header-sub" id="pageHeaderSub">Visão geral da operação — GEx Assist</div>
     </div>
     <div class="page-header-actions" id="pageHeaderRight">
 <div id="cotacaoHeaderInfo" style="display:none;align-items:center;gap:8px;flex-direction:column;text-align:right">
@@ -1755,142 +2113,230 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
 <div class="corpo">
   <!-- SEÇÃO HOME -->
   <div id="secaoHome" style="display:block">
-    <div class="home-header" style="position:relative">
-      <div class="home-greeting" id="homeGreeting">Bom dia! 👋</div>
-      <div class="home-sub">Aqui está o resumo do dia da equipe comercial</div>
-      <div class="home-date" id="homeDate"></div>
-      <button onclick="abrirPainelTV()" style="position:absolute;top:0;right:0;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer" title="Abrir painel em tela cheia">📺 Painel TV</button>
+
+    <!-- ── Cabeçalho do dashboard ── -->
+    <div class="dash-header home-header">
+      <div class="dash-header-left">
+        <div class="home-greeting" id="homeGreeting">Bom dia</div>
+        <div class="home-sub">Visão consolidada da operação comercial · Grow Química</div>
+        <div class="dash-meta-row">
+          <span class="home-date dash-chip" id="homeDate"></span>
+          <span class="dash-chip" id="dashClock" title="Hora local">—:—</span>
+        </div>
+      </div>
+      <div class="dash-header-actions">
+        <button class="btn-tv" onclick="abrirPainelTV()" title="Abrir painel em tela cheia">
+          <svg data-ico viewBox="0 0 24 24" style="width:16px;height:16px"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Painel TV
+        </button>
+      </div>
     </div>
 
-    <!-- Métricas principais -->
-    <div class="home-grid-4" id="homeMetrics">
-      <div class="metric-card verde" onclick="setModoApp('faturamento')" style="background:linear-gradient(135deg,#0f6e5f,#1a9c8a);color:#fff">
-        <svg class="metric-icon" data-ico viewBox="0 0 24 24" style="color:#fff"><use href="#i-chart"></use></svg>
-        <div class="metric-valor" id="hmFatTotal" style="color:#fff;font-size:20px">R$ 0</div>
-        <div class="metric-label" style="color:rgba(255,255,255,.85)">Faturamento do Mês</div>
-        <div class="metric-sub"><span class="metric-badge" id="hmFatMes" style="background:rgba(255,255,255,.2);color:#fff">—</span></div>
+    <!-- ── Indicadores principais (console unificado) ── -->
+    <div class="kpi-console home-grid-4" id="homeMetrics">
+      <div class="metric-card kpi-cell verde" onclick="setModoApp('faturamento')">
+        <div class="kpi-top"><span class="kpi-label metric-label">Faturamento do mês</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-chart"></use></svg></div>
+        <div class="metric-valor" id="hmFatTotal">R$ 0</div>
+        <div class="metric-sub"><span class="metric-badge" id="hmFatMes">—</span></div>
       </div>
-      <div class="metric-card roxo" onclick="setModoApp('cotacao')">
-        <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-cot"></use></svg>
+      <div class="metric-card kpi-cell roxo" onclick="setModoApp('cotacao')">
+        <div class="kpi-top"><span class="kpi-label metric-label">Cotações salvas</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-cot"></use></svg></div>
         <div class="metric-valor" id="hmCotacoes">0</div>
-        <div class="metric-label">Cotações Salvas</div>
         <div class="metric-sub"><span class="metric-badge neutral" id="hmCotMes">0 este mês</span></div>
       </div>
-      <div class="metric-card laranja" onclick="setModoApp('frete')">
-        <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg>
+      <div class="metric-card kpi-cell laranja" onclick="setModoApp('frete')">
+        <div class="kpi-top"><span class="kpi-label metric-label">Fretes em trânsito</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg></div>
         <div class="metric-valor" id="hmFretes">0</div>
-        <div class="metric-label">Fretes em Trânsito</div>
         <div class="metric-sub"><span class="metric-badge neutral" id="hmFretesTotal">0 total</span></div>
       </div>
-      <div class="metric-card verde" onclick="setModoApp('crm')">
-        <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-users"></use></svg>
+      <div class="metric-card kpi-cell verde" onclick="setModoApp('crm')">
+        <div class="kpi-top"><span class="kpi-label metric-label">Clientes no CRM</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-users"></use></svg></div>
         <div class="metric-valor" id="hmClientes">0</div>
-        <div class="metric-label">Clientes no CRM</div>
         <div class="metric-sub"><span class="metric-badge neutral" id="hmEstados">0 estados</span></div>
       </div>
-      <div class="metric-card azul" onclick="setModoApp('licitacoes')">
-        <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-gavel"></use></svg>
+      <div class="metric-card kpi-cell azul" onclick="setModoApp('licitacoes')">
+        <div class="kpi-top"><span class="kpi-label metric-label">Licitações ativas</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-gavel"></use></svg></div>
         <div class="metric-valor" id="hmLicit">0</div>
-        <div class="metric-label">Licitações Ativas</div>
         <div class="metric-sub"><span class="metric-badge neutral" id="hmLicitGanho">0 ganhas</span></div>
       </div>
     </div>
 
-    <!-- Mini gráfico de tendência de faturamento -->
-    <div id="homeFatTrend" style="display:none;background:#fff;border:1px solid var(--borda);border-radius:14px;padding:16px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:13px;font-weight:700;color:var(--texto)">📈 Evolução do Faturamento</div>
-        <span onclick="setModoApp('faturamento')" style="cursor:pointer;color:#0f6e5f;font-size:11px;font-weight:600">ver completo →</span>
+    <!-- ── Destaques analíticos (estilo DashboardKit) ── -->
+    <div class="dash-grid-hi">
+
+      <div class="dash-card hi-card">
+        <div class="hi-body">
+          <div class="hi-num" id="dkConvPct">—</div>
+          <div class="hi-title">Taxa de Conversão</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <select id="dkMesSel" onchange="window._dkMesSel=this.value;renderDashKitCards()" style="font-size:11px;border:1px solid #e2e8f0;border-radius:6px;padding:3px 6px;color:#475569;background:#fff;cursor:pointer">
+            <option value="">Mês atual</option>
+          </select>
+        </div>
+        <div class="hi-sub" style="margin-top:4px">Cotações convertidas no período selecionado.</div>
+        </div>
+        <div class="hi-foot hi-foot-accent" id="dkConvFoot">
+          <div class="hi-foot-item"><b id="dkConvApr">0</b><span>Convertidas</span></div>
+          <div class="hi-foot-item"><b id="dkConvEnv">0</b><span>Em aberto</span></div>
+          <div class="hi-foot-item"><b id="dkConvPer">0</b><span>Perdidas</span></div>
+        </div>
+        <div class="hi-chart"><canvas id="dkConvChart"></canvas></div>
       </div>
-      <div style="height:160px"><canvas id="homeFatChart"></canvas></div>
+
+      <div class="dash-card hi-card">
+        <div class="hi-body">
+          <div class="hi-num" id="dkNfNum">0</div>
+          <div class="hi-title">NFs Emitidas no Mês</div>
+          <div class="hi-sub">Notas fiscais lançadas no faturamento do mês corrente.</div>
+        </div>
+        <div class="hi-foot" id="dkNfFoot">
+          <div class="hi-foot-item"><b id="dkNfM1">0</b><span id="dkNfM1L">—</span></div>
+          <div class="hi-foot-item"><b id="dkNfM2">0</b><span id="dkNfM2L">—</span></div>
+          <div class="hi-foot-item"><b id="dkNfM3">0</b><span id="dkNfM3L">—</span></div>
+        </div>
+        <div class="hi-chart hi-chart-bars"><canvas id="dkNfChart"></canvas></div>
+      </div>
+
+      <div class="dk-stats-col">
+        <div class="dk-stat dk-stat-solid" onclick="setModoApp('faturamento')">
+          <div><div class="dk-stat-label">Faturamento no Ano</div><div class="dk-stat-num" id="dkFatAno">R$ 0</div></div>
+          <span class="dk-stat-ico"><svg data-ico viewBox="0 0 24 24"><use href="#i-money"></use></svg></span>
+        </div>
+        <div class="dk-stat" onclick="setModoApp('faturamento')">
+          <div><div class="dk-stat-label">Ticket Médio (mês)</div><div class="dk-stat-num" id="dkTicket">R$ 0</div></div>
+          <span class="dk-stat-ico"><svg data-ico viewBox="0 0 24 24"><use href="#i-chart"></use></svg></span>
+        </div>
+        <div class="dk-stat" onclick="setModoApp('crm')">
+          <div><div class="dk-stat-label">Clientes Faturados (mês)</div><div class="dk-stat-num" id="dkCliMes">0</div></div>
+          <span class="dk-stat-ico"><svg data-ico viewBox="0 0 24 24"><use href="#i-users"></use></svg></span>
+        </div>
+        <div class="dk-stat" onclick="setModoApp('faturamento')">
+          <div><div class="dk-stat-label">NFs no Ano</div><div class="dk-stat-num" id="dkNfAno">0</div></div>
+          <span class="dk-stat-ico"><svg data-ico viewBox="0 0 24 24"><use href="#i-cot"></use></svg></span>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Ações rápidas -->
-    <div class="home-section-title">Ações Rápidas</div>
-    <div class="quick-actions">
-      <div class="quick-btn" onclick="setModoApp('cotacao');novaCot()">
+    <!-- ── Ações rápidas ── -->
+    <div class="quick-actions dash-quick">
+      <div class="quick-btn" onclick="setModoApp('cotacao');novaCot()" role="button" tabindex="0">
         <svg class="quick-btn-icon" data-ico viewBox="0 0 24 24"><use href="#i-cot"></use></svg>
         <span class="quick-btn-label">Nova Cotação</span>
       </div>
-      <div class="quick-btn" onclick="setModoApp('frete');abrirFormNF()">
+      <div class="quick-btn" onclick="setModoApp('frete');abrirFormNF()" role="button" tabindex="0">
         <svg class="quick-btn-icon" data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg>
         <span class="quick-btn-label">Lançar NF</span>
       </div>
-      <div class="quick-btn" onclick="setModoApp('agenda');abrirModalEvento()">
+      <div class="quick-btn" onclick="setModoApp('agenda');abrirModalEvento()" role="button" tabindex="0">
         <svg class="quick-btn-icon" data-ico viewBox="0 0 24 24"><use href="#i-calendar"></use></svg>
         <span class="quick-btn-label">Novo Evento</span>
       </div>
-      <div class="quick-btn" onclick="setModoApp('amostras')">
+      <div class="quick-btn" onclick="setModoApp('amostras')" role="button" tabindex="0">
         <svg class="quick-btn-icon" data-ico viewBox="0 0 24 24"><use href="#i-flask"></use></svg>
         <span class="quick-btn-label">Registrar Amostra</span>
       </div>
     </div>
 
-    <div class="home-grid-2">
-      <!-- Alertas e pendências -->
-      <div>
-        <div class="home-section-title">Pendências <span id="homePendCount"></span></div>
-        <div class="alert-list" id="homeAlertList">
-          <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">✅ Tudo em dia!</div>
+    <!-- ── Linha 1: Evolução do faturamento + Pendências ── -->
+    <div class="dash-grid-main">
+      <div class="dash-card" id="homeFatTrend" style="display:none">
+        <div class="dash-card-head dk-sales-head">
+          <div>
+            <div class="dash-card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-chart"></use></svg>Relatório de Vendas</div>
+            <div class="dk-sales-stats">
+              <div><span id="dkSalesTotal">—</span><label>Total · últimos 6 meses</label></div>
+              <div><span id="dkSalesAvg">—</span><label>Média mensal</label></div>
+            </div>
+          </div>
+          <span class="dash-link" onclick="setModoApp('faturamento')">Ver completo →</span>
         </div>
+        <div class="dash-card-body" style="height:220px"><canvas id="homeFatChart"></canvas></div>
       </div>
 
-      <!-- Próximos eventos -->
-      <div>
-        <div class="home-section-title">Próximos Eventos <span onclick="setModoApp('agenda')" style="cursor:pointer;color:#7c3aed">ver todos →</span></div>
-        <div id="homeEventosList">
-          <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum evento próximo</div>
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <div class="dash-card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-bell"></use></svg>Pendências <span id="homePendCount"></span></div>
+        </div>
+        <div class="dash-card-body dash-scroll">
+          <div class="alert-list" id="homeAlertList">
+            <div class="dash-empty">Nenhuma pendência no momento</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Fretes em andamento -->
-    <div class="home-section-title">Fretes em Andamento <span onclick="setModoApp('frete')" style="cursor:pointer;color:#7c3aed">ver todos →</span></div>
-    <div id="homeFretesAtivos">
-      <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Nenhum frete em andamento</div>
+    <!-- ── Linha 2: Agenda + Fretes ── -->
+    <div class="dash-grid-2 home-grid-2">
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <div class="dash-card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-calendar"></use></svg>Próximos Eventos</div>
+          <span class="dash-link" onclick="setModoApp('agenda')">Ver todos →</span>
+        </div>
+        <div class="dash-card-body">
+          <div id="homeEventosList">
+            <div class="dash-empty">Nenhum evento próximo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-head">
+          <div class="dash-card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg>Fretes em Andamento</div>
+          <span class="dash-link" onclick="setModoApp('frete')">Ver todos →</span>
+        </div>
+        <div class="dash-card-body">
+          <div id="homeFretesAtivos">
+            <div class="dash-empty">Nenhum frete em andamento</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Dashboard Estoque -->
+    <!-- ── Estoque · visão geral ── -->
     <div id="homeEstoqueSection" style="display:none">
-      <div class="home-section-title" style="margin-top:24px">Estoque — Visão Geral <span onclick="setModoApp('estoque')" style="cursor:pointer;color:#7c3aed">ver completo →</span></div>
+      <div class="dash-section-head">
+        <div class="dash-section-title">Estoque — Visão Geral</div>
+        <span class="dash-link" onclick="setModoApp('estoque')">Ver completo →</span>
+      </div>
 
-      <!-- Cards estoque -->
-      <div class="home-grid-4" style="margin-bottom:16px">
+      <div class="home-grid-4 dash-est-grid">
         <div class="metric-card vermelho" onclick="setModoApp('estoque')" style="cursor:pointer">
-          <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg>
+          <div class="kpi-top"><span class="kpi-label metric-label">A produzir</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg></div>
           <div class="metric-valor" id="hmEstProduzir" style="color:#dc2626">0</div>
-          <div class="metric-label">A Produzir</div>
           <div class="metric-sub"><span class="metric-badge" id="hmEstProduzirSub" style="background:#fef2f2;color:#dc2626">abaixo do seg.</span></div>
         </div>
         <div class="metric-card vermelho" onclick="setModoApp('estoque')" style="cursor:pointer">
-          <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-alert"></use></svg>
+          <div class="kpi-top"><span class="kpi-label metric-label">Produtos zerados</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-alert"></use></svg></div>
           <div class="metric-valor" id="hmEstZerado" style="color:#dc2626">0</div>
-          <div class="metric-label">Produtos Zerados</div>
           <div class="metric-sub"><span class="metric-badge" style="background:#fef2f2;color:#dc2626">saldo = 0</span></div>
         </div>
         <div class="metric-card laranja" onclick="setModoApp('estoque')" style="cursor:pointer">
-          <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-clock"></use></svg>
-          <div class="metric-valor" id="hmEstVencendo" style="color:#f97316">0</div>
-          <div class="metric-label">Lotes Vencendo</div>
-          <div class="metric-sub"><span class="metric-badge" style="background:#fff7ed;color:#f97316">em 6 meses</span></div>
+          <div class="kpi-top"><span class="kpi-label metric-label">Lotes vencendo</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-clock"></use></svg></div>
+          <div class="metric-valor" id="hmEstVencendo" style="color:#ea580c">0</div>
+          <div class="metric-sub"><span class="metric-badge" style="background:#fff7ed;color:#ea580c">em 6 meses</span></div>
         </div>
         <div class="metric-card verde" onclick="setModoApp('estoque')" style="cursor:pointer">
-          <svg class="metric-icon" data-ico viewBox="0 0 24 24"><use href="#i-check"></use></svg>
-          <div class="metric-valor" id="hmEstOk" style="color:#16a34a">0</div>
-          <div class="metric-label">Produtos OK</div>
-          <div class="metric-sub"><span class="metric-badge" style="background:#f0fdf4;color:#16a34a">acima do seg.</span></div>
+          <div class="kpi-top"><span class="kpi-label metric-label">Produtos OK</span><svg class="metric-icon kpi-ico" data-ico viewBox="0 0 24 24"><use href="#i-check"></use></svg></div>
+          <div class="metric-valor" id="hmEstOk" style="color:#059669">0</div>
+          <div class="metric-sub"><span class="metric-badge" style="background:#f0fdf4;color:#059669">acima do seg.</span></div>
         </div>
       </div>
 
-      <!-- Gráfico top déficit -->
-      <div class="modulo-card" style="margin-bottom:14px">
-        <div class="tabela-head" style="border-radius:14px 14px 0 0">
-          <div class="tabela-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg>Top Produtos a Produzir</div>
+      <div class="dash-card" style="margin-bottom:16px">
+        <div class="dash-card-head">
+          <div class="dash-card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg>Top Produtos a Produzir</div>
         </div>
-        <div style="padding:16px 20px" id="hmEstGrafico">
-          <div style="text-align:center;color:var(--muted);font-size:13px">Sem dados de produção</div>
+        <div class="dash-card-body" id="hmEstGrafico">
+          <div class="dash-empty">Sem dados de produção</div>
         </div>
       </div>
+    </div>
+
+    <!-- ── Rodapé institucional ── -->
+    <div class="dash-footer">
+      <span>GEx Assist · Plataforma de Gestão Comercial</span>
+      <span>Grow Química © 2026 · v4.5 Pro</span>
     </div>
 
   </div>
@@ -3120,7 +3566,7 @@ window.addEventListener('DOMContentLoaded',function(){
 ══════════════════════════════════════ */
 function renderHome(){
   var h=new Date().getHours();
-  var greet=h<12?'Bom dia! 🌅':h<18?'Boa tarde! ☀️':'Boa noite! 🌙';
+  var greet=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
   var gEl=document.getElementById('homeGreeting');if(gEl)gEl.textContent=greet;
   var dEl=document.getElementById('homeDate');
   if(dEl){var opts={weekday:'long',year:'numeric',month:'long',day:'numeric'};dEl.textContent=new Date().toLocaleDateString('pt-BR',opts);}
@@ -3174,7 +3620,7 @@ function renderHome(){
 
   // 2. Fretes com ocorrência
   frs.filter(function(f){return f.status==='ocorrencia';}).forEach(function(f){
-    alertas.push({cor:'vermelho',tag:'frete',titulo:'⚠️ Ocorrência NF '+f.nf,sub:f.cliente||'—',urgente:true});
+    alertas.push({cor:'vermelho',tag:'frete',titulo:'Ocorrência NF '+f.nf,sub:f.cliente||'—',urgente:true});
   });
 
   // 3. Pregões próximos (até 7 dias)
@@ -3256,7 +3702,7 @@ function renderHome(){
       return '<div class="alert-item'+(a.urgente?' urgente':'')+'"><span class="alert-dot '+a.cor+'"></span>'+
         '<div class="alert-info"><div class="alert-titulo">'+a.titulo+'</div><div class="alert-sub">'+escHtml(a.sub)+'</div></div>'+
         '<span class="alert-tag '+a.tag+'">'+(tagLabel[a.tag]||a.tag)+'</span></div>';
-    }).join(''):'<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">✅ Tudo em dia!</div>';
+    }).join(''):'<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">Nenhuma pendência no momento</div>';
     var pcEl=document.getElementById('homePendCount');
     var urgCount=alertas.filter(function(a){return a.urgente;}).length;
     if(pcEl)pcEl.innerHTML=alertas.length
@@ -3287,7 +3733,7 @@ function renderHome(){
     var frAtivos=frs.filter(function(f){return f.status==='transito'||f.status==='ocorrencia';}).slice(0,4);
     var TRANS={alfa:'Alfa Transportes',riovermelho:'Rio Vermelho',pacifico:'Pacífico Log',rodomax:'Rodomax Log',nordeste:'Primeira do Nordeste',reunidas:'Reunidas'};
     var SCOR={transito:'laranja',ocorrencia:'vermelho'};
-    var SLAB={transito:'🟠 Em Trânsito',ocorrencia:'⚠️ Ocorrência'};
+    var SLAB={transito:'Em Trânsito',ocorrencia:'Ocorrência'};
     frEl.innerHTML=frAtivos.length?frAtivos.map(function(f){
       return '<div class="alert-item"><span class="alert-dot '+(SCOR[f.status]||'azul')+'"></span>'+
         '<div class="alert-info"><div class="alert-titulo">NF '+f.nf+' — '+f.cliente+'</div>'+
@@ -3297,6 +3743,7 @@ function renderHome(){
   }
 
   renderHomeFatChart();
+  if(typeof renderDashKitCards==='function'){try{renderDashKitCards();}catch(e){}}
 }
 
 let _homeFatChartObj=null;
@@ -3324,21 +3771,21 @@ function renderHomeFatChart(){
   var sec=document.getElementById('homeFatTrend');if(sec)sec.style.display='block';
   var ctx=document.getElementById('homeFatChart');if(!ctx)return;
   if(_homeFatChartObj)_homeFatChartObj.destroy();
+  var mediaFat=valores.reduce(function(s,v){return s+v;},0)/valores.length;
   _homeFatChartObj=new Chart(ctx,{
-    type:'line',
-    data:{labels:labels,datasets:[{
-      data:valores,
-      borderColor:'#0f6e5f',
-      backgroundColor:'rgba(15,110,95,.08)',
-      fill:true,tension:.35,
-      pointBackgroundColor:'#0f6e5f',pointRadius:4,pointHoverRadius:6,
-      borderWidth:2.5
-    }]},
+    type:'bar',
+    data:{labels:labels,datasets:[
+      {type:'line',data:valores.map(function(){return mediaFat;}),
+        borderColor:'#93c5fd',borderWidth:2,borderDash:[6,5],pointRadius:0,fill:false,order:0},
+      {type:'bar',data:valores,
+        backgroundColor:'#2563eb',hoverBackgroundColor:'#1d4ed8',
+        borderRadius:7,maxBarThickness:38,order:1}
+    ]},
     options:{
       responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return'R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});}}}},
       scales:{
-        y:{ticks:{callback:function(v){return'R$ '+(v/1000).toFixed(0)+'k';},font:{size:10}},grid:{color:'#f1f5f9'}},
+        y:{ticks:{callback:function(v){return'R$ '+(v/1000).toFixed(0)+'k';},font:{size:10}},grid:{color:'#eef1f7'}},
         x:{ticks:{font:{size:10}},grid:{display:false}}
       }
     }
@@ -4845,7 +5292,9 @@ function gerarHTMLTabela(tipo,uf){
   <div style="margin-top:8px;border-top:1px solid #bfdbfe;padding-top:6px;text-align:center;font-size:8px;color:#64748b">
     <strong style="color:#1e293b">Grow Química e Farmacêutica Ltda.</strong> · Av. Vitória Rossi Martini, Indaiatuba - SP, 13347-613
   </div>
-  \x3cscript>window.onload=function(){window.print();}\x3c/script></body></html>`;
+  \x3cscript>window.onload=function(){window.print();}\x3c/script>
+
+</body></html>`;
 }
 
 function baixarTodas(){
@@ -5133,12 +5582,17 @@ function editarProduto(codigo){
   document.getElementById('prodEditCompleta').value=p.desc_completa||'';
   setDiluicoesModal(p.diluicoes||[]);
   document.querySelector('#overlayProduto .modulo-card-title').textContent='✏️ Editar Produto';
+  carregarEstruturaModal(codigo);
   document.getElementById('overlayProduto').classList.add('open');
 }
 
 function fecharModalProduto(){
   document.getElementById('overlayProduto').classList.remove('open');
-}
+  document.getElementById('estruturaTabela').style.display='none';
+  document.getElementById('estruturaStatus').style.display='none';
+  document.getElementById('estruturaTbody').innerHTML='';
+  document.getElementById('inputEstrutura').value='';
+}  // _estruturaAtual é limpo ao abrir um novo item, não ao fechar
 
 async function salvarProduto(){
   const codigoHidden=document.getElementById('prodEditCodigo').value;
@@ -5158,6 +5612,8 @@ async function salvarProduto(){
   else cadProdutos.push(payload);
   if(resumida&&resumida.trim())DR[nome]=resumida;
   if(completa&&completa.trim())DC[nome]=completa;
+  // Salvar estrutura antes de fechar (enquanto _estruturaAtual ainda existe)
+  await salvarEstruturaSePendente(codigo);
   fecharModalProduto();renderCadProd();
   showT('Produto salvo ✓','verde');
 }
@@ -6409,26 +6865,29 @@ function calcularComparativoGrupos(){
   const mesAnt=String(dAnt.getMonth()+1).padStart(2,'0')+'/'+dAnt.getFullYear();
 
   const grupos={};
-  Object.keys(GRUPOS).forEach(function(g){grupos[g]={label:GRUPOS[g].label,cor:GRUPOS[g].cor,atual:0,anterior:0};});
-
+  Object.keys(GRUPOS).forEach(function(g){grupos[g]={label:GRUPOS[g].label,cor:GRUPOS[g].cor,atual:0,anterior:0,nfs:new Set()};});
+  const nfsTotais=new Set();
   (fatDados||[]).forEach(function(r){
     if(r.excluida)return;
     const g=(fatGrupos[r.cod_cliente]||'venda_direta');
-    if(!grupos[g])grupos[g]={label:g,cor:'#64748b',atual:0,anterior:0};
+    if(!grupos[g])grupos[g]={label:g,cor:'#64748b',atual:0,anterior:0,nfs:new Set()};
     const v=parseFloat(r.v_total||0);
-    if(r.mes_ano===mesAtual)grupos[g].atual+=v;
+    if(r.mes_ano===mesAtual){grupos[g].atual+=v;if(r.nf){grupos[g].nfs.add(r.nf);nfsTotais.add(r.nf);}}
     else if(r.mes_ano===mesAnt)grupos[g].anterior+=v;
   });
 
   const lista=Object.values(grupos).map(function(g){
     const diff=g.atual-g.anterior;
     const pct=g.anterior>0?((diff/g.anterior)*100):(g.atual>0?100:0);
-    return {label:g.label,cor:g.cor,atual:g.atual,anterior:g.anterior,diff:diff,pct:pct};
+    const nNfs=g.nfs?g.nfs.size:0;
+    return {label:g.label,cor:g.cor,atual:g.atual,anterior:g.anterior,diff:diff,pct:pct,nfs:nNfs,ticket:nNfs>0?g.atual/nNfs:0};
   }).sort(function(a,b){return b.atual-a.atual;});
 
   const totAtual=lista.reduce(function(s,g){return s+g.atual;},0);
   const totAnt=lista.reduce(function(s,g){return s+g.anterior;},0);
+  const totNfs=nfsTotais.size;
   return {lista:lista,mesAtual:mesAtual,mesAnt:mesAnt,totAtual:totAtual,totAnt:totAnt,
+    totNfs:totNfs,totTicket:totNfs>0?(totAtual/totNfs):0,
     totDiff:totAtual-totAnt,totPct:totAnt>0?(((totAtual-totAnt)/totAnt)*100):(totAtual>0?100:0)};
 }
 
@@ -6644,31 +7103,34 @@ function atualizarPainelTV(){
       const pctTxt=(g.anterior===0&&g.atual===0)?'—':(setaUp?'+':'')+g.pct.toFixed(0)+'%';
       const wAtual=Math.round((g.atual/maxVal)*100);
       const wAnt=Math.round((g.anterior/maxVal)*100);
-      return '<div style="background:rgba(255,255,255,.04);border-radius:1vh;padding:1.2vh 1.2vw;border-left:.4vh solid '+g.cor+';flex:1">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7vh">'
-        +'<span style="font-size:1.8vh;font-weight:800;color:#f1f5f9">'+escHtml(g.label)+'</span>'
-        +'<span style="font-size:1.9vh;font-weight:900;color:'+corDiff+'">'+seta+' '+pctTxt+'</span>'
+      return '<div style="background:rgba(255,255,255,.04);border-radius:1vh;padding:.9vh 1.2vw;border-left:.4vh solid '+g.cor+';flex:1">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5vh;gap:.6vw">'
+        +'<div style="min-width:0">'
+        +'<div style="font-size:1.8vh;font-weight:800;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(g.label)+'</div>'
+        +(g.nfs>0?'<div style="font-size:1.3vh;font-weight:600;color:#94a3b8;margin-top:.15vh;white-space:nowrap">ticket '+fmtK(g.ticket)+' · '+g.nfs+' NF'+(g.nfs===1?'':'s')+'</div>':'')
         +'</div>'
-        +'<div style="display:flex;align-items:center;gap:.6vw;margin-bottom:.4vh">'
-        +'<div style="width:3.5vw;font-size:1.2vh;color:#64748b;text-align:right">atual</div>'
+        +'<span style="font-size:1.9vh;font-weight:900;color:'+corDiff+';white-space:nowrap;flex-shrink:0">'+seta+' '+pctTxt+'</span>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:.6vw;margin-bottom:.3vh">'
+        +'<div style="width:3.5vw;font-size:1.55vh;color:#94a3b8;font-weight:700;text-align:right">atual</div>'
         +'<div style="flex:1;background:rgba(255,255,255,.07);border-radius:.5vh;height:2vh;position:relative;overflow:hidden">'
         +'<div style="width:'+wAtual+'%;height:100%;background:'+g.cor+';border-radius:.5vh"></div></div>'
-        +'<div style="width:5.5vw;font-size:1.6vh;font-weight:800;color:#fff;text-align:right">'+fmtK(g.atual)+'</div>'
+        +'<div style="width:5.5vw;font-size:1.8vh;font-weight:800;color:#fff;text-align:right">'+fmtK(g.atual)+'</div>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:.6vw">'
-        +'<div style="width:3.5vw;font-size:1.2vh;color:#64748b;text-align:right">ant.</div>'
-        +'<div style="flex:1;background:rgba(255,255,255,.07);border-radius:.5vh;height:1.2vh;position:relative;overflow:hidden">'
-        +'<div style="width:'+wAnt+'%;height:100%;background:rgba(255,255,255,.2);border-radius:.5vh"></div></div>'
-        +'<div style="width:5.5vw;font-size:1.3vh;color:#94a3b8;text-align:right">'+fmtK(g.anterior)+'</div>'
+        +'<div style="width:3.5vw;font-size:1.55vh;color:#94a3b8;font-weight:700;text-align:right">ant.</div>'
+        +'<div style="flex:1;background:rgba(255,255,255,.07);border-radius:.5vh;height:1.6vh;position:relative;overflow:hidden">'
+        +'<div style="width:'+wAnt+'%;height:100%;background:'+g.cor+';opacity:.45;border-radius:.5vh"></div></div>'
+        +'<div style="width:5.5vw;font-size:1.5vh;color:#cbd5e1;font-weight:700;text-align:right">'+fmtK(g.anterior)+'</div>'
         +'</div>'
         +'</div>';
     }).join('');
     const setaT=comp.totDiff>=0;
-    h+='<div style="background:linear-gradient(135deg,rgba(15,110,95,.25),rgba(22,163,74,.15));border-radius:1vh;padding:1.6vh 1.4vw;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">'
+    h+='<div style="background:linear-gradient(135deg,rgba(15,110,95,.25),rgba(22,163,74,.15));border-radius:1vh;padding:1.2vh 1.4vw;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">'
       +'<div><div style="font-size:1.4vh;color:#86efac;text-transform:uppercase;letter-spacing:.5px;font-weight:700">Total Geral</div>'
-      +'<div style="font-size:3vh;font-weight:900;color:#fff;letter-spacing:-.5px">'+fmtK(comp.totAtual)+'</div></div>'
+      +'<div style="font-size:2.6vh;font-weight:900;color:#fff;letter-spacing:-.5px">'+fmtK(comp.totAtual)+'</div></div>'
       +'<div style="text-align:right"><div style="font-size:2.4vh;font-weight:900;color:'+(setaT?'#4ade80':'#f87171')+'">'+(setaT?'▲':'▼')+' '+(setaT?'+':'')+comp.totPct.toFixed(0)+'%</div>'
-      +'<div style="font-size:1.3vh;color:#94a3b8">ant. '+fmtK(comp.totAnt)+'</div></div>'
+      +'<div style="font-size:1.3vh;color:#94a3b8">ant. '+fmtK(comp.totAnt)+(comp.totNfs>0?' · ticket médio '+fmtK(comp.totTicket):'')+'</div></div>'
       +'</div>';
     compEl.innerHTML=h;
   }
@@ -6730,7 +7192,14 @@ function calcularRankings(){
     if(uf){if(!porEst[uf])porEst[uf]={nome:uf,total:0};porEst[uf].total+=v;}
   });
   const ord=function(o){return Object.values(o).sort(function(a,b){return b.total-a.total;}).slice(0,9);};
-  _tvRankings={clientes:ord(porCli),produtos:ord(porProd),estados:ord(porEst)};
+  const ordEst=function(o){
+    let l=Object.values(o).sort(function(a,b){return b.total-a.total;});
+    const ix=l.findIndex(function(e){return e.nome==='EX'||e.nome==='EXPORTAÇÃO';});
+    let ex=null;if(ix>-1){ex=l.splice(ix,1)[0];ex.nome='EXPORTAÇÃO';}
+    l=l.slice(0,ex?8:9);if(ex)l.push(ex);
+    return l;
+  };
+  _tvRankings={clientes:ord(porCli),produtos:ord(porProd),estados:ordEst(porEst)};
 }
 
 function renderRankTV(){
@@ -6740,7 +7209,7 @@ function renderRankTV(){
   const cor=_tvRankAtual==='clientes'?'#60a5fa':(_tvRankAtual==='produtos'?'#a78bfa':'#fb923c');
   if(!lista.length){el.innerHTML='<div style="color:#475569;font-size:1.4vh;padding:2vh;text-align:center">Sem dados no mês</div>';return;}
   const fmtBR=function(v){return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});};
-  const max=lista[0].total||1;
+  const max=Math.max.apply(null,lista.map(function(x){return x.total;}).concat([1]));
   el.innerHTML=lista.map(function(item,i){
     const pct=(item.total/max)*100;
     return '<div style="background:rgba(255,255,255,.04);border-radius:.8vh;padding:.8vh 1vw">'
@@ -9743,12 +10212,13 @@ function processarBuffer(buffer,filename){
     var iUnid=header.indexOf('Unid.');
     var iStatus=header.indexOf('Status');
     if(iCod<0||iDep<0){showT('Colunas não encontradas — verifique o arquivo','erro');return;}
-    // Processar — só ACA
+    // Processar TODOS os depósitos — ACA, MP, embalagem etc.
     estDados={};
+    var estTodosItens={};  // mapa completo: codigo -> {nome,unid,deposito,lotes}
     var totalLinhas=0;
     for(var i=1;i<rows.length;i++){
       var row=rows[i];
-      if(!row[iDep]||String(row[iDep]).trim()!=='ACA')continue;
+      var depItem=String(row[iDep]||'').trim();
       var cod=String(row[iCod]||'').trim();
       if(!cod)continue;
       var disp=parseFloat(row[iDisp])||0;
@@ -9759,20 +10229,35 @@ function processarBuffer(buffer,filename){
       else if(valRaw&&String(valRaw).match(/\d{2}\/\d{2}\/\d{4}/)){
         var p=String(valRaw).split('/');val=new Date(p[2],p[1]-1,p[0]);
       }
-      if(!estDados[cod]){estDados[cod]={nome:String(row[iNome]||'').trim(),unid:String(row[iUnid]||'UN').trim(),lotes:[]};}
-      if(lote||disp>0){estDados[cod].lotes.push({lote:lote,disp:disp,val:val,status:String(row[iStatus]||'')});}
+      var loteObj={lote:lote,disp:disp,val:val,status:String(row[iStatus]||'')};
+      // Salvar no mapa completo (todos os depósitos)
+      if(!estTodosItens[cod]){estTodosItens[cod]={nome:String(row[iNome]||'').trim(),unid:String(row[iUnid]||'UN').trim(),deposito:depItem,lotes:[]};}
+      if(lote||disp>0){estTodosItens[cod].lotes.push(loteObj);}
+      // Mapa ACA separado para tela de estoque (sem mudança visual)
+      if(depItem==='ACA'){
+        if(!estDados[cod]){estDados[cod]={nome:String(row[iNome]||'').trim(),unid:String(row[iUnid]||'UN').trim(),lotes:[]};}
+        if(lote||disp>0){estDados[cod].lotes.push(loteObj);}
+      }
       totalLinhas++;
     }
     // Carregar seg salvo (já em memória via sbCarregarEstoqueSeg)
     // Atualizar UI
     var agora=new Date();
-    document.getElementById('estUploadInfo').textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+totalLinhas+' registros ACA processados';
+    document.getElementById('estUploadInfo').textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+Object.keys(estDados).length+' produtos ACA · '+Object.keys(estTodosItens).length+' itens total';
     document.getElementById('estVazio').style.display='none';
     document.getElementById('estTabela').style.display='block';
     renderEstoque('');
     renderRelatorioEstoque();
+    setTimeout(function(){
+      if(!window._estruturasCache)return;
+      Object.keys(window._estruturasCache).forEach(function(cod){
+        var btn=document.getElementById('btnSim_'+cod.replace(/\./g,'_'));
+        if(btn)btn.style.display='inline-flex';
+      });
+    },150);
     // Supabase — salvar snapshot de saldos
     sbSalvarEstoqueDados().catch(e=>console.error(e));
+    sbSalvarTodosItens(estTodosItens).catch(e=>console.error(e));
     showT('Estoque carregado — '+Object.keys(estDados).length+' produtos no ACA','verde');
   }catch(err){showT('Erro ao processar: '+err.message,'erro');console.error(err);}
 }
@@ -9868,6 +10353,7 @@ function renderEstoque(filtro){
       <td style="text-align:center;white-space:nowrap">
         <button class="est-expand-btn" onclick="toggleEstoque('${cod}');event.stopPropagation()" title="Ver lotes">${expandido?'▲':'▼'}</button>
         <button class="est-expand-btn" onclick="adicionarCodAlt('${cod}');event.stopPropagation()" title="Vincular código alternativo" style="font-size:14px;color:#f97316">+</button>
+        ${(function(){var e=window._estruturasCache&&window._estruturasCache['${cod}'];return e?'<button class="est-expand-btn" onclick="abrirSimularProducao(\'${cod}\',\''+encodeURIComponent(dados.nome||nome)+'\','+(seg>0?seg-total<=0?0:seg-total:0)+');event.stopPropagation()" title="Simular Produção" style="background:#2563eb;color:#fff;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;border:none;cursor:pointer">⚗ Simular</button>':'';}())}
       </td>
     </tr>`;
     if(expandido){
@@ -10696,7 +11182,7 @@ function fazerLogin(){
     try{sessionStorage.setItem('gex_user',u);}catch(e){}
     document.getElementById('loginOverlay').style.display='none';
     var info=document.getElementById('loginUserInfo');
-    document.getElementById('loginUserNome').textContent='👤 '+u.charAt(0).toUpperCase()+u.slice(1);
+    document.getElementById('loginUserNome').textContent=u.charAt(0).toUpperCase()+u.slice(1);
     info.classList.add('show');
     // Carregar dados do Supabase após login
     sbCarregarTudo();
@@ -10722,7 +11208,7 @@ function fazerLogout(){
     var u=sessionStorage.getItem('gex_user');
     if(u&&USUARIOS_LOGIN[u]!==undefined){
       document.getElementById('loginOverlay').style.display='none';
-      document.getElementById('loginUserNome').textContent='👤 '+u.charAt(0).toUpperCase()+u.slice(1);
+      document.getElementById('loginUserNome').textContent=u.charAt(0).toUpperCase()+u.slice(1);
       document.getElementById('loginUserInfo').classList.add('show');
       // Carregar dados do Supabase ao restaurar sessão
       setTimeout(sbCarregarTudo, 300);
@@ -11109,6 +11595,8 @@ async function sbCarregarTudo(){
   await sbCarregarEstoqueSeg();
   await sbCarregarEstoqueCodAlts();
   await sbCarregarEstoqueDados();
+  await sbCarregarEstoqueItens();
+  await sbCarregarEstruturas();
   await sbCarregarEstoqueHist();
   await sbCarregarProdutos();
   await sbCarregarGrupos();
@@ -11730,90 +12218,103 @@ async function sbCarregarAgenda(){
 </div>
 
 <!-- ═══════════ PAINEL TV / PAREDE (fullscreen) ═══════════ -->
-<div id="painelTV" style="display:none;position:fixed;inset:0;z-index:9999999;background:#060e1a;color:#f1f5f9;overflow:hidden;font-family:'Inter',system-ui,sans-serif;flex-direction:column">
+<div id="painelTV" style="display:none;position:fixed;inset:0;z-index:9999999;background:#070d18;color:#f1f5f9;overflow:hidden;font-family:'Inter',system-ui,sans-serif;flex-direction:column">
 
   <!-- Cabeçalho -->
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:1.8vh 2.5vw .8vh;flex-shrink:0;border-bottom:2px solid rgba(255,255,255,.07)">
-    <div style="display:flex;align-items:center;gap:1.2vw">
-      <img src="https://vepikflqhwrqdfluzhyo.supabase.co/storage/v1/object/public/assets/GROW-EXEOL-BRANO-2.png" style="height:5.2vh;width:auto" onerror="this.style.display='none'">
+  <div class="tv-head" style="position:relative">
+    <div class="tv-brand">
+      <img src="https://vepikflqhwrqdfluzhyo.supabase.co/storage/v1/object/public/assets/GROW-EXEOL-BRANO-2.png" onerror="this.style.display='none'">
       <div>
-        <div style="font-size:2.6vh;font-weight:800;letter-spacing:.3px;color:#fff">GEx Assist · Painel Geral</div>
-        <div style="font-size:1.5vh;color:#64748b" id="tvDataExtenso">—</div>
+        <div class="tv-brand-title">GEx Assist · Painel Geral</div>
+        <div class="tv-brand-sub" id="tvDataExtenso">—</div>
       </div>
     </div>
-    <!-- Seletor de período -->
-    <div style="display:flex;align-items:center;gap:.8vw;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:1vh;padding:1vh 1.4vw">
-      <button onclick="tvNavMes(-1)" style="background:none;border:none;color:#94a3b8;font-size:2.4vh;cursor:pointer;padding:0 .4vw;line-height:1">‹</button>
+    <div class="tv-period">
+      <button class="nav" onclick="tvNavMes(-1)">‹</button>
       <div style="text-align:center;min-width:7vw">
         <div id="tvPeriodoLabel" style="font-size:1.9vh;font-weight:800;color:#fff">—</div>
         <div id="tvPeriodoSub" style="font-size:1.2vh;color:#64748b">período</div>
       </div>
-      <button onclick="tvNavMes(1)" id="tvBtnProxMes" style="background:none;border:none;color:#94a3b8;font-size:2.4vh;cursor:pointer;padding:0 .4vw;line-height:1">›</button>
-      <button onclick="tvNavMes(0)" id="tvBtnHoje" style="background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:#4ade80;border-radius:.5vh;font-size:1.3vh;font-weight:700;cursor:pointer;padding:.5vh 1vw;margin-left:.4vw">hoje</button>
+      <button class="nav" onclick="tvNavMes(1)" id="tvBtnProxMes">›</button>
+      <button onclick="tvNavMes(0)" id="tvBtnHoje" style="background:rgba(37,99,235,.22);border:1px solid rgba(96,165,250,.45);color:#93c5fd;border-radius:.6vh;font-size:1.3vh;font-weight:700;cursor:pointer;padding:.5vh 1vw;margin-left:.4vw">hoje</button>
+    </div>
+    <div id="tvClima" style="display:none;text-align:center;padding:0 .6vw">
+      <div style="display:flex;align-items:center;gap:.6vw;justify-content:center">
+        <span id="tvClimaIcone" style="font-size:3.1vh;line-height:1">—</span>
+        <span id="tvClimaTemp" style="font-size:3.4vh;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.5px">--°</span>
+      </div>
+      <div id="tvClimaSub" style="font-size:1.25vh;color:#64748b;margin-top:.3vh">Indaiatuba-SP</div>
     </div>
     <div style="text-align:right;margin-right:3.5vh">
-      <div id="tvRelogio" style="font-size:5vh;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:#fff;letter-spacing:-.5px">--:--</div>
-      <div id="tvAtualizado" style="font-size:1.2vh;color:#475569;margin-top:.3vh">atualizando…</div>
+      <div class="tv-clock" id="tvRelogio">--:--</div>
+      <div class="tv-clock-sub" id="tvAtualizado">atualizando…</div>
     </div>
-    <button onclick="fecharPainelTV()" style="position:absolute;top:1.6vh;right:1.2vw;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#cbd5e1;border-radius:8px;width:3.8vh;height:3.8vh;font-size:2vh;cursor:pointer">✕</button>
+    <button class="tv-close" onclick="fecharPainelTV()">✕</button>
   </div>
 
-  <!-- Faixa de cards-resumo -->
-  <div style="display:grid;grid-template-columns:1.7fr repeat(5,1fr);gap:1vw;padding:1.4vh 2.5vw;flex-shrink:0">
+  <!-- Faixa de KPIs -->
+  <div class="tv-kpis">
     <!-- Faturamento + meta -->
-    <div style="background:linear-gradient(135deg,#0d2137,#0f2d1a);border:1px solid rgba(34,197,94,.2);border-radius:1.2vh;padding:1.6vh 1.4vw;border-left:.5vw solid #22c55e">
+    <div class="tv-kpi tv-kpi-fat" style="--tvc:#22c55e">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <div style="font-size:1.4vh;font-weight:700;color:#86efac;text-transform:uppercase;letter-spacing:.6px">💰 Faturamento</div>
-        <button onclick="configurarMetaTV()" style="background:none;border:none;color:#475569;font-size:1.5vh;cursor:pointer;padding:0">⚙</button>
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-money"></use></svg>Faturamento</div>
+        <button onclick="configurarMetaTV()" style="background:none;border:none;color:#475569;font-size:1.5vh;cursor:pointer;padding:0" title="Configurar meta">⚙</button>
       </div>
-      <div id="tvFatTotal" style="font-size:4vh;font-weight:900;line-height:1.1;color:#fff;margin:.3vh 0;letter-spacing:-.5px">R$ 0</div>
-      <div style="background:rgba(255,255,255,.08);border-radius:.6vh;height:1.6vh;overflow:hidden;margin:.5vh 0">
+      <div id="tvFatTotal" style="font-size:4vh;font-weight:900;line-height:1.1;color:#fff;margin:.3vh 0;letter-spacing:-.5px;font-variant-numeric:tabular-nums">R$ 0</div>
+      <div class="tv-meta-track">
         <div id="tvMetaBarra" style="height:100%;width:0%;background:linear-gradient(90deg,#16a34a,#4ade80);border-radius:.6vh;transition:width .8s ease"></div>
       </div>
       <div style="display:flex;justify-content:space-between">
         <span id="tvFatNfs" style="font-size:1.3vh;color:#64748b">0 notas</span>
         <span id="tvMetaPct" style="font-size:1.3vh;color:#4ade80;font-weight:700">—</span>
       </div>
+      <div id="tvRitmo" style="display:none;font-size:1.25vh;font-weight:700;margin-top:.4vh"></div>
+    </div>
+    <!-- Conversão de cotações -->
+    <div class="tv-kpi" style="--tvc:#06b6d4">
+      <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-cot"></use></svg>Conversão</div>
+      <div class="tv-kpi-num" id="tvConversao">—</div>
+      <div class="tv-kpi-sub" id="tvConversaoSub">cotações do mês</div>
     </div>
     <!-- A produzir -->
-    <div style="background:#0d1f2b;border:1px solid rgba(251,191,36,.25);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #f59e0b">
-      <div style="font-size:1.3vh;color:#fbbf24;text-transform:uppercase;font-weight:700;letter-spacing:.5px">🏭 A Produzir</div>
-      <div id="tvProduzir" style="font-size:5vh;font-weight:900;line-height:1.1;color:#fde68a;margin:.2vh 0">0</div>
-      <div id="tvProduzirSub" style="font-size:1.2vh;color:#78716c">—</div>
+    <div class="tv-kpi" style="--tvc:#f59e0b">
+      <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg>A Produzir</div>
+      <div class="tv-kpi-num" id="tvProduzir">0</div>
+      <div class="tv-kpi-sub" id="tvProduzirSub">—</div>
     </div>
     <!-- Zerados -->
-    <div style="background:#1a0a0a;border:1px solid rgba(239,68,68,.3);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #ef4444">
-      <div style="font-size:1.3vh;color:#f87171;text-transform:uppercase;font-weight:700;letter-spacing:.5px">⛔ Zerados</div>
-      <div id="tvZerados" style="font-size:5vh;font-weight:900;line-height:1.1;color:#fca5a5;margin:.2vh 0">0</div>
-      <div id="tvZeradosSub" style="font-size:1.2vh;color:#78716c">saldo = 0</div>
+    <div class="tv-kpi" style="--tvc:#ef4444">
+      <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-alert"></use></svg>Zerados</div>
+      <div class="tv-kpi-num" id="tvZerados">0</div>
+      <div class="tv-kpi-sub" id="tvZeradosSub">saldo = 0</div>
     </div>
     <!-- Licitações -->
-    <div style="background:#080f1f;border:1px solid rgba(96,165,250,.25);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #3b82f6">
-      <div style="font-size:1.3vh;color:#93c5fd;text-transform:uppercase;font-weight:700;letter-spacing:.5px">⚖️ Licitações</div>
-      <div id="tvLicit" style="font-size:5vh;font-weight:900;line-height:1.1;color:#bfdbfe;margin:.2vh 0">0</div>
-      <div id="tvLicitTotal" style="font-size:1.2vh;color:#64748b">ativas</div>
+    <div class="tv-kpi" style="--tvc:#3b82f6">
+      <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-gavel"></use></svg>Licitações</div>
+      <div class="tv-kpi-num" id="tvLicit">0</div>
+      <div class="tv-kpi-sub" id="tvLicitTotal">ativas</div>
     </div>
     <!-- Fretes -->
-    <div style="background:#0e0a1f;border:1px solid rgba(167,139,250,.25);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #8b5cf6">
-      <div style="font-size:1.3vh;color:#c4b5fd;text-transform:uppercase;font-weight:700;letter-spacing:.5px">🚚 Fretes</div>
-      <div id="tvFretes" style="font-size:5vh;font-weight:900;line-height:1.1;color:#ddd6fe;margin:.2vh 0">0</div>
-      <div id="tvFretesTotal" style="font-size:1.2vh;color:#64748b">em trânsito</div>
+    <div class="tv-kpi" style="--tvc:#8b5cf6">
+      <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg>Fretes</div>
+      <div class="tv-kpi-num" id="tvFretes">0</div>
+      <div class="tv-kpi-sub" id="tvFretesTotal">em trânsito</div>
     </div>
     <!-- Amostras -->
-    <div style="background:#061a18;border:1px solid rgba(45,212,191,.25);border-radius:1.2vh;padding:1.6vh .8vw;text-align:center;border-top:.5vh solid #14b8a6">
-      <div style="font-size:1.3vh;color:#5eead4;text-transform:uppercase;font-weight:700;letter-spacing:.5px">🧪 Amostras</div>
-      <div id="tvAmostras" style="font-size:5vh;font-weight:900;line-height:1.1;color:#99f6e4;margin:.2vh 0">0</div>
-      <div id="tvAmostrasTotal" style="font-size:1.2vh;color:#64748b">pendentes</div>
+    <div class="tv-kpi" style="--tvc:#14b8a6">
+      <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-flask"></use></svg>Amostras</div>
+      <div class="tv-kpi-num" id="tvAmostras">0</div>
+      <div class="tv-kpi-sub" id="tvAmostrasTotal">pendentes</div>
     </div>
   </div>
 
   <!-- Área principal: 3 colunas -->
-  <div style="flex:1;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:1.2vw;padding:.2vh 2.5vw 1.2vh;min-height:0">
+  <div class="tv-cols">
 
     <!-- COLUNA 1: itens a produzir -->
-    <div style="display:flex;flex-direction:column;min-height:0;background:#0a111e;border:1px solid rgba(251,191,36,.15);border-radius:1.2vh;padding:1.4vh 1.2vw">
+    <div class="tv-panel">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1vh;flex-shrink:0">
-        <div style="font-size:2vh;font-weight:800;color:#fbbf24;letter-spacing:.3px">🏭 Itens a Produzir <span id="tvProduzirCount" style="font-size:1.5vh;color:#78716c;font-weight:600"></span></div>
+        <div class="tv-panel-title" style="color:#fbbf24"><svg data-ico viewBox="0 0 24 24"><use href="#i-factory"></use></svg>Itens a Produzir <span id="tvProduzirCount" style="font-size:1.5vh;color:#78716c;font-weight:600"></span></div>
       </div>
       <div style="display:grid;grid-template-columns:2.5fr .7fr .7fr .7fr;gap:.8vw;padding:.6vh .6vw;border-bottom:1px solid rgba(255,255,255,.08);font-size:1.3vh;color:#64748b;text-transform:uppercase;letter-spacing:.4px;font-weight:700;flex-shrink:0">
         <div>Produto</div><div style="text-align:center">Saldo</div><div style="text-align:center">Seg.</div><div style="text-align:center">Falta</div>
@@ -11824,18 +12325,18 @@ async function sbCarregarAgenda(){
     </div>
 
     <!-- COLUNA 2: comparativo de vendas por grupo -->
-    <div style="display:flex;flex-direction:column;min-height:0;background:#0a111e;border:1px solid rgba(74,222,128,.15);border-radius:1.2vh;padding:1.4vh 1.2vw">
+    <div class="tv-panel">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1vh;flex-shrink:0">
-        <div style="font-size:2vh;font-weight:800;color:#4ade80">📊 Vendas por Grupo</div>
+        <div class="tv-panel-title" style="color:#4ade80"><svg data-ico viewBox="0 0 24 24"><use href="#i-chart"></use></svg>Vendas por Grupo</div>
         <div style="font-size:1.3vh;color:#64748b" id="tvCompMeses">—</div>
       </div>
-      <div id="tvComparativo" style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:.9vh"></div>
+      <div id="tvComparativo" style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:.7vh"></div>
     </div>
 
     <!-- COLUNA 3: rankings -->
-    <div style="display:flex;flex-direction:column;min-height:0;background:#0a111e;border:1px solid rgba(96,165,250,.15);border-radius:1.2vh;padding:1.4vh 1.2vw">
+    <div class="tv-panel">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1vh;flex-shrink:0">
-        <div id="tvRankTitulo" style="font-size:2vh;font-weight:800;color:#60a5fa">🏆 Top Clientes</div>
+        <div id="tvRankTitulo" class="tv-panel-title" style="color:#60a5fa">Top Clientes</div>
         <div style="display:flex;gap:.4vw">
           <button onclick="tvSetRank('clientes')" id="tvRankBtn-clientes" style="background:#1e3a5f;border:none;color:#93c5fd;border-radius:.5vh;padding:.4vh .8vw;font-size:1.2vh;cursor:pointer;font-weight:700">Clientes</button>
           <button onclick="tvSetRank('produtos')" id="tvRankBtn-produtos" style="background:rgba(255,255,255,.06);border:none;color:#64748b;border-radius:.5vh;padding:.4vh .8vw;font-size:1.2vh;cursor:pointer;font-weight:700">Produtos</button>
@@ -11848,9 +12349,9 @@ async function sbCarregarAgenda(){
   </div>
 
   <!-- Rodapé: ticker de zerados -->
-  <div style="flex-shrink:0;background:#0d0808;border-top:2px solid rgba(239,68,68,.25);padding:1vh 2.5vw;overflow:hidden">
+  <div class="tv-ticker">
     <div style="display:flex;align-items:center;gap:1vw">
-      <span style="font-size:1.5vh;font-weight:800;color:#f87171;white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px">⛔ Zerados</span>
+      <span style="display:inline-flex;align-items:center;gap:.5vw;font-size:1.5vh;font-weight:800;color:#f87171;white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px"><svg data-ico viewBox="0 0 24 24" style="width:1.8vh;height:1.8vh"><use href="#i-alert"></use></svg>Zerados</span>
       <div style="flex:1;overflow:hidden;white-space:nowrap"><span id="tvZeradosTicker" style="font-size:1.6vh;color:#cbd5e1;display:inline-block">—</span></div>
     </div>
   </div>
@@ -11948,9 +12449,77 @@ async function sbCarregarAgenda(){
         <div id="prodEditDiluicoesList" style="display:flex;flex-direction:column;gap:6px;margin-top:6px"></div>
         <button type="button" onclick="addDiluicaoLinha()" style="margin-top:6px;font-size:12px;padding:4px 10px;border-radius:8px;border:1px dashed var(--borda);background:transparent;cursor:pointer;color:var(--accent)">+ Adicionar diluição</button>
       </div>
+      <!-- Estrutura de Produção -->
+      <div class="field" style="border-top:1px solid var(--borda);padding-top:14px;margin-top:4px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <label style="margin:0">Estrutura do Item <span style="font-weight:400;color:var(--muted)">(ficha técnica de produção)</span></label>
+          <label style="display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importar Estrutura do Item
+            <input type="file" accept=".xlsx,.xls" id="inputEstrutura" style="display:none" onchange="importarEstrutura(this)">
+          </label>
+        </div>
+        <div id="estruturaStatus" style="font-size:12px;color:var(--muted);margin-bottom:8px;display:none"></div>
+        <div id="estruturaTabela" style="display:none">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;margin-bottom:6px">Componentes (MAT apenas)</div>
+          <div style="border:1px solid var(--borda);border-radius:10px;overflow:hidden">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead><tr style="background:#f8fafc">
+                <th style="padding:7px 10px;text-align:left;font-weight:600;color:var(--muted)">Código</th>
+                <th style="padding:7px 10px;text-align:left;font-weight:600;color:var(--muted)">Descrição</th>
+                <th style="padding:7px 10px;text-align:right;font-weight:600;color:var(--muted)">Qtd/un</th>
+                <th style="padding:7px 10px;text-align:left;font-weight:600;color:var(--muted)">Und</th>
+              </tr></thead>
+              <tbody id="estruturaTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;padding-bottom:4px">
         <button class="btn-cancel-mod" onclick="fecharModalProduto()">Cancelar</button>
         <button class="acoes-btn" onclick="salvarProduto()">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Simular Produção -->
+<div class="overlay" id="overlaySimular" onclick="if(event.target===this)fecharSimular()" style="position:fixed;inset:0;z-index:9999999;background:rgba(11,18,32,.6);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;width:680px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#0f1727" id="simularTitulo">Simular Produção</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px" id="simularCodigo"></div>
+      </div>
+      <button onclick="fecharSimular()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b;padding:4px">✕</button>
+    </div>
+    <div style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;background:#f8fafc;border-radius:10px;padding:12px 16px">
+        <label style="font-size:13px;font-weight:600;color:#0f1727;white-space:nowrap">Quantidade a produzir:</label>
+        <input type="number" id="simularQtd" min="1" value="1" style="width:100px;padding:7px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit"
+          oninput="calcularSimulacao()">
+        <span id="simularUnid" style="font-size:12px;color:#64748b">un</span>
+        <button onclick="calcularSimulacao()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-left:auto">Calcular</button>
+      </div>
+      <div id="simularResultado" style="display:none">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#64748b;padding:6px 10px;background:#f1f5f9;border-radius:8px 8px 0 0;border:1px solid #e2e8f0">
+          <span>Componente</span><span style="text-align:right">Necessário</span><span style="text-align:right">Saldo</span><span style="text-align:right">Situação</span>
+        </div>
+        <div id="simularLinhas" style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;overflow:hidden"></div>
+        <div style="display:flex;gap:16px;margin-top:12px;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0">
+          <div style="flex:1">
+            <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px">Resultado</div>
+            <div id="simularResumo" style="font-size:13px;font-weight:600;margin-top:4px"></div>
+          </div>
+          <div id="simularAlertaDiv" style="display:none;flex:1">
+            <div style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.4px">Itens insuficientes</div>
+            <div id="simularAlerta" style="font-size:12px;color:#dc2626;margin-top:4px"></div>
+          </div>
+        </div>
+      </div>
+      <div id="simularVazio" style="text-align:center;padding:28px;color:#94a3b8;font-size:13px;display:none">
+        Estrutura de produção não encontrada para este produto.
       </div>
     </div>
   </div>
@@ -11973,5 +12542,558 @@ async function sbCarregarAgenda(){
     </div>
   </div>
 </div>
+
+<script>
+/* Relógio do dashboard — apenas exibição, sem acesso a dados */
+(function(){
+  function tick(){
+    var el=document.getElementById('dashClock');
+    if(!el)return;
+    var d=new Date();
+    el.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }
+  tick();setInterval(tick,15000);
+})();
+</script>
+<script>
+/* ════ DASHKIT LAYER · apenas exibição — lê dados já carregados, nunca escreve no banco ════ */
+
+function renderDashKitCards(){
+  try{
+    var fmt=function(v){return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});};
+    var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+    var MESN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    var agora=new Date(), anoAtual=agora.getFullYear();
+    var mesAno=String(agora.getMonth()+1).padStart(2,'0')+'/'+anoAtual;
+
+    /* ── 1. Taxa de conversão de cotações ── */
+
+    /* converte data da cotação para 'AAAA-MM' independente do formato */
+    var cotDataISO=function(d){
+      if(!d)return '';
+      if(/^\d{4}-\d{2}/.test(d))return d.substring(0,7);        // aaaa-mm-dd
+      var p=d.split('/');if(p.length===3)return p[2]+'-'+p[1];    // dd/mm/aaaa
+      return '';
+    };
+
+    var cots=(typeof _sbCotCache!=='undefined'&&_sbCotCache)?_sbCotCache:[];
+    var dkMesSel=(typeof window._dkMesSel!=='undefined'&&window._dkMesSel)?window._dkMesSel:'';
+    var cotsFiltradas=dkMesSel?cots.filter(function(c){return cotDataISO(c.data)===dkMesSel;}):cots.filter(function(c){return cotDataISO(c.data)===mesAno;});
+    var apr=cotsFiltradas.filter(function(c){return c.status==='convertida'||c.status==='aprovada';}).length;
+    var env=cotsFiltradas.filter(function(c){return c.status==='enviada'||c.status==='aguardando';}).length;
+    var per=cotsFiltradas.filter(function(c){return c.status==='perdida';}).length;
+    var decididas=apr+per;
+    set('dkConvPct',decididas>0?((apr/decididas)*100).toFixed(1).replace('.',',')+'%':'—');
+    set('dkConvApr',apr);set('dkConvEnv',env);set('dkConvPer',per);
+    // Popula select de meses com os meses disponíveis nas cotações
+    var selEl=document.getElementById('dkMesSel');
+    if(selEl&&cots.length){
+      var mesesCots=[...new Set(cots.map(function(c){return cotDataISO(c.data);}).filter(Boolean))].sort().reverse();
+      var curVal=selEl.value;
+      selEl.innerHTML='<option value="">Mês atual</option>';
+      mesesCots.forEach(function(m){
+        var p=m.split('-');
+        var MESN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        var label=MESN[parseInt(p[1])-1]+'/'+p[0];
+        selEl.innerHTML+='<option value="'+m+'"'+(m===curVal?' selected':'')+'>'+label+'</option>';
+      });
+    }
+
+    // Área suave: cotações criadas por mês (últimos 8 meses)
+    if(typeof Chart!=='undefined'){
+      var porMesCot={};
+      cots.forEach(function(c){var m=(c.data||'').substring(0,7);if(m)porMesCot[m]=(porMesCot[m]||0)+1;});
+      var mesesCot=Object.keys(porMesCot).sort().slice(-8);
+      var ctx1=document.getElementById('dkConvChart');
+      if(ctx1&&mesesCot.length>1){
+        if(window._dkConvChart)window._dkConvChart.destroy();
+        window._dkConvChart=new Chart(ctx1,{type:'line',
+          data:{labels:mesesCot,datasets:[{data:mesesCot.map(function(m){return porMesCot[m];}),
+            borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.14)',fill:true,tension:.45,pointRadius:0,borderWidth:2}]},
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},
+            scales:{x:{display:false},y:{display:false,suggestedMax:Math.max.apply(null,mesesCot.map(function(m){return porMesCot[m];}))*1.9}},animation:{duration:600}}});
+      }
+    }
+
+    /* ── 2. NFs emitidas ── */
+    var fat=(typeof fatDados!=='undefined'&&fatDados)?fatDados:[];
+    var ativos=fat.filter(function(r){return !r.excluida;});
+    var nfsPorMes={};
+    ativos.forEach(function(r){if(!r.mes_ano)return;
+      if(!nfsPorMes[r.mes_ano])nfsPorMes[r.mes_ano]=new Set();
+      nfsPorMes[r.mes_ano].add(r.nf);});
+    var mesesNf=Object.keys(nfsPorMes).sort(function(a,b){
+      var pa=a.split('/'),pb=b.split('/');return new Date(pa[1],pa[0]-1)-new Date(pb[1],pb[0]-1);});
+    var nfMesAtual=nfsPorMes[mesAno]?nfsPorMes[mesAno].size:0;
+    set('dkNfNum',nfMesAtual);
+    var ult3=mesesNf.slice(-3);
+    ult3.forEach(function(m,i){
+      var p=m.split('/');
+      set('dkNfM'+(i+1),nfsPorMes[m].size);
+      set('dkNfM'+(i+1)+'L',MESN[parseInt(p[0])-1]);
+    });
+    if(typeof Chart!=='undefined'){
+      var ult10=mesesNf.slice(-10);
+      var ctx2=document.getElementById('dkNfChart');
+      if(ctx2&&ult10.length>1){
+        if(window._dkNfChart)window._dkNfChart.destroy();
+        window._dkNfChart=new Chart(ctx2,{type:'bar',
+          data:{labels:ult10,datasets:[{data:ult10.map(function(m){return nfsPorMes[m].size;}),
+            backgroundColor:'#93b8f8',hoverBackgroundColor:'#2563eb',borderRadius:3,maxBarThickness:14}]},
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}},
+            scales:{x:{display:false},y:{display:false,suggestedMax:Math.max.apply(null,ult10.map(function(m){return nfsPorMes[m].size;}))*1.5}},animation:{duration:600}}});
+      }
+    }
+
+    /* ── 3. Mini-stats ── */
+    var fatAno=0,nfAnoSet=new Set(),cliMesSet=new Set(),fatMesTotal=0,nfMesSet=new Set();
+    ativos.forEach(function(r){
+      var partes=(r.mes_ano||'').split('/');
+      if(partes[1]==String(anoAtual)){fatAno+=parseFloat(r.v_total||0);nfAnoSet.add(r.nf);}
+      if(r.mes_ano===mesAno){
+        fatMesTotal+=parseFloat(r.v_total||0);nfMesSet.add(r.nf);
+        if(r.cliente)cliMesSet.add(r.cliente);
+      }
+    });
+    var fmtAbrev=function(v){
+      if(v>=1e6)return 'R$ '+(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' mi';
+      return fmt(v);
+    };
+    set('dkFatAno',fmtAbrev(fatAno));
+    set('dkTicket',nfMesSet.size>0?fmt(fatMesTotal/nfMesSet.size):'R$ 0');
+    set('dkCliMes',cliMesSet.size);
+    set('dkNfAno',nfAnoSet.size);
+
+    /* ── 4. Relatório de vendas: total + média (últimos 6 meses) ── */
+    var porMesFat={};
+    ativos.forEach(function(r){if(r.mes_ano)porMesFat[r.mes_ano]=(porMesFat[r.mes_ano]||0)+parseFloat(r.v_total||0);});
+    var mesesFat=Object.keys(porMesFat).sort(function(a,b){
+      var pa=a.split('/'),pb=b.split('/');return new Date(pa[1],pa[0]-1)-new Date(pb[1],pb[0]-1);});
+    var u6=mesesFat.slice(-6);
+    if(u6.length){
+      var tot6=u6.reduce(function(s,m){return s+porMesFat[m];},0);
+      set('dkSalesTotal',fmt(tot6));
+      set('dkSalesAvg',fmt(tot6/u6.length));
+    }
+  }catch(e){/* display-only: nunca interrompe o app */}
+}
+
+/* ── Ferramentas do header: sino de pendências + usuário ── */
+(function(){
+  var tools=document.createElement('div');
+  tools.id='dkTools';
+  tools.innerHTML=
+    '<div class="dk-bell" id="dkBell" title="Pendências" role="button" tabindex="0">'+
+      '<svg data-ico viewBox="0 0 24 24"><use href="#i-bell"></use></svg>'+
+      '<span class="dk-bell-badge" id="dkBellBadge">0</span>'+
+    '</div>'+
+    '<div class="dk-user">'+
+      '<span class="dk-avatar" id="dkAvatar">·</span>'+
+      '<span class="dk-user-name" id="dkUserName">—</span>'+
+      '<button class="dk-logout" onclick="fazerLogout()" title="Sair do sistema">SAIR</button>'+
+    '</div>';
+  document.body.appendChild(tools);
+
+  var drop=document.createElement('div');
+  drop.className='dk-bell-drop';drop.id='dkBellDrop';
+  drop.innerHTML='<div class="dk-bell-drop-head">Pendências <small id="dkDropCount"></small></div>'+
+    '<div class="dk-bell-drop-body" id="dkDropBody"><div class="dk-bell-empty">Nenhuma pendência no momento</div></div>';
+  document.body.appendChild(drop);
+
+  document.getElementById('dkBell').addEventListener('click',function(e){
+    e.stopPropagation();
+    var d=document.getElementById('dkBellDrop');
+    var abrindo=!d.classList.contains('show');
+    if(abrindo){
+      var src=document.getElementById('homeAlertList');
+      var body=document.getElementById('dkDropBody');
+      if(src&&body){
+        var itens=src.querySelectorAll('.alert-item');
+        body.innerHTML=itens.length?src.innerHTML:'<div class="dk-bell-empty">Nenhuma pendência no momento</div>';
+      }
+    }
+    d.classList.toggle('show');
+  });
+  document.addEventListener('click',function(){
+    var d=document.getElementById('dkBellDrop');if(d)d.classList.remove('show');
+  });
+
+  // Sincroniza nome do usuário, visibilidade e contador — leitura de DOM apenas
+  setInterval(function(){
+    var info=document.getElementById('loginUserInfo');
+    var logado=info&&info.classList.contains('show');
+    tools.classList.toggle('show',!!logado);
+    if(logado){
+      var nomeEl=document.getElementById('loginUserNome');
+      var nome=nomeEl?nomeEl.textContent.trim():'';
+      if(nome){
+        document.getElementById('dkUserName').textContent=nome;
+        document.getElementById('dkAvatar').textContent=nome.charAt(0).toUpperCase();
+      }
+    }
+    var lista=document.getElementById('homeAlertList');
+    var n=lista?lista.querySelectorAll('.alert-item').length:0;
+    var badge=document.getElementById('dkBellBadge');
+    if(badge){badge.textContent=n>9?'9+':n;badge.classList.toggle('show',n>0);}
+    var dc=document.getElementById('dkDropCount');
+    if(dc)dc.textContent=n?n+' item'+(n>1?'s':''):'';
+  },2500);
+})();
+</script>
+
+<script>
+/* ════ TV EXTRAS · clima, ritmo da meta e count-up — apenas exibição ════ */
+
+/* ── Clima de Indaiatuba-SP (Open-Meteo, sem chave) ── */
+function tvBuscarClima(){
+  var url='https://api.open-meteo.com/v1/forecast?latitude=-23.0903&longitude=-47.2181'
+    +'&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min'
+    +'&timezone=America%2FSao_Paulo&forecast_days=1';
+  fetch(url).then(function(r){return r.json();}).then(function(d){
+    if(!d||!d.current)return;
+    var t=Math.round(d.current.temperature_2m);
+    var code=d.current.weather_code;
+    var ico='☀️';
+    if(code>=1&&code<=2)ico='🌤️';else if(code===3)ico='☁️';
+    else if(code>=45&&code<=48)ico='🌫️';
+    else if((code>=51&&code<=67)||(code>=80&&code<=82))ico='🌧️';
+    else if(code>=71&&code<=77)ico='🌨️';
+    else if(code>=95)ico='⛈️';
+    var mx=d.daily&&d.daily.temperature_2m_max?Math.round(d.daily.temperature_2m_max[0]):null;
+    var mn=d.daily&&d.daily.temperature_2m_min?Math.round(d.daily.temperature_2m_min[0]):null;
+    var el=function(id){return document.getElementById(id);};
+    if(el('tvClimaTemp'))el('tvClimaTemp').textContent=t+'°C';
+    if(el('tvClimaIcone'))el('tvClimaIcone').textContent=ico;
+    if(el('tvClimaSub'))el('tvClimaSub').textContent='Indaiatuba-SP'+(mn!==null&&mx!==null?' · '+mn+'° / '+mx+'°':'');
+    if(el('tvClima'))el('tvClima').style.display='block';
+  }).catch(function(){/* sem internet: widget fica oculto */});
+}
+tvBuscarClima();
+setInterval(tvBuscarClima,30*60*1000);
+
+/* ── Ritmo da meta: % do mês decorrido vs % da meta atingida ── */
+setInterval(function(){
+  var painel=document.getElementById('painelTV');
+  var ritmo=document.getElementById('tvRitmo');
+  if(!painel||!ritmo||painel.style.display==='none')return;
+  var sub=document.getElementById('tvPeriodoSub');
+  var pctEl=document.getElementById('tvMetaPct');
+  var mesAtual=sub&&sub.textContent==='mês atual';
+  var pctTxt=pctEl?pctEl.textContent.trim():'—';
+  var m=pctTxt.match(/([\d.,]+)\s*%/);
+  if(!mesAtual||!m){ritmo.style.display='none';return;}
+  var pctMeta=parseFloat(m[1].replace(',','.'));
+  var hoje=new Date();
+  var diasNoMes=new Date(hoje.getFullYear(),hoje.getMonth()+1,0).getDate();
+  var pctMes=(hoje.getDate()/diasNoMes)*100;
+  var noRitmo=pctMeta>=pctMes;
+  ritmo.style.display='block';
+  ritmo.style.color=noRitmo?'#4ade80':'#fbbf24';
+  ritmo.textContent=(noRitmo?'▲ No ritmo':'▼ Abaixo do ritmo')
+    +' · mês '+pctMes.toFixed(0)+'% vs meta '+pctMeta.toFixed(0)+'%';
+},5000);
+
+/* ── Conversão de cotações no período ativo do painel ── */
+setInterval(function(){
+  var painel=document.getElementById('painelTV');
+  var el=document.getElementById('tvConversao');
+  if(!painel||!el||painel.style.display==='none')return;
+  try{
+    var p=(typeof tvGetMesAtivo==='function')?tvGetMesAtivo():null;
+    if(!p)return;
+    var pr=p.mesAno.split('/');
+    var alvoISO=pr[1]+'-'+pr[0]; // AAAA-MM
+    var cots=(typeof _sbCotCache!=='undefined'&&_sbCotCache)?_sbCotCache:[];
+    var cotDataISO2=function(d){
+      if(!d)return '';
+      if(/^\d{4}-\d{2}/.test(d))return d.substring(0,7);
+      var p=d.split('/');if(p.length===3)return p[2]+'-'+p[1];
+      return '';
+    };
+    var doMes=cots.filter(function(c){return cotDataISO2(c.data)===alvoISO;});
+    var ganhas=doMes.filter(function(c){return c.status==='convertida'||c.status==='aprovada';}).length;
+    var perdidas=doMes.filter(function(c){return c.status==='perdida';}).length;
+    var dec=ganhas+perdidas;
+    var sub=document.getElementById('tvConversaoSub');
+    if(dec>0){
+      el.textContent=Math.round((ganhas/dec)*100)+'%';
+      if(sub)sub.textContent=ganhas+' de '+dec+' decididas';
+    }else{
+      el.textContent='—';
+      if(sub)sub.textContent=doMes.length?doMes.length+' em aberto':'sem cotações no mês';
+    }
+  }catch(e){}
+},5000);
+
+/* ── Count-up: anima variação dos números do painel ── */
+(function(){
+  var IDS=['tvFatTotal','tvProduzir','tvZerados','tvLicit','tvFretes','tvAmostras','tvConversao'];
+  function parseNum(txt){
+    var d=(txt||'').replace(/\D/g,'');
+    return d?parseInt(d,10):0;
+  }
+  function formata(v,modelo){
+    if(/^R\$/.test(modelo))return 'R$ '+Math.round(v).toLocaleString('pt-BR');
+    if(/%\s*$/.test(modelo))return Math.round(v)+'%';
+    return String(Math.round(v));
+  }
+  IDS.forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el)return;
+    el._dkVal=parseNum(el.textContent);
+    var animando=false;
+    var mo=new MutationObserver(function(){
+      if(animando)return;
+      var alvoTxt=el.textContent;
+      var alvo=parseNum(alvoTxt);
+      var de=el._dkVal||0;
+      if(alvo===de){el._dkVal=alvo;return;}
+      el._dkVal=alvo;
+      var ini=performance.now(),dur=700;
+      animando=true;
+      function passo(t){
+        var p=Math.min((t-ini)/dur,1);
+        var ease=1-Math.pow(1-p,3);
+        el.textContent=formata(de+(alvo-de)*ease,alvoTxt);
+        if(p<1)requestAnimationFrame(passo);
+        else{el.textContent=alvoTxt;requestAnimationFrame(function(){animando=false;});}
+      }
+      requestAnimationFrame(passo);
+    });
+    mo.observe(el,{childList:true,characterData:true,subtree:true});
+  });
+})();
+</script>
+
+
+<script>
+/* ════ ESTRUTURA DE PRODUÇÃO + SIMULAÇÃO ════ */
+
+var _estruturaAtual=null;  // {codigo, componentes:[{cod,desc,qtd_unit,unid}]}
+
+/* ── Importar Excel da ficha técnica ── */
+function importarEstrutura(input){
+  var arquivo=input.files[0];
+  if(!arquivo)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(!rows||rows.length<2){showT('Planilha vazia ou inválida','erro');return;}
+      var header=rows[0].map(function(c){return String(c).trim();});
+      var iTipo=header.indexOf('Tipo');
+      var iCod=header.findIndex(function(c){return c.includes('Cód') && c.includes('Item');});
+      var iDesc=header.findIndex(function(c){return c==='Descrição'||c==='Descricao'||c==='Item';});
+      var iQtd=header.findIndex(function(c){return c==='Quantidade'||c==='Qtd';});
+      var iUnid=header.findIndex(function(c){return c==='Und.'||c==='Unid'||c==='Unidade';});
+      if(iTipo<0||iCod<0){showT('Colunas Tipo e Cód. Item não encontradas','erro');return;}
+      // Calcular qtd por unidade (a planilha vem com dados para N frascos — pegar o lote base)
+      // Descobrir o lote base: quantidade do frasco pulverizador (12.xxx) ou qualquer inteiro grande
+      var loteBase=1;
+      var frascoRow=rows.slice(1).find(function(r){
+        return String(r[iTipo]).trim()==='MAT' && String(r[iCod]).trim().startsWith('12.');
+      });
+      if(frascoRow){
+        var qf=parseFloat(frascoRow[iQtd])||1;
+        if(qf>1)loteBase=qf;
+      }
+      var componentes=[];
+      rows.slice(1).forEach(function(row){
+        if(String(row[iTipo]).trim()!=='MAT')return;
+        var cod=String(row[iCod]).trim();
+        var desc=String(row[iDesc]||'').trim();
+        var qtdTotal=parseFloat(row[iQtd])||0;
+        var unid=String(row[iUnid]||'UN').trim();
+        if(!cod||!qtdTotal)return;
+        componentes.push({cod:cod,desc:desc,qtd_unit:qtdTotal/loteBase,unid:unid});
+      });
+      if(!componentes.length){showT('Nenhum item MAT encontrado na planilha','erro');return;}
+      _estruturaAtual={lote_base:loteBase,componentes:componentes};
+      renderEstruturaModal(componentes,loteBase);
+      showT('Estrutura importada — '+componentes.length+' componentes (base: '+loteBase+' un)','verde');
+    }catch(err){showT('Erro ao ler planilha: '+err.message,'erro');console.error(err);}
+  };
+  reader.readAsArrayBuffer(arquivo);
+}
+
+/* ── Renderizar tabela de componentes no modal ── */
+function renderEstruturaModal(componentes,loteBase){
+  var tbody=document.getElementById('estruturaTbody');
+  var tabela=document.getElementById('estruturaTabela');
+  var status=document.getElementById('estruturaStatus');
+  if(!tbody)return;
+  tbody.innerHTML=componentes.map(function(c,i){
+    return '<tr style="border-top:1px solid #f1f5f9"><td style="padding:6px 10px;font-family:monospace;font-size:11px;color:#475569">'+c.cod+'</td>'
+      +'<td style="padding:6px 10px;font-size:12px">'+c.desc+'</td>'
+      +'<td style="padding:6px 10px;text-align:right;font-size:12px;font-weight:600">'+c.qtd_unit.toFixed(5).replace(/\.?0+$/,'')+'</td>'
+      +'<td style="padding:6px 10px;font-size:11px;color:#64748b">'+c.unid+'</td></tr>';
+  }).join('');
+  tabela.style.display='block';
+  status.style.display='block';
+  status.textContent='✓ '+componentes.length+' componentes importados (lote base: '+loteBase+' un)';
+  status.style.color='#16a34a';
+}
+
+/* ── Carregar estrutura existente ao abrir o modal ── */
+async function carregarEstruturaModal(codigo){
+  _estruturaAtual=null;
+  document.getElementById('estruturaTabela').style.display='none';
+  document.getElementById('estruturaStatus').style.display='none';
+  try{
+    var {data,error}=await sb.from('estruturas_producao').select('*').eq('codigo_produto',codigo).maybeSingle();
+    if(error||!data)return;
+    _estruturaAtual={lote_base:data.lote_base||1,componentes:data.componentes||[]};
+    renderEstruturaModal(_estruturaAtual.componentes,_estruturaAtual.lote_base);
+  }catch(e){console.error('carregar estrutura:',e);}
+}
+
+/* ── Salvar estrutura ao salvar o produto ── */
+async function salvarEstruturaSePendente(codigo){
+  if(!_estruturaAtual||!_estruturaAtual.componentes||!_estruturaAtual.componentes.length)return;
+  var payload={
+    codigo_produto:codigo,
+    lote_base:_estruturaAtual.lote_base||1,
+    componentes:_estruturaAtual.componentes,
+    atualizado_em:new Date().toISOString(),
+    atualizado_por:sbUser()
+  };
+  var {error}=await sb.from('estruturas_producao').upsert(payload,{onConflict:'codigo_produto'});
+  if(error){console.error('SB estrutura save:',error);showT('Erro ao salvar estrutura','erro');}
+  else{
+    // Atualizar cache local
+    if(!window._estruturasCache)window._estruturasCache={};
+    window._estruturasCache[codigo]=payload;
+    showT('Estrutura salva ✓','verde');
+  }
+}
+
+/* ── Hook removido: salvarEstruturaSePendente agora é chamado dentro de salvarProduto ── */
+
+/* ── Carregar todas as estruturas no boot ── */
+async function sbCarregarEstruturas(){
+  try{
+    var {data,error}=await sb.from('estruturas_producao').select('codigo_produto,componentes,lote_base');
+    if(error||!data)return;
+    window._estruturasCache={};
+    data.forEach(function(r){window._estruturasCache[r.codigo_produto]=r;});
+    console.log('Estruturas carregadas:',data.length);
+    if(document.getElementById('estTbody'))renderEstoque('');
+  }catch(e){console.error('sbCarregarEstruturas:',e);}
+}
+
+/* ── Salvar TODOS os itens do estoque no Supabase ── */
+async function sbSalvarTodosItens(todosItens){
+  if(!todosItens||!Object.keys(todosItens).length)return;
+  var hoje=new Date().toISOString().split('T')[0];
+  var user=sbUser();
+  var rows=Object.keys(todosItens).map(function(cod){
+    var d=todosItens[cod];
+    var saldoTotal=d.lotes.reduce(function(s,l){return s+(l.disp||0);},0);
+    return {
+      codigo:cod,
+      nome:d.nome||'',
+      unid:d.unid||'UN',
+      deposito:d.deposito||'',
+      saldo:saldoTotal,
+      lotes:d.lotes.map(function(l){return {lote:l.lote||'',disp:l.disp||0,status:l.status||'',val:l.val instanceof Date?l.val.toISOString():l.val||null};}),
+      data_upload:hoje,
+      upload_por:user
+    };
+  });
+  // Deletar dados do dia e reinserir
+  await sb.from('estoque_itens').delete().eq('data_upload',hoje);
+  var erros=0;
+  for(var i=0;i<rows.length;i+=100){
+    var chunk=rows.slice(i,i+100);
+    var {error}=await sb.from('estoque_itens').insert(chunk);
+    if(error){console.error('SB estoque_itens chunk err:',error);erros++;break;}
+  }
+  if(!erros)sbToast('Todos os itens salvos na nuvem ('+rows.length+')','verde');
+  // Atualizar cache para simulação
+  window._estoqueTodosCache={};
+  rows.forEach(function(r){window._estoqueTodosCache[r.codigo]={nome:r.nome,unid:r.unid,saldo:r.saldo};});
+}
+
+/* ── Carregar estoque completo do Supabase (para simulação) ── */
+async function sbCarregarEstoqueItens(){
+  try{
+    // Busca data mais recente
+    var {data:d1,error:e1}=await sb.from('estoque_itens').select('data_upload').order('data_upload',{ascending:false}).limit(1).maybeSingle();
+    if(e1||!d1)return;
+    var {data,error}=await sb.from('estoque_itens').select('codigo,nome,unid,saldo').eq('data_upload',d1.data_upload);
+    if(error||!data)return;
+    window._estoqueTodosCache={};
+    data.forEach(function(r){window._estoqueTodosCache[r.codigo]={nome:r.nome,unid:r.unid,saldo:r.saldo};});
+    console.log('Estoque completo carregado:',data.length,'itens');
+  }catch(e){console.error('sbCarregarEstoqueItens:',e);}
+}
+
+/* ── Abrir modal de simulação ── */
+function abrirSimularProducao(cod, nomeEnc, sugestao){
+  var nome=decodeURIComponent(nomeEnc);
+  document.getElementById('simularTitulo').textContent=nome;
+  document.getElementById('simularCodigo').textContent='Código: '+cod;
+  document.getElementById('simularQtd').value=sugestao>0?sugestao:1;
+  document.getElementById('simularResultado').style.display='none';
+  document.getElementById('simularVazio').style.display='none';
+  window._simularCodAtual=cod;
+  document.getElementById('overlaySimular').style.display='flex';
+  calcularSimulacao();
+}
+
+function fecharSimular(){
+  document.getElementById('overlaySimular').style.display='none';
+  window._simularCodAtual=null;
+}
+
+/* ── Calcular disponibilidade de insumos ── */
+function calcularSimulacao(){
+  var cod=window._simularCodAtual;
+  if(!cod)return;
+  var qtd=parseFloat(document.getElementById('simularQtd').value)||1;
+  var est=window._estruturasCache&&window._estruturasCache[cod];
+  if(!est||!est.componentes||!est.componentes.length){
+    document.getElementById('simularVazio').style.display='block';
+    document.getElementById('simularResultado').style.display='none';
+    return;
+  }
+  var saldos=window._estoqueTodosCache||window._estoqueACACache||{};
+  var linhas='';
+  var faltando=[];
+  est.componentes.forEach(function(c){
+    var necessario=c.qtd_unit*qtd;
+    // Buscar saldo: tentar código exato, depois sem espaços
+    var codNorm=c.cod.trim();
+    var info=saldos[codNorm]||saldos[codNorm.replace(/\s+/g,'')];
+    var saldo=info?info.saldo:0;
+    var unid=info?info.unid:c.unid;
+    var ok=saldo>=necessario;
+    var cor=ok?'#16a34a':'#dc2626';
+    var bgCor=ok?'#f0fdf4':'#fef2f2';
+    var icon=ok?'✓':'✗';
+    var diff=saldo-necessario;
+    linhas+='<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:0;padding:8px 10px;background:'+bgCor+';border-top:1px solid #e2e8f0;align-items:center">'
+      +'<div><div style="font-size:12px;font-weight:500;color:#0f1727">'+c.desc+'</div><div style="font-size:10px;color:#64748b;font-family:monospace">'+c.cod+'</div></div>'
+      +'<div style="text-align:right;font-size:12px;font-weight:600;color:#0f1727">'+necessario.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+c.unid+'</div>'
+      +'<div style="text-align:right;font-size:12px;color:'+(saldo>0?'#0f1727':'#dc2626')+'">'+saldo.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+(unid||c.unid)+'</div>'
+      +'<div style="text-align:right;font-size:12px;font-weight:700;color:'+cor+'">'+icon+' '+(ok?'+'+Math.abs(diff).toFixed(3):diff.toFixed(3))+'</div>'
+      +'</div>';
+    if(!ok)faltando.push(c.desc+' (falta '+Math.abs(diff).toFixed(3)+' '+c.unid+')');
+  });
+  document.getElementById('simularLinhas').innerHTML=linhas;
+  document.getElementById('simularResultado').style.display='block';
+  document.getElementById('simularVazio').style.display='none';
+  if(faltando.length){
+    document.getElementById('simularResumo').innerHTML='<span style="color:#dc2626;font-weight:700">⚠ '+faltando.length+' item(ns) insuficiente(s) para produzir '+qtd+' unidade(s)</span>';
+    document.getElementById('simularAlertaDiv').style.display='block';
+    document.getElementById('simularAlerta').textContent=faltando.join(' · ');
+  }else{
+    document.getElementById('simularResumo').innerHTML='<span style="color:#16a34a;font-weight:700">✓ Estoque suficiente para produzir '+qtd+' unidade(s)</span>';
+    document.getElementById('simularAlertaDiv').style.display='none';
+  }
+}
+</script>
 </body>
 </html>
