@@ -195,6 +195,111 @@ td.num{font-family:'Inter',system-ui,sans-serif;font-size:11px;color:var(--muted
 td.apres-col{font-size:12px;color:var(--texto);font-weight:400}
 .print-val{display:none}
 .screen-only{display:inline}
+
+@media(max-width:768px){
+  .historico-list{max-height:calc(100vh - 240px) !important;gap:5px}
+  .historico-item .hist-acoes{gap:3px}
+  .historico-card{padding:12px 14px}
+}
+
+/* ════ FAB — Barra flutuante mobile ════ */
+#fab-root{
+  display:none; /* só mobile */
+  position:fixed;
+  bottom:22px;right:18px;
+  z-index:99990;
+  flex-direction:column-reverse;
+  align-items:flex-end;
+  gap:12px;
+}
+@media(max-width:768px){
+  #fab-root{display:flex}
+  /* Empurrar conteúdo para não cobrir o último item */
+  .content-body{padding-bottom:90px !important}
+}
+/* Botão principal */
+#fab-main{
+  width:52px;height:52px;border-radius:16px;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:#fff;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(37,99,235,.45);
+  transition:transform .2s,box-shadow .2s;
+  flex-shrink:0;
+}
+#fab-main:active{transform:scale(.93)}
+#fab-main.open{transform:rotate(45deg);background:linear-gradient(135deg,#475569,#334155)}
+#fab-main svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;transition:transform .25s}
+/* Menu de ações */
+#fab-menu{
+  display:flex;flex-direction:column-reverse;gap:10px;
+  transition:opacity .2s,transform .2s;
+  opacity:0;transform:translateY(10px) scale(.95);
+  pointer-events:none;
+}
+#fab-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+/* Item do menu */
+.fab-item{
+  display:flex;align-items:center;gap:10px;
+  justify-content:flex-end;
+}
+.fab-label{
+  background:#0f1727;color:#f1f5f9;
+  font-size:12px;font-weight:600;
+  padding:5px 11px;border-radius:8px;
+  white-space:nowrap;
+  box-shadow:0 2px 8px rgba(0,0,0,.35);
+  opacity:0;transform:translateX(8px);
+  transition:opacity .15s,transform .15s;
+  pointer-events:none;
+}
+#fab-menu.open .fab-label{opacity:1;transform:translateX(0)}
+.fab-btn{
+  width:44px;height:44px;border-radius:13px;
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+  flex-shrink:0;transition:transform .15s;
+}
+.fab-btn:active{transform:scale(.9)}
+.fab-btn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}
+/* Overlay de fundo quando menu aberto */
+#fab-overlay{
+  display:none;position:fixed;inset:0;z-index:99989;
+  background:rgba(11,18,32,.45);backdrop-filter:blur(2px);
+}
+#fab-overlay.show{display:block}
+
+
+/* ── Tabela de fretes ── */
+.fr-table{width:100%;border-collapse:collapse;font-size:12px}
+.fr-table thead tr{background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.fr-table th{padding:7px 10px;text-align:left;white-space:nowrap}
+.fr-table th.r{text-align:right}
+.fr-table tbody tr.fr-row{border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .12s}
+.fr-table tbody tr.fr-row:hover{background:#f8faff}
+.fr-table tbody tr.fr-row.aguardando{border-left:3px solid #3b82f6}
+.fr-table tbody tr.fr-row.transito{border-left:3px solid #f59e0b}
+.fr-table tbody tr.fr-row.entregue{border-left:3px solid #22c55e}
+.fr-table tbody tr.fr-row.ocorrencia{border-left:3px solid #ef4444}
+.fr-table td{padding:7px 10px;color:#0f1727;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0}
+.fr-table td.wrap{white-space:normal;max-width:none}
+.fr-table .fr-nf{font-weight:800;font-size:12px;color:#0f1727}
+.fr-table .fr-cli{font-weight:500;color:#0f1727;max-width:160px}
+.fr-table .fr-transp{color:#64748b;max-width:100px}
+.fr-table .fr-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.fr-table .fr-pct{text-align:right;font-size:10px;font-weight:700}
+.fr-table .fr-pct.alto{color:#dc2626}.fr-table .fr-pct.medio{color:#d97706}.fr-table .fr-pct.ok{color:#16a34a}
+.fr-det{display:none;background:#f8fafc}
+.fr-det.show{display:table-row}
+.fr-det td{padding:12px 14px;border-bottom:2px solid #e2e8f0}
+.fr-status-sel{font-size:10px;font-weight:700;border:none;border-radius:5px;padding:2px 6px;cursor:pointer}
+.fr-status-sel.aguardando{background:#eff6ff;color:#2563eb}
+.fr-status-sel.transito{background:#fff7ed;color:#ea580c}
+.fr-status-sel.entregue{background:#f0fdf4;color:#16a34a}
+.fr-status-sel.ocorrencia{background:#fef2f2;color:#dc2626}
+.fr-atraso{font-size:9px;font-weight:700;color:#dc2626;background:#fef2f2;border-radius:3px;padding:1px 4px;margin-left:3px}
+
 @media print{.screen-only{display:none!important}}
 td.right{text-align:right}td.center{text-align:center}
 .qty-input{font-family:'Inter',system-ui,sans-serif;font-size:12px;background:var(--teal-pale);border:1px solid transparent;border-bottom:2px dashed var(--teal-light);border-radius:4px 4px 0 0;padding:4px 5px;width:100%;text-align:center;transition:.2s;color:var(--texto)}
@@ -211,8 +316,8 @@ div.total-geral{background:var(--teal-pale);border:1px solid var(--borda);border
 .total-valor{font-family:'Inter',system-ui,sans-serif;font-size:20px;font-weight:700;color:var(--teal);letter-spacing:1px}
 /* ── HISTÓRICO ── */
 .historico-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--borda);padding:16px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
-.historico-list{display:flex;flex-direction:column;gap:7px;max-height:190px;overflow-y:auto}
-.historico-item{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-radius:10px;background:#f5faf9;border:1px solid var(--borda);transition:.2s;flex-wrap:wrap;gap:6px}
+.historico-list{display:flex;flex-direction:column;gap:6px;max-height:calc(100vh - 280px);min-height:200px;overflow-y:auto}
+.historico-item{display:flex;align-items:center;justify-content:space-between;border-radius:10px;background:#fff;border:1px solid #e5e9f1;transition:.2s;flex-wrap:wrap;box-shadow:0 1px 2px rgba(16,24,40,.04)}
 .historico-item:hover{border-color:var(--teal-light);background:var(--teal-pale)}
 .hist-info{display:flex;flex-direction:column;gap:1px}
 .hist-num{font-family:'Inter',system-ui,sans-serif;font-size:10px;color:var(--teal-light);font-weight:600}
@@ -2336,7 +2441,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
     <!-- ── Rodapé institucional ── -->
     <div class="dash-footer">
       <span>GEx Assist · Plataforma de Gestão Comercial</span>
-      <span>Grow Química © 2026 · v4.5 Pro</span>
+      <span>Grow Química © 2026 · v6.2 Pro</span>
     </div>
 
   </div>
@@ -3127,7 +3232,15 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
         <div style="display:flex;gap:8px;align-items:center">
           <input type="text" id="estBusca" placeholder="Buscar produto..." onInput="filtrarEstoque(this.value)"
             style="padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:12px;width:220px;outline:none">
+          <button class="acoes-btn" id="btnSelecaoMultipla" onclick="toggleSelecaoMultipla()" style="white-space:nowrap">☑ Selecionar vários</button>
           <button class="acoes-btn" onclick="abrirRelatorioEstoque()" style="white-space:nowrap">🖨️ Imprimir</button>
+        </div>
+      </div>
+      <div id="barraSelecaoMultipla" style="display:none;align-items:center;justify-content:space-between;gap:10px;background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:8px 16px">
+        <span style="font-size:12px;color:#1e3a8a;font-weight:600"><span id="qtdSelecionados">0</span> item(ns) selecionado(s)</span>
+        <div style="display:flex;gap:8px">
+          <button class="acoes-btn" onclick="limparSelecaoMultipla()" style="white-space:nowrap;background:#fff">Limpar</button>
+          <button class="acoes-btn" onclick="abrirSimularMultiplo()" style="white-space:nowrap;background:#2563eb;color:#fff">⚗ Simular Selecionados</button>
         </div>
       </div>
       <table style="width:100%;border-collapse:collapse">
@@ -3141,6 +3254,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
             <th style="width:90px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Diferença</th>
             <th style="width:80px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Vencendo</th>
             <th style="width:60px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Ação</th>
+            <th style="width:80px;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;text-align:center">Simular</th>
           </tr>
         </thead>
         <tbody id="estTbody"></tbody>
@@ -3257,6 +3371,9 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
       <label class="btn-cancel-mod" style="cursor:pointer">📎 Importar XML <input type="file" accept=".xml" multiple style="display:none" onchange="importarXML(this)"></label>
       <button class="btn-cancel-mod" onclick="imprimirFrete('aguardando')">🖨 Aguardando</button>
       <button class="btn-cancel-mod" onclick="imprimirFrete('entregue')">🖨 Concluídos</button>
+      <button onclick="abrirRelatorioFretes()" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📊 Relatório</button>
+      <button onclick="compartilharWhatsApp()" style="background:#25d366;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📱 WhatsApp</button>
+      <button onclick="abrirModalEmailFretes()" style="background:#fff;color:#475569;border:1px solid #e2e8f0;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📧 Email diário</button>
       <input type="text" class="busca-mod" style="max-width:220px;margin:0" placeholder="Buscar NF ou cliente..." oninput="renderFretes(freteFilter,this.value)">
       <select id="freteSortSel" onchange="renderFretes(freteFilter,document.querySelector('.busca-mod')?.value||'')" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:10px;border:1px solid var(--borda);background:#fff;color:var(--texto);cursor:pointer">
         <option value="recente">↓ Mais recente</option>
@@ -3312,8 +3429,18 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
             </select>
           </div>
         </div>
+        <!-- Busca rápida por NF do faturamento -->
+        <div style="background:#f0f7ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#1e40af;margin-bottom:6px">⚡ Preencher pelo número da NF (faturamento)</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input type="text" id="ftBuscaNFInput" placeholder="Digite um ou mais números de NF separados por vírgula (ex: 8231, 8244)" style="flex:1;min-width:200px;padding:6px 10px;border:1px solid #bfdbfe;border-radius:8px;font-size:12px;font-family:inherit">
+            <button onclick="buscarNFsFaturamento()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">🔍 Buscar</button>
+          </div>
+          <div id="ftBuscaNFResult" style="margin-top:8px;font-size:11px;color:#475569"></div>
+        </div>
         <div class="modulo-grid-3" style="margin-bottom:12px">
-          <div class="form-field"><label>Prazo de Entrega</label><input type="text" id="ftPrazoEntrega" placeholder="Ex: 3 dias úteis"></div>
+          <div class="form-field"><label>Prazo de Entrega (data)</label><input type="date" id="ftPrazoEntrega"></div>
+          <div class="form-field"><label>Peso Bruto (kg)</label><input type="number" id="ftPesoBruto" placeholder="0,000" step="0.001" min="0"></div>
         </div>
         <!-- Redespacho -->
         <div style="margin-bottom:12px">
@@ -4672,32 +4799,36 @@ function renderHistItem(x){
   };
   const st=ST[x.status||'aguardando']||ST.aguardando;
   const num=escHtml(x.num||'');
-  return `<div class="historico-item" style="flex-direction:column;gap:8px">
-    <div style="display:flex;align-items:center;gap:10px;width:100%">
-      <div class="hist-info" style="flex:1">
-        <div class="hist-num">${num}</div>
-        <div class="hist-cliente">${escHtml(x.cliente||'')}</div>
-        <div class="hist-data">${x.data||''} · ${x.uf||''} · ${x.tab==='cf'?'CF':'Dist.'}</div>
+  return `<div class="historico-item" style="flex-direction:column;gap:0;padding:0;overflow:hidden">
+    <!-- Linha principal -->
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;width:100%">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <span class="hist-num" style="font-size:11px">${num}</span>
+          <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:5px;background:${st.bg};color:${st.cor}">${st.label}</span>
+          <span style="font-size:10px;color:var(--muted)">${x.data||''} · ${x.uf||''} · ${x.tab==='cf'?'CF':'Dist.'}</span>
+        </div>
+        <div class="hist-cliente" style="font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(x.cliente||'')}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <div class="hist-total">R$ ${(x.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-        <div class="hist-acoes">
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <div class="hist-total" style="font-size:12px">R$ ${(x.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+        <div class="hist-acoes" style="gap:4px">
           <button class="hist-btn" onclick="loadC('${num}')">Carregar</button>
           <button class="hist-btn" onclick="dupC('${num}')">Duplicar</button>
           <button class="hist-btn del" onclick="delC('${num}')">✕</button>
         </div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:4px;border-top:1px solid var(--borda)">
-      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:${st.bg};color:${st.cor}">${st.label}</span>
-      <select onchange="atualizarStatusCotacao('${num}',this.value)" style="font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid var(--borda);background:#fff;color:var(--texto);cursor:pointer" title="Alterar status">
+    <!-- Linha de follow-up (colapsável) -->
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:5px 12px 7px;border-top:1px solid var(--borda);background:#fafafa">
+      <select onchange="atualizarStatusCotacao('${num}',this.value)" style="font-size:11px;padding:2px 7px;border-radius:6px;border:1px solid var(--borda);background:#fff;color:var(--texto);cursor:pointer" title="Alterar status">
         <option value="aguardando" ${(x.status||'aguardando')==='aguardando'?'selected':''}>⏳ Aguardando</option>
-        <option value="convertida" ${x.status==='convertida'?'selected':''}>✅ Convertida em pedido</option>
+        <option value="convertida" ${x.status==='convertida'?'selected':''}>✅ Convertida</option>
         <option value="perdida" ${x.status==='perdida'?'selected':''}>❌ Perdida</option>
         <option value="cancelada" ${x.status==='cancelada'?'selected':''}>⛔ Cancelada</option>
       </select>
-      <input type="text" placeholder="Observação de retorno..." value="${escAttr(x.obs_followup||'')}" onblur="atualizarObsCotacao('${num}',this.value)" style="flex:1;min-width:160px;font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--borda);color:var(--texto)">
-      ${x.data_retorno?'<span style="font-size:10px;color:var(--muted)">Retorno: '+escHtml(x.data_retorno.split('-').reverse().join('/'))+'</span>':''}
+      <input type="text" placeholder="Observação de retorno..." value="${escAttr(x.obs_followup||'')}" onblur="atualizarObsCotacao('${num}',this.value)" style="flex:1;min-width:120px;font-size:11px;padding:2px 7px;border-radius:6px;border:1px solid var(--borda);color:var(--texto)">
+      ${x.data_retorno?'<span style="font-size:10px;color:var(--muted)">↩ '+escHtml(x.data_retorno.split('-').reverse().join('/'))+'</span>':''}
     </div>
   </div>`;
 }
@@ -7260,6 +7391,7 @@ function iniciarAutoScrollTV(){
 })();
 
 function setModoApp(m){
+  if(m!=='home'&&_gexUser&&!gexTemAcesso(m)){showT('Acesso não autorizado para este módulo','erro');return;}
   atualizarPageHeader(m);
   modoApp=m;
   const btns={
@@ -7282,6 +7414,15 @@ function setModoApp(m){
     const el=document.getElementById(id);
     if(el)el.style.display=modo===m?'':'none';
   });
+  if(m==='cotacao'){
+    requestAnimationFrame(function(){
+      carregarHist();
+      // Segunda chamada com delay para garantir renderização após CSS ser aplicado
+      setTimeout(function(){
+        if((window._sbCotCache||[]).length>0)carregarHist();
+      },150);
+    });
+  }
   if(m==='cadastros'){
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
@@ -8742,69 +8883,89 @@ function renderFretes(filter='todos',q=''){
   let lista=[...fretes];
   if(filter!=='todos')lista=lista.filter(f=>f.status===filter);
   if(q)lista=lista.filter(f=>f.nf.includes(q)||f.cliente.toLowerCase().includes(q.toLowerCase()));
-  // Ordenação
   const sort=document.getElementById('freteSortSel')?.value||'recente';
   if(sort==='nf_asc')lista.sort((a,b)=>String(a.nf).localeCompare(String(b.nf),undefined,{numeric:true}));
   else if(sort==='nf_desc')lista.sort((a,b)=>String(b.nf).localeCompare(String(a.nf),undefined,{numeric:true}));
   else if(sort==='valor_desc')lista.sort((a,b)=>(b.valorComercial||0)-(a.valorComercial||0));
   else if(sort==='cliente')lista.sort((a,b)=>(a.cliente||'').localeCompare(b.cliente||''));
-  // padrão: mais recente (ordem de inserção)
   if(!lista.length){el.innerHTML='<div class="empty-mod"><div class="empty-icon">🚚</div>Nenhuma NF encontrada.</div>';return;}
-  el.innerHTML=lista.map(f=>{
+
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  function diasAtr(f){
+    if(f.status==='entregue')return 0;
+    if(!f.prazoEntrega)return 0;
+    var p=new Date(f.prazoEntrega);p.setHours(0,0,0,0);
+    return Math.ceil((hoje-p)/(1000*60*60*24));
+  }
+
+  var rows=lista.map(f=>{
     const trans=TRANSPORTADORAS[f.transportadora]||{nome:f.transportadora||'—',url:''};
     const pct=calcPctFrete(f);
-    const pctClass=pct>5?'alto':pct>3?'medio':'';
-    const redesp=f.redespacho?`<div class="nf-redespacho">
-      <div class="nf-redespacho-title">↔ Redespacho</div>
-      <div class="nf-trecho"><span class="nf-trecho-label">Trecho 1</span><span>${(TRANSPORTADORAS[f.t1Trans]||{nome:f.t1Trans||'—'}).nome}</span><span class="nf-status-badge ${f.t1Status}">${STATUS_LABELS[f.t1Status]||'—'}</span></div>
-      <div class="nf-trecho"><span class="nf-trecho-label">Trecho 2</span><span>${(TRANSPORTADORAS[f.t2Trans]||{nome:f.t2Trans||'—'}).nome}</span><span class="nf-status-badge ${f.t2Status}">${STATUS_LABELS[f.t2Status]||'—'}</span></div>
+    const pctCls=pct>5?'alto':pct>3?'medio':'ok';
+    const atr=diasAtr(f);
+    const emissao=f.dataEmissao?f.dataEmissao.split('-').reverse().join('/'):'—';
+    const prazo=f.prazoEntrega?new Date(f.prazoEntrega).toLocaleDateString('pt-BR'):'—';
+    const fmtV=v=>v>0?'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—';
+    const transnome=(trans.nome||f.transportadora||'—').substring(0,18);
+    const clinome=(f.cliente||'—').substring(0,28);
+
+    // Linha principal
+    var mainRow=`<tr class="fr-row ${f.status}" onclick="frToggle(${f.id})" title="${f.cliente}">
+      <td class="fr-nf">NF ${f.nf}</td>
+      <td class="fr-cli">${clinome}</td>
+      <td class="fr-transp">${transnome}</td>
+      <td><select class="fr-status-sel ${f.status}" onclick="event.stopPropagation()" onchange="atualizarStatusNF(${f.id},this.value);this.className='fr-status-sel '+this.value">
+        ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}"${f.status===k?' selected':''}>${v}</option>`).join('')}
+      </select></td>
+      <td>${emissao}</td>
+      <td>${prazo}${atr>0?`<span class="fr-atraso">+${atr}d</span>`:''}</td>
+      <td class="fr-val">${fmtV(f.valorComercial)}</td>
+      <td class="fr-pct ${pctCls}">${pct?pct+'%':'—'}</td>
+      <td><button class="btn-nf" onclick="event.stopPropagation();abrirFormNF(${f.id})" style="padding:2px 7px;font-size:10px">✏️</button>
+          <button class="btn-nf del" onclick="event.stopPropagation();excluirNF(${f.id})" style="padding:2px 7px;font-size:10px">✕</button></td>
+    </tr>`;
+
+    // Linha de detalhe (oculta, expande ao clicar)
+    const redesp=f.redespacho?`<div style="margin-top:8px;padding:8px;background:#fff;border-radius:8px;border:1px solid #e2e8f0">
+      <div style="font-size:10px;font-weight:700;color:#64748b;margin-bottom:4px">↔ REDESPACHO</div>
+      <div style="font-size:11px">T1: ${(TRANSPORTADORAS[f.t1Trans]||{nome:f.t1Trans||'—'}).nome} — ${STATUS_LABELS[f.t1Status]||'—'}</div>
+      <div style="font-size:11px">T2: ${(TRANSPORTADORAS[f.t2Trans]||{nome:f.t2Trans||'—'}).nome} — ${STATUS_LABELS[f.t2Status]||'—'}</div>
     </div>`:'';
-    const itensHTML=f.itens&&f.itens.length?`<table class="nf-itens-table"><thead><tr><th>Produto</th><th>Qtd</th><th>Valor Unit.</th></tr></thead><tbody>${f.itens.map(i=>`<tr><td>${i.produto}</td><td>${i.qtd}</td><td>R$ ${(i.preco||0).toFixed(2).replace('.',',')}</td></tr>`).join('')}</tbody></table>`:'<div style="font-size:11px;color:var(--muted);margin-top:6px">Nenhum item relacionado.</div>';
-    const eventosHTML=(f.eventos||[]).slice(-5).reverse().map(e=>`<div class="nf-event"><div class="nf-event-dot"></div><div class="nf-event-content">${e.texto}<div class="nf-event-date">${e.data}</div></div></div>`).join('');
-    const etapasHTML=gerarTimelineFrete(f);
-    return `<div class="nf-card ${f.status}" id="nf_${f.id}">
-      <div class="nf-header" onclick="toggleNFCard(${f.id})">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-          <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
-            <div class="nf-numero" style="flex-shrink:0">NF ${f.nf}</div>
-            <div class="nf-cliente" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${f.cliente}</div>
-          </div>
-          <span class="nf-status-badge ${f.status}" style="flex-shrink:0;font-size:10px">${STATUS_LABELS[f.status]}</span>
-        </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:2px">
-          ${f.transportadora?`<span>🚛 <b style="color:var(--texto)">${f.transportadora}</b></span>`:''}
-          <span>💰 <b style="color:var(--texto)">R$ ${f.valorComercial.toLocaleString('pt-BR',{minimumFractionDigits:2})}</b></span>
-          ${f.valorFrete>0?`<span>📦 Frete: <b style="color:var(--texto)">R$ ${f.valorFrete.toLocaleString('pt-BR',{minimumFractionDigits:2})}</b></span>`:''}
-          ${pct?`<span class="frete-pct ${pctClass}">${pct}%</span>`:''}
-          ${f.prazoEntrega?`<span>📅 <b style="color:var(--texto)">${f.prazoEntrega}</b></span>`:''}
-        </div>
-      </div>
-      <div class="nf-body">
-        <div class="nf-info-grid">
-          <div class="nf-info-item"><span class="nf-info-label">Transportadora</span><span class="nf-info-value">${trans.nome}</span></div>
-          <div class="nf-info-item"><span class="nf-info-label">Rastreio</span><span class="nf-info-value" style="font-family:monospace">${f.rastreio||'—'}</span></div>
-          <div class="nf-info-item"><span class="nf-info-label">Emissão</span><span class="nf-info-value">${f.dataEmissao?f.dataEmissao.split('-').reverse().join('/'):'—'}</span></div>
-          <div class="nf-info-item"><span class="nf-info-label">Valor Frete</span><span class="nf-info-value">R$ ${f.valorFrete.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div>
-          <div class="nf-info-item"><span class="nf-info-label">% Frete</span><span class="nf-info-value ${pctClass?'frete-pct '+pctClass:''}">${pct?pct+'%':'—'}</span></div>
-          ${f.obs?`<div class="nf-info-item" style="grid-column:span 1"><span class="nf-info-label">Obs</span><span class="nf-info-value">${f.obs}</span></div>`:''}
-        </div>
-        ${redesp}
-        <div style="margin-bottom:8px"><strong style="font-size:11px;color:var(--teal)">Itens da NF</strong>${itensHTML}</div>
-        ${etapasHTML}
-        <div><strong style="font-size:11px;color:var(--teal)">Histórico</strong><div class="nf-timeline" style="margin-top:6px">${eventosHTML}</div></div>
-        <div class="nf-acoes">
-          ${trans.url?`<button class="btn-nf rastrear" onclick="abrirRastreio('${f.id}')">🔍 Rastrear</button>`:''}
-          <select onchange="atualizarStatusNF(${f.id},this.value)" style="font-size:11px;border:1px solid var(--borda);border-radius:8px;padding:4px 8px;background:#fff;color:var(--texto)">
-            ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}"${f.status===k?' selected':''}>${v}</option>`).join('')}
-          </select>
-          <button class="btn-nf" onclick="abrirFormNF(${f.id})">✏️ Editar</button>
-          <button class="btn-nf del" onclick="excluirNF(${f.id})">✕ Excluir</button>
-        </div>
-      </div>
-    </div>`;
+    const eventos=(f.eventos||[]).slice(-3).reverse().map(e=>`<div style="font-size:10px;color:#64748b;margin-top:2px">${e.data} — ${e.texto}</div>`).join('');
+    var detRow=`<tr class="fr-det" id="frd_${f.id}"><td colspan="9"><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;font-size:11px">
+      <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">RASTREIO</label><span style="font-family:monospace">${f.rastreio||'—'}</span></div>
+      <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">VALOR FRETE</label>${fmtV(f.valorFrete)}</div>
+      <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">PESO BRUTO</label>${f.pesoBruto>0?f.pesoBruto.toLocaleString('pt-BR',{minimumFractionDigits:3})+' kg':'—'}</div>
+      <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">OBSERVAÇÃO</label>${f.obs||'—'}</div>
+    </div>
+    ${redesp}
+    ${eventos?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9"><div style="font-size:9px;font-weight:700;color:#94a3b8;margin-bottom:4px">HISTÓRICO</div>${eventos}</div>`:''}
+    ${trans.url?`<div style="margin-top:8px"><button class="btn-nf rastrear" onclick="abrirRastreio(${f.id})" style="font-size:11px">🔍 Rastrear</button></div>`:''}
+    </td></tr>`;
+
+    return mainRow+detRow;
   }).join('');
+
+  el.innerHTML=`<table class="fr-table">
+    <thead><tr>
+      <th style="width:70px">NF</th>
+      <th>Cliente</th>
+      <th>Transportadora</th>
+      <th style="width:120px">Status</th>
+      <th style="width:80px">Emissão</th>
+      <th style="width:90px">Prazo</th>
+      <th class="r" style="width:110px">Valor NF</th>
+      <th class="r" style="width:55px">% Fr.</th>
+      <th style="width:70px"></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }
 
+function frToggle(id){
+  const det=document.getElementById('frd_'+id);
+  if(det)det.classList.toggle('show');
+}
 function toggleNFCard(id){
   document.getElementById('nf_'+id)?.classList.toggle('expandido');
 }
@@ -10353,11 +10514,16 @@ function renderEstoque(filtro){
       <td style="text-align:center;white-space:nowrap">
         <button class="est-expand-btn" onclick="toggleEstoque('${cod}');event.stopPropagation()" title="Ver lotes">${expandido?'▲':'▼'}</button>
         <button class="est-expand-btn" onclick="adicionarCodAlt('${cod}');event.stopPropagation()" title="Vincular código alternativo" style="font-size:14px;color:#f97316">+</button>
-        ${(function(){var e=window._estruturasCache&&window._estruturasCache['${cod}'];return e?'<button class="est-expand-btn" onclick="abrirSimularProducao(\'${cod}\',\''+encodeURIComponent(dados.nome||nome)+'\','+(seg>0?seg-total<=0?0:seg-total:0)+');event.stopPropagation()" title="Simular Produção" style="background:#2563eb;color:#fff;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;border:none;cursor:pointer">⚗ Simular</button>':'';}())}
+      </td>
+      <td style="text-align:center;white-space:nowrap">
+        <div style="display:flex;align-items:center;justify-content:center;gap:5px">
+          ${window._selecaoMultiplaAtiva?('<input type="checkbox" class="sim-select-cb" data-cod="'+cod+'" '+(window._itensSelecionadosMulti&&window._itensSelecionadosMulti[cod]?'checked':'')+' onclick="event.stopPropagation();toggleSelecaoItem(\''+cod+'\',\''+encodeURIComponent(dados.nome||nome)+'\',this.checked)" style="width:15px;height:15px;cursor:pointer">'):''}
+          ${(window._estruturasCache&&window._estruturasCache[cod])?('<button class="est-expand-btn" onclick="abrirSimularProducao(\''+cod+'\',\''+encodeURIComponent(dados.nome||nome)+'\','+(seg>0?(seg-total<=0?0:seg-total):0)+');event.stopPropagation()" title="Simular Produção" style="background:#2563eb;color:#fff;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;border:none;cursor:pointer">⚗ Simular</button>'):('<span style="font-size:11px;color:#cbd5e1" title="Sem estrutura de produção cadastrada">—</span>')}
+        </div>
       </td>
     </tr>`;
     if(expandido){
-      html+='<tr class="est-lotes"><td colspan="8"><div style="padding:4px 0">';
+      html+='<tr class="est-lotes"><td colspan="9"><div style="padding:4px 0">';
       // Lotes do código principal + alternativos
       var todosLotes=dados.lotes.map(function(l){return Object.assign({},l,{origemCod:cod});});
       var codAltsExp=estCodAlts[cod]||[];
@@ -11165,53 +11331,125 @@ async function removerCodAlt(codPrincipal,codAlt){
 }
 
 /* ── LOGIN ── */
-var USUARIOS_LOGIN={
-  'juninho':  'gex2024',
-  'grego':    'gex2024',
-  'barril':   'gex2024',
-  'cris':     'gex2024',
-  'admin':    'admin123'
+/* ════ SISTEMA DE USUÁRIOS COM PERMISSÕES ════ */
+var _gexUser=null; // {login, nome, perfil, modulos:[]}
+
+// Mapa: modo da app → chave do módulo
+var MODULO_KEY={
+  home:'home',cotacao:'cotacao',tabela:'tabelas',amostras:'amostras',
+  crm:'crm',agenda:'agenda',licitacoes:'licitacoes',cadastros:'cadastros',
+  frete:'fretes',estoque:'estoque',faturamento:'faturamento'
 };
 
-function fazerLogin(){
+// Perfis pré-definidos (admin sempre vê tudo)
+var PERFIS={
+  admin:    ['home','cotacao','tabelas','amostras','crm','agenda','licitacoes','cadastros','fretes','estoque','faturamento'],
+  logistica:['home','fretes','agenda'],
+  financeiro:['home','faturamento','fretes'],
+  estoque:  ['home','estoque','cadastros'],
+  licitacoes:['home','licitacoes','agenda','crm']
+};
+
+function gexTemAcesso(modo){
+  if(!_gexUser)return false;
+  if(_gexUser.perfil==='admin')return true;
+  var chave=MODULO_KEY[modo]||modo;
+  return (_gexUser.modulos||[]).indexOf(chave)>-1;
+}
+
+function gexAplicarPermissoes(){
+  var modos=['cotacao','tabela','amostras','crm','agenda','licitacoes','cadastros','frete','estoque','faturamento'];
+  var btnMap={cotacao:'btnModoCot',tabela:'btnModoTab',amostras:'btnModoAmostras',crm:'btnModoCRM',
+    agenda:'btnModoAgenda',licitacoes:'btnModoLicit',cadastros:'btnModoCadastros',
+    frete:'btnModoFrete',estoque:'btnModoEstoque',faturamento:'btnModoFaturamento'};
+  modos.forEach(function(m){
+    var btn=document.getElementById(btnMap[m]);
+    if(btn)btn.style.display=gexTemAcesso(m)?'':'none';
+  });
+  // Ocultar grupos do sidebar vazios
+  document.querySelectorAll('.sidebar-group-label').forEach(function(lbl){
+    var group=lbl.parentElement;
+    if(!group)return;
+    var btns=group.querySelectorAll('.sidebar-item:not(#btnModoHome)');
+    var algumVisivel=false;
+    btns.forEach(function(b){if(b.style.display!=='none')algumVisivel=true;});
+    lbl.style.display=algumVisivel?'':'none';
+  });
+  // Re-renderizar lista de cotações se já tiver dados
+  setTimeout(function(){
+    if((window._sbCotCache||[]).length>0)carregarHist();
+  },500);
+}
+
+async function fazerLogin(){
   var u=(document.getElementById('loginUser').value||'').trim().toLowerCase();
   var p=(document.getElementById('loginPass').value||'').trim();
   var erro=document.getElementById('loginErro');
-  if(USUARIOS_LOGIN[u]&&USUARIOS_LOGIN[u]===p){
+  if(!u||!p){erro.style.display='block';return;}
+  try{
+    var {data,error}=await sb.from('gex_usuarios').select('*').eq('login',u).eq('senha',p).eq('ativo',true).maybeSingle();
+    if(error||!data){
+      // Fallback: admin hardcoded caso tabela não exista ainda
+      if(u==='admin'&&p==='admin123'){
+        data={login:'admin',nome:'Admin',perfil:'admin',modulos:PERFIS.admin};
+      }else{
+        erro.style.display='block';
+        document.getElementById('loginPass').value='';
+        document.getElementById('loginPass').focus();
+        return;
+      }
+    }
+    _gexUser={login:data.login,nome:data.nome||data.login,perfil:data.perfil||'custom',
+      modulos:data.modulos||(PERFIS[data.perfil]||[])};
     erro.style.display='none';
-    try{sessionStorage.setItem('gex_user',u);}catch(e){}
+    try{sessionStorage.setItem('gex_user',JSON.stringify(_gexUser));}catch(e){}
     document.getElementById('loginOverlay').style.display='none';
-    var info=document.getElementById('loginUserInfo');
-    document.getElementById('loginUserNome').textContent=u.charAt(0).toUpperCase()+u.slice(1);
-    info.classList.add('show');
-    // Carregar dados do Supabase após login
+    var nomeExib=(_gexUser.nome||_gexUser.login);
+    document.getElementById('loginUserNome').textContent=nomeExib.charAt(0).toUpperCase()+nomeExib.slice(1);
+    document.getElementById('loginUserInfo').classList.add('show');
+    gexAplicarPermissoes();
     sbCarregarTudo();
-  }else{
-    erro.style.display='block';
-    document.getElementById('loginPass').value='';
-    document.getElementById('loginPass').focus();
+  }catch(e){
+    // Fallback offline
+    if(u==='admin'&&p==='admin123'){
+      _gexUser={login:'admin',nome:'Admin',perfil:'admin',modulos:PERFIS.admin};
+      document.getElementById('loginOverlay').style.display='none';
+      document.getElementById('loginUserNome').textContent='Admin';
+      document.getElementById('loginUserInfo').classList.add('show');
+      gexAplicarPermissoes();
+      sbCarregarTudo();
+    }else{
+      erro.style.display='block';
+    }
   }
 }
 
 function fazerLogout(){
+  _gexUser=null;
   try{sessionStorage.removeItem('gex_user');}catch(e){}
   document.getElementById('loginUserInfo').classList.remove('show');
   document.getElementById('loginUser').value='';
   document.getElementById('loginPass').value='';
   document.getElementById('loginErro').style.display='none';
   document.getElementById('loginOverlay').style.display='flex';
+  // Restaurar visibilidade do menu
+  document.querySelectorAll('.sidebar-item,.sidebar-group-label').forEach(function(el){el.style.display='';});
 }
 
 // Verificar sessão ao carregar
 (function(){
   try{
-    var u=sessionStorage.getItem('gex_user');
-    if(u&&USUARIOS_LOGIN[u]!==undefined){
-      document.getElementById('loginOverlay').style.display='none';
-      document.getElementById('loginUserNome').textContent=u.charAt(0).toUpperCase()+u.slice(1);
-      document.getElementById('loginUserInfo').classList.add('show');
-      // Carregar dados do Supabase ao restaurar sessão
-      setTimeout(sbCarregarTudo, 300);
+    var raw=sessionStorage.getItem('gex_user');
+    if(raw){
+      var usr=JSON.parse(raw);
+      if(usr&&usr.login){
+        _gexUser=usr;
+        document.getElementById('loginOverlay').style.display='none';
+        var nomeExib=usr.nome||usr.login;
+        document.getElementById('loginUserNome').textContent=nomeExib.charAt(0).toUpperCase()+nomeExib.slice(1);
+        document.getElementById('loginUserInfo').classList.add('show');
+        setTimeout(function(){gexAplicarPermissoes();sbCarregarTudo();},300);
+      }
     }
   }catch(e){}
 })();
@@ -11579,7 +11817,12 @@ if(typeof escapeHtml!=='function'){
 }
 
 function sbUser(){
-  try{return sessionStorage.getItem('gex_user')||'anon';}catch(e){return 'anon';}
+  try{
+    var raw=sessionStorage.getItem('gex_user');
+    if(!raw)return 'anon';
+    // Novo formato: JSON com objeto de usuário
+    try{var obj=JSON.parse(raw);return obj.login||'anon';}catch(e){return raw||'anon';}
+  }catch(e){return 'anon';}
 }
 
 // ── Indicador visual de sync ──
@@ -11637,8 +11880,14 @@ async function sbSalvarCotacao(snap){
 
 async function sbCarregarCotacoes(){
   const {data,error}=await sb.from('cotacoes').select('*').order('created_at',{ascending:false}).limit(100);
-  if(error){console.error('SB load cotacoes:',error);return;}
-  if(!data)return;
+  if(error){
+    console.error('SB load cotacoes:',error);
+    showT('Erro ao carregar cotações: '+error.message,'erro');
+    var el=document.getElementById('historicoList');
+    if(el)el.innerHTML='<div style="padding:16px;color:#dc2626;font-size:12px">Erro ao carregar: '+error.message+'</div>';
+    return;
+  }
+  if(!data){showT('Cotações: sem dados retornados','');return;}
   window._sbCotCache=data.map(r=>({
     num:r.num,
     cliente:r.cliente||'',
@@ -11694,6 +11943,7 @@ async function sbSalvarFrete(reg){
     transportadora: reg.transportadora||null,
     rastreio: reg.rastreio||null,
     status: reg.status||'aguardando',
+    peso_bruto: reg.pesoBruto||0,
     obs: reg.obs||null,
     redespacho: reg.redespacho||false,
     t1_trans: reg.t1Trans||null,
@@ -12249,6 +12499,16 @@ async function sbCarregarAgenda(){
       <div class="tv-clock" id="tvRelogio">--:--</div>
       <div class="tv-clock-sub" id="tvAtualizado">atualizando…</div>
     </div>
+    <div style="position:absolute;top:1.6vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4vh">
+      <div style="display:flex;gap:.5vw;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:1vh;padding:.3vh">
+        <button id="tvTabGeral" onclick="tvSetTela('geral')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:#2563eb;color:#fff;transition:.18s">Geral</button>
+        <button id="tvTabFretes" onclick="tvSetTela('fretes')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:transparent;color:rgba(255,255,255,.55);transition:.18s">Fretes</button>
+      </div>
+      <!-- Barra de progresso da alternância automática -->
+      <div style="width:10vw;height:.35vh;background:rgba(255,255,255,.1);border-radius:.4vh;overflow:hidden">
+        <div id="tvAutoBar" style="height:100%;width:0%;border-radius:.4vh;transition:none"></div>
+      </div>
+    </div>
     <button class="tv-close" onclick="fecharPainelTV()">✕</button>
   </div>
 
@@ -12346,6 +12606,48 @@ async function sbCarregarAgenda(){
       <div id="tvRankLista" style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:.6vh"></div>
     </div>
 
+  </div>
+
+  <!-- ══ TELA FRETES ══ -->
+  <div id="tvTelaFretes" style="display:none;flex:1;display:none;flex-direction:column;min-height:0;padding:.5vh 2.4vw 0">
+
+    <!-- KPIs de frete -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1vw;margin-bottom:1.2vh;flex-shrink:0">
+      <div class="tv-kpi" style="--tvc:#3b82f6;text-align:left;padding:1.2vh 1.2vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg>Aguardando</div>
+        <div class="tv-kpi-num" id="tvFrtAguardando" style="font-size:4vh">0</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#f59e0b;text-align:left;padding:1.2vh 1.2vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-truck"></use></svg>Em Trânsito</div>
+        <div class="tv-kpi-num" id="tvFrtTransito" style="font-size:4vh">0</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#ef4444;text-align:left;padding:1.2vh 1.2vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-alert"></use></svg>Atrasados</div>
+        <div class="tv-kpi-num" id="tvFrtAtrasados" style="font-size:4vh;color:#ef4444">0</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#8b5cf6;text-align:left;padding:1.2vh 1.2vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-alert"></use></svg>Ocorrências</div>
+        <div class="tv-kpi-num" id="tvFrtOcorrencias" style="font-size:4vh;color:#8b5cf6">0</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#22c55e;text-align:left;padding:1.2vh 1.2vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-check"></use></svg>Entregues</div>
+        <div class="tv-kpi-num" id="tvFrtEntregues" style="font-size:4vh">0</div>
+      </div>
+    </div>
+
+    <!-- Cabeçalho da lista -->
+    <div style="display:grid;grid-template-columns:1fr 2.5fr 1.5fr 1fr 1fr 1.2fr;gap:.8vw;padding:.6vh 1vw;background:rgba(255,255,255,.06);border-radius:.8vh .8vh 0 0;font-size:1.2vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;flex-shrink:0">
+      <span>NF</span><span>Cliente</span><span>Transportadora</span><span>Emissão</span><span>Prazo</span><span>Status</span>
+    </div>
+
+    <!-- Lista de fretes scrollável -->
+    <div id="tvFreteLista" style="flex:1;overflow-y:auto;border:1px solid rgba(255,255,255,.1);border-top:none;border-radius:0 0 1vh 1vh;min-height:0"></div>
+
+    <!-- Rodapé da tela fretes -->
+    <div style="flex-shrink:0;padding:.8vh 0;display:flex;align-items:center;justify-content:space-between;font-size:1.2vh;color:#475569">
+      <span>Ordenado por status · atraso destaca em vermelho</span>
+      <span id="tvFreteAtualizadoEm"></span>
+    </div>
   </div>
 
   <!-- Rodapé: ticker de zerados -->
@@ -12501,12 +12803,26 @@ async function sbCarregarAgenda(){
           oninput="calcularSimulacao()">
         <span id="simularUnid" style="font-size:12px;color:#64748b">un</span>
         <button onclick="calcularSimulacao()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-left:auto">Calcular</button>
+        <button onclick="gerarOP()" id="btnGerarOP" style="display:none;background:#16a34a;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;gap:5px;align-items:center">📋 Gerar OP</button>
+        <button onclick="imprimirSimulacao()" title="Imprimir simulação" style="background:#fff;color:#2563eb;border:1px solid #2563eb;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer">🖨️</button>
       </div>
       <div id="simularResultado" style="display:none">
-        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#64748b;padding:6px 10px;background:#f1f5f9;border-radius:8px 8px 0 0;border:1px solid #e2e8f0">
+        <div style="display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#64748b;padding:6px 10px;background:#f1f5f9;border-radius:8px 8px 0 0;border:1px solid #e2e8f0">
           <span>Componente</span><span style="text-align:right">Necessário</span><span style="text-align:right">Saldo</span><span style="text-align:right">Situação</span>
         </div>
         <div id="simularLinhas" style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;overflow:hidden"></div>
+        <!-- Alerta vencimentos -->
+        <div id="simularAlertaVenc" style="display:none;margin-top:10px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px 14px">
+          <div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:6px">⚠ Matérias-primas vencendo em até 30 dias</div>
+          <div id="simularListaVenc" style="font-size:11px;color:#92400e"></div>
+        </div>
+        <!-- Lotes FEFO -->
+        <div id="simularFefoDiv" style="display:none;margin-top:10px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+          <div style="padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#64748b">
+            Lotes a consumir (FEFO — primeiro a vencer, primeiro a sair)
+          </div>
+          <div id="simularFefoLinhas" style="max-height:200px;overflow-y:auto"></div>
+        </div>
         <div style="display:flex;gap:16px;margin-top:12px;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0">
           <div style="flex:1">
             <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px">Resultado</div>
@@ -12522,6 +12838,76 @@ async function sbCarregarAgenda(){
         Estrutura de produção não encontrada para este produto.
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Modal Simular Produção — Múltiplos Itens -->
+<div class="overlay" id="overlaySimularMulti" onclick="if(event.target===this)fecharSimularMulti()" style="position:fixed;inset:0;z-index:9999999;background:rgba(11,18,32,.6);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;width:900px;max-width:98vw;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+
+    <!-- Cabeçalho sticky -->
+    <div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;border-radius:16px 16px 0 0">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#0f1727">⚗ Simulação Múltipla</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px" id="simularMultiSubtitulo"></div>
+      </div>
+      <button onclick="fecharSimularMulti()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b;padding:4px">✕</button>
+    </div>
+
+    <!-- Lista de produtos + controles -->
+    <div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;flex-shrink:0">
+      <div id="simularMultiItens" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:12px;max-height:180px;overflow-y:auto"></div>
+
+      <!-- Barra de ações + seletor de modo -->
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <button onclick="calcularSimulacaoMulti()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">Calcular</button>
+        <button onclick="gerarOPMultipla()" id="btnGerarOPMulti" style="display:none;background:#16a34a;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">📋 Gerar OPs</button>
+        <button onclick="imprimirSimulacaoMulti()" style="background:#fff;color:#2563eb;border:1px solid #2563eb;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer">🖨️ Imprimir</button>
+        <div style="margin-left:auto;display:flex;gap:4px;background:#f1f5f9;border-radius:8px;padding:3px">
+          <button id="modoBtn-consolidado" onclick="setModoMulti('consolidado')" style="padding:5px 10px;font-size:11px;font-weight:700;border:none;border-radius:6px;cursor:pointer;background:#2563eb;color:#fff">Total</button>
+          <button id="modoBtn-produto" onclick="setModoMulti('produto')" style="padding:5px 10px;font-size:11px;font-weight:700;border:none;border-radius:6px;cursor:pointer;background:transparent;color:#64748b">Por Produto</button>
+          <button id="modoBtn-tabela" onclick="setModoMulti('tabela')" style="padding:5px 10px;font-size:11px;font-weight:700;border:none;border-radius:6px;cursor:pointer;background:transparent;color:#64748b">Tabela</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado -->
+    <div style="padding:14px 20px;overflow-y:auto;flex:1;min-height:0">
+      <div id="simularMultiResultado" style="display:none">
+
+        <!-- MODO: Total consolidado -->
+        <div id="modoConsolidado">
+          <div style="display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#64748b;padding:6px 10px;background:#f1f5f9;border-radius:8px 8px 0 0;border:1px solid #e2e8f0">
+            <span>Componente</span><span style="text-align:right">Necessário total</span><span style="text-align:right">Saldo</span><span style="text-align:right">Situação</span>
+          </div>
+          <div id="simularMultiLinhas" style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;max-height:360px;overflow-y:auto"></div>
+        </div>
+
+        <!-- MODO: Por produto -->
+        <div id="modoProduto" style="display:none">
+          <div id="simularMultiPorProduto"></div>
+        </div>
+
+        <!-- MODO: Tabela cruzada -->
+        <div id="modoTabela" style="display:none;overflow-x:auto">
+          <div id="simularMultiTabela"></div>
+        </div>
+
+        <!-- Resumo + alertas (comum a todos os modos) -->
+        <div style="display:flex;gap:16px;margin-top:12px;padding:12px 14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;flex-wrap:wrap">
+          <div style="flex:1;min-width:160px">
+            <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px">Resultado</div>
+            <div id="simularMultiResumo" style="font-size:13px;font-weight:600;margin-top:4px"></div>
+          </div>
+          <div id="simularMultiAlertaDiv" style="display:none;flex:2;min-width:200px">
+            <div style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.4px">Itens insuficientes</div>
+            <div id="simularMultiAlerta" style="font-size:12px;color:#dc2626;margin-top:4px"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -12690,6 +13076,7 @@ function renderDashKitCards(){
     '<div class="dk-user">'+
       '<span class="dk-avatar" id="dkAvatar">·</span>'+
       '<span class="dk-user-name" id="dkUserName">—</span>'+
+      '<button id="dkBtnUsuarios" onclick="abrirModalUsuarios()" style="display:none;background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;padding:2px 5px" title="Gerenciar usuários">&#128101;</button>'+
       '<button class="dk-logout" onclick="fazerLogout()" title="Sair do sistema">SAIR</button>'+
     '</div>';
   document.body.appendChild(tools);
@@ -12737,6 +13124,9 @@ function renderDashKitCards(){
     if(badge){badge.textContent=n>9?'9+':n;badge.classList.toggle('show',n>0);}
     var dc=document.getElementById('dkDropCount');
     if(dc)dc.textContent=n?n+' item'+(n>1?'s':''):'';
+    // Botão admin
+    var btu=document.getElementById('dkBtnUsuarios');
+    if(btu)btu.style.display=(_gexUser&&_gexUser.perfil==='admin')?'inline-block':'none';
   },2500);
 })();
 </script>
@@ -12965,6 +13355,10 @@ async function salvarEstruturaSePendente(codigo){
     // Atualizar cache local
     if(!window._estruturasCache)window._estruturasCache={};
     window._estruturasCache[codigo]=payload;
+    // Redesenhar a tabela de estoque para o botão "Simular" aparecer imediatamente
+    if(document.getElementById('estTbody')){
+      renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+    }
     showT('Estrutura salva ✓','verde');
   }
 }
@@ -13013,7 +13407,7 @@ async function sbSalvarTodosItens(todosItens){
   if(!erros)sbToast('Todos os itens salvos na nuvem ('+rows.length+')','verde');
   // Atualizar cache para simulação
   window._estoqueTodosCache={};
-  rows.forEach(function(r){window._estoqueTodosCache[r.codigo]={nome:r.nome,unid:r.unid,saldo:r.saldo};});
+  rows.forEach(function(r){window._estoqueTodosCache[r.codigo]={nome:r.nome,unid:r.unid,saldo:r.saldo,lotes:r.lotes||[]};});
 }
 
 /* ── Carregar estoque completo do Supabase (para simulação) ── */
@@ -13022,10 +13416,10 @@ async function sbCarregarEstoqueItens(){
     // Busca data mais recente
     var {data:d1,error:e1}=await sb.from('estoque_itens').select('data_upload').order('data_upload',{ascending:false}).limit(1).maybeSingle();
     if(e1||!d1)return;
-    var {data,error}=await sb.from('estoque_itens').select('codigo,nome,unid,saldo').eq('data_upload',d1.data_upload);
+    var {data,error}=await sb.from('estoque_itens').select('codigo,nome,unid,saldo,lotes').eq('data_upload',d1.data_upload);
     if(error||!data)return;
     window._estoqueTodosCache={};
-    data.forEach(function(r){window._estoqueTodosCache[r.codigo]={nome:r.nome,unid:r.unid,saldo:r.saldo};});
+    data.forEach(function(r){window._estoqueTodosCache[r.codigo]={nome:r.nome,unid:r.unid,saldo:r.saldo,lotes:r.lotes||[]};});
     console.log('Estoque completo carregado:',data.length,'itens');
   }catch(e){console.error('sbCarregarEstoqueItens:',e);}
 }
@@ -13049,6 +13443,32 @@ function fecharSimular(){
 }
 
 /* ── Calcular disponibilidade de insumos ── */
+
+/* ── Validade mais próxima de um insumo ── */
+function proxValidade(lotes){
+  if(!lotes||!lotes.length)return null;
+  var hoje=new Date(); hoje.setHours(0,0,0,0);
+  var datas=[];
+  lotes.forEach(function(l){
+    if(!l.val)return;
+    var d=l.val instanceof Date?l.val:new Date(l.val);
+    if(!isNaN(d)&&(l.disp||0)>0)datas.push(d);
+  });
+  if(!datas.length)return null;
+  datas.sort(function(a,b){return a-b;});
+  var prox=datas[0];
+  var dias=Math.ceil((prox-hoje)/(1000*60*60*24));
+  return {data:prox,dias:dias};
+}
+function chipValidade(lotes){
+  var v=proxValidade(lotes);
+  if(!v)return '';
+  var cor,bg,txt;
+  if(v.dias<=7){cor='#dc2626';bg='#fef2f2';txt='Vence em '+v.dias+'d';}
+  else if(v.dias<=30){cor='#d97706';bg='#fffbeb';txt='Vence em '+v.dias+'d';}
+  else{cor='#16a34a';bg='#f0fdf4';txt=v.dias+'d';}
+  return '<span style="font-size:10px;font-weight:700;color:'+cor+';background:'+bg+';border-radius:4px;padding:1px 5px;margin-left:5px;white-space:nowrap">'+txt+'</span>';
+}
 function calcularSimulacao(){
   var cod=window._simularCodAtual;
   if(!cod)return;
@@ -13062,6 +13482,7 @@ function calcularSimulacao(){
   var saldos=window._estoqueTodosCache||window._estoqueACACache||{};
   var linhas='';
   var faltando=[];
+  var dadosLinhas=[];
   est.componentes.forEach(function(c){
     var necessario=c.qtd_unit*qtd;
     // Buscar saldo: tentar código exato, depois sem espaços
@@ -13074,13 +13495,17 @@ function calcularSimulacao(){
     var bgCor=ok?'#f0fdf4':'#fef2f2';
     var icon=ok?'✓':'✗';
     var diff=saldo-necessario;
-    linhas+='<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:0;padding:8px 10px;background:'+bgCor+';border-top:1px solid #e2e8f0;align-items:center">'
-      +'<div><div style="font-size:12px;font-weight:500;color:#0f1727">'+c.desc+'</div><div style="font-size:10px;color:#64748b;font-family:monospace">'+c.cod+'</div></div>'
+    var lotes=info?info.lotes||[]:[];
+    var chipVal=chipValidade(lotes);
+    linhas+='<div style="display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:0;padding:7px 10px;background:'+bgCor+';border-top:1px solid #e2e8f0;align-items:center">'
+      +'<div style="font-size:12px;font-weight:500;color:#0f1727;display:flex;align-items:center;gap:2px;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+c.desc+' ('+c.cod+')">'+c.desc+' <span style="color:#94a3b8;font-family:monospace;font-size:10px;font-weight:400">('+c.cod+')</span></span>'+chipVal+'</div>'
       +'<div style="text-align:right;font-size:12px;font-weight:600;color:#0f1727">'+necessario.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+c.unid+'</div>'
       +'<div style="text-align:right;font-size:12px;color:'+(saldo>0?'#0f1727':'#dc2626')+'">'+saldo.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+(unid||c.unid)+'</div>'
       +'<div style="text-align:right;font-size:12px;font-weight:700;color:'+cor+'">'+icon+' '+(ok?'+'+Math.abs(diff).toFixed(3):diff.toFixed(3))+'</div>'
       +'</div>';
     if(!ok)faltando.push(c.desc+' (falta '+Math.abs(diff).toFixed(3)+' '+c.unid+')');
+    var vDado=proxValidade(lotes);
+    dadosLinhas.push({desc:c.desc,cod:c.cod,necessario:necessario,unid:c.unid,saldo:saldo,unidSaldo:unid||c.unid,ok:ok,diff:diff,validade:vDado});
   });
   document.getElementById('simularLinhas').innerHTML=linhas;
   document.getElementById('simularResultado').style.display='block';
@@ -13088,12 +13513,1669 @@ function calcularSimulacao(){
   if(faltando.length){
     document.getElementById('simularResumo').innerHTML='<span style="color:#dc2626;font-weight:700">⚠ '+faltando.length+' item(ns) insuficiente(s) para produzir '+qtd+' unidade(s)</span>';
     document.getElementById('simularAlertaDiv').style.display='block';
-    document.getElementById('simularAlerta').textContent=faltando.join(' · ');
+    document.getElementById('simularAlerta').innerHTML=faltando.map(function(f){return '<div style="margin-top:2px">• '+f+'</div>';}).join('');
   }else{
     document.getElementById('simularResumo').innerHTML='<span style="color:#16a34a;font-weight:700">✓ Estoque suficiente para produzir '+qtd+' unidade(s)</span>';
     document.getElementById('simularAlertaDiv').style.display='none';
   }
+  // ── FEFO: lotes a consumir por ordem de vencimento
+  var fefoLinhas='';
+  var alertasVenc=[];
+  var hoje30=new Date(); hoje30.setHours(0,0,0,0);
+  dadosLinhas.forEach(function(l){
+    var info=(window._estoqueTodosCache||{})[l.cod.trim()];
+    var lotes=info?info.lotes||[]:[];
+    if(!lotes.length||!l.ok)return;
+    // Ordenar lotes por validade (FEFO): sem validade vai por último
+    var lotesOrdenados=lotes.filter(function(lt){return (lt.disp||0)>0;}).sort(function(a,b){
+      var da=a.val?new Date(a.val):new Date('2099-12-31');
+      var db=b.val?new Date(b.val):new Date('2099-12-31');
+      return da-db;
+    });
+    var restante=l.necessario;
+    var consumo=[];
+    for(var i=0;i<lotesOrdenados.length&&restante>0;i++){
+      var lt=lotesOrdenados[i];
+      var usar=Math.min(lt.disp||0,restante);
+      if(usar<=0)continue;
+      var vDate=lt.val?new Date(lt.val):null;
+      var dias=vDate?Math.ceil((vDate-hoje30)/(1000*60*60*24)):null;
+      consumo.push({lote:lt.lote||'S/N',usar:usar,val:vDate,dias:dias});
+      restante-=usar;
+      // Alerta 30d
+      if(dias!==null&&dias<=30){
+        alertasVenc.push({desc:l.desc,lote:lt.lote||'S/N',dias:dias,val:vDate});
+      }
+    }
+    if(!consumo.length)return;
+    fefoLinhas+='<div style="padding:7px 12px;border-bottom:1px solid #f1f5f9;display:grid;grid-template-columns:2fr repeat('+consumo.length+',1fr);gap:6px;align-items:center">'
+      +'<div style="font-size:11px;font-weight:600;color:#0f1727">'+l.desc+'</div>'
+      +consumo.map(function(c){
+        var corVal=c.dias===null?'#64748b':c.dias<=7?'#dc2626':c.dias<=30?'#d97706':'#16a34a';
+        return '<div style="text-align:center;background:#f8fafc;border-radius:6px;padding:4px 6px">'
+          +'<div style="font-size:10px;font-weight:700;color:#475569">Lote '+c.lote+'</div>'
+          +'<div style="font-size:11px;font-weight:700;color:#0f1727">'+c.usar.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+l.unid+'</div>'
+          +(c.val?'<div style="font-size:9px;font-weight:600;color:'+corVal+'">'+c.val.toLocaleDateString('pt-BR')+'</div>':'')
+          +'</div>';
+      }).join('')
+      +'</div>';
+    l.fefo=consumo;
+  });
+
+  // Mostrar FEFO
+  var fefoDiv=document.getElementById('simularFefoDiv');
+  var fefoLinhasEl=document.getElementById('simularFefoLinhas');
+  if(fefoLinhas&&fefoDiv&&fefoLinhasEl){
+    fefoDiv.style.display='block';
+    fefoLinhasEl.innerHTML=fefoLinhas;
+  }else if(fefoDiv){fefoDiv.style.display='none';}
+
+  // Mostrar alertas de vencimento
+  var alertDiv=document.getElementById('simularAlertaVenc');
+  var alertList=document.getElementById('simularListaVenc');
+  if(alertasVenc.length&&alertDiv&&alertList){
+    alertDiv.style.display='block';
+    alertList.innerHTML=alertasVenc.map(function(a){
+      var cor=a.dias<=7?'#dc2626':'#d97706';
+      return '<div style="margin-bottom:3px">• <b>'+a.desc+'</b> — Lote '+a.lote
+        +' — vence em <span style="font-weight:700;color:'+cor+'">'+a.dias+' dia(s)</span>'
+        +' ('+a.val.toLocaleDateString('pt-BR')+')</div>';
+    }).join('');
+  }else if(alertDiv){alertDiv.style.display='none';}
+
+  // Botão Gerar OP
+  var btnOP=document.getElementById('btnGerarOP');
+  if(btnOP)btnOP.style.display=faltando.length?'none':'inline-flex';
+
+  window._simularUltimoResultado={
+    titulo:document.getElementById('simularTitulo').textContent,
+    codigo:document.getElementById('simularCodigo').textContent,
+    qtd:qtd,
+    linhas:dadosLinhas,
+    faltando:faltando,
+    alertasVenc:alertasVenc
+  };
+}
+
+
+/* ── Ordem de Produção (OP) ── */
+function gerarOP(){
+  var r=window._simularUltimoResultado;
+  if(!r){showT('Calcule a simulação antes de gerar a OP','erro');return;}
+  if(r.faltando&&r.faltando.length){showT('Estoque insuficiente — resolva as pendências antes de gerar a OP','erro');return;}
+
+  var hoje=new Date();
+  var dataFmt=hoje.toLocaleDateString('pt-BR');
+  var horaFmt=hoje.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  var numOP=dataFmt.replace(/\//g,'-')+' '+r.titulo;
+  var emitidoPor=(document.getElementById('loginUserNome')||{}).textContent||'—';
+
+  var css=
+    '*{box-sizing:border-box;margin:0;padding:0}'+
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:11px;color:#0f172a;padding:20px 24px;background:#fff}'+
+    'h1{font-size:18px;font-weight:800;color:#0f172a}'+
+    '.sub{font-size:10px;color:#64748b;margin-top:2px}'+
+    '.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #2563eb;padding-bottom:12px;margin-bottom:16px}'+
+    '.op-num{font-size:11px;font-weight:700;color:#2563eb;background:#eff6ff;padding:4px 10px;border-radius:6px;margin-top:6px;display:inline-block}'+
+    '.info-box{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;background:#f8fafc;border-radius:8px;padding:12px 14px;border:1px solid #e2e8f0}'+
+    '.info-item label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:3px}'+
+    '.info-item span{font-size:13px;font-weight:700;color:#0f172a}'+
+    'h2{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #e2e8f0}'+
+    'table{width:100%;border-collapse:collapse;margin-bottom:14px}'+
+    'th{padding:6px 8px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:#1e3a5f;text-align:left}'+
+    'th.r{text-align:right}th.c{text-align:center}'+
+    'td{padding:5px 8px;font-size:10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}'+
+    'td.r{text-align:right;font-weight:600}td.c{text-align:center}'+
+    'tr:nth-child(even) td{background:#f8fafc}'+
+    '.tag-venc{font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;display:inline-block}'+
+    '.v-crit{background:#fef2f2;color:#dc2626}.v-atenc{background:#fffbeb;color:#d97706}.v-ok{background:#f0fdf4;color:#16a34a}'+
+    '.lote-chip{font-size:9px;background:#eff6ff;color:#1d4ed8;border-radius:4px;padding:1px 5px;font-weight:700;margin-right:3px;display:inline-block}'+
+    '.assin{margin-top:32px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}'+
+    '.assin-box{border-top:1px solid #334155;padding-top:6px;font-size:9px;color:#64748b;text-align:center}'+
+    '.alerta-venc{background:#fffbeb;border:1px solid #fcd34d;border-radius:6px;padding:8px 12px;margin-bottom:14px;font-size:10px;color:#92400e}'+
+    '@page{size:A4;margin:12mm}@media print{body{padding:0}}';
+
+  // Corpo — insumos com lotes FEFO
+  var tabelaInsumos='<table><thead><tr>'+
+    '<th>Componente</th><th>Código</th>'+
+    '<th class="r">Necessário</th><th>Lote(s) a consumir</th><th class="r">Validade</th>'+
+    '<th class="c">Separado ✓</th></tr></thead><tbody>';
+
+  r.linhas.forEach(function(l){
+    var lotesTxt='';
+    var valTxt='—';
+    var valCls='';
+    if(l.fefo&&l.fefo.length){
+      lotesTxt=l.fefo.map(function(ft){
+        return '<span class="lote-chip">'+ft.lote+'</span>'
+          +'<span style="font-size:9px;color:#475569">'+ft.usar.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+l.unid+'</span>';
+      }).join('<br>');
+      var primVal=l.fefo.find(function(ft){return ft.val;});
+      if(primVal&&primVal.val){
+        valTxt=primVal.val.toLocaleDateString('pt-BR')+'<br><span style="font-size:8px">('+primVal.dias+'d)</span>';
+        valCls=primVal.dias<=7?'v-crit':primVal.dias<=30?'v-atenc':'v-ok';
+      }
+    }else{
+      lotesTxt='<span style="color:#94a3b8">—</span>';
+    }
+    tabelaInsumos+='<tr>'+
+      '<td><b>'+l.desc+'</b></td>'+
+      '<td style="font-family:monospace;font-size:9px;color:#64748b">'+l.cod+'</td>'+
+      '<td class="r">'+l.necessario.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+l.unid+'</td>'+
+      '<td>'+lotesTxt+'</td>'+
+      '<td class="r">'+(valTxt!=='—'?'<span class="tag-venc '+valCls+'">'+valTxt+'</span>':'<span style="color:#94a3b8">—</span>')+'</td>'+
+      '<td class="c" style="font-size:16px;color:#d1d5db">☐</td>'+
+      '</tr>';
+  });
+  tabelaInsumos+='</tbody></table>';
+
+  // Alerta de vencimentos
+  var alertaHtml='';
+  if(r.alertasVenc&&r.alertasVenc.length){
+    alertaHtml='<div class="alerta-venc"><b>⚠ Atenção — Lotes próximos ao vencimento:</b><br>'+
+      r.alertasVenc.map(function(a){
+        return '• '+a.desc+' — Lote '+a.lote+' — '+a.val.toLocaleDateString('pt-BR')+' ('+a.dias+' dia(s))';
+      }).join('<br>')+'</div>';
+  }
+
+  var html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'+
+    '<title>OP — '+numOP+'</title><style>'+css+'</style></head><body>'+
+    '<div class="header">'+
+      '<div>'+
+        '<h1>Ordem de Produção</h1>'+
+        '<div class="sub">Grow Química e Farmacêutica Ltda.</div>'+
+        '<div class="op-num">'+numOP+'</div>'+
+      '</div>'+
+      '<div style="text-align:right">'+
+        '<div style="font-size:10px;color:#64748b">Emitida em</div>'+
+        '<div style="font-size:13px;font-weight:700">'+dataFmt+' às '+horaFmt+'</div>'+
+        '<div style="font-size:10px;color:#64748b;margin-top:4px">Emitido por: <b>'+emitidoPor+'</b></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="info-box">'+
+      '<div class="info-item"><label>Produto</label><span>'+r.titulo+'</span></div>'+
+      '<div class="info-item"><label>Código</label><span style="font-family:monospace">'+r.codigo.replace('Código: ','')+'</span></div>'+
+      '<div class="info-item"><label>Quantidade a produzir</label><span>'+r.qtd+' unidades</span></div>'+
+    '</div>'+
+    alertaHtml+
+    '<h2>Lista de Materiais — Separação</h2>'+
+    tabelaInsumos+
+    '<div class="assin">'+
+      '<div class="assin-box">Separado por / Data</div>'+
+      '<div class="assin-box">Conferido por / Data</div>'+
+      '<div class="assin-box">Liberado por / Data</div>'+
+    '</div>'+
+    '<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>';
+
+  var w=window.open('','_blank');
+  if(!w){showT('Popups bloqueados — libere e tente novamente','erro');return;}
+  w.document.open();w.document.write(html);w.document.close();
+}
+
+/* ── Impressão da simulação (item único) ── */
+function imprimirSimulacao(){
+  var r=window._simularUltimoResultado;
+  if(!r){showT('Calcule a simulação antes de imprimir','erro');return;}
+  var html=gerarHTMLImpressaoSimulacao(r.titulo,r.codigo,[r]);
+  var w=window.open('','_blank');
+  if(!w){showT('Popups bloqueados! Libere nas configurações do navegador e tente novamente','erro');return;}
+  w.document.open();w.document.write(html);w.document.close();
+}
+
+/* ── Gera HTML de impressão reutilizável (simulação única ou múltipla) ── */
+function gerarHTMLImpressaoSimulacao(tituloPrincipal,subtitulo,blocos){
+  var hoje=new Date().toLocaleString('pt-BR');
+  var css='*{box-sizing:border-box;margin:0;padding:0}'+
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:11px;color:#0f172a;padding:22px 26px;background:#fff}'+
+    '.header{margin-bottom:18px;border-bottom:2px solid #2563eb;padding-bottom:10px}'+
+    '.header h1{font-size:17px;font-weight:800}'+
+    '.header p{font-size:10px;color:#64748b;margin-top:3px}'+
+    '.bloco{margin-bottom:20px;page-break-inside:avoid}'+
+    '.bloco-title{font-size:12px;font-weight:700;padding:6px 10px;background:#eff6ff;border-left:3px solid #2563eb;margin-bottom:6px}'+
+    'table{width:100%;border-collapse:collapse}'+
+    'th{padding:5px 8px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:#334155;text-align:left}'+
+    '.val-ok{color:#16a34a;font-size:9px;font-weight:700}.val-atencao{color:#d97706;font-size:9px;font-weight:700}.val-critico{color:#dc2626;font-size:9px;font-weight:700}'+
+    'th.r{text-align:right}'+
+    'td{padding:4px 8px;font-size:10px;border-bottom:1px solid #f1f5f9}'+
+    'td.r{text-align:right;font-weight:600}'+
+    'tr:nth-child(even) td{background:#f8fafc}'+
+    '.ok{color:#16a34a;font-weight:700}.def{color:#dc2626;font-weight:700}'+
+    '.resumo{margin-top:6px;padding:8px 10px;border-radius:6px;font-size:11px;font-weight:600}'+
+    '.resumo.ok{background:#f0fdf4;color:#16a34a}.resumo.def{background:#fef2f2;color:#dc2626}'+
+    '@page{size:A4;margin:14mm}@media print{body{padding:0}}';
+  var body='';
+  blocos.forEach(function(b){
+    body+='<div class="bloco"><div class="bloco-title">'+b.titulo+' — '+b.codigo+' — Qtd.: '+b.qtd+' un</div>'+
+      '<table><thead><tr><th>Componente</th><th>Código</th><th class="r">Necessário</th><th class="r">Saldo</th><th class="r">Situação</th><th class="r">Validade</th></tr></thead><tbody>';
+    b.linhas.forEach(function(l){
+      body+='<tr><td>'+l.desc+'</td><td>'+l.cod+'</td><td class="r">'+l.necessario.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+l.unid+'</td>'+
+        '<td class="r">'+l.saldo.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+l.unidSaldo+'</td>'+
+        '<td class="r '+(l.ok?'ok':'def')+'">'+(l.ok?'✓ +'+Math.abs(l.diff).toFixed(3):'✗ '+l.diff.toFixed(3))+'</td>'+
+        (l.validade?'<td class="r '+(l.validade.dias<=7?'val-critico':l.validade.dias<=30?'val-atencao':'val-ok')+'">'+l.validade.data.toLocaleDateString('pt-BR')+'<br><span style="font-size:8px">('+l.validade.dias+'d)</span></td>':'<td class="r" style="color:#94a3b8;font-size:9px">—</td>')+
+        '</tr>';
+    });
+    body+='</tbody></table>';
+    body+=b.faltando.length
+      ?'<div class="resumo def">⚠ '+b.faltando.length+' item(ns) insuficiente(s):'+b.faltando.map(function(f){return '<div style="margin-top:3px;font-weight:500">• '+f+'</div>';}).join('')+'</div>'
+      :'<div class="resumo ok">✓ Estoque suficiente para produzir '+b.qtd+' unidade(s)</div>';
+    body+='</div>';
+  });
+  return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Simulação de Produção</title><style>'+css+'</style></head><body>'+
+    '<div class="header"><h1>⚗ Simulação de Produção</h1><p>'+tituloPrincipal+(subtitulo?' — '+subtitulo:'')+' · Gerado em '+hoje+'</p></div>'+
+    body+
+    '<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>';
+}
+
+/* ══════════════════════════════════════
+   SIMULAÇÃO — SELEÇÃO MÚLTIPLA
+══════════════════════════════════════ */
+window._selecaoMultiplaAtiva=false;
+window._itensSelecionadosMulti={};
+
+function toggleSelecaoMultipla(){
+  window._selecaoMultiplaAtiva=!window._selecaoMultiplaAtiva;
+  var btn=document.getElementById('btnSelecaoMultipla');
+  var barra=document.getElementById('barraSelecaoMultipla');
+  if(window._selecaoMultiplaAtiva){
+    btn.style.background='#2563eb';btn.style.color='#fff';
+    barra.style.display='flex';
+  }else{
+    btn.style.background='';btn.style.color='';
+    barra.style.display='none';
+    window._itensSelecionadosMulti={};
+  }
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+}
+
+function toggleSelecaoItem(cod,nomeEnc,marcado){
+  if(!window._itensSelecionadosMulti)window._itensSelecionadosMulti={};
+  if(marcado){
+    window._itensSelecionadosMulti[cod]={nome:decodeURIComponent(nomeEnc),qtd:1};
+  }else{
+    delete window._itensSelecionadosMulti[cod];
+  }
+  var qtdSel=Object.keys(window._itensSelecionadosMulti).length;
+  var el=document.getElementById('qtdSelecionados');
+  if(el)el.textContent=qtdSel;
+}
+
+function limparSelecaoMultipla(){
+  window._itensSelecionadosMulti={};
+  var el=document.getElementById('qtdSelecionados');
+  if(el)el.textContent='0';
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+}
+
+function abrirSimularMultiplo(){
+  var itens=window._itensSelecionadosMulti||{};
+  var cods=Object.keys(itens);
+  if(!cods.length){showT('Selecione ao menos um item para simular','erro');return;}
+  var html='<div style="display:grid;grid-template-columns:2.5fr 1fr 40px;gap:0;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#64748b;padding:6px 10px;background:#f1f5f9;border-bottom:1px solid #e2e8f0"><span>Produto</span><span style="text-align:center">Qtd. a produzir</span><span></span></div>';
+  cods.forEach(function(cod){
+    var it=itens[cod];
+    html+='<div style="display:grid;grid-template-columns:2.5fr 1fr 40px;gap:0;padding:7px 10px;border-bottom:1px solid #f1f5f9;align-items:center">'
+      +'<div><div style="font-size:12px;font-weight:500;color:#0f1727">'+it.nome+'</div><div style="font-size:10px;color:#64748b;font-family:monospace">'+cod+'</div></div>'
+      +'<div style="text-align:center"><input type="number" min="1" value="'+it.qtd+'" data-cod="'+cod+'" class="simMultiQtd" onchange="atualizarQtdMulti(\''+cod+'\',this.value)" style="width:80px;padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-weight:700;text-align:center"></div>'
+      +'<div style="text-align:center"><button onclick="removerItemMulti(\''+cod+'\')" title="Remover" style="background:none;border:none;color:#dc2626;font-size:15px;cursor:pointer">✕</button></div>'
+      +'</div>';
+  });
+  document.getElementById('simularMultiItens').innerHTML=html;
+  document.getElementById('simularMultiSubtitulo').textContent=cods.length+' produto(s) selecionado(s)';
+  document.getElementById('simularMultiResultado').style.display='none';
+  document.getElementById('overlaySimularMulti').style.display='flex';
+  calcularSimulacaoMulti();
+}
+
+function fecharSimularMulti(){
+  document.getElementById('overlaySimularMulti').style.display='none';
+}
+
+function atualizarQtdMulti(cod,valor){
+  if(window._itensSelecionadosMulti&&window._itensSelecionadosMulti[cod]){
+    window._itensSelecionadosMulti[cod].qtd=parseFloat(valor)||1;
+  }
+}
+
+function removerItemMulti(cod){
+  delete window._itensSelecionadosMulti[cod];
+  var el=document.getElementById('qtdSelecionados');
+  if(el)el.textContent=Object.keys(window._itensSelecionadosMulti).length;
+  renderEstoque(document.getElementById('estBusca')?document.getElementById('estBusca').value:'');
+  var restantes=Object.keys(window._itensSelecionadosMulti).length;
+  if(!restantes){fecharSimularMulti();return;}
+  abrirSimularMultiplo();
+}
+
+/* ── Modo ativo da visualização múltipla ── */
+window._modoMulti='consolidado';
+function setModoMulti(modo){
+  window._modoMulti=modo;
+  ['consolidado','produto','tabela'].forEach(function(m){
+    var btn=document.getElementById('modoBtn-'+m);
+    var cap=m.charAt(0).toUpperCase()+m.slice(1);
+    var div=document.getElementById('modo'+cap);
+    if(btn){btn.style.background=m===modo?'#2563eb':'transparent';btn.style.color=m===modo?'#fff':'#64748b';}
+    if(div)div.style.display=m===modo?'block':'none';
+  });
+  if(window._simularMultiDados)renderModoMulti(window._simularMultiDados);
+}
+
+function renderModoMulti(dados){
+  var fmtN=function(v){return v.toLocaleString('pt-BR',{maximumFractionDigits:4});};
+
+  // MODO TOTAL
+  var linhasConsol='';
+  dados.consolidado.forEach(function(c){
+    var ok=c.saldo>=c.necessario;
+    var cor=ok?'#16a34a':'#dc2626';
+    var bg=ok?'#f0fdf4':'#fef2f2';
+    var chip=chipValidade(c.lotes||[]);
+    linhasConsol+='<div style="display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;padding:7px 10px;background:'+bg+';border-top:1px solid #e2e8f0;align-items:center">'
+      +'<div style="font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+c.desc+' <span style="color:#94a3b8;font-family:monospace;font-size:10px">('+c.cod+')</span></span>'+chip+'</div>'
+      +'<div style="text-align:right;font-size:12px;font-weight:600">'+fmtN(c.necessario)+' '+c.unid+'</div>'
+      +'<div style="text-align:right;font-size:12px;color:'+(c.saldo>0?'#0f1727':'#dc2626')+'">'+fmtN(c.saldo)+' '+c.unidSaldo+'</div>'
+      +'<div style="text-align:right;font-size:12px;font-weight:700;color:'+cor+'">'+(ok?'\u2713 +'+Math.abs(c.diff).toFixed(3):'\u2717 '+c.diff.toFixed(3))+'</div>'
+      +'</div>';
+  });
+  document.getElementById('simularMultiLinhas').innerHTML=linhasConsol;
+
+  // MODO POR PRODUTO
+  var htmlProd='';
+  dados.porProduto.forEach(function(p){
+    var todosOk=p.linhas.every(function(l){return l.ok;});
+    htmlProd+='<div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:'+(todosOk?'#f0fdf4':'#fef2f2')+';border-bottom:1px solid #e2e8f0">'
+      +'<div style="font-size:13px;font-weight:700;color:#0f1727">'+p.nome+' <span style="font-family:monospace;font-size:10px;color:#64748b">('+p.cod+')</span></div>'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +'<span style="font-size:11px;color:#64748b">'+p.qtd+' unidades</span>'
+      +'<span style="font-size:12px;font-weight:700;color:'+(todosOk?'#16a34a':'#dc2626')+'">'+(todosOk?'\u2713 OK':'\u26A0 Falta')+'</span>'
+      +'</div></div>';
+    p.linhas.forEach(function(l){
+      var chip=chipValidade(l.lotes||[]);
+      htmlProd+='<div style="display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;padding:5px 12px;border-top:1px solid #f1f5f9;background:'+(l.ok?'#fff':'#fef2f2')+';align-items:center">'
+        +'<div style="font-size:11px;color:#475569;display:flex;align-items:center;gap:3px">'+l.desc+chip+'</div>'
+        +'<div style="text-align:right;font-size:11px;font-weight:600">'+fmtN(l.necessario)+' '+l.unid+'</div>'
+        +'<div style="text-align:right;font-size:11px;color:'+(l.saldo>0?'#475569':'#dc2626')+'">'+fmtN(l.saldo)+' '+l.unidSaldo+'</div>'
+        +'<div style="text-align:right;font-size:11px;font-weight:700;color:'+(l.ok?'#16a34a':'#dc2626')+'">'+(l.ok?'\u2713':'\u2717 '+l.diff.toFixed(3))+'</div>'
+        +'</div>';
+    });
+    htmlProd+='</div>';
+  });
+  document.getElementById('simularMultiPorProduto').innerHTML=htmlProd;
+
+  // MODO TABELA CRUZADA
+  var allCods=dados.consolidado;
+  var prods=dados.porProduto;
+  var htmlTab='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'
+    +'<thead><tr style="background:#1e3a5f;color:#fff">'
+    +'<th style="padding:6px 10px;text-align:left;min-width:180px;white-space:nowrap">Componente</th>';
+  prods.forEach(function(p){
+    htmlTab+='<th style="padding:6px 8px;text-align:center;min-width:100px;font-size:10px">'+p.nome.substring(0,22)+(p.nome.length>22?'\u2026':'')+'<br><span style="font-weight:400;opacity:.75">'+p.qtd+' un</span></th>';
+  });
+  htmlTab+='<th style="padding:6px 8px;text-align:right;min-width:90px;background:#0f2744;white-space:nowrap">Total</th>'
+    +'<th style="padding:6px 8px;text-align:right;min-width:80px;background:#0f2744">Saldo</th>'
+    +'<th style="padding:6px 8px;text-align:center;min-width:50px;background:#0f2744">Sit.</th>'
+    +'</tr></thead><tbody>';
+  allCods.forEach(function(c,i){
+    var bg=i%2===0?'#fff':'#f8fafc';
+    var bgDef=c.saldo<c.necessario?'#fef2f2':bg;
+    htmlTab+='<tr style="background:'+bgDef+'"><td style="padding:5px 10px;font-weight:500;white-space:nowrap">'+c.desc+'<div style="font-family:monospace;font-size:9px;color:#94a3b8">'+c.cod+'</div></td>';
+    prods.forEach(function(p){
+      var lp=p.linhas.find(function(l){return l.cod===c.cod;});
+      var val=lp?lp.necessario:0;
+      htmlTab+='<td style="padding:5px 8px;text-align:center;color:'+(val>0?'#0f1727':'#cbd5e1')+'">'+(val>0?fmtN(val)+' '+c.unid:'\u2014')+'</td>';
+    });
+    var okT=c.saldo>=c.necessario;
+    htmlTab+='<td style="padding:5px 8px;text-align:right;font-weight:700;background:'+(i%2===0?'#eff6ff':'#e0eeff')+'">'+fmtN(c.necessario)+' '+c.unid+'</td>'
+      +'<td style="padding:5px 8px;text-align:right;background:'+(i%2===0?'#eff6ff':'#e0eeff')+'">'+fmtN(c.saldo)+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;font-weight:700;color:'+(okT?'#16a34a':'#dc2626')+';background:'+(i%2===0?'#eff6ff':'#e0eeff')+'">'+(okT?'\u2713':'\u2717')+'</td>';
+    htmlTab+='</tr>';
+  });
+  htmlTab+='</tbody></table></div>';
+  document.getElementById('simularMultiTabela').innerHTML=htmlTab;
+}
+
+/* ── Calcula dados para todos os modos ── */
+function calcularSimulacaoMulti(){
+  var itens=window._itensSelecionadosMulti||{};
+  var cods=Object.keys(itens);
+  if(!cods.length)return;
+  var saldos=window._estoqueTodosCache||window._estoqueACACache||{};
+  var consolidadoMap={};
+  var semEstrutura=[];
+  var porProduto=[];
+
+  cods.forEach(function(cod){
+    var est=window._estruturasCache&&window._estruturasCache[cod];
+    if(!est||!est.componentes||!est.componentes.length){semEstrutura.push(itens[cod].nome);return;}
+    var qtd=itens[cod].qtd||1;
+    var linhasProd=[];
+    est.componentes.forEach(function(c){
+      var necessario=c.qtd_unit*qtd;
+      var codNorm=c.cod.trim();
+      var info=saldos[codNorm]||saldos[codNorm.replace(/\s+/g,'')];
+      var saldo=info?info.saldo:0;
+      var unid=info?info.unid:c.unid;
+      var lotes=info?info.lotes||[]:[];
+      var ok=saldo>=necessario;
+      var diff=saldo-necessario;
+      if(!consolidadoMap[codNorm])consolidadoMap[codNorm]={desc:c.desc,cod:codNorm,unid:c.unid,necessario:0,saldo:saldo,unidSaldo:unid||c.unid,lotes:lotes};
+      consolidadoMap[codNorm].necessario+=necessario;
+      linhasProd.push({desc:c.desc,cod:codNorm,necessario:necessario,unid:c.unid,saldo:saldo,unidSaldo:unid||c.unid,ok:ok,diff:diff,lotes:lotes});
+    });
+    porProduto.push({cod:cod,nome:itens[cod].nome,qtd:qtd,linhas:linhasProd});
+  });
+
+  var consolidado=Object.values(consolidadoMap).sort(function(a,b){return a.desc.localeCompare(b.desc);});
+  var faltando=[];
+  consolidado.forEach(function(c){
+    c.diff=c.saldo-c.necessario;
+    c.ok=c.saldo>=c.necessario;
+    if(!c.ok)faltando.push(c.desc+' (falta '+Math.abs(c.diff).toFixed(3)+' '+c.unid+')');
+  });
+
+  window._simularMultiDados={consolidado:consolidado,porProduto:porProduto,faltando:faltando,semEstrutura:semEstrutura};
+  window._simularMultiUltimoResultado={titulo:'Simulação Múltipla',codigo:(cods.length-semEstrutura.length)+' produto(s)',qtd:'—',linhas:consolidado,faltando:faltando};
+
+  document.getElementById('simularMultiResultado').style.display='block';
+  renderModoMulti(window._simularMultiDados);
+  setModoMulti(window._modoMulti||'consolidado');
+
+  var totalProdutos=cods.length-semEstrutura.length;
+  var resumoTxt=faltando.length
+    ?'<span style="color:#dc2626;font-weight:700">\u26A0 '+faltando.length+' componente(s) insuficiente(s) para os '+totalProdutos+' produto(s)</span>'
+    :'<span style="color:#16a34a;font-weight:700">\u2713 Estoque suficiente para todos os '+totalProdutos+' produto(s)</span>';
+  if(semEstrutura.length)resumoTxt+='<br><span style="color:#f97316;font-size:11px;font-weight:600">\u26A0 Sem estrutura: '+semEstrutura.join(', ')+'</span>';
+  document.getElementById('simularMultiResumo').innerHTML=resumoTxt;
+  if(faltando.length){
+    document.getElementById('simularMultiAlertaDiv').style.display='block';
+    document.getElementById('simularMultiAlerta').innerHTML=faltando.map(function(f){return '<div style="margin-top:2px">\u2022 '+f+'</div>';}).join('');
+    var btnOP=document.getElementById('btnGerarOPMulti');
+    if(btnOP)btnOP.style.display='none';
+  }else{
+    document.getElementById('simularMultiAlertaDiv').style.display='none';
+    var btnOP=document.getElementById('btnGerarOPMulti');
+    if(btnOP)btnOP.style.display='inline-flex';
+  }
+}
+
+/* ── Gerar OPs individuais por produto ── */
+function gerarOPMultipla(){
+  var dados=window._simularMultiDados;
+  if(!dados||!dados.porProduto||!dados.porProduto.length){showT('Calcule a simulação antes de gerar as OPs','erro');return;}
+  if(dados.faltando&&dados.faltando.length){showT('Estoque insuficiente — resolva as pendências antes','erro');return;}
+
+  var hoje=new Date();
+  var dataFmt=hoje.toLocaleDateString('pt-BR');
+  var horaFmt=hoje.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  var emitidoPor=(document.getElementById('loginUserNome')||{}).textContent||'—';
+
+  var css='*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:11px;color:#0f172a;padding:18px 22px;background:#fff}'
+    +'h1{font-size:16px;font-weight:800}.sub{font-size:10px;color:#64748b;margin-top:2px}'
+    +'.hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #2563eb;padding-bottom:10px;margin-bottom:14px}'
+    +'.op-num{font-size:11px;font-weight:700;color:#2563eb;background:#eff6ff;padding:3px 8px;border-radius:5px;margin-top:5px;display:inline-block}'
+    +'.info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;background:#f8fafc;border-radius:8px;padding:10px 12px;border:1px solid #e2e8f0}'
+    +'.info label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:2px}'
+    +'.info span{font-size:12px;font-weight:700}'
+    +'h2{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;margin:12px 0 5px;padding-bottom:3px;border-bottom:1px solid #e2e8f0}'
+    +'table{width:100%;border-collapse:collapse;margin-bottom:12px}'
+    +'th{padding:5px 7px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#fff;background:#1e3a5f;text-align:left}'
+    +'th.r{text-align:right}th.c{text-align:center}'
+    +'td{padding:4px 7px;font-size:10px;border-bottom:1px solid #f1f5f9}'
+    +'td.r{text-align:right;font-weight:600}td.c{text-align:center}'
+    +'tr:nth-child(even) td{background:#f8fafc}'
+    +'.lote{font-size:9px;background:#eff6ff;color:#1d4ed8;border-radius:3px;padding:1px 4px;font-weight:700;display:inline-block;margin-right:2px}'
+    +'.tag{font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;display:inline-block}'
+    +'.v-c{background:#fef2f2;color:#dc2626}.v-a{background:#fffbeb;color:#d97706}.v-o{background:#f0fdf4;color:#16a34a}'
+    +'.resumo{padding:7px 10px;border-radius:6px;font-size:10px;font-weight:600;margin-bottom:10px}'
+    +'.r-ok{background:#f0fdf4;color:#16a34a}.r-def{background:#fef2f2;color:#dc2626}'
+    +'.assin{margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}'
+    +'.assin-box{border-top:1px solid #334155;padding-top:5px;font-size:9px;color:#64748b;text-align:center}'
+    +'.page-break{page-break-before:always;padding-top:14px}'
+    +'@page{size:A4;margin:12mm}@media print{body{padding:0}}';
+
+  var body='';
+  dados.porProduto.forEach(function(p,idx){
+    var numOP=dataFmt.replace(/\//g,'-')+' '+p.nome;
+    var todosOk=p.linhas.every(function(l){return l.ok;});
+
+    var tbl='<table><thead><tr><th>Componente</th><th>Código</th>'
+      +'<th class="r">Necessário</th><th>Lote(s)</th><th class="r">Validade</th>'
+      +'<th class="c">Separado \u2713</th></tr></thead><tbody>';
+    p.linhas.forEach(function(l){
+      var info=(window._estoqueTodosCache||{})[l.cod]||{};
+      var lotes=info.lotes||[];
+      var lotesOrd=lotes.filter(function(lt){return (lt.disp||0)>0;}).sort(function(a,b){
+        var da=a.val?new Date(a.val):new Date('2099-12-31');
+        var db=b.val?new Date(b.val):new Date('2099-12-31');
+        return da-db;
+      });
+      var restante=l.necessario; var consumo=[]; var hoje2=new Date(); hoje2.setHours(0,0,0,0);
+      for(var i=0;i<lotesOrd.length&&restante>0;i++){
+        var lt=lotesOrd[i]; var usar=Math.min(lt.disp||0,restante);
+        if(usar<=0)continue;
+        var vd=lt.val?new Date(lt.val):null;
+        var dias=vd?Math.ceil((vd-hoje2)/(1000*60*60*24)):null;
+        consumo.push({lote:lt.lote||'S/N',usar:usar,val:vd,dias:dias});
+        restante-=usar;
+      }
+      var loteTxt=consumo.length?consumo.map(function(c){
+        return '<span class="lote">'+c.lote+'</span>'
+          +'<span style="font-size:9px;color:#475569">'+c.usar.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+l.unid+'</span>';
+      }).join('<br>'):'<span style="color:#94a3b8">—</span>';
+      var primVal=consumo.find(function(c){return c.val;});
+      var valTxt='<span style="color:#94a3b8">—</span>';
+      if(primVal&&primVal.val){
+        var cls=primVal.dias<=7?'v-c':primVal.dias<=30?'v-a':'v-o';
+        valTxt='<span class="tag '+cls+'">'+primVal.val.toLocaleDateString('pt-BR')+'<br>'+(primVal.dias)+'d</span>';
+      }
+      tbl+='<tr><td><b>'+l.desc+'</b></td><td style="font-family:monospace;font-size:9px;color:#64748b">'+l.cod+'</td>'
+        +'<td class="r">'+l.necessario.toLocaleString('pt-BR',{maximumFractionDigits:4})+' '+l.unid+'</td>'
+        +'<td>'+loteTxt+'</td><td class="r">'+valTxt+'</td>'
+        +'<td class="c" style="font-size:15px;color:#d1d5db">\u2610</td></tr>';
+    });
+    tbl+='</tbody></table>';
+
+    body+=(idx>0?'<div class="page-break">':'')+
+      '<div class="hdr"><div><h1>Ordem de Produção</h1><div class="sub">Grow Química e Farmacêutica Ltda.</div>'
+      +'<div class="op-num">'+numOP+'</div></div>'
+      +'<div style="text-align:right"><div style="font-size:9px;color:#64748b">Emitida em</div>'
+      +'<div style="font-size:12px;font-weight:700">'+dataFmt+' às '+horaFmt+'</div>'
+      +'<div style="font-size:9px;color:#64748b;margin-top:3px">Por: <b>'+emitidoPor+'</b></div></div></div>'
+      +'<div class="info">'
+      +'<div><label>Produto</label><span>'+p.nome+'</span></div>'
+      +'<div><label>Código</label><span style="font-family:monospace;font-size:11px">'+p.cod+'</span></div>'
+      +'<div><label>Quantidade</label><span>'+p.qtd+' unidades</span></div>'
+      +'</div>'
+      +'<div class="resumo '+(todosOk?'r-ok':'r-def')+'">'+(todosOk?'\u2713 Estoque suficiente':'\u26A0 Verifique os itens insuficientes')+'</div>'
+      +'<h2>Lista de Materiais — Separação</h2>'+tbl
+      +'<div class="assin"><div class="assin-box">Separado por / Data</div>'
+      +'<div class="assin-box">Conferido por / Data</div>'
+      +'<div class="assin-box">Liberado por / Data</div></div>'
+      +(idx>0?'</div>':'');
+  });
+
+  var html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+    +'<title>OPs — '+dataFmt+'</title><style>'+css+'</style></head><body>'+body
+    +'<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>';
+  var w=window.open('','_blank');
+  if(!w){showT('Popups bloqueados — libere e tente novamente','erro');return;}
+  w.document.open();w.document.write(html);w.document.close();
+}
+
+function imprimirSimulacaoMulti(){
+  var r=window._simularMultiUltimoResultado;
+  if(!r){showT('Calcule a simulação antes de imprimir','erro');return;}
+  var html=gerarHTMLImpressaoSimulacao(r.titulo,r.codigo,[r]);
+  var w=window.open('','_blank');
+  if(!w){showT('Popups bloqueados! Libere nas configurações do navegador e tente novamente','erro');return;}
+  w.document.open();w.document.write(html);w.document.close();
+}
+
+</script>
+<script>
+/* ════ TV FRETES — tela alternável ════ */
+
+var _tvTelaAtual='geral';
+
+function tvSetTela(tela){
+  _tvTelaAtual=tela;
+  var btnG=document.getElementById('tvTabGeral');
+  var btnF=document.getElementById('tvTabFretes');
+  var telaG=document.querySelector('.tv-kpis');
+  var colsG=document.querySelector('.tv-cols');
+  var tickerG=document.querySelector('.tv-ticker');
+  var telaF=document.getElementById('tvTelaFretes');
+  if(tela==='fretes'){
+    if(btnG){btnG.style.background='transparent';btnG.style.color='rgba(255,255,255,.55)';}
+    if(btnF){btnF.style.background='#2563eb';btnF.style.color='#fff';}
+    if(telaG)telaG.style.display='none';
+    if(colsG)colsG.style.display='none';
+    if(tickerG)tickerG.style.display='none';
+    if(telaF){telaF.style.display='flex';telaF.style.flexDirection='column';}
+    renderTVFretes();
+  }else{
+    if(btnG){btnG.style.background='#2563eb';btnG.style.color='#fff';}
+    if(btnF){btnF.style.background='transparent';btnF.style.color='rgba(255,255,255,.55)';}
+    if(telaG)telaG.style.display='grid';
+    if(colsG)colsG.style.display='grid';
+    if(tickerG)tickerG.style.display='block';
+    if(telaF)telaF.style.display='none';
+  }
+}
+
+function extrairDias(prazo){
+  if(!prazo)return null;
+  var m=String(prazo).match(/(\d+)/);
+  return m?parseInt(m[1],10):null;
+}
+
+function freteAtrasado(fr){
+  if(fr.status==='entregue')return false;
+  var dias=extrairDias(fr.prazoEntrega);
+  if(!dias||!fr.dataEmissao)return false;
+  var emissao=new Date(fr.dataEmissao);
+  var previsao=new Date(emissao.getTime()+dias*24*60*60*1000);
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  return hoje>previsao;
+}
+
+function diasAtraso(fr){
+  var dias=extrairDias(fr.prazoEntrega);
+  if(!dias||!fr.dataEmissao)return null;
+  var emissao=new Date(fr.dataEmissao);
+  var previsao=new Date(emissao.getTime()+dias*24*60*60*1000);
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  return Math.ceil((hoje-previsao)/(1000*60*60*24));
+}
+
+function renderTVFretes(){
+  var lista=typeof fretes!=='undefined'?fretes:[];
+  var TRANS=typeof TRANSPORTADORAS!=='undefined'?TRANSPORTADORAS:{};
+  var nAguard=0,nTransito=0,nAtras=0,nOcorr=0,nEntregue=0;
+  lista.forEach(function(f){
+    if(f.status==='aguardando')nAguard++;
+    else if(f.status==='transito')nTransito++;
+    else if(f.status==='ocorrencia')nOcorr++;
+    else if(f.status==='entregue')nEntregue++;
+    if(freteAtrasado(f))nAtras++;
+  });
+  var setEl=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  setEl('tvFrtAguardando',nAguard);setEl('tvFrtTransito',nTransito);
+  setEl('tvFrtAtrasados',nAtras);setEl('tvFrtOcorrencias',nOcorr);setEl('tvFrtEntregues',nEntregue);
+  var ORDEM={ocorrencia:0,aguardando:1,transito:2,entregue:3};
+  var ordenada=lista.slice().sort(function(a,b){
+    var aA=freteAtrasado(a)?-1:0,bA=freteAtrasado(b)?-1:0;
+    if(aA!==bA)return aA-bA;
+    return (ORDEM[a.status]||2)-(ORDEM[b.status]||2);
+  });
+  var COR={aguardando:{dot:'#3b82f6',txt:'Aguardando'},transito:{dot:'#f59e0b',txt:'Em Trânsito'},
+    entregue:{dot:'#22c55e',txt:'Entregue'},ocorrencia:{dot:'#ef4444',txt:'Ocorrência'}};
+  var html=ordenada.map(function(fr,i){
+    var st=COR[fr.status]||COR.transito;
+    var atras=freteAtrasado(fr);
+    var dA=diasAtraso(fr);
+    var transnome=(TRANS[fr.transportadora]||{}).nome||fr.transportadora||'—';
+    var emissaoFmt=fr.dataEmissao?fr.dataEmissao.split('-').reverse().join('/'):'—';
+    var rowBg=atras?'rgba(239,68,68,.12)':(i%2===0?'rgba(255,255,255,.03)':'rgba(255,255,255,.01)');
+    return '<div style="display:grid;grid-template-columns:1fr 2.5fr 1.5fr 1fr 1fr 1.3fr;gap:.8vw;padding:.85vh 1vw;background:'+rowBg+';border-top:1px solid rgba(255,255,255,.06);align-items:center">'
+      +'<div style="font-size:1.9vh;font-weight:800;color:#f1f5f9">'+escHtml(fr.nf||'—')+'</div>'
+      +'<div style="font-size:1.5vh;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(fr.cliente||'—')+'</div>'
+      +'<div style="font-size:1.4vh;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(transnome)+'</div>'
+      +'<div style="font-size:1.4vh;color:#94a3b8">'+emissaoFmt+'</div>'
+      +'<div style="font-size:1.4vh">'+(atras&&dA>0?'<span style="color:#ef4444;font-weight:800">+'+dA+'d \u26a0</span>':(fr.prazoEntrega?'<span style="color:#64748b">'+escHtml(fr.prazoEntrega)+'</span>':'<span style="color:#334155">—</span>'))+'</div>'
+      +'<div style="display:inline-flex;align-items:center;gap:.5vw">'
+        +'<span style="width:1vh;height:1vh;border-radius:50%;background:'+st.dot+';flex-shrink:0;display:inline-block'+(atras?';box-shadow:0 0 0 .4vh rgba(239,68,68,.25)':'')+'"></span>'
+        +'<span style="font-size:1.4vh;font-weight:700;color:'+(atras?'#fca5a5':st.dot)+'">'+st.txt+(atras?' · Atrasado':'')+'</span>'
+      +'</div></div>';
+  }).join('');
+  if(!html)html='<div style="text-align:center;padding:4vh;color:#475569;font-size:1.6vh">Nenhum frete cadastrado</div>';
+  var el=document.getElementById('tvFreteLista');
+  if(el)el.innerHTML=html;
+  var at=document.getElementById('tvFreteAtualizadoEm');
+  if(at)at.textContent='Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+setInterval(function(){if(_tvTelaAtual==='fretes')renderTVFretes();},30000);
+</script>
+
+<script>
+/* ════ TV REALTIME + ALTERNÂNCIA AUTOMÁTICA ════ */
+
+/* ── Alternância automática 15s ── */
+(function(){
+  var INTERVALO=15000;
+  var _autoTimer=null;
+  var _pausado=false;
+  var _pausaTimer=null;
+
+  function proximaTela(){
+    if(_pausado)return;
+    var atual=window._tvTelaAtual||'geral';
+    tvSetTela(atual==='geral'?'fretes':'geral');
+  }
+
+  function iniciarAuto(){
+    if(_autoTimer)clearInterval(_autoTimer);
+    _autoTimer=setInterval(proximaTela,INTERVALO);
+  }
+
+  /* Pausa 30s quando usuário interage com os botões da TV */
+  function pausarAuto(){
+    _pausado=true;
+    if(_pausaTimer)clearTimeout(_pausaTimer);
+    _pausaTimer=setTimeout(function(){_pausado=false;},30000);
+  }
+
+  /* Hook nos botões de alternância para pausar o auto */
+  var _tvSetTelaOrig=window.tvSetTela;
+  window.tvSetTela=function(tela){
+    pausarAuto();
+    if(_tvSetTelaOrig)_tvSetTelaOrig(tela);
+  };
+
+  /* Inicia quando o painel abre */
+  var _abrirOrig=window.abrirPainelTV;
+  window.abrirPainelTV=function(){
+    if(_abrirOrig)_abrirOrig();
+    window._tvTelaAtual='geral';
+    _pausado=false;
+    iniciarAuto();
+  };
+
+  /* Para quando fecha */
+  var _fecharOrig=window.fecharPainelTV;
+  window.fecharPainelTV=function(){
+    if(_autoTimer){clearInterval(_autoTimer);_autoTimer=null;}
+    if(_pausaTimer){clearTimeout(_pausaTimer);_pausaTimer=null;}
+    if(_fecharOrig)_fecharOrig();
+  };
+
+  /* Indicador visual de progresso na TV */
+  var _progTimer=null;
+  var _progInicio=null;
+  function tickProgress(){
+    var bar=document.getElementById('tvAutoBar');
+    if(!bar)return;
+    if(_pausado){bar.style.width='100%';bar.style.background='rgba(255,255,255,.15)';return;}
+    var elapsed=Date.now()-(_progInicio||Date.now());
+    var pct=Math.min((elapsed/INTERVALO)*100,100);
+    bar.style.width=pct+'%';
+    bar.style.background='rgba(37,99,235,.7)';
+  }
+  function iniciarProgress(){
+    _progInicio=Date.now();
+    if(_progTimer)clearInterval(_progTimer);
+    _progTimer=setInterval(tickProgress,200);
+  }
+
+  var _tvSetTelaOrig2=window.tvSetTela;
+  window.tvSetTela=function(tela){
+    iniciarProgress();
+    if(_tvSetTelaOrig2)_tvSetTelaOrig2(tela);
+  };
+
+})();
+
+/* ── Supabase Realtime: atualizar TV quando dados mudam ── */
+(function(){
+  var _realtimeAtivo=false;
+  var _canal=null;
+
+  function tvAtualizarTudo(){
+    try{
+      if(typeof atualizarPainelTV==='function')atualizarPainelTV();
+      if(window._tvTelaAtual==='fretes'&&typeof renderTVFretes==='function')renderTVFretes();
+    }catch(e){}
+  }
+
+  function ativarRealtime(){
+    if(_realtimeAtivo||!window.sb)return;
+    try{
+      _canal=sb.channel('tv-realtime')
+        .on('postgres_changes',{event:'*',schema:'public',table:'fretes'},function(){
+          if(document.getElementById('painelTV')&&document.getElementById('painelTV').style.display==='flex'){
+            setTimeout(function(){
+              if(typeof sbCarregarFretes==='function')sbCarregarFretes().then(function(){tvAtualizarTudo();});
+            },500);
+          }
+        })
+        .on('postgres_changes',{event:'*',schema:'public',table:'cotacoes'},function(){
+          if(document.getElementById('painelTV')&&document.getElementById('painelTV').style.display==='flex'){
+            setTimeout(function(){
+              if(typeof sbCarregarCotacoes==='function')sbCarregarCotacoes().then(function(){tvAtualizarTudo();});
+            },500);
+          }
+        })
+        .on('postgres_changes',{event:'*',schema:'public',table:'estoque_itens'},function(){
+          if(document.getElementById('painelTV')&&document.getElementById('painelTV').style.display==='flex'){
+            setTimeout(function(){tvAtualizarTudo();},500);
+          }
+        })
+        .subscribe(function(status){
+          if(status==='SUBSCRIBED'){
+            _realtimeAtivo=true;
+            console.log('TV Realtime ativo');
+          }
+        });
+    }catch(e){console.warn('Realtime indisponível:',e);}
+  }
+
+  /* Ativar após login */
+  var _loginOrig=window.fazerLogin;
+  if(typeof fazerLogin==='function'){
+    window.fazerLogin=async function(){
+      var r=await _loginOrig.apply(this,arguments);
+      setTimeout(ativarRealtime,2000);
+      return r;
+    };
+  }else{
+    /* Se já logado, ativa em 3s */
+    setTimeout(ativarRealtime,3000);
+  }
+})();
+</script>
+
+
+<!-- ── FAB mobile ── -->
+<div id="fab-overlay" onclick="fabFechar()"></div>
+<div id="fab-root">
+  <button id="fab-main" onclick="fabToggle()" aria-label="Ações rápidas">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <div id="fab-menu">
+    <div class="fab-item">
+      <span class="fab-label">Nova Cotação</span>
+      <button class="fab-btn" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)"
+        onclick="fabFechar();setModoApp('cotacao');novaCot()" aria-label="Nova Cotação">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+      </button>
+    </div>
+    <div class="fab-item">
+      <span class="fab-label">Lançar NF</span>
+      <button class="fab-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706)"
+        onclick="fabFechar();setModoApp('frete');abrirFormNF()" aria-label="Lançar NF">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8l5 3v5h-5V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </button>
+    </div>
+    <div class="fab-item">
+      <span class="fab-label">Ver Estoque</span>
+      <button class="fab-btn" style="background:linear-gradient(135deg,#059669,#047857)"
+        onclick="fabFechar();setModoApp('estoque')" aria-label="Ver Estoque">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8l-9-5-9 5v8l9 5 9-5z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </button>
+    </div>
+    <div class="fab-item">
+      <span class="fab-label">Registrar Amostra</span>
+      <button class="fab-btn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)"
+        onclick="fabFechar();setModoApp('amostras')" aria-label="Registrar Amostra">
+        <svg viewBox="0 0 24 24"><path d="M9 3h6v11l3 4H6l3-4V3z"/><path d="M6 17a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2"/><line x1="9" y1="3" x2="15" y2="3"/></svg>
+      </button>
+    </div>
+    <div class="fab-item">
+      <span class="fab-label">Novo Evento</span>
+      <button class="fab-btn" style="background:linear-gradient(135deg,#ec4899,#db2777)"
+        onclick="fabFechar();setModoApp('agenda');abrirModalEvento()" aria-label="Novo Evento">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 14v4M10 16h4"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function fabToggle(){
+  var root=document.getElementById('fab-main');
+  var menu=document.getElementById('fab-menu');
+  var over=document.getElementById('fab-overlay');
+  var open=menu.classList.contains('open');
+  if(open){fabFechar();}
+  else{
+    root.classList.add('open');
+    menu.classList.add('open');
+    over.classList.add('show');
+    // Escalonar entrada dos itens
+    document.querySelectorAll('.fab-label').forEach(function(el,i){
+      el.style.transitionDelay=(i*40)+'ms';
+    });
+  }
+}
+function fabFechar(){
+  document.getElementById('fab-main').classList.remove('open');
+  document.getElementById('fab-menu').classList.remove('open');
+  document.getElementById('fab-overlay').classList.remove('show');
+  document.querySelectorAll('.fab-label').forEach(function(el){el.style.transitionDelay='0ms';});
+}
+// Fechar ao navegar entre módulos
+var _setModoOrig=window.setModoApp;
+window.setModoApp=function(m){fabFechar();if(_setModoOrig)_setModoOrig(m);};
+</script>
+
+
+<script>
+/* ════ FRETES — Busca NFs do faturamento + Relatório ════ */
+
+/* ── Busca múltiplas NFs no faturamento ── */
+function buscarNFsFaturamento(){
+  var input=document.getElementById('ftBuscaNFInput').value.trim();
+  if(!input)return;
+  var nums=input.split(/[,;\s]+/).map(function(n){return n.trim();}).filter(Boolean);
+  var fat=typeof fatDados!=='undefined'?fatDados:[];
+  var result=document.getElementById('ftBuscaNFResult');
+  if(!fat.length){result.innerHTML='<span style="color:#dc2626">Faturamento não carregado. Faça o upload da planilha de faturamento primeiro.</span>';return;}
+
+  var encontradas=[];
+  var jaExistem=[];
+  var naoEncontradas=[];
+
+  nums.forEach(function(num){
+    // Verificar duplicata
+    if(fretes.find(function(fr){return fr.nf===num;})){
+      jaExistem.push(num);
+      return;
+    }
+    // Buscar no faturamento
+    var linhas=fat.filter(function(r){return r.nf===num&&!r.excluida;});
+    if(!linhas.length){naoEncontradas.push(num);return;}
+    var total=linhas.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+    var cliente=linhas[0].cliente||'';
+    var transp=linhas[0].transportadora||'';
+    var emissao=linhas[0].dt_emissao||linhas[0].data||'';
+    var estado=linhas[0].estado||'';
+    encontradas.push({nf:num,cliente:cliente,valor:total,transportadora:transp,emissao:emissao,estado:estado});
+  });
+
+  // Preencher formulário se for busca de 1 NF
+  if(encontradas.length===1&&nums.length===1){
+    var e=encontradas[0];
+    document.getElementById('ftNF').value=e.nf;
+    document.getElementById('ftCliente').value=e.cliente;
+    document.getElementById('ftValorComercial').value=e.valor.toFixed(2);
+    if(e.transportadora)document.getElementById('ftTransportadora').value=e.transportadora;
+    if(e.emissao)document.getElementById('ftDataEmissao').value=e.emissao.substring?e.emissao.substring(0,10):e.emissao;
+    result.innerHTML='<span style="color:#16a34a;font-weight:600">✓ NF '+e.nf+' encontrada — campos preenchidos automaticamente</span>';
+    return;
+  }
+
+  // Múltiplas NFs: mostrar resumo e botão para importar todas
+  var html='';
+  if(encontradas.length){
+    html+='<div style="margin-bottom:6px"><b style="color:#16a34a">'+encontradas.length+' NF(s) encontrada(s):</b></div>';
+    html+='<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px;margin-bottom:6px;max-height:150px;overflow-y:auto">';
+    encontradas.forEach(function(e){
+      html+='<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #dcfce7;font-size:11px">'
+        +'<span><b>NF '+e.nf+'</b> — '+e.cliente+'</span>'
+        +'<span style="color:#16a34a;font-weight:600">R$ '+e.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+        +'</div>';
+    });
+    html+='</div>';
+    html+='<button onclick="importarNFsFaturamento('+JSON.stringify(encontradas).replace(/"/g,"'")+')" style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:6px">📥 Importar todas como fretes</button> ';
+  }
+  if(jaExistem.length)html+='<div style="color:#d97706;font-size:11px;margin-bottom:3px">⚠ Já cadastradas (ignoradas): '+jaExistem.join(', ')+'</div>';
+  if(naoEncontradas.length)html+='<div style="color:#dc2626;font-size:11px">✗ Não encontradas no faturamento: '+naoEncontradas.join(', ')+'</div>';
+  result.innerHTML=html;
+}
+
+function importarNFsFaturamento(lista){
+  var importadas=0;
+  lista.forEach(function(e){
+    if(fretes.find(function(fr){return fr.nf===e.nf;}))return;
+    var reg={
+      id:Date.now()+Math.random(),
+      nf:e.nf,cliente:e.cliente,
+      dataEmissao:e.emissao?e.emissao.substring(0,10):'',
+      valorComercial:e.valor,valorFrete:0,pesoBruto:0,
+      transportadora:e.transportadora||'',
+      rastreio:'',status:'aguardando',obs:'Importado do faturamento',
+      redespacho:false,t1Trans:'',t1Status:'aguardando',t2Trans:'',t2Status:'aguardando',
+      itens:[],
+      eventos:[{data:new Date().toLocaleString('pt-BR'),texto:'NF importada do faturamento'}],
+      dataCad:new Date().toISOString()
+    };
+    fretes.unshift(reg);
+    sbSalvarFrete(reg).catch(function(e){console.error(e);});
+    importadas++;
+  });
+  if(importadas){
+    salvarFretesLS();renderFretes(freteFilter);atualizarStatsFrete();
+    document.getElementById('ftBuscaNFResult').innerHTML='<span style="color:#16a34a;font-weight:600">✓ '+importadas+' NF(s) importada(s) como fretes!</span>';
+    document.getElementById('ftBuscaNFInput').value='';
+    showT(importadas+' NF(s) importada(s) ✓','verde');
+  }
+}
+
+/* ════ RELATÓRIO DE FRETES ════ */
+function abrirRelatorioFretes(){
+  var mo=document.getElementById('overlayRelFretes');
+  if(!mo){criarModalRelFretes();}
+  else{document.getElementById('overlayRelFretes').style.display='flex';}
+  gerarRelatorioFretes();
+}
+
+function criarModalRelFretes(){
+  var mo=document.createElement('div');
+  mo.id='overlayRelFretes';
+  mo.style.cssText='position:fixed;inset:0;z-index:999999;background:rgba(11,18,32,.6);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center';
+  mo.onclick=function(e){if(e.target===mo)mo.style.display='none';};
+  mo.innerHTML=
+    '<div style="background:#fff;border-radius:16px;width:900px;max-width:97vw;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35)">'
+      +'<div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">'
+        +'<div style="font-size:15px;font-weight:700;color:#0f1727">📊 Relatório de Fretes</div>'
+        +'<div style="display:flex;gap:8px;align-items:center">'
+          +'<button onclick="imprimirRelatorioFretes()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">🖨️ Imprimir / PDF</button>'
+          +'<button onclick="fecharRelatorioFretes()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">&#10005;</button>'
+        +'</div>'
+      +'</div>'
+      +'<div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;flex-shrink:0;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">'
+        +'<div><label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Período</label>'
+          +'<div style="display:flex;gap:6px;align-items:center">'
+            +'<input type="date" id="relFrtDe" style="padding:6px 8px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px">'
+            +'<span style="color:#94a3b8;font-size:12px">até</span>'
+            +'<input type="date" id="relFrtAte" style="padding:6px 8px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px">'
+          +'</div></div>'
+        +'<div><label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Transportadora</label>'
+          +'<select id="relFrtTransp" style="padding:6px 8px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px">'
+            +'<option value="">Todas</option>'
+            +Object.values(typeof TRANSPORTADORAS!=='undefined'?TRANSPORTADORAS:{}).map(function(t){return'<option value="'+t.nome+'">'+t.nome+'</option>';}).join('')
+          +'</select></div>'
+        +'<div><label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Cliente</label>'
+          +'<input type="text" id="relFrtCliente" placeholder="Filtrar por cliente..." style="padding:6px 8px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;width:180px">'
+        +'</div>'
+        +'<button onclick="gerarRelatorioFretes()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">Filtrar</button>'
+      +'</div>'
+      +'<div id="relFrtConteudo" style="padding:16px 20px;overflow-y:auto;flex:1;min-height:0"></div>'
+    +'</div>';
+  document.body.appendChild(mo);
+}
+
+function gerarRelatorioFretes(){
+  var de=document.getElementById('relFrtDe').value;
+  var ate=document.getElementById('relFrtAte').value;
+  var transpFil=(document.getElementById('relFrtTransp').value||'').toLowerCase();
+  var cliFil=(document.getElementById('relFrtCliente').value||'').toLowerCase();
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+
+  var lista=fretes.filter(function(f){
+    if(de&&f.dataEmissao&&f.dataEmissao<de)return false;
+    if(ate&&f.dataEmissao&&f.dataEmissao>ate)return false;
+    if(transpFil&&!(f.transportadora||'').toLowerCase().includes(transpFil))return false;
+    if(cliFil&&!(f.cliente||'').toLowerCase().includes(cliFil))return false;
+    return true;
+  });
+
+  // Calcular métricas
+  function calcStatus(f){
+    if(f.status==='entregue'){
+      if(!f.prazoEntrega)return 'semPrazo';
+      var prazo=new Date(f.prazoEntrega);
+      var emissao=new Date(f.dataEmissao||f.dataCad);
+      var entregaEv=f.eventos&&f.eventos.find(function(e){return e.texto&&e.texto.toLowerCase().includes('entregue');});
+      var dtEntrega=entregaEv?new Date(entregaEv.data.split('/').reverse().join('-').substring(0,10)):null;
+      if(dtEntrega&&prazo){return dtEntrega<=prazo?'noPrazo':'atrasado';}
+      return 'semPrazo';
+    }
+    if(f.status==='transito'||f.status==='aguardando'){
+      if(!f.prazoEntrega)return 'emAberto';
+      var prazo2=new Date(f.prazoEntrega); prazo2.setHours(0,0,0,0);
+      return hoje>prazo2?'atrasado':'emAberto';
+    }
+    if(f.status==='ocorrencia')return 'atrasado';
+    return 'emAberto';
+  }
+
+  var noPrazo=0,atrasado=0,emAberto=0,semPrazo=0;
+  lista.forEach(function(f){
+    var s=calcStatus(f);
+    if(s==='noPrazo')noPrazo++;
+    else if(s==='atrasado')atrasado++;
+    else if(s==='emAberto')emAberto++;
+    else semPrazo++;
+  });
+
+  // Por transportadora
+  var porTrans={};
+  lista.forEach(function(f){
+    var t=f.transportadora||'Não informada';
+    if(!porTrans[t])porTrans[t]={total:0,noPrazo:0,atrasado:0,emAberto:0,semPrazo:0,diasTotal:0,diasCount:0};
+    var s=calcStatus(f);
+    porTrans[t].total++;porTrans[t][s]++;
+    // Calcular dias em trânsito para entregues
+    if(f.status==='entregue'&&f.dataEmissao){
+      var entEv=f.eventos&&f.eventos.find(function(e){return e.texto&&e.texto.toLowerCase().includes('entregue');});
+      if(entEv){
+        var diff=Math.ceil((new Date(entEv.data.split('/').reverse().join('-').substring(0,10))-new Date(f.dataEmissao))/(1000*60*60*24));
+        if(diff>=0){porTrans[t].diasTotal+=diff;porTrans[t].diasCount++;}
+      }
+    }
+  });
+
+  var fmtD=function(d){return d?d.split('-').reverse().join('/'):'—';};
+
+  var html='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">'
+    +'<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:800;color:#16a34a">'+noPrazo+'</div><div style="font-size:11px;font-weight:600;color:#15803d">✓ No prazo</div></div>'
+    +'<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:800;color:#dc2626">'+atrasado+'</div><div style="font-size:11px;font-weight:600;color:#b91c1c">⚠ Atrasado</div></div>'
+    +'<div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:800;color:#2563eb">'+emAberto+'</div><div style="font-size:11px;font-weight:600;color:#1d4ed8">✗ Em aberto</div></div>'
+    +'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:800;color:#64748b">'+lista.length+'</div><div style="font-size:11px;font-weight:600;color:#475569">Total</div></div>'
+    +'</div>';
+
+  // Tabela por transportadora
+  html+='<div style="font-size:13px;font-weight:700;color:#0f1727;margin-bottom:8px">Desempenho por Transportadora</div>';
+  html+='<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:20px">'
+    +'<table style="width:100%;border-collapse:collapse;font-size:12px">'
+    +'<thead><tr style="background:#1e3a5f;color:#fff">'
+    +'<th style="padding:8px 12px;text-align:left">Transportadora</th>'
+    +'<th style="padding:8px 8px;text-align:center">Total</th>'
+    +'<th style="padding:8px 8px;text-align:center;color:#86efac">✓ No prazo</th>'
+    +'<th style="padding:8px 8px;text-align:center;color:#fca5a5">⚠ Atrasado</th>'
+    +'<th style="padding:8px 8px;text-align:center;color:#93c5fd">Em aberto</th>'
+    +'<th style="padding:8px 8px;text-align:center">% Cumprimento</th>'
+    +'<th style="padding:8px 8px;text-align:center">Média dias</th>'
+    +'</tr></thead><tbody>';
+  Object.keys(porTrans).sort().forEach(function(t,i){
+    var d=porTrans[t];
+    var decididas=d.noPrazo+d.atrasado;
+    var pctCump=decididas>0?((d.noPrazo/decididas)*100).toFixed(0)+'%':'—';
+    var media=d.diasCount>0?(d.diasTotal/d.diasCount).toFixed(1)+' dias':'—';
+    var corPct=decididas===0?'#94a3b8':parseInt(pctCump)>=80?'#16a34a':parseInt(pctCump)>=60?'#d97706':'#dc2626';
+    html+='<tr style="background:'+(i%2===0?'#fff':'#f8fafc')+'">'
+      +'<td style="padding:7px 12px;font-weight:600">'+t+'</td>'
+      +'<td style="padding:7px 8px;text-align:center">'+d.total+'</td>'
+      +'<td style="padding:7px 8px;text-align:center;color:#16a34a;font-weight:600">'+d.noPrazo+'</td>'
+      +'<td style="padding:7px 8px;text-align:center;color:#dc2626;font-weight:600">'+d.atrasado+'</td>'
+      +'<td style="padding:7px 8px;text-align:center;color:#2563eb">'+d.emAberto+'</td>'
+      +'<td style="padding:7px 8px;text-align:center;font-weight:800;color:'+corPct+'">'+pctCump+'</td>'
+      +'<td style="padding:7px 8px;text-align:center;color:#64748b">'+media+'</td>'
+      +'</tr>';
+  });
+  html+='</tbody></table></div>';
+
+  // Lista de fretes filtrados
+  html+='<div style="font-size:13px;font-weight:700;color:#0f1727;margin-bottom:8px">Fretes ('+lista.length+')</div>';
+  html+='<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">'
+    +'<table style="width:100%;border-collapse:collapse;font-size:11px">'
+    +'<thead><tr style="background:#f1f5f9;color:#475569">'
+    +'<th style="padding:7px 10px;text-align:left">NF</th>'
+    +'<th style="padding:7px 10px;text-align:left">Cliente</th>'
+    +'<th style="padding:7px 8px;text-align:left">Transportadora</th>'
+    +'<th style="padding:7px 8px;text-align:center">Emissão</th>'
+    +'<th style="padding:7px 8px;text-align:center">Prazo</th>'
+    +'<th style="padding:7px 8px;text-align:center">Status</th>'
+    +'<th style="padding:7px 8px;text-align:center">Situação</th>'
+    +'</tr></thead><tbody>';
+  lista.forEach(function(f,i){
+    var st=calcStatus(f);
+    var stCor=st==='noPrazo'?'#16a34a':st==='atrasado'?'#dc2626':st==='emAberto'?'#2563eb':'#94a3b8';
+    var stTxt=st==='noPrazo'?'✓ No prazo':st==='atrasado'?'⚠ Atrasado':st==='emAberto'?'Em aberto':'Sem prazo';
+    var STLBL={aguardando:'Aguardando',transito:'Em Trânsito',entregue:'Entregue',ocorrencia:'Ocorrência'};
+    html+='<tr style="background:'+(i%2===0?'#fff':'#f8fafc')+'">'
+      +'<td style="padding:5px 10px;font-weight:700">'+f.nf+'</td>'
+      +'<td style="padding:5px 10px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.cliente+'</td>'
+      +'<td style="padding:5px 8px;color:#475569">'+((f.transportadora)||'—')+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;color:#64748b">'+fmtD(f.dataEmissao)+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;color:#64748b">'+fmtD(f.prazoEntrega)+'</td>'
+      +'<td style="padding:5px 8px;text-align:center">'+((STLBL[f.status])||f.status)+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;font-weight:700;color:'+stCor+'">'+stTxt+'</td>'
+      +'</tr>';
+  });
+  html+='</tbody></table></div>';
+
+  window._relFrtDados={lista:lista,noPrazo:noPrazo,atrasado:atrasado,emAberto:emAberto,porTrans:porTrans};
+  document.getElementById('relFrtConteudo').innerHTML=html;
+}
+
+function imprimirRelatorioFretes(){
+  var d=window._relFrtDados||{};
+  var hoje=new Date().toLocaleDateString('pt-BR');
+  var de=document.getElementById('relFrtDe').value;
+  var ate=document.getElementById('relFrtAte').value;
+  var periodo=(de||ate)?(de?de.split('-').reverse().join('/'):'início')+' → '+(ate?ate.split('-').reverse().join('/'):'hoje'):'Todo o período';
+  var w=window.open('','_blank');
+  if(!w)return;
+  var conteudo=document.getElementById('relFrtConteudo').innerHTML;
+  var css='body{font-family:-apple-system,Arial,sans-serif;font-size:11px;color:#0f172a;padding:20px}'
+    +'h1{font-size:17px;font-weight:800;margin:0}table{width:100%;border-collapse:collapse}'
+    +'th{background:#1e3a5f;color:#fff;padding:6px 8px;font-size:9px;text-align:left}'
+    +'td{padding:5px 8px;border-bottom:1px solid #f1f5f9;font-size:10px}'
+    +'tr:nth-child(even) td{background:#f8fafc}'
+    +'@page{size:A4 landscape;margin:10mm}@media print{body{padding:0}}';
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Relatório de Fretes</title>'
+    +'<style>'+css+'</style></head><body>'
+    +'<div style="display:flex;justify-content:space-between;border-bottom:3px solid #2563eb;padding-bottom:10px;margin-bottom:16px">'
+    +'<div><h1>Relatório de Fretes</h1><div style="font-size:11px;color:#64748b">Grow Química · '+periodo+'</div></div>'
+    +'<div style="text-align:right;font-size:11px;color:#64748b">Emitido em '+hoje+'</div></div>'
+    +conteudo
+    +'<scr'+'ipt>window.onload=function(){window.print();}<\/scr'+'ipt></body></html>');
+  w.document.close();
 }
 </script>
+
+
+<script>
+/* ════ COMPARTILHAR FRETES — WhatsApp + Email ════ */
+
+function gerarMensagemFretes(){
+  var hoje=new Date(); hoje.setHours(0,0,0,0);
+  var dataFmt=hoje.toLocaleDateString('pt-BR');
+  var TRANS=typeof TRANSPORTADORAS!=='undefined'?TRANSPORTADORAS:{};
+  function getNomeTrans(t){return (TRANS[t]||{}).nome||t||'?';}
+  function fmtData(d){return d?d.split('-').reverse().join('/'):'sem prazo';}
+  var LN='\n';
+  var SEP='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
+
+  var atrasados=[],venHoje=[],transito=[],aguardando=[],entregueHoje=[];
+  (fretes||[]).forEach(function(fr){
+    if(fr.status==='entregue'){
+      var ev=fr.eventos&&fr.eventos.find(function(e){return e.texto&&e.texto.toLowerCase().includes('entregue');});
+      if(ev){var dEv=new Date(ev.data.split('/').reverse().join('-').substring(0,10));dEv.setHours(0,0,0,0);if(dEv.getTime()===hoje.getTime())entregueHoje.push(fr);}
+      return;
+    }
+    if(fr.status==='ocorrencia'){atrasados.push({f:fr,dias:null,prazo:fr.prazoEntrega});return;}
+    if(fr.prazoEntrega){
+      var prazo=new Date(fr.prazoEntrega);prazo.setHours(0,0,0,0);
+      var diff=Math.ceil((prazo-hoje)/(1000*60*60*24));
+      if(diff<0){atrasados.push({f:fr,dias:Math.abs(diff),prazo:fr.prazoEntrega});}
+      else if(diff===0){venHoje.push(fr);}
+      else if(fr.status==='transito'){transito.push({f:fr,dias:diff});}
+      else{aguardando.push(fr);}
+    }else{
+      if(fr.status==='transito')transito.push({f:fr,dias:null});
+      else aguardando.push(fr);
+    }
+  });
+  atrasados.sort(function(a,b){return (b.dias||0)-(a.dias||0);});
+  transito.sort(function(a,b){return (a.dias||999)-(b.dias||999);});
+
+  var msg='\uD83D\uDE9B *Relat\u00F3rio de Fretes \u2014 GEx Assist*'+LN;
+  msg+='\uD83D\uDCC5 '+dataFmt+LN;
+  msg+=SEP+LN+LN;
+
+  // Atrasados
+  if(atrasados.length){
+    msg+='\uD83D\uDD34 *'+atrasados.length+' frete'+(atrasados.length>1?'s':'')+' em atraso:*'+LN;
+    atrasados.forEach(function(item){
+      var fr=item.f;
+      var diasTxt=item.dias?'(+'+item.dias+'d)':fr.status==='ocorrencia'?'(ocorr\u00EAncia)':'';
+      msg+='\u2022 NF '+fr.nf+' \u2014 '+fr.cliente+LN;
+      msg+='  '+getNomeTrans(fr.transportadora)+' \u00B7 prazo: '+fmtData(item.prazo)+' '+diasTxt+LN;
+    });
+    msg+=LN;
+  }else{
+    msg+='\u2705 *Nenhum frete em atraso!*'+LN+LN;
+  }
+
+  // Vencem hoje
+  if(venHoje.length){
+    msg+='\uD83D\uDFE1 *Vencem hoje ('+venHoje.length+'):*'+LN;
+    venHoje.forEach(function(fr){
+      msg+='\u2022 NF '+fr.nf+' \u2014 '+fr.cliente+' ('+getNomeTrans(fr.transportadora)+')'+LN;
+    });
+    msg+=LN;
+  }
+
+  // Em trânsito
+  if(transito.length){
+    msg+='\uD83D\uDE9A *Em tr\u00E2nsito ('+transito.length+'):*'+LN;
+    transito.forEach(function(item){
+      var fr=item.f;
+      var prazoTxt=fr.prazoEntrega?'prazo '+fmtData(fr.prazoEntrega)+(item.dias?' ('+item.dias+'d)':''):'sem prazo';
+      msg+='\u2022 NF '+fr.nf+' \u2014 '+fr.cliente+LN;
+      msg+='  '+getNomeTrans(fr.transportadora)+' \u00B7 '+prazoTxt+LN;
+    });
+    msg+=LN;
+  }
+
+  // Aguardando coleta
+  if(aguardando.length){
+    msg+='\u23F3 *Aguardando coleta ('+aguardando.length+'):*'+LN;
+    aguardando.forEach(function(fr){
+      msg+='\u2022 NF '+fr.nf+' \u2014 '+fr.cliente+' ('+getNomeTrans(fr.transportadora)+')'+LN;
+    });
+    msg+=LN;
+  }
+
+  // Resumo
+  msg+=SEP+LN;
+  msg+='\uD83D\uDCCA *Resumo:* '+atrasados.length+' atrasado(s) \u00B7 '+venHoje.length+' vence(m) hoje \u00B7 '+transito.length+' em tr\u00E2nsito \u00B7 '+aguardando.length+' aguardando \u00B7 '+entregueHoje.length+' entregue(s) hoje'+LN;
+  msg+=LN+'_GEx Assist \u00B7 Grow Qu\u00EDmica_';
+  return msg;
+}
+function compartilharWhatsApp(){
+  var msg=gerarMensagemFretes();
+  var url='https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+}
+
+/* ── Email: abrir modal de configuração ── */
+function fecharEmailFretes(){var m=document.getElementById("overlayEmailFretes");if(m)m.style.display="none";}
+function abrirModalEmailFretes(){
+  var mo=document.getElementById('overlayEmailFretes');
+  if(!mo){criarModalEmailFretes();}
+  else{document.getElementById('overlayEmailFretes').style.display='flex';}
+  // Preencher preview da mensagem
+  atualizarPreviewEmail();
+}
+
+function criarModalEmailFretes(){
+  var mo=document.createElement('div');
+  mo.id='overlayEmailFretes';
+  mo.style.cssText='position:fixed;inset:0;z-index:999999;background:rgba(11,18,32,.6);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center';
+  mo.onclick=function(e){if(e.target===mo)mo.style.display='none';};
+  mo.innerHTML=
+    '<div style="background:#fff;border-radius:16px;width:580px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)">'
+      +'<div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1">'
+        +'<div style="font-size:15px;font-weight:700;color:#0f1727">📧 Email Diário de Fretes</div>'
+        +'<button onclick="fecharEmailFretes()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">&#10005;</button>'
+      +'</div>'
+      +'<div style="padding:16px 20px">'
+        +'<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 14px;margin-bottom:16px">'
+          +'<div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:4px">Como funciona</div>'
+          +'<div style="font-size:11px;color:#1e40af;line-height:1.5">O sistema usa o Supabase + Resend (gratuito até 3.000 emails/mês) para enviar o relatório automaticamente todo dia. '
+            +'Configure os emails abaixo e copie o código da Edge Function para o Supabase.</div>'
+        +'</div>'
+        +'<div style="margin-bottom:14px">'
+          +'<textarea id="emailFretesDest" rows="4" placeholder="comercial@growquimica.com.br\njuninho@growquimica.com.br" style="width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;resize:vertical" oninput="salvarEmailConfig()">'+(typeof localStorage!=='undefined'?localStorage.getItem('gex_email_fretes_dest')||'':'')+'</textarea>'
+        +'</div>'
+        +'<div style="margin-bottom:14px">'
+          +'<label style="font-size:12px;font-weight:700;color:#0f1727;display:block;margin-bottom:6px">Horário de envio</label>'
+          +'<input type="time" id="emailFretesHora" value="'+(typeof localStorage!=='undefined'?localStorage.getItem('gex_email_fretes_hora')||'07:30':'07:30')+'" '
+            +'onchange="salvarEmailConfig()" style="padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px">'
+        +'</div>'
+        +'<div style="margin-bottom:16px">'
+          +'<label style="font-size:12px;font-weight:700;color:#0f1727;display:block;margin-bottom:6px">Preview da mensagem</label>'
+          +'<div id="emailFretesPreview" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;white-space:pre-wrap;max-height:220px;overflow-y:auto;color:#334155"></div>'
+        +'</div>'
+        +'<div style="border-top:1px solid #e2e8f0;padding-top:14px">'
+          +'<div style="font-size:12px;font-weight:700;color:#0f1727;margin-bottom:8px">Edge Function para o Supabase</div>'
+          +'<div style="background:#0f1727;border-radius:8px;padding:12px;font-size:10px;font-family:monospace;color:#e2e8f0;max-height:160px;overflow-y:auto;position:relative">'
+            +'<button onclick="copiarEdgeFunction()" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.12);color:#e2e8f0;border:none;border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer">Copiar</button>'
+            +'<pre id="edgeFunctionCode" style="margin:0;overflow:visible;white-space:pre-wrap"></pre>'
+          +'</div>'
+          +'<div style="font-size:10px;color:#64748b;margin-top:8px">1. Acesse Supabase → Edge Functions → New Function → cole o código → Deploy<br>'
+            +'2. Em Database → Cron Jobs → crie um job: <b>30 7 * * *</b> chamando a função<br>'
+            +'3. Configure a variável de ambiente <b>RESEND_API_KEY</b> (resend.com — gratuito)</div>'
+        +'</div>'
+        +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">'
+          +'<button onclick="enviarEmailTesteFretes()" style="background:#fff;color:#2563eb;border:1px solid #2563eb;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">📧 Enviar teste agora</button>'
+          +'<button onclick="fecharEmailFretes()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">Salvar e fechar</button>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  document.body.appendChild(mo);
+  atualizarPreviewEmail();
+  gerarEdgeFunction();
+}
+
+function salvarEmailConfig(){
+  var dest=document.getElementById('emailFretesDest');
+  var hora=document.getElementById('emailFretesHora');
+  if(dest)localStorage.setItem('gex_email_fretes_dest',dest.value);
+  if(hora)localStorage.setItem('gex_email_fretes_hora',hora.value);
+}
+
+function atualizarPreviewEmail(){
+  var el=document.getElementById('emailFretesPreview');
+  if(el)el.textContent=gerarMensagemFretes();
+}
+
+function gerarEdgeFunction(){
+  var dest=document.getElementById('emailFretesDest');
+  var emails=(dest?dest.value:'').split('\n').map(function(e){return e.trim();}).filter(Boolean);
+  var emailsJSON=JSON.stringify(emails);
+  var code=
+'import { serve } from "https://deno.land/std/http/server.ts"\n'+
+'\n'+
+'serve(async () => {\n'+
+'  const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2")\n'+
+'  const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!)\n'+
+'\n'+
+'  const { data: fretes } = await sb.from("fretes")\n'+
+'    .select("*").neq("status", "entregue")\n'+
+'\n'+
+'  const hoje = new Date(); hoje.setHours(0,0,0,0)\n'+
+'  const atrasados = (fretes||[]).filter(f => {\n'+
+'    if(!f.prazo_entrega) return false\n'+
+'    return new Date(f.prazo_entrega) < hoje\n'+
+'  })\n'+
+'  const venHoje = (fretes||[]).filter(f => {\n'+
+'    if(!f.prazo_entrega) return false\n'+
+'    const p = new Date(f.prazo_entrega); p.setHours(0,0,0,0)\n'+
+'    return p.getTime() === hoje.getTime()\n'+
+'  })\n'+
+'\n'+
+'  let html = "<h2>🚛 Relatório de Fretes — GEx Assist</h2>"\n'+
+'  html += "<p>📅 " + hoje.toLocaleDateString("pt-BR") + "</p><hr>"\n'+
+'  if(atrasados.length) {\n'+
+'    html += "<h3 style=\"color:#dc2626\">🔴 " + atrasados.length + " frete(s) em atraso</h3><ul>"\n'+
+'    atrasados.forEach(f => html += "<li><b>NF " + f.nf + "</b> — " + f.cliente + " (venceu " + f.prazo_entrega + ")</li>")\n'+
+'    html += "</ul>"\n'+
+'  } else { html += "<p style=\"color:#16a34a\">✅ Nenhum frete em atraso!</p>" }\n'+
+'  if(venHoje.length) {\n'+
+'    html += "<h3 style=\"color:#d97706\">🟡 Vencem hoje</h3><ul>"\n'+
+'    venHoje.forEach(f => html += "<li><b>NF " + f.nf + "</b> — " + f.cliente + "</li>")\n'+
+'    html += "</ul>"\n'+
+'  }\n'+
+'  html += "<h3>📊 Resumo</h3><ul>"\n'+
+'  const nT = (fretes||[]).filter(f=>f.status==="transito").length\n'+
+'  const nA = (fretes||[]).filter(f=>f.status==="aguardando").length\n'+
+'  html += "<li>Em trânsito: " + nT + "</li><li>Aguardando: " + nA + "</li></ul>"\n'+
+'  html += "<hr><small>GEx Assist · Grow Química</small>"\n'+
+'\n'+
+'  await fetch("https://api.resend.com/emails", {\n'+
+'    method: "POST",\n'+
+'    headers: { "Authorization": "Bearer " + Deno.env.get("RESEND_API_KEY"), "Content-Type": "application/json" },\n'+
+'    body: JSON.stringify({\n'+
+'      from: "GEx Assist <noreply@growquimica.com.br>",\n'+
+'      to: '+emailsJSON+',\n'+
+'      subject: "🚛 Fretes " + hoje.toLocaleDateString("pt-BR") + (atrasados.length ? " — ⚠ "+atrasados.length+" em atraso" : " — ✅ OK"),\n'+
+'      html\n'+
+'    })\n'+
+'  })\n'+
+'  return new Response("ok")\n'+
+'})';
+  var el=document.getElementById('edgeFunctionCode');
+  if(el)el.textContent=code;
+}
+
+function copiarEdgeFunction(){
+  var el=document.getElementById('edgeFunctionCode');
+  if(!el)return;
+  navigator.clipboard.writeText(el.textContent).then(function(){showT('Código copiado ✓','verde');});
+}
+
+function enviarEmailTesteFretes(){
+  showT('Para enviar o teste, faça o deploy da Edge Function no Supabase e chame-a manualmente uma vez.','');
+}
+</script>
+
+
+<!-- Modal Gerenciar Usuários (só admin) -->
+<div class="overlay" id="overlayUsuarios" onclick="if(event.target===this)fecharModalUsuarios()" style="position:fixed;inset:0;z-index:9999999;background:rgba(11,18,32,.6);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;width:820px;max-width:97vw;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+    <div style="padding:14px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0;z-index:1">
+      <div style="font-size:15px;font-weight:700;color:#0f1727">👥 Gerenciar Usuários</div>
+      <button onclick="fecharModalUsuarios()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">✕</button>
+    </div>
+    <div style="padding:16px 20px;overflow-y:auto;flex:1">
+
+      <!-- Formulário novo/editar usuário -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:#0f1727;margin-bottom:12px" id="userFormTitulo">➕ Novo Usuário</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <div><label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Login</label>
+            <input id="uLogin" placeholder="ex: juninho" style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"></div>
+          <div><label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Nome exibido</label>
+            <input id="uNome" placeholder="ex: Juninho" style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit"></div>
+          <div><label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px">Senha</label>
+            <input id="uSenha" type="password" placeholder="mínimo 4 caracteres" style="width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit"></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:6px">Perfil base (define permissões padrão)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border:2px solid #e2e8f0;border-radius:8px;background:#fff" id="perfilBtn-admin">
+              <input type="radio" name="uPerfil" value="admin" onchange="uSetPerfil('admin')"> 👑 Admin</label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border:2px solid #e2e8f0;border-radius:8px;background:#fff" id="perfilBtn-logistica">
+              <input type="radio" name="uPerfil" value="logistica" onchange="uSetPerfil('logistica')"> 🚛 Logística</label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border:2px solid #e2e8f0;border-radius:8px;background:#fff" id="perfilBtn-financeiro">
+              <input type="radio" name="uPerfil" value="financeiro" onchange="uSetPerfil('financeiro')"> 💰 Financeiro</label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border:2px solid #e2e8f0;border-radius:8px;background:#fff" id="perfilBtn-estoque">
+              <input type="radio" name="uPerfil" value="estoque" onchange="uSetPerfil('estoque')"> 📦 Estoque</label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border:2px solid #e2e8f0;border-radius:8px;background:#fff" id="perfilBtn-licitacoes">
+              <input type="radio" name="uPerfil" value="licitacoes" onchange="uSetPerfil('licitacoes')"> ⚖️ Licitações</label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;padding:6px 12px;border:2px solid #e2e8f0;border-radius:8px;background:#fff" id="perfilBtn-custom">
+              <input type="radio" name="uPerfil" value="custom" onchange="uSetPerfil('custom')"> ⚙️ Personalizado</label>
+          </div>
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:8px">Módulos com acesso <span style="font-weight:400">(marque individualmente)</span></label>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px" id="uModulosGrid">
+            <label class="umod-chk"><input type="checkbox" value="home" disabled checked> 🏠 Home</label>
+            <label class="umod-chk"><input type="checkbox" value="cotacao"> 📋 Cotação</label>
+            <label class="umod-chk"><input type="checkbox" value="tabelas"> 📊 Tabelas</label>
+            <label class="umod-chk"><input type="checkbox" value="amostras"> 🧪 Amostras</label>
+            <label class="umod-chk"><input type="checkbox" value="crm"> 👥 CRM</label>
+            <label class="umod-chk"><input type="checkbox" value="agenda"> 📅 Agenda</label>
+            <label class="umod-chk"><input type="checkbox" value="licitacoes"> ⚖️ Licitações</label>
+            <label class="umod-chk"><input type="checkbox" value="cadastros"> ⚙️ Cadastros</label>
+            <label class="umod-chk"><input type="checkbox" value="fretes"> 🚛 Fretes</label>
+            <label class="umod-chk"><input type="checkbox" value="estoque"> 📦 Estoque</label>
+            <label class="umod-chk"><input type="checkbox" value="faturamento"> 💰 Faturamento</label>
+          </div>
+        </div>
+        <input type="hidden" id="uLoginEdit">
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button onclick="limparFormUsuario()" style="background:#fff;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">Cancelar</button>
+          <button onclick="salvarUsuario()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">💾 Salvar Usuário</button>
+        </div>
+      </div>
+
+      <!-- Lista de usuários -->
+      <div style="font-size:13px;font-weight:700;color:#0f1727;margin-bottom:10px">Usuários cadastrados</div>
+      <div id="usuariosLista"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.umod-chk{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;cursor:pointer;padding:5px 8px;border:1px solid #e2e8f0;border-radius:7px;background:#fff;user-select:none}
+.umod-chk:hover{border-color:#2563eb;background:#eff6ff}
+.umod-chk input{cursor:pointer;accent-color:#2563eb}
+</style>
+
+
+<script>
+/* ════ GERENCIAR USUÁRIOS ════ */
+
+var PERFIS_DEF={
+  admin:    ['home','cotacao','tabelas','amostras','crm','agenda','licitacoes','cadastros','fretes','estoque','faturamento'],
+  logistica:['home','fretes','agenda'],
+  financeiro:['home','faturamento','fretes'],
+  estoque:  ['home','estoque','cadastros'],
+  licitacoes:['home','licitacoes','agenda','crm'],
+  custom:   ['home']
+};
+
+var PERFIL_LABEL={admin:'👑 Admin',logistica:'🚛 Logística',financeiro:'💰 Financeiro',estoque:'📦 Estoque',licitacoes:'⚖️ Licitações',custom:'⚙️ Personalizado'};
+
+function abrirModalUsuarios(){
+  if(!_gexUser||_gexUser.perfil!=='admin'){showT('Apenas administradores podem gerenciar usuários','erro');return;}
+  document.getElementById('overlayUsuarios').style.display='flex';
+  carregarListaUsuarios();
+  limparFormUsuario();
+}
+
+function fecharModalUsuarios(){
+  document.getElementById('overlayUsuarios').style.display='none';
+}
+
+function uSetPerfil(perfil){
+  var mods=PERFIS_DEF[perfil]||['home'];
+  document.querySelectorAll('#uModulosGrid input[type=checkbox]').forEach(function(cb){
+    if(cb.value==='home'){cb.checked=true;return;}
+    cb.checked=mods.indexOf(cb.value)>-1;
+  });
+}
+
+function uGetModulos(){
+  var mods=['home'];
+  document.querySelectorAll('#uModulosGrid input[type=checkbox]').forEach(function(cb){
+    if(cb.value!=='home'&&cb.checked)mods.push(cb.value);
+  });
+  return mods;
+}
+
+function limparFormUsuario(){
+  document.getElementById('uLogin').value='';
+  document.getElementById('uLogin').disabled=false;
+  document.getElementById('uNome').value='';
+  document.getElementById('uSenha').value='';
+  document.getElementById('uLoginEdit').value='';
+  document.getElementById('userFormTitulo').textContent='\u2795 Novo Usu\u00E1rio';
+  document.querySelectorAll('input[name=uPerfil]').forEach(function(r){r.checked=r.value==='custom';});
+  document.querySelectorAll('#uModulosGrid input[type=checkbox]').forEach(function(cb){cb.checked=cb.value==='home';});
+}
+
+function editarUsuario(login){
+  sb.from('gex_usuarios').select('*').eq('login',login).maybeSingle().then(function(res){
+    var d=res.data;
+    if(!d)return;
+    document.getElementById('uLogin').value=d.login;
+    document.getElementById('uLogin').disabled=true;
+    document.getElementById('uNome').value=d.nome||'';
+    document.getElementById('uSenha').value='';
+    document.getElementById('uLoginEdit').value=d.login;
+    document.getElementById('userFormTitulo').textContent='\u270F\uFE0F Editar: '+d.login;
+    var perfil=d.perfil||'custom';
+    document.querySelectorAll('input[name=uPerfil]').forEach(function(r){r.checked=r.value===perfil;});
+    var mods=d.modulos||PERFIS_DEF[perfil]||['home'];
+    document.querySelectorAll('#uModulosGrid input[type=checkbox]').forEach(function(cb){
+      cb.checked=cb.value==='home'?true:mods.indexOf(cb.value)>-1;
+    });
+    document.getElementById('overlayUsuarios').scrollTop=0;
+  });
+}
+
+async function salvarUsuario(){
+  var login=document.getElementById('uLogin').value.trim();
+  var nome=document.getElementById('uNome').value.trim();
+  var senha=document.getElementById('uSenha').value.trim();
+  var editando=document.getElementById('uLoginEdit').value;
+  var perfil=document.querySelector('input[name=uPerfil]:checked');
+  perfil=perfil?perfil.value:'custom';
+  var modulos=uGetModulos();
+  if(!login){showT('Informe o login','erro');return;}
+  if(!editando&&!senha){showT('Informe a senha','erro');return;}
+  if(senha&&senha.length<4){showT('Senha deve ter pelo menos 4 caracteres','erro');return;}
+  var payload={login:login,nome:nome||login,perfil:perfil,modulos:modulos,ativo:true};
+  if(senha)payload.senha=senha;
+  var {error}=await sb.from('gex_usuarios').upsert(payload,{onConflict:'login'});
+  if(error){showT('Erro ao salvar: '+error.message,'erro');return;}
+  showT('Usu\u00E1rio salvo \u2713','verde');
+  limparFormUsuario();
+  carregarListaUsuarios();
+}
+
+async function toggleUsuarioAtivo(login,ativo){
+  await sb.from('gex_usuarios').update({ativo:!ativo}).eq('login',login);
+  carregarListaUsuarios();
+}
+
+async function excluirUsuario(login){
+  if(login==='admin'){showT('Usu\u00E1rio admin n\u00E3o pode ser exclu\u00EDdo','erro');return;}
+  if(!confirm('Excluir usu\u00E1rio '+login+'?'))return;
+  await sb.from('gex_usuarios').delete().eq('login',login);
+  showT('Usu\u00E1rio exclu\u00EDdo','verde');
+  carregarListaUsuarios();
+}
+
+
+function gexEditUser(btn){editarUsuario(btn.getAttribute('data-login'));}
+function gexToggleUser(btn){toggleUsuarioAtivo(btn.getAttribute('data-login'),btn.getAttribute('data-ativo')==='true');}
+function gexDelUser(btn){excluirUsuario(btn.getAttribute('data-login'));}
+
+async function carregarListaUsuarios(){
+  var {data,error}=await sb.from('gex_usuarios').select('*').order('login');
+  var lista=document.getElementById('usuariosLista');
+  if(error||!data||!data.length){
+    lista.innerHTML='<div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px">Nenhum usu\u00E1rio cadastrado ainda.<br><small>O admin padr\u00E3o funciona sem cadastro no banco.</small></div>';
+    return;
+  }
+  lista.innerHTML='<div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">'
+    +data.map(function(u,i){
+      var mods=(u.modulos||[]).filter(function(m){return m!=='home';});
+      var corAtivo=u.ativo?'#16a34a':'#dc2626';
+      return '<div style="display:grid;grid-template-columns:1fr 1fr 1.5fr auto;gap:10px;padding:10px 14px;align-items:center;background:'+(i%2===0?'#fff':'#f8fafc')+';border-top:'+(i>0?'1px solid #f1f5f9':'none')+'">'
+        +'<div><div style="font-weight:700;font-size:13px;color:#0f1727">'+u.login+'</div><div style="font-size:11px;color:#64748b">'+u.nome+'</div></div>'
+        +'<div><span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;background:#eff6ff;color:#1d4ed8">'+(PERFIL_LABEL[u.perfil]||u.perfil)+'</span></div>'
+        +'<div style="font-size:10px;color:#64748b">'+(mods.length?mods.join(', '):'apenas home')+'</div>'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+          +'<span style="font-size:10px;font-weight:700;color:'+corAtivo+'">'+(u.ativo?'●':'○')+'</span>'
+          +'<button onclick="gexEditUser(this)" data-login="'+u.login+'" style="background:#eff6ff;color:#2563eb;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600">Editar</button>'
+          +'<button onclick="gexToggleUser(this)" data-login="'+u.login+'" data-ativo="'+u.ativo+'" style="background:'+(u.ativo?'#fef2f2':'#f0fdf4')+';color:'+(u.ativo?'#dc2626':'#16a34a')+';border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600">'+(u.ativo?'Desativar':'Ativar')+'</button>'
+          +'<button onclick="gexDelUser(this)" data-login="'+u.login+'" style="background:#fef2f2;color:#dc2626;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-weight:600">&#10005;</button>'
+        +'</div></div>';
+    }).join('')+'</div>';
+}
+</script>
+
 </body>
 </html>
