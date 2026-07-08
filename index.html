@@ -274,20 +274,20 @@ td.apres-col{font-size:12px;color:var(--texto);font-weight:400}
 /* ── Tabela de fretes ── */
 .fr-table{width:100%;border-collapse:collapse;font-size:12px}
 .fr-table thead tr{background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
-.fr-table th{padding:7px 10px;text-align:left;white-space:nowrap}
+.fr-table th{padding:5px 7px;text-align:left;white-space:nowrap;font-size:10px}
 .fr-table th.r{text-align:right}
-.fr-table tbody tr.fr-row{border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .12s}
+.fr-table tbody tr.fr-row{border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .12s;height:28px}
 .fr-table tbody tr.fr-row:hover{background:#f8faff}
 .fr-table tbody tr.fr-row.aguardando{border-left:3px solid #3b82f6}
 .fr-table tbody tr.fr-row.transito{border-left:3px solid #f59e0b}
 .fr-table tbody tr.fr-row.entregue{border-left:3px solid #22c55e}
 .fr-table tbody tr.fr-row.ocorrencia{border-left:3px solid #ef4444}
-.fr-table td{padding:7px 10px;color:#0f1727;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0}
+.fr-table td{padding:4px 7px;color:#0f1727;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0;font-size:12px}
 .fr-table td.wrap{white-space:normal;max-width:none}
-.fr-table .fr-nf{font-weight:800;font-size:12px;color:#0f1727}
-.fr-table .fr-cli{font-weight:500;color:#0f1727;max-width:160px}
-.fr-table .fr-transp{color:#64748b;max-width:100px}
-.fr-table .fr-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.fr-table .fr-nf{font-weight:700;font-size:11px;color:#0f1727}
+.fr-table .fr-cli{font-weight:500;color:#0f1727;max-width:180px;font-size:12px}
+.fr-table .fr-transp{color:#475569;max-width:110px;font-size:11px}
+.fr-table .fr-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:11px}
 .fr-table .fr-pct{text-align:right;font-size:10px;font-weight:700}
 .fr-table .fr-pct.alto{color:#dc2626}.fr-table .fr-pct.medio{color:#d97706}.fr-table .fr-pct.ok{color:#16a34a}
 .fr-det{display:none;background:#f8fafc}
@@ -2047,7 +2047,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9.5 21v-6h5v6"/></symbol>
   <symbol id="i-cot" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3.4h6a1 1 0 0 1 1 1V6H8V4.4a1 1 0 0 1 1-1Z"/><path d="M8.5 11h7M8.5 15h7M8.5 18h4"/></symbol>
   <symbol id="i-table" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M9.2 9.5v10M14.8 9.5v10"/></symbol>
-  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6.2l-4.4 7.9A1.6 1.6 0 0 0 7 19.5h10a1.6 1.6 0 0 0 1.4-2.4L14 9.2V3"/><path d="M7.6 15h8.8"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6.3l-4.4 7.9A1.6 1.6 0 0 0 7 19.5h10a1.6 1.6 0 0 0 1.4-2.4L14 9.2V3"/><path d="M7.6 15h8.8"/></symbol>
   <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.6 20a5.4 5.4 0 0 1 10.8 0"/><path d="M16 5.3a3 3 0 0 1 0 5.4"/><path d="M17.2 14.6a5.4 5.4 0 0 1 3.2 5"/></symbol>
   <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></symbol>
   <symbol id="i-gavel" viewBox="0 0 24 24"><path d="M12 4v16M7.5 20h9"/><path d="M5 8h14"/><path d="M9 4.6 5 8M15 4.6 19 8"/><path d="M3 13.2a2 2 0 0 0 4 0L5 8l-2 5.2Z"/><path d="M17 13.2a2 2 0 0 0 4 0L19 8l-2 5.2Z"/></symbol>
@@ -7415,13 +7415,18 @@ function setModoApp(m){
     if(el)el.style.display=modo===m?'':'none';
   });
   if(m==='cotacao'){
-    requestAnimationFrame(function(){
-      carregarHist();
-      // Segunda chamada com delay para garantir renderização após CSS ser aplicado
-      setTimeout(function(){
-        if((window._sbCotCache||[]).length>0)carregarHist();
-      },150);
-    });
+    // Múltiplas tentativas com delays crescentes para garantir que os dados já chegaram
+    requestAnimationFrame(function(){carregarHist();});
+    setTimeout(function(){carregarHist();},200);
+    setTimeout(function(){carregarHist();},600);
+    setTimeout(function(){
+      // Se ainda vazio, tentar recarregar do Supabase
+      if((window._sbCotCache||[]).length===0&&typeof sbCarregarCotacoes==='function'){
+        sbCarregarCotacoes();
+      }else{
+        carregarHist();
+      }
+    },1200);
   }
   if(m==='cadastros'){
     requestAnimationFrame(function(){
@@ -8883,18 +8888,55 @@ function renderFretes(filter='todos',q=''){
   let lista=[...fretes];
   if(filter!=='todos')lista=lista.filter(f=>f.status===filter);
   if(q)lista=lista.filter(f=>f.nf.includes(q)||f.cliente.toLowerCase().includes(q.toLowerCase()));
-  const sort=document.getElementById('freteSortSel')?.value||'recente';
+  // Ordenação padrão inteligente:
+  // 1. Entregues sempre no final
+  // 2. Atrasados primeiro (mais dias de atraso = mais urgente)
+  // 3. Ocorrências
+  // 4. Em trânsito (NF menor = mais antiga = mais tempo sem entregar = primeiro)
+  // 5. Aguardando (NF menor primeiro)
+  // 6. Dentro de entregues: NF maior (mais recente) primeiro
+  var hoje2=new Date();hoje2.setHours(0,0,0,0);
+  function getDiasAtr(fr){
+    if(!prazoValido(fr.prazoEntrega))return 0;
+    var p=parsePrazo(fr.prazoEntrega);if(!p)return 0;
+    p.setHours(0,0,0,0);
+    return Math.ceil((hoje2-p)/(1000*60*60*24));
+  }
+  function getPrioridade(fr){
+    var d=getDiasAtr(fr);
+    if(fr.status==='entregue')return 5;           // sempre no final
+    if(d>0)return 1;                               // atrasado — mais urgente
+    if(fr.status==='ocorrencia')return 2;          // ocorrência
+    if(fr.status==='transito')return 3;            // em trânsito
+    return 4;                                      // aguardando
+  }
+  lista.sort(function(a,b){
+    var pa=getPrioridade(a),pb=getPrioridade(b);
+    if(pa!==pb)return pa-pb;
+    // Mesmo grupo: atrasados por dias desc, entregues NF desc, resto NF asc (mais antiga primeiro)
+    if(pa===1){
+      var da=getDiasAtr(a),db=getDiasAtr(b);
+      if(da!==db)return db-da;
+    }
+    if(pa===5)return String(b.nf).localeCompare(String(a.nf),undefined,{numeric:true});
+    return String(a.nf).localeCompare(String(b.nf),undefined,{numeric:true});
+  });
+
+  const sort=document.getElementById('freteSortSel')?.value||'smart';
   if(sort==='nf_asc')lista.sort((a,b)=>String(a.nf).localeCompare(String(b.nf),undefined,{numeric:true}));
   else if(sort==='nf_desc')lista.sort((a,b)=>String(b.nf).localeCompare(String(a.nf),undefined,{numeric:true}));
   else if(sort==='valor_desc')lista.sort((a,b)=>(b.valorComercial||0)-(a.valorComercial||0));
   else if(sort==='cliente')lista.sort((a,b)=>(a.cliente||'').localeCompare(b.cliente||''));
+  // 'smart' e 'recente' usam a ordenação inteligente acima
   if(!lista.length){el.innerHTML='<div class="empty-mod"><div class="empty-icon">🚚</div>Nenhuma NF encontrada.</div>';return;}
 
   var hoje=new Date();hoje.setHours(0,0,0,0);
   function diasAtr(f){
     if(f.status==='entregue')return 0;
-    if(!f.prazoEntrega)return 0;
-    var p=new Date(f.prazoEntrega);p.setHours(0,0,0,0);
+    if(!prazoValido(f.prazoEntrega))return 0;
+    var p=parsePrazo(f.prazoEntrega);
+    if(!p)return 0;
+    p.setHours(0,0,0,0);
     return Math.ceil((hoje-p)/(1000*60*60*24));
   }
 
@@ -8914,15 +8956,16 @@ function renderFretes(filter='todos',q=''){
       <td class="fr-nf">NF ${f.nf}</td>
       <td class="fr-cli">${clinome}</td>
       <td class="fr-transp">${transnome}</td>
+      <td>${emissao}</td>
+      <td>${prazo}</td>
+      <td style="text-align:right">${atr>0?`<span class="fr-atraso" style="font-size:11px;font-weight:700">+${atr}d</span>`:atr<0?`<span style="font-size:10px;color:#16a34a;font-weight:600">${Math.abs(atr)}d</span>`:'<span style="color:#cbd5e1;font-size:10px">—</span>'}</td>
+      <td class="fr-val">${fmtV(f.valorComercial)}</td>
+      <td class="fr-val">${fmtV(f.valorFrete)}</td>
+      <td class="fr-pct ${pctCls}">${pct?pct+'%':'—'}</td>
       <td><select class="fr-status-sel ${f.status}" onclick="event.stopPropagation()" onchange="atualizarStatusNF(${f.id},this.value);this.className='fr-status-sel '+this.value">
         ${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}"${f.status===k?' selected':''}>${v}</option>`).join('')}
       </select></td>
-      <td>${emissao}</td>
-      <td>${prazo}${atr>0?`<span class="fr-atraso">+${atr}d</span>`:''}</td>
-      <td class="fr-val">${fmtV(f.valorComercial)}</td>
-      <td class="fr-pct ${pctCls}">${pct?pct+'%':'—'}</td>
-      <td><button class="btn-nf" onclick="event.stopPropagation();abrirFormNF(${f.id})" style="padding:2px 7px;font-size:10px">✏️</button>
-          <button class="btn-nf del" onclick="event.stopPropagation();excluirNF(${f.id})" style="padding:2px 7px;font-size:10px">✕</button></td>
+      <td style="white-space:nowrap;padding:3px 4px"><button onclick="event.stopPropagation();abrirFormNF(${f.id})" style="padding:1px 5px;font-size:10px;border:1px solid #d1d5db;border-radius:4px;background:#f8fafc;cursor:pointer;display:inline-block">✏️</button><button onclick="event.stopPropagation();excluirNF(${f.id})" style="padding:1px 5px;font-size:10px;border:1px solid #fca5a5;border-radius:4px;background:#fef2f2;color:#dc2626;cursor:pointer;margin-left:2px;display:inline-block">✕</button></td>
     </tr>`;
 
     // Linha de detalhe (oculta, expande ao clicar)
@@ -8948,15 +8991,17 @@ function renderFretes(filter='todos',q=''){
 
   el.innerHTML=`<table class="fr-table">
     <thead><tr>
-      <th style="width:70px">NF</th>
+      <th style="width:80px">NF</th>
       <th>Cliente</th>
-      <th>Transportadora</th>
-      <th style="width:120px">Status</th>
-      <th style="width:80px">Emissão</th>
+      <th style="width:170px">Transportadora</th>
+      <th style="width:90px">Emissão</th>
       <th style="width:90px">Prazo</th>
+      <th class="r" style="width:70px">Atraso</th>
       <th class="r" style="width:110px">Valor NF</th>
-      <th class="r" style="width:55px">% Fr.</th>
-      <th style="width:70px"></th>
+      <th class="r" style="width:110px">Valor Frete</th>
+      <th class="r" style="width:90px">% Fr.</th>
+      <th style="width:130px">Status</th>
+      <th style="width:80px"></th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
@@ -11375,10 +11420,14 @@ function gexAplicarPermissoes(){
     btns.forEach(function(b){if(b.style.display!=='none')algumVisivel=true;});
     lbl.style.display=algumVisivel?'':'none';
   });
-  // Re-renderizar lista de cotações se já tiver dados
+  // Re-renderizar lista de cotações
   setTimeout(function(){
-    if((window._sbCotCache||[]).length>0)carregarHist();
-  },500);
+    if((window._sbCotCache||[]).length>0){
+      carregarHist();
+    }else if(typeof sbCarregarCotacoes==='function'){
+      sbCarregarCotacoes();
+    }
+  },800);
 }
 
 async function fazerLogin(){
@@ -11904,6 +11953,8 @@ async function sbCarregarCotacoes(){
     cond:r.condicoes||{}
   }));
   carregarHist();
+  // Forçar segunda renderização após micro-task
+  Promise.resolve().then(function(){carregarHist();});
   // Atualizar contador do home
   var hmC=document.getElementById('hmCotacoes');
   if(hmC)hmC.textContent=window._sbCotCache.length;
@@ -11944,6 +11995,7 @@ async function sbSalvarFrete(reg){
     rastreio: reg.rastreio||null,
     status: reg.status||'aguardando',
     peso_bruto: reg.pesoBruto||0,
+    prazo_entrega: reg.prazoEntrega||null,
     obs: reg.obs||null,
     redespacho: reg.redespacho||false,
     t1_trans: reg.t1Trans||null,
@@ -11977,6 +12029,7 @@ async function sbCarregarFretes(){
     rastreio:r.rastreio||'',
     status:r.status||'aguardando',
     obs:r.obs||'',
+    prazoEntrega:r.prazo_entrega||'',
     redespacho:r.redespacho||false,
     t1Trans:r.t1_trans||'',
     t1Status:r.t1_status||'aguardando',
@@ -12635,13 +12688,8 @@ async function sbCarregarAgenda(){
       </div>
     </div>
 
-    <!-- Cabeçalho da lista -->
-    <div style="display:grid;grid-template-columns:1fr 2.5fr 1.5fr 1fr 1fr 1.2fr;gap:.8vw;padding:.6vh 1vw;background:rgba(255,255,255,.06);border-radius:.8vh .8vh 0 0;font-size:1.2vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;flex-shrink:0">
-      <span>NF</span><span>Cliente</span><span>Transportadora</span><span>Emissão</span><span>Prazo</span><span>Status</span>
-    </div>
-
-    <!-- Lista de fretes scrollável -->
-    <div id="tvFreteLista" style="flex:1;overflow-y:auto;border:1px solid rgba(255,255,255,.1);border-top:none;border-radius:0 0 1vh 1vh;min-height:0"></div>
+    <!-- Lista de fretes scrollável — tabela -->
+    <div id="tvFreteLista" style="flex:1;overflow-y:auto;border:1px solid rgba(255,255,255,.12);border-radius:.8vh;min-height:0"></div>
 
     <!-- Rodapé da tela fretes -->
     <div style="flex-shrink:0;padding:.8vh 0;display:flex;align-items:center;justify-content:space-between;font-size:1.2vh;color:#475569">
@@ -14151,23 +14199,48 @@ function extrairDias(prazo){
   return m?parseInt(m[1],10):null;
 }
 
+function prazoValido(prazo){
+  // Aceita só formato data AAAA-MM-DD ou DD/MM/AAAA — rejeita texto livre
+  if(!prazo)return false;
+  var s=String(prazo).trim();
+  // AAAA-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)){
+    var d=new Date(s);
+    return !isNaN(d.getTime())&&d.getFullYear()>2000&&d.getFullYear()<2100;
+  }
+  // DD/MM/AAAA
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){
+    var p=s.split('/');
+    var d2=new Date(p[2]+'-'+p[1]+'-'+p[0]);
+    return !isNaN(d2.getTime())&&d2.getFullYear()>2000&&d2.getFullYear()<2100;
+  }
+  return false;
+}
+
+function parsePrazo(prazo){
+  var s=String(prazo).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return new Date(s);
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){var p=s.split('/');return new Date(p[2]+'-'+p[1]+'-'+p[0]);}
+  return null;
+}
+
 function freteAtrasado(fr){
   if(fr.status==='entregue')return false;
-  var dias=extrairDias(fr.prazoEntrega);
-  if(!dias||!fr.dataEmissao)return false;
-  var emissao=new Date(fr.dataEmissao);
-  var previsao=new Date(emissao.getTime()+dias*24*60*60*1000);
+  if(!prazoValido(fr.prazoEntrega))return false;
+  var prazo=parsePrazo(fr.prazoEntrega);
+  if(!prazo)return false;
+  prazo.setHours(0,0,0,0);
   var hoje=new Date();hoje.setHours(0,0,0,0);
-  return hoje>previsao;
+  return hoje>prazo;
 }
 
 function diasAtraso(fr){
-  var dias=extrairDias(fr.prazoEntrega);
-  if(!dias||!fr.dataEmissao)return null;
-  var emissao=new Date(fr.dataEmissao);
-  var previsao=new Date(emissao.getTime()+dias*24*60*60*1000);
+  if(!prazoValido(fr.prazoEntrega))return null;
+  var prazo=parsePrazo(fr.prazoEntrega);
+  if(!prazo)return null;
+  prazo.setHours(0,0,0,0);
   var hoje=new Date();hoje.setHours(0,0,0,0);
-  return Math.ceil((hoje-previsao)/(1000*60*60*24));
+  return Math.ceil((hoje-prazo)/(1000*60*60*24));
 }
 
 function renderTVFretes(){
@@ -14192,25 +14265,46 @@ function renderTVFretes(){
   });
   var COR={aguardando:{dot:'#3b82f6',txt:'Aguardando'},transito:{dot:'#f59e0b',txt:'Em Trânsito'},
     entregue:{dot:'#22c55e',txt:'Entregue'},ocorrencia:{dot:'#ef4444',txt:'Ocorrência'}};
-  var html=ordenada.map(function(fr,i){
+  // Renderizar tabela
+  var tblRows=ordenada.map(function(fr,i){
     var st=COR[fr.status]||COR.transito;
     var atras=freteAtrasado(fr);
     var dA=diasAtraso(fr);
     var transnome=(TRANS[fr.transportadora]||{}).nome||fr.transportadora||'—';
     var emissaoFmt=fr.dataEmissao?fr.dataEmissao.split('-').reverse().join('/'):'—';
-    var rowBg=atras?'rgba(239,68,68,.12)':(i%2===0?'rgba(255,255,255,.03)':'rgba(255,255,255,.01)');
-    return '<div style="display:grid;grid-template-columns:1fr 2.5fr 1.5fr 1fr 1fr 1.3fr;gap:.8vw;padding:.85vh 1vw;background:'+rowBg+';border-top:1px solid rgba(255,255,255,.06);align-items:center">'
-      +'<div style="font-size:1.9vh;font-weight:800;color:#f1f5f9">'+escHtml(fr.nf||'—')+'</div>'
-      +'<div style="font-size:1.5vh;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(fr.cliente||'—')+'</div>'
-      +'<div style="font-size:1.4vh;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(transnome)+'</div>'
-      +'<div style="font-size:1.4vh;color:#94a3b8">'+emissaoFmt+'</div>'
-      +'<div style="font-size:1.4vh">'+(atras&&dA>0?'<span style="color:#ef4444;font-weight:800">+'+dA+'d \u26a0</span>':(fr.prazoEntrega?'<span style="color:#64748b">'+escHtml(fr.prazoEntrega)+'</span>':'<span style="color:#334155">—</span>'))+'</div>'
-      +'<div style="display:inline-flex;align-items:center;gap:.5vw">'
-        +'<span style="width:1vh;height:1vh;border-radius:50%;background:'+st.dot+';flex-shrink:0;display:inline-block'+(atras?';box-shadow:0 0 0 .4vh rgba(239,68,68,.25)':'')+'"></span>'
-        +'<span style="font-size:1.4vh;font-weight:700;color:'+(atras?'#fca5a5':st.dot)+'">'+st.txt+(atras?' · Atrasado':'')+'</span>'
-      +'</div></div>';
+    var prazFmt=fr.prazoEntrega?fr.prazoEntrega.split('-').reverse().join('/'):'—';
+    var rowBg=atras?'rgba(239,68,68,.10)':(i%2===0?'rgba(255,255,255,.04)':'rgba(255,255,255,.02)');
+    var statusPrazo;
+    if(!fr.prazoEntrega)statusPrazo='<span style="font-size:1.3vh;color:#475569">Sem prazo</span>';
+    else if(atras&&dA>0)statusPrazo='<span style="font-size:1.3vh;font-weight:700;color:#fff;background:#dc2626;border-radius:.35vh;padding:.1vh .5vw">+'+dA+'d atraso</span>';
+    else if(dA===0)statusPrazo='<span style="font-size:1.3vh;font-weight:700;color:#fff;background:#d97706;border-radius:.35vh;padding:.1vh .5vw">Vence hoje</span>';
+    else statusPrazo='<span style="font-size:1.3vh;font-weight:600;color:#4ade80">No prazo ('+Math.abs(dA)+'d)</span>';
+    var stBadge='<span style="display:inline-flex;align-items:center;gap:.4vw">'
+      +'<span style="width:.9vh;height:.9vh;border-radius:50%;background:'+st.dot+';flex-shrink:0;display:inline-block"></span>'
+      +'<span style="font-size:1.4vh;font-weight:700;color:'+st.dot+'">'+st.txt+'</span></span>';
+    return '<tr style="background:'+rowBg+';border-bottom:1px solid rgba(255,255,255,.06)">'
+      +'<td style="padding:.7vh .8vw;font-size:1.8vh;font-weight:800;color:#fff;white-space:nowrap">'+escHtml(fr.nf||'—')+'</td>'
+      +'<td style="padding:.7vh .8vw;font-size:1.4vh;font-weight:600;color:#f1f5f9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(fr.cliente||'—')+'</td>'
+      +'<td style="padding:.7vh .8vw;font-size:1.35vh;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(transnome)+'</td>'
+      +'<td style="padding:.7vh .8vw;font-size:1.35vh;color:#94a3b8;white-space:nowrap">'+emissaoFmt+'</td>'
+      +'<td style="padding:.7vh .8vw;font-size:1.35vh;color:#cbd5e1;white-space:nowrap">'+prazFmt+'</td>'
+      +'<td style="padding:.7vh .8vw;white-space:nowrap">'+statusPrazo+'</td>'
+      +'<td style="padding:.7vh .8vw;white-space:nowrap">'+stBadge+'</td>'
+      +'</tr>';
   }).join('');
-  if(!html)html='<div style="text-align:center;padding:4vh;color:#475569;font-size:1.6vh">Nenhum frete cadastrado</div>';
+
+  var html=tblRows.length
+    ?'<table style="width:100%;border-collapse:collapse">'
+      +'<thead><tr style="background:rgba(255,255,255,.08);position:sticky;top:0">'
+      +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:5vw">NF</th>'
+      +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left">Cliente</th>'
+      +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:13vw">Transportadora</th>'
+      +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:7vw">Emissão</th>'
+      +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:7vw">Prazo</th>'
+      +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:10vw">Status Prazo</th>'
+      +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:9vw">Status</th>'
+      +'</tr></thead><tbody>'+(criticos.length?'<tr><td colspan="7" style="padding:.4vh .8vw;background:rgba(239,68,68,.08);font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#fca5a5">\u26a0 Cr\u00EDticos ('+criticos.length+')</td></tr>':'')+tblRows+separador+'</tbody></table>'
+    :'<div style="text-align:center;padding:4vh;color:#475569;font-size:1.6vh">Nenhum frete cadastrado</div>';
   var el=document.getElementById('tvFreteLista');
   if(el)el.innerHTML=html;
   var at=document.getElementById('tvFreteAtualizadoEm');
