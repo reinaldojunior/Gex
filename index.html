@@ -2454,6 +2454,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
       <div class="card-title" style="margin-bottom:0">📋 Cotações Salvas <span id="histCount" style="font-size:12px;color:var(--muted);font-weight:500"></span></div>
       <div style="display:flex;gap:8px">
+        <button class="acoes-btn" onclick="if(typeof sbCarregarCotacoes==='function'){document.getElementById('historicoList').innerHTML='<div style=\'text-align:center;padding:24px;color:#94a3b8;font-size:13px\'>⏳ Atualizando...</div>';sbCarregarCotacoes();}" title="Recarregar lista de cotações">🔄 Atualizar</button>
         <button class="acoes-btn" onclick="abrirRelatorioCotacoes()">📊 Relatório</button>
         <button class="btn-pdf" onclick="iniciarNovaCot()" style="padding:8px 18px;font-size:13px">＋ Nova Cotação</button>
       </div>
@@ -4776,10 +4777,22 @@ function _gerarPDFCotacaoInterno(logoData,logoRatio){
 
 function carregarHist(){
   let h=window._sbCotCache||[];
-  var hc=document.getElementById('histCount');if(hc)hc.textContent=h.length;
+  var hc=document.getElementById('histCount');if(hc)hc.textContent=h.length||'';
   const el=document.getElementById('historicoList');
-  if(!h.length){el.innerHTML='<div class="historico-vazio">Nenhuma cotação salva ainda.</div>';return;}
-  el.innerHTML=h.map(x=>renderHistItem(x)).join('');
+  if(!el)return;
+  if(!h.length){
+    var jaCarregou=window._sbCotCarregado;
+    el.innerHTML=jaCarregou
+      ?'<div class="historico-vazio">Nenhuma cotação salva ainda.</div>'
+      :'<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px">⏳ Carregando cotações...<br><button class="acoes-btn" style="margin-top:10px" onclick="if(typeof sbCarregarCotacoes===\'function\')sbCarregarCotacoes()">🔄 Tentar novamente</button></div>';
+    return;
+  }
+  try{
+    el.innerHTML=h.map(x=>renderHistItem(x)).join('');
+  }catch(e){
+    console.error('Erro ao renderizar cotações:',e);
+    el.innerHTML='<div style="padding:16px;color:#dc2626;font-size:12px">Erro ao exibir: '+e.message+'</div>';
+  }
 }
 
 function filtrarHist(q){
@@ -4791,6 +4804,7 @@ function filtrarHist(q){
 }
 
 function renderHistItem(x){
+  if(!x)return '';
   const ST={
     aguardando:{label:'Aguardando',cor:'#d97706',bg:'#fffbeb'},
     convertida:{label:'Convertida ✓',cor:'#059669',bg:'#f0fdf4'},
@@ -5612,6 +5626,7 @@ function renderCadProd(){
   }).join('');
 }
 
+var cadProdFiltro='';
 function filtrarCadProd(q){cadProdFiltro=q;renderCadProd();}
 
 let _dilItemId=null;
@@ -7415,18 +7430,17 @@ function setModoApp(m){
     if(el)el.style.display=modo===m?'':'none';
   });
   if(m==='cotacao'){
-    // Múltiplas tentativas com delays crescentes para garantir que os dados já chegaram
     requestAnimationFrame(function(){carregarHist();});
-    setTimeout(function(){carregarHist();},200);
-    setTimeout(function(){carregarHist();},600);
     setTimeout(function(){
-      // Se ainda vazio, tentar recarregar do Supabase
-      if((window._sbCotCache||[]).length===0&&typeof sbCarregarCotacoes==='function'){
-        sbCarregarCotacoes();
-      }else{
+      if((window._sbCotCache||[]).length>0){
         carregarHist();
+      }else{
+        // Dados ainda não chegaram — recarregar do Supabase
+        var el=document.getElementById('historicoList');
+        if(el)el.innerHTML='<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px">⏳ Carregando cotações...</div>';
+        if(typeof sbCarregarCotacoes==='function')sbCarregarCotacoes();
       }
-    },1200);
+    },400);
   }
   if(m==='cadastros'){
     requestAnimationFrame(function(){
@@ -11936,7 +11950,12 @@ async function sbCarregarCotacoes(){
     if(el)el.innerHTML='<div style="padding:16px;color:#dc2626;font-size:12px">Erro ao carregar: '+error.message+'</div>';
     return;
   }
-  if(!data){showT('Cotações: sem dados retornados','');return;}
+  if(!data){
+    showT('Cotações: sem dados retornados — tentando novamente','erro');
+    window._sbCotCarregado=true;
+    carregarHist();
+    return;
+  }
   window._sbCotCache=data.map(r=>({
     num:r.num,
     cliente:r.cliente||'',
@@ -11952,8 +11971,8 @@ async function sbCarregarCotacoes(){
     cd:{cnpj:r.cnpj||'',razaoSocial:r.cliente||'',endereco:r.endereco||'',cidade:r.cidade||'',cep:r.cep||'',email:'',telefone:r.telefone||'',responsavel:'',vendedor:r.vendedor||''},
     cond:r.condicoes||{}
   }));
+  window._sbCotCarregado=true;
   carregarHist();
-  // Forçar segunda renderização após micro-task
   Promise.resolve().then(function(){carregarHist();});
   // Atualizar contador do home
   var hmC=document.getElementById('hmCotacoes');
@@ -12552,8 +12571,8 @@ async function sbCarregarAgenda(){
       <div class="tv-clock" id="tvRelogio">--:--</div>
       <div class="tv-clock-sub" id="tvAtualizado">atualizando…</div>
     </div>
-    <div style="position:absolute;top:1.6vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4vh">
-      <div style="display:flex;gap:.5vw;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:1vh;padding:.3vh">
+    <div style="position:absolute;bottom:-3.2vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4vh;z-index:5">
+      <div style="display:flex;gap:.5vw;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.14);border-radius:1vh;padding:.3vh;box-shadow:0 2px 8px rgba(0,0,0,.3)">
         <button id="tvTabGeral" onclick="tvSetTela('geral')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:#2563eb;color:#fff;transition:.18s">Geral</button>
         <button id="tvTabFretes" onclick="tvSetTela('fretes')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:transparent;color:rgba(255,255,255,.55);transition:.18s">Fretes</button>
       </div>
@@ -14245,6 +14264,12 @@ function diasAtraso(fr){
 
 function renderTVFretes(){
   var lista=typeof fretes!=='undefined'?fretes:[];
+  // Se vazio, tentar carregar do Supabase
+  if(lista.length===0&&typeof sbCarregarFretes==='function'){
+    sbCarregarFretes().then(function(){
+      if((typeof fretes!=='undefined'?fretes:[]).length>0)renderTVFretes();
+    });
+  }
   var TRANS=typeof TRANSPORTADORAS!=='undefined'?TRANSPORTADORAS:{};
   var nAguard=0,nTransito=0,nAtras=0,nOcorr=0,nEntregue=0;
   lista.forEach(function(f){
@@ -14303,7 +14328,7 @@ function renderTVFretes(){
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:7vw">Prazo</th>'
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:10vw">Status Prazo</th>'
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:9vw">Status</th>'
-      +'</tr></thead><tbody>'+(criticos.length?'<tr><td colspan="7" style="padding:.4vh .8vw;background:rgba(239,68,68,.08);font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#fca5a5">\u26a0 Cr\u00EDticos ('+criticos.length+')</td></tr>':'')+tblRows+separador+'</tbody></table>'
+      +'</tr></thead><tbody>'+tblRows+'</tbody></table>'
     :'<div style="text-align:center;padding:4vh;color:#475569;font-size:1.6vh">Nenhum frete cadastrado</div>';
   var el=document.getElementById('tvFreteLista');
   if(el)el.innerHTML=html;
@@ -15269,6 +15294,103 @@ async function carregarListaUsuarios(){
         +'</div></div>';
     }).join('')+'</div>';
 }
+</script>
+
+
+<script>
+/* ── Polling de dados para telas que dependem de carregamento assíncrono ── */
+(function(){
+  var _pollAtivos={};
+
+  function iniciarPoll(nome, verificar, executar, maxTentativas){
+    if(_pollAtivos[nome])return;
+    var tentativas=0;
+    _pollAtivos[nome]=setInterval(function(){
+      tentativas++;
+      if(verificar()){
+        clearInterval(_pollAtivos[nome]);
+        delete _pollAtivos[nome];
+        executar();
+      }else if(tentativas>=maxTentativas){
+        clearInterval(_pollAtivos[nome]);
+        delete _pollAtivos[nome];
+        // Forçar recarregamento do Supabase como último recurso
+        if(typeof sbCarregarTudo==='function')sbCarregarTudo();
+      }
+    },500);
+  }
+
+  // Monitorar mudança de seção e iniciar polls necessários
+  var _setModoOrig=window.setModoApp;
+  window.setModoApp=function(m){
+    if(_setModoOrig)_setModoOrig(m);
+    window._modoAtual=m;
+
+    if(m==='cotacao'){
+      if((window._sbCotCache||[]).length>0){
+        carregarHist();
+      }else{
+        iniciarPoll('cotacao',
+          function(){return (window._sbCotCache||[]).length>0;},
+          function(){carregarHist();},
+          20 // 10 segundos
+        );
+        // Forçar busca imediata
+        if(typeof sbCarregarCotacoes==='function')sbCarregarCotacoes();
+      }
+    }
+
+    if(m==='cadastros'){
+      if((window.produtos||[]).length>0){
+        if(typeof renderCadProd==='function')renderCadProd();
+      }else{
+        iniciarPoll('cadastros',
+          function(){return (window.produtos||[]).length>0;},
+          function(){if(typeof renderCadProd==='function')renderCadProd();},
+          20
+        );
+        if(typeof sbCarregarProdutos==='function')sbCarregarProdutos();
+      }
+    }
+  };
+})();
+</script>
+
+
+<script>
+/* ── Observer robusto: renderiza cotações quando a seção fica visível ── */
+(function(){
+  function tentarRenderCotacoes(){
+    var sec=document.getElementById('secaoCotacao');
+    if(!sec)return;
+    var visivel=sec.style.display!=='none'&&sec.offsetParent!==null;
+    if(visivel&&(window._sbCotCache||[]).length>0){
+      if(typeof carregarHist==='function')carregarHist();
+    }
+  }
+
+  // Observar mudanças no style da seção de cotação
+  function iniciar(){
+    var sec=document.getElementById('secaoCotacao');
+    if(!sec){setTimeout(iniciar,300);return;}
+    var obs=new MutationObserver(function(){
+      // Quando o display muda, tentar renderizar
+      setTimeout(tentarRenderCotacoes,50);
+      setTimeout(tentarRenderCotacoes,300);
+    });
+    obs.observe(sec,{attributes:true,attributeFilter:['style']});
+
+    // Também observar quando o cache é populado — verificar periodicamente
+    var checkCount=0;
+    var checkInterval=setInterval(function(){
+      checkCount++;
+      tentarRenderCotacoes();
+      if(checkCount>=40)clearInterval(checkInterval); // 20s
+    },500);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar);
+  else iniciar();
+})();
 </script>
 
 </body>
