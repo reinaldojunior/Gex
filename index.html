@@ -27,6 +27,8 @@
   /* Conteúdo claro */
   --bg:#f4f6fb;--card:#ffffff;--borda:#e8ecf4;--borda-forte:#ccd3e0;
   --texto:#1a1f36;--muted:#64748b;--muted-light:#94a3b8;
+  /* Superfícies auxiliares (usadas em inputs, hovers, zebra) */
+  --surface-1:#f8fafc;--surface-2:#f1f5f9;--surface-3:#eef2f7;
   /* Topo */
   --topo-bg:#ffffff;
   /* Aliases */
@@ -46,6 +48,56 @@
   --t-fast:.15s var(--ease);--t-base:.22s var(--ease);
   /* Aliases de compatibilidade */
   --line:#e8ecf4;--line-strong:#ccd3e0;--line-soft:#f1f4f9;--ink:#1a1f36;--ink-2:#1a1f36;
+}
+
+/* ══════════ DARK MODE ══════════ */
+html[data-tema="escuro"]{
+  --bg:#0d1117;--card:#161b22;--borda:#262d38;--borda-forte:#3a4451;
+  --texto:#e6edf3;--muted:#8b949e;--muted-light:#6e7681;
+  --surface-1:#1c2128;--surface-2:#22272e;--surface-3:#2d333b;
+  --topo-bg:#161b22;
+  --accent-pale:#132033;--teal-pale:#132033;--tag-bg:#132033;
+  --amarelo:#3d3418;
+  --line:#262d38;--line-strong:#3a4451;--line-soft:#1c2128;--ink:#e6edf3;--ink-2:#e6edf3;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 1px 3px rgba(0,0,0,.24);
+  --shadow-md:0 2px 8px rgba(0,0,0,.36),0 6px 20px rgba(0,0,0,.3);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.44),0 16px 48px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+/* Superfícies claras hardcoded → seguem o tema */
+html[data-tema="escuro"] .config-select,
+html[data-tema="escuro"] .field input,
+html[data-tema="escuro"] .sol-hist-input,
+html[data-tema="escuro"] input[type=text],
+html[data-tema="escuro"] input[type=number],
+html[data-tema="escuro"] input[type=date],
+html[data-tema="escuro"] input[type=time],
+html[data-tema="escuro"] input[type=password],
+html[data-tema="escuro"] input[type=email],
+html[data-tema="escuro"] textarea,
+html[data-tema="escuro"] select{
+  background:var(--surface-1)!important;
+  border-color:var(--borda)!important;
+  color:var(--texto)!important;
+}
+html[data-tema="escuro"] .sol-prod-card{background:var(--surface-1)}
+html[data-tema="escuro"] .cond-field input{background:var(--surface-2);color:var(--texto)}
+html[data-tema="escuro"] .fr-table tbody tr.fr-row:hover{background:var(--surface-2)}
+html[data-tema="escuro"] .fr-det{background:var(--surface-1)}
+html[data-tema="escuro"] .historico-item{background:var(--card);border-color:var(--borda)}
+html[data-tema="escuro"] ::-webkit-scrollbar-track{background:var(--surface-1)}
+html[data-tema="escuro"] ::-webkit-scrollbar-thumb{background:var(--borda-forte)}
+
+/* Botão de alternância de tema */
+.tema-btn{
+  background:none;border:none;cursor:pointer;padding:4px 6px;
+  color:rgba(255,255,255,.6);font-size:15px;line-height:1;
+  border-radius:6px;transition:background var(--t-fast),color var(--t-fast);
+}
+.tema-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;color:var(--texto);font-size:14px;line-height:1.5;min-height:100vh;overflow:hidden;margin:0;padding:0;
@@ -299,6 +351,185 @@ td.apres-col{font-size:12px;color:var(--texto);font-weight:400}
 .fr-status-sel.entregue{background:#f0fdf4;color:#16a34a}
 .fr-status-sel.ocorrencia{background:#fef2f2;color:#dc2626}
 .fr-atraso{font-size:9px;font-weight:700;color:#dc2626;background:#fef2f2;border-radius:3px;padding:1px 4px;margin-left:3px}
+
+
+/* ══════════ SKELETON LOADING ══════════ */
+@keyframes gexPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.gex-skel{
+  background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 50%,var(--surface-2) 75%);
+  background-size:200% 100%;
+  animation:gexShimmer 1.4s ease-in-out infinite;
+  border-radius:6px;
+}
+@keyframes gexShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.gex-skel-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--borda)}
+.gex-skel-line{height:12px}
+.gex-skel-card{background:var(--card);border:1px solid var(--borda);border-radius:var(--radius);padding:16px;margin-bottom:10px}
+
+/* ══════════ TRANSIÇÃO DE SEÇÃO ══════════ */
+@keyframes gexSectionIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.gex-section-in{animation:gexSectionIn .28s var(--ease)}
+
+/* ══════════ TOASTS ══════════ */
+#gexToastWrap{
+  position:fixed;top:16px;right:16px;z-index:2000000;
+  display:flex;flex-direction:column;gap:10px;
+  pointer-events:none;max-width:min(380px,calc(100vw - 32px));
+}
+.gex-toast{
+  pointer-events:auto;position:relative;overflow:hidden;
+  display:flex;align-items:flex-start;gap:11px;
+  background:var(--card);color:var(--texto);
+  border:1px solid var(--borda);border-left:3px solid var(--accent);
+  border-radius:12px;padding:12px 14px;
+  box-shadow:var(--shadow-lg);
+  animation:gexToastIn .26s var(--ease);
+  font-size:13px;line-height:1.45;
+}
+.gex-toast.saindo{animation:gexToastOut .22s var(--ease) forwards}
+.gex-toast.ok{border-left-color:#16a34a}
+.gex-toast.erro{border-left-color:#dc2626}
+.gex-toast.aviso{border-left-color:#d97706}
+.gex-toast-ico{flex-shrink:0;font-size:15px;line-height:1.2;margin-top:1px}
+.gex-toast-corpo{flex:1;min-width:0;word-break:break-word}
+.gex-toast-x{
+  flex-shrink:0;background:none;border:none;cursor:pointer;
+  color:var(--muted);font-size:15px;line-height:1;padding:2px 4px;
+  border-radius:5px;transition:color var(--t-fast),background var(--t-fast);
+}
+.gex-toast-x:hover{color:var(--texto);background:var(--surface-2)}
+.gex-toast-barra{
+  position:absolute;left:0;bottom:0;height:2px;
+  background:currentColor;opacity:.28;
+  animation:gexToastBarra linear forwards;
+}
+.gex-toast.ok .gex-toast-barra{color:#16a34a}
+.gex-toast.erro .gex-toast-barra{color:#dc2626}
+.gex-toast.aviso .gex-toast-barra{color:#d97706}
+.gex-toast .gex-toast-barra{color:var(--accent)}
+@keyframes gexToastIn{from{opacity:0;transform:translateX(18px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes gexToastOut{to{opacity:0;transform:translateX(18px) scale(.97)}}
+@keyframes gexToastBarra{from{width:100%}to{width:0}}
+
+/* ══════════ COMMAND PALETTE (Ctrl+K) ══════════ */
+#gexCmdOverlay{
+  position:fixed;inset:0;z-index:3000000;display:none;
+  background:rgba(9,12,20,.55);backdrop-filter:blur(6px);
+  align-items:flex-start;justify-content:center;padding-top:14vh;
+}
+#gexCmdOverlay.aberto{display:flex;animation:gexFadeIn .16s var(--ease)}
+@keyframes gexFadeIn{from{opacity:0}to{opacity:1}}
+.gex-cmd-box{
+  width:min(620px,calc(100vw - 32px));
+  background:var(--card);border:1px solid var(--borda);
+  border-radius:16px;box-shadow:var(--shadow-lg);
+  overflow:hidden;animation:gexCmdIn .2s var(--ease);
+  display:flex;flex-direction:column;max-height:min(60vh,520px);
+}
+@keyframes gexCmdIn{from{opacity:0;transform:translateY(-10px) scale(.985)}to{opacity:1;transform:none}}
+.gex-cmd-topo{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--borda);flex-shrink:0}
+.gex-cmd-topo svg{width:17px;height:17px;color:var(--muted);flex-shrink:0}
+#gexCmdInput{
+  flex:1;border:none;outline:none;background:none;
+  font-family:inherit;font-size:15px;color:var(--texto);
+}
+#gexCmdInput::placeholder{color:var(--muted-light)}
+.gex-cmd-hint{
+  font-size:10px;font-weight:600;color:var(--muted);
+  background:var(--surface-2);border:1px solid var(--borda);
+  border-radius:5px;padding:2px 6px;flex-shrink:0;
+}
+.gex-cmd-lista{overflow-y:auto;padding:6px;flex:1}
+.gex-cmd-grupo{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--muted-light);padding:9px 10px 5px;
+}
+.gex-cmd-item{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 10px;border-radius:9px;cursor:pointer;
+  transition:background var(--t-fast);
+}
+.gex-cmd-item:hover,.gex-cmd-item.sel{background:var(--surface-2)}
+.gex-cmd-item.sel{box-shadow:inset 2px 0 0 var(--accent)}
+.gex-cmd-ico{
+  flex-shrink:0;width:28px;height:28px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--accent-pale);font-size:14px;
+}
+.gex-cmd-txt{flex:1;min-width:0}
+.gex-cmd-titulo{font-size:13px;font-weight:600;color:var(--texto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gex-cmd-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gex-cmd-vazio{text-align:center;padding:28px 16px;color:var(--muted);font-size:13px}
+
+
+/* Sobrescritas do dark mode para regras com !important
+   (não afetam @media print, que deve continuar em papel branco) */
+html[data-tema="escuro"] body,
+html[data-tema="escuro"] .main-content,
+html[data-tema="escuro"] .main-area,
+html[data-tema="escuro"] .content-body{
+  background:var(--bg)!important;
+  color:var(--texto);
+}
+html[data-tema="escuro"] .metric-card,
+html[data-tema="escuro"] .crm-stat,
+html[data-tema="escuro"] .alert-item,
+html[data-tema="escuro"] .evento-home,
+html[data-tema="escuro"] .dash-card,
+html[data-tema="escuro"] .kpi-card,
+html[data-tema="escuro"] .tabela-card,
+html[data-tema="escuro"] .condicoes-card{
+  background:var(--card)!important;
+  border-color:var(--borda)!important;
+  color:var(--texto);
+}
+html[data-tema="escuro"] .main-content::-webkit-scrollbar-thumb{background:var(--borda-forte)}
+html[data-tema="escuro"] .main-content::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+/* Painéis/cabeçalhos brancos genéricos dentro do conteúdo */
+html[data-tema="escuro"] .topo,
+html[data-tema="escuro"] .header,
+html[data-tema="escuro"] .card,
+html[data-tema="escuro"] .painel{
+  background:var(--card);
+  border-color:var(--borda);
+  color:var(--texto);
+}
+
+
+/* Textos com cor escura fixa → seguem o tema no modo escuro.
+   Corrige tabelas, cards e listas sem precisar reescrever cada regra. */
+html[data-tema="escuro"] .fr-table td,
+html[data-tema="escuro"] .fr-table .fr-nf,
+html[data-tema="escuro"] .fr-table .fr-cli,
+html[data-tema="escuro"] .fr-table .fr-val,
+html[data-tema="escuro"] .historico-item,
+html[data-tema="escuro"] .cmd-titulo,
+html[data-tema="escuro"] .tp-card,
+html[data-tema="escuro"] .sol-prod-card{
+  color:var(--texto);
+}
+html[data-tema="escuro"] .fr-table .fr-transp{color:var(--muted)}
+html[data-tema="escuro"] .fr-table thead tr{background:#1c2a3d;color:#e6edf3}
+/* Elementos que usam cinza-escuro como texto secundário */
+html[data-tema="escuro"] [style*="color:#0f1727"],
+html[data-tema="escuro"] [style*="color:#1a1f36"],
+html[data-tema="escuro"] [style*="color:#1e293b"]{
+  color:var(--texto)!important;
+}
+html[data-tema="escuro"] [style*="color:#334155"],
+html[data-tema="escuro"] [style*="color:#475569"]{
+  color:var(--muted)!important;
+}
+/* Fundos claros inline dentro de conteúdo */
+html[data-tema="escuro"] [style*="background:#fff"],
+html[data-tema="escuro"] [style*="background:#ffffff"],
+html[data-tema="escuro"] [style*="background:#f8fafc"],
+html[data-tema="escuro"] [style*="background:#f1f5f9"]{
+  background:var(--card)!important;
+}
 
 @media print{.screen-only{display:none!important}}
 td.right{text-align:right}td.center{text-align:center}
@@ -2454,7 +2685,6 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
       <div class="card-title" style="margin-bottom:0">📋 Cotações Salvas <span id="histCount" style="font-size:12px;color:var(--muted);font-weight:500"></span></div>
       <div style="display:flex;gap:8px">
-        <button class="acoes-btn" onclick="if(typeof sbCarregarCotacoes==='function'){document.getElementById('historicoList').innerHTML='<div style=\'text-align:center;padding:24px;color:#94a3b8;font-size:13px\'>⏳ Atualizando...</div>';sbCarregarCotacoes();}" title="Recarregar lista de cotações">🔄 Atualizar</button>
         <button class="acoes-btn" onclick="abrirRelatorioCotacoes()">📊 Relatório</button>
         <button class="btn-pdf" onclick="iniciarNovaCot()" style="padding:8px 18px;font-size:13px">＋ Nova Cotação</button>
       </div>
@@ -3162,6 +3392,15 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
 
       <!-- Dashboards / Gráficos -->
       <div id="fatCharts" style="display:none;margin-bottom:20px">
+        <!-- Evolução mensal — largura total, em destaque -->
+        <div style="background:#fff;border:1px solid var(--borda);border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-size:13px;font-weight:700;color:var(--texto)">📈 Evolução do Faturamento</div>
+            <div style="font-size:11px;font-weight:600;color:var(--muted)" id="chartEvolucaoTotal"></div>
+          </div>
+          <div style="height:260px"><canvas id="chartEvolucao"></canvas></div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
           <div style="background:#fff;border:1px solid var(--borda);border-radius:12px;padding:16px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -3178,12 +3417,22 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
             <div style="height:240px"><canvas id="chartEstado"></canvas></div>
           </div>
         </div>
-        <div style="background:#fff;border:1px solid var(--borda);border-radius:12px;padding:16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <div style="font-size:13px;font-weight:700;color:var(--texto)">🏆 Top 10 Produtos</div>
-            <div style="font-size:11px;font-weight:600;color:var(--muted)" id="chartProdutosTotal"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div style="background:#fff;border:1px solid var(--borda);border-radius:12px;padding:16px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div style="font-size:13px;font-weight:700;color:var(--texto)">🏆 Top 10 Produtos</div>
+              <div style="font-size:11px;font-weight:600;color:var(--muted)" id="chartProdutosTotal"></div>
+            </div>
+            <div style="height:280px"><canvas id="chartProdutos"></canvas></div>
           </div>
-          <div style="height:280px"><canvas id="chartProdutos"></canvas></div>
+          <div style="background:#fff;border:1px solid var(--borda);border-radius:12px;padding:16px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div style="font-size:13px;font-weight:700;color:var(--texto)">👑 Top 10 Clientes</div>
+              <div style="font-size:11px;font-weight:600;color:var(--muted)" id="chartClientesTotal"></div>
+            </div>
+            <div style="height:280px"><canvas id="chartClientes"></canvas></div>
+          </div>
         </div>
       </div>
 
@@ -4784,7 +5033,7 @@ function carregarHist(){
     var jaCarregou=window._sbCotCarregado;
     el.innerHTML=jaCarregou
       ?'<div class="historico-vazio">Nenhuma cotação salva ainda.</div>'
-      :'<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px">⏳ Carregando cotações...<br><button class="acoes-btn" style="margin-top:10px" onclick="if(typeof sbCarregarCotacoes===\'function\')sbCarregarCotacoes()">🔄 Tentar novamente</button></div>';
+      :(typeof gexSkeletonCards==='function'?gexSkeletonCards(4):'<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px">Carregando cotações...</div>');
     return;
   }
   try{
@@ -4939,14 +5188,74 @@ async function delC(num){
 async function novaCot(){await iniciarNovaCot();}
 
 let _tt;
+/* ── TOASTS: empilháveis, com barra de progresso e botão fechar ──
+   Mantém a mesma assinatura showT(msg, tipo) usada em todo o sistema.
+   tipo: 'verde' (sucesso) | 'erro' | 'aviso' | '' (informação) */
 function showT(msg,tipo=''){
-  const t=document.getElementById('toast');
-  const icons={verde:'✓ ',erro:'✕ ',aviso:'⚠ '};
-  const icon=icons[tipo]||'';
-  t.textContent=icon+msg;
-  t.className='toast show '+tipo;
-  clearTimeout(_tt);
-  _tt=setTimeout(()=>t.classList.remove('show'),3000);
+  let wrap=document.getElementById('gexToastWrap');
+  if(!wrap){
+    wrap=document.createElement('div');
+    wrap.id='gexToastWrap';
+    document.body.appendChild(wrap);
+  }
+
+  const CFG={
+    verde:{cls:'ok',   ico:'✓', ms:3200},
+    erro: {cls:'erro', ico:'✕', ms:5000},
+    aviso:{cls:'aviso',ico:'⚠', ms:4200},
+    '':   {cls:'',     ico:'ℹ', ms:3600}
+  };
+  const c=CFG[tipo]||CFG[''];
+
+  // Limita a 4 na tela — remove o mais antigo
+  while(wrap.children.length>=4)wrap.firstChild.remove();
+
+  const el=document.createElement('div');
+  el.className='gex-toast '+c.cls;
+  el.setAttribute('role', tipo==='erro'?'alert':'status');
+
+  const ico=document.createElement('span');
+  ico.className='gex-toast-ico';
+  ico.textContent=c.ico;
+
+  const corpo=document.createElement('div');
+  corpo.className='gex-toast-corpo';
+  corpo.textContent=String(msg==null?'':msg);
+
+  const x=document.createElement('button');
+  x.className='gex-toast-x';
+  x.type='button';
+  x.setAttribute('aria-label','Fechar aviso');
+  x.textContent='✕';
+
+  const barra=document.createElement('div');
+  barra.className='gex-toast-barra';
+  barra.style.animationDuration=c.ms+'ms';
+
+  el.append(ico,corpo,x,barra);
+  wrap.appendChild(el);
+
+  let saiu=false;
+  const fechar=function(){
+    if(saiu)return;
+    saiu=true;
+    clearTimeout(timer);
+    el.classList.add('saindo');
+    setTimeout(function(){el.remove();},220);
+  };
+  x.onclick=fechar;
+
+  let timer=setTimeout(fechar,c.ms);
+
+  // Pausa o fechamento enquanto o mouse está em cima
+  el.onmouseenter=function(){
+    clearTimeout(timer);
+    barra.style.animationPlayState='paused';
+  };
+  el.onmouseleave=function(){
+    barra.style.animationPlayState='running';
+    timer=setTimeout(fechar,900);
+  };
 }
 
 /* ── CONFIRMAÇÃO MODAL BONITA ── */
@@ -5769,6 +6078,7 @@ async function salvarProduto(){
 ══════════════════════════════════════ */
 let fatDados=[];         // todos os registros carregados
 let fatGrupos={};        // {cod_cliente: grupo}
+let fatRepresentantes={}; // {cod_cliente: representante} — override manual (senão usa o da última venda importada)
 let fatMesFiltro='';
 let fatDragging=null;
 
@@ -5785,6 +6095,29 @@ async function sbCarregarGrupos(){
   if(error){console.error('grupos erro:',error);return;}
   fatGrupos={};
   (data||[]).forEach(function(r){fatGrupos[r.cod_cliente]=r.grupo;});
+}
+
+async function sbCarregarRepresentantes(){
+  const {data,error}=await sb.from('clientes_representante').select('*');
+  if(error){console.error('representantes erro:',error);return;}
+  fatRepresentantes={};
+  (data||[]).forEach(function(r){fatRepresentantes[r.cod_cliente]=r.representante;});
+}
+
+// Representante de um cliente: usa a classificação manual se existir;
+// senão, usa o representante da venda mais recente importada da planilha.
+function getRepresentanteCliente(cod){
+  if(fatRepresentantes[cod])return fatRepresentantes[cod];
+  const venda=fatDados.find(function(r){return r.cod_cliente===cod&&r.representante;});
+  return venda?venda.representante:'';
+}
+
+// Lista de representantes já vistos (da planilha + classificações manuais) — para autocomplete
+function listaRepresentantesConhecidos(){
+  const set=new Set();
+  fatDados.forEach(function(r){if(r.representante)set.add(r.representante);});
+  Object.values(fatRepresentantes).forEach(function(r){if(r)set.add(r);});
+  return [...set].sort();
 }
 
 // Carregar vendas do Supabase
@@ -6162,6 +6495,12 @@ function renderFaturamento(){
 }
 
 let _chartGrupo=null,_chartEstado=null,_chartProdutos=null;
+
+/* Cor da grade dos gráficos conforme o tema */
+function gexCorGrid(){
+  return document.documentElement.getAttribute('data-tema') === 'escuro' ? '#262d38' : '#f1f5f9';
+}
+
 function renderFatCharts(dados){
   const chartsEl=document.getElementById('fatCharts');
   if(!dados||!dados.length){if(chartsEl)chartsEl.style.display='none';return;}
@@ -6170,15 +6509,70 @@ function renderFatCharts(dados){
 
   // Tooltip premium compartilhado
   const tooltipPremium={
-    backgroundColor:'rgba(15,23,42,.92)',
+    backgroundColor:'rgba(15,23,42,.94)',
     titleColor:'#fff',bodyColor:'#e2e8f0',
     padding:12,cornerRadius:10,
     titleFont:{size:12,weight:'700'},bodyFont:{size:12},
-    displayColors:true,boxPadding:4,
-    borderColor:'rgba(255,255,255,.1)',borderWidth:1
+    displayColors:true,boxPadding:5,
+    borderColor:'rgba(255,255,255,.12)',borderWidth:1
   };
+  const fmtK=function(v){return v>=1000?'R$ '+(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':'R$ '+v.toFixed(0);};
 
-  // ── Por grupo (pizza) — clicável
+  // ── Dados do período anterior (para comparação) ──
+  let dadosAntComp=[];
+  if(fatModo==='mes'){
+    const meses=getMesesDisp();
+    if(meses[fatMesIdx]&&fatMesIdx>0){
+      const mesAnt=meses[fatMesIdx-1];
+      dadosAntComp=fatDados.filter(function(r){return r.mes_ano===mesAnt&&!r.excluida;});
+    }
+  }
+
+  // ═══════════════════════════════════════════════
+  // 1. EVOLUÇÃO MENSAL (linha) — últimos 12 meses disponíveis
+  // ═══════════════════════════════════════════════
+  const todosMeses=getMesesDisp();
+  const ultimosMeses=todosMeses.slice(-12);
+  const evolValores=ultimosMeses.map(function(m){
+    return fatDados.filter(function(r){return r.mes_ano===m&&!r.excluida;})
+      .reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+  });
+  const evolLabels=ultimosMeses.map(function(m){
+    const p=m.split('/');return (p[0]||m)+'/'+(p[1]?p[1].slice(-2):'');
+  });
+  const evolTotal=evolValores.reduce(function(s,v){return s+v;},0);
+
+  if(typeof _chartEvolucao==='undefined')window._chartEvolucao=null;
+  if(_chartEvolucao)_chartEvolucao.destroy();
+  const ctxEvol=document.getElementById('chartEvolucao');
+  if(ctxEvol){
+    const gradEvol=ctxEvol.getContext('2d').createLinearGradient(0,0,0,260);
+    gradEvol.addColorStop(0,'rgba(15,110,95,.28)');
+    gradEvol.addColorStop(1,'rgba(15,110,95,0)');
+    _chartEvolucao=new Chart(ctxEvol,{
+      type:'line',
+      data:{labels:evolLabels,datasets:[{
+        data:evolValores,borderColor:'#0f6e5f',backgroundColor:gradEvol,
+        borderWidth:3,fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#fff',
+        pointBorderColor:'#0f6e5f',pointBorderWidth:2,pointHoverRadius:7,
+        pointHoverBackgroundColor:'#0f6e5f',pointHoverBorderColor:'#fff',pointHoverBorderWidth:2
+      }]},
+      options:{responsive:true,maintainAspectRatio:false,animation:{duration:800,easing:'easeOutQuart'},
+        plugins:{legend:{display:false},tooltip:Object.assign({},tooltipPremium,{
+          callbacks:{label:function(c){return ' R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});}}
+        })},
+        scales:{
+          y:{ticks:{callback:function(v){return fmtK(v);},font:{size:10}},grid:{color:gexCorGrid()},beginAtZero:true},
+          x:{ticks:{font:{size:10,weight:'600'}},grid:{display:false}}
+        }}
+    });
+  }
+  const teEvol=document.getElementById('chartEvolucaoTotal');
+  if(teEvol)teEvol.textContent=ultimosMeses.length+' meses · total R$ '+evolTotal.toLocaleString('pt-BR',{maximumFractionDigits:0});
+
+  // ═══════════════════════════════════════════════
+  // 2. POR GRUPO (pizza) — clicável
+  // ═══════════════════════════════════════════════
   const porGrupo={};
   dados.forEach(function(r){const g=fatGrupos[r.cod_cliente]||'venda_direta';porGrupo[g]=(porGrupo[g]||0)+parseFloat(r.v_total||0);});
   const gLabels=[],gData=[],gCores=[],gKeys=[];
@@ -6194,32 +6588,86 @@ function renderFatCharts(dados){
       plugins:{legend:{position:'right',labels:{font:{size:11},padding:12,usePointStyle:true,pointStyle:'circle'}},tooltip:Object.assign({},tooltipPremium,{callbacks:{label:function(c){const pct=gTotal>0?((c.parsed/gTotal)*100).toFixed(1):0;return ' R$ '+c.parsed.toLocaleString('pt-BR',{minimumFractionDigits:2})+' · '+pct+'%';},afterLabel:function(){return 'Clique para filtrar';}}})}}
   });
 
-  // ── Por estado (barras)
+  // ═══════════════════════════════════════════════
+  // 3. POR ESTADO (barras) — com comparação vs período anterior
+  // ═══════════════════════════════════════════════
   const porEstado={};
   dados.forEach(function(r){const e=r.estado||'N/D';porEstado[e]=(porEstado[e]||0)+parseFloat(r.v_total||0);});
   const eSorted=Object.entries(porEstado).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  const estadosLabels=eSorted.map(function(e){return e[0];});
+
+  const datasetsEstado=[{
+    label:'Atual',data:eSorted.map(function(e){return e[1];}),
+    backgroundColor:'#0f6e5f',hoverBackgroundColor:'#0a5446',borderRadius:6,maxBarThickness:32
+  }];
+  if(dadosAntComp.length){
+    const porEstadoAnt={};
+    dadosAntComp.forEach(function(r){const e=r.estado||'N/D';porEstadoAnt[e]=(porEstadoAnt[e]||0)+parseFloat(r.v_total||0);});
+    datasetsEstado.push({
+      label:'Mês anterior',data:estadosLabels.map(function(e){return porEstadoAnt[e]||0;}),
+      backgroundColor:'#cbd5e1',hoverBackgroundColor:'#94a3b8',borderRadius:6,maxBarThickness:32
+    });
+  }
+
   if(_chartEstado)_chartEstado.destroy();
   _chartEstado=new Chart(document.getElementById('chartEstado'),{
     type:'bar',
-    data:{labels:eSorted.map(function(e){return e[0];}),datasets:[{data:eSorted.map(function(e){return e[1];}),backgroundColor:'#0f6e5f',hoverBackgroundColor:'#0a5446',borderRadius:6,maxBarThickness:40}]},
-    options:{responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:Object.assign({},tooltipPremium,{callbacks:{label:function(c){return ' R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});}}})},scales:{y:{ticks:{callback:function(v){return 'R$ '+(v/1000)+'k';},font:{size:10}},grid:{color:'#f1f5f9'}},x:{ticks:{font:{size:10,weight:'600'}},grid:{display:false}}}}
+    data:{labels:estadosLabels,datasets:datasetsEstado},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},
+      plugins:{legend:{display:datasetsEstado.length>1,position:'top',align:'end',labels:{boxWidth:10,font:{size:10}}},tooltip:Object.assign({},tooltipPremium,{callbacks:{label:function(c){return ' '+c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});}}})},
+      scales:{y:{ticks:{callback:function(v){return fmtK(v);},font:{size:10}},grid:{color:gexCorGrid()}},x:{ticks:{font:{size:10,weight:'600'}},grid:{display:false}}}}
   });
 
-  // ── Top 10 produtos (barras horizontais)
+  // ═══════════════════════════════════════════════
+  // 4. TOP 10 PRODUTOS (barras horizontais)
+  // ═══════════════════════════════════════════════
   const porProd={};
   dados.forEach(function(r){const p=r.item||'N/D';porProd[p]=(porProd[p]||0)+parseFloat(r.v_total||0);});
   const pSorted=Object.entries(porProd).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  const pMax=pSorted.length?pSorted[0][1]:0;
   if(_chartProdutos)_chartProdutos.destroy();
   _chartProdutos=new Chart(document.getElementById('chartProdutos'),{
     type:'bar',
-    data:{labels:pSorted.map(function(p){return p[0].length>38?p[0].substring(0,38)+'…':p[0];}),datasets:[{data:pSorted.map(function(p){return p[1];}),backgroundColor:'#1a9c8a',hoverBackgroundColor:'#137a6b',borderRadius:5,maxBarThickness:22}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:Object.assign({},tooltipPremium,{callbacks:{label:function(c){return ' R$ '+c.parsed.x.toLocaleString('pt-BR',{minimumFractionDigits:2});}}})},scales:{x:{ticks:{callback:function(v){return 'R$ '+(v/1000)+'k';},font:{size:10}},grid:{color:'#f1f5f9'}},y:{ticks:{font:{size:9}},grid:{display:false}}}}
+    data:{labels:pSorted.map(function(p){return p[0].length>34?p[0].substring(0,34)+'…':p[0];}),
+      datasets:[{data:pSorted.map(function(p){return p[1];}),
+        backgroundColor:pSorted.map(function(p){const int=p[1]/pMax;return `rgba(26,156,138,${.45+int*.55})`;}),
+        hoverBackgroundColor:'#0f6e5f',borderRadius:5,maxBarThickness:20}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},
+      plugins:{legend:{display:false},tooltip:Object.assign({},tooltipPremium,{callbacks:{label:function(c){return ' R$ '+c.parsed.x.toLocaleString('pt-BR',{minimumFractionDigits:2});}}})},
+      scales:{x:{ticks:{callback:function(v){return fmtK(v);},font:{size:10}},grid:{color:gexCorGrid()}},y:{ticks:{font:{size:9.5,weight:'500'}},grid:{display:false}}}}
   });
+
+  // ═══════════════════════════════════════════════
+  // 5. TOP 10 CLIENTES (barras horizontais) — novo
+  // ═══════════════════════════════════════════════
+  const porCli={};
+  dados.forEach(function(r){
+    const nome=r.cliente||'N/D';
+    porCli[nome]=(porCli[nome]||0)+parseFloat(r.v_total||0);
+  });
+  const cSorted=Object.entries(porCli).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  const cMax=cSorted.length?cSorted[0][1]:0;
+  if(typeof _chartClientes==='undefined')window._chartClientes=null;
+  if(_chartClientes)_chartClientes.destroy();
+  const ctxCli=document.getElementById('chartClientes');
+  if(ctxCli){
+    _chartClientes=new Chart(ctxCli,{
+      type:'bar',
+      data:{labels:cSorted.map(function(c){return c[0].length>30?c[0].substring(0,30)+'…':c[0];}),
+        datasets:[{data:cSorted.map(function(c){return c[1];}),
+          backgroundColor:cSorted.map(function(c){const int=c[1]/cMax;return `rgba(124,58,237,${.45+int*.55})`;}),
+          hoverBackgroundColor:'#6d28d9',borderRadius:5,maxBarThickness:20}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},
+        plugins:{legend:{display:false},tooltip:Object.assign({},tooltipPremium,{callbacks:{label:function(c){return ' R$ '+c.parsed.x.toLocaleString('pt-BR',{minimumFractionDigits:2});}}})},
+        scales:{x:{ticks:{callback:function(v){return fmtK(v);},font:{size:10}},grid:{color:gexCorGrid()}},y:{ticks:{font:{size:9.5,weight:'500'}},grid:{display:false}}}}
+    });
+  }
 
   // Atualizar títulos com totais
   const tg=document.getElementById('chartGrupoTotal');if(tg)tg.textContent='R$ '+gTotal.toLocaleString('pt-BR',{maximumFractionDigits:0});
-  const te=document.getElementById('chartEstadoTotal');if(te)te.textContent=eSorted.length+' estados';
+  const te=document.getElementById('chartEstadoTotal');if(te)te.textContent=eSorted.length+' estados'+(dadosAntComp.length?' · vs mês anterior':'');
   const tp=document.getElementById('chartProdutosTotal');if(tp)tp.textContent=Object.keys(porProd).length+' produtos';
+  const tc=document.getElementById('chartClientesTotal');if(tc)tc.textContent=Object.keys(porCli).length+' clientes';
 }
 
 function filtrarPorGrupo(g){
@@ -6424,6 +6872,7 @@ async function importarFaturamento(input){
 
       showT(registros.length+' registros importados ✓','verde');
       await sbCarregarGrupos();
+      await sbCarregarRepresentantes();
       await sbCarregarVendas();
     }catch(err){
       console.error('Erro importação:',err);
@@ -6443,6 +6892,10 @@ function abrirClassificacao(){
     clientes[r.cod_cliente]={cod:r.cod_cliente,nome:r.cliente,grupo:fatGrupos[r.cod_cliente]||'venda_direta'};
   });
 
+  // Preencher a lista de representantes conhecidos para autocomplete
+  const dl=document.getElementById('listaRepresentantesDatalist');
+  if(dl)dl.innerHTML=listaRepresentantesConhecidos().map(function(r){return'<option value="'+r.replace(/"/g,'&quot;')+'">';}).join('');
+
   Object.keys(GRUPOS).forEach(function(g){
     document.getElementById('grupoZone'+g.charAt(0).toUpperCase()+g.slice(1).replace('_d','D').replace('_g','G').replace('_','').replace('venda','venda').replace('direta','Direta').replace('parceiros','Parceiros')).innerHTML='';
   });
@@ -6455,10 +6908,13 @@ function abrirClassificacao(){
     card.draggable=true;
     card.dataset.cod=c.cod;
     card.dataset.nome=c.nome;
-    card.style.cssText='background:#fff;border:1px solid var(--borda);border-radius:6px;padding:6px 10px;font-size:11px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px';
+    card.style.cssText='background:#fff;border:1px solid var(--borda);border-radius:6px;padding:6px 10px;font-size:11px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px;flex-wrap:wrap';
     card.innerHTML=
       '<span style="font-size:14px;color:#94a3b8">⠿</span>'+
-      '<span style="flex:1">'+c.nome+'</span>'+
+      '<span style="flex:1;min-width:80px">'+c.nome+'</span>'+
+      '<input list="listaRepresentantesDatalist" placeholder="Representante" value="'+(getRepresentanteCliente(c.cod)||'').replace(/"/g,'&quot;')+'" '+
+        'onchange="mudarRepresentanteCard(\''+c.cod+'\',this.value)" onclick="event.stopPropagation()" '+
+        'style="font-size:10px;padding:2px 5px;border-radius:4px;border:1px solid var(--borda);background:#f8fafc;width:110px" />'+
       '<select onchange="mudarGrupoCard(\''+c.cod+'\',this.value)" onclick="event.stopPropagation()" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--borda);background:#f8fafc;cursor:pointer;max-width:100px">'+
         '<option value="3a"'+(c.grupo==='3a'?' selected':'')+'>3A</option>'+
         '<option value="parceiros"'+(c.grupo==='parceiros'?' selected':'')+'>Parceiros</option>'+
@@ -6472,6 +6928,10 @@ function abrirClassificacao(){
   });
 
   document.getElementById('overlayClassificacao').style.display='flex';
+}
+
+function mudarRepresentanteCard(cod,valor){
+  fatRepresentantes[cod]=valor.trim();
 }
 
 // Lançamento Manual
@@ -6763,6 +7223,8 @@ function gerarRelatorioFaturamento(modo){
     mixGrupo:document.getElementById('relMixGrupo').value,
     porEstado:document.getElementById('relPorEstado').checked,
     porEstadoGrupo:document.getElementById('relPorEstadoGrupo').value,
+    porRepresentante:document.getElementById('relPorRepresentante').checked,
+    porRepresentanteGrupo:document.getElementById('relPorRepresentanteGrupo').value,
   };
   const allDados=getDadosFiltrados();
   const filtrar=function(g){return g?allDados.filter(function(r){return(fatGrupos[r.cod_cliente]||'venda_direta')===g;}):allDados;};
@@ -6909,6 +7371,33 @@ function gerarRelatorioFaturamento(modo){
     body+='</div>';
   }
 
+  if(opts.porRepresentante){
+    const d=filtrar(opts.porRepresentanteGrupo);
+    const label='Produtos por Representante'+(opts.porRepresentanteGrupo?' \u2014 '+GRUPOS[opts.porRepresentanteGrupo]?.label:'');
+    const porRP={};
+    d.forEach(function(r){
+      const rep=getRepresentanteCliente(r.cod_cliente)||'Sem representante';
+      const p=r.item||'N/D';
+      if(!porRP[rep])porRP[rep]={};
+      if(!porRP[rep][p])porRP[rep][p]={qtd:0,total:0};
+      porRP[rep][p].qtd+=parseFloat(r.quantidade||0);
+      porRP[rep][p].total+=parseFloat(r.v_total||0);
+    });
+    body+='<div class="secao"><div class="secao-title">'+label+'</div>';
+    Object.keys(porRP).sort(function(a,b){
+      const totA=Object.values(porRP[a]).reduce(function(s,p){return s+p.total;},0);
+      const totB=Object.values(porRP[b]).reduce(function(s,p){return s+p.total;},0);
+      return totB-totA; // representante com maior faturamento primeiro
+    }).forEach(function(rep){
+      const prods=Object.entries(porRP[rep]).sort(function(a,b){return b[1].total-a[1].total;});
+      const rT=prods.reduce(function(s,p){return s+p[1].total;},0);
+      body+='<div style="font-size:10px;font-weight:700;color:#475569;margin:10px 0 4px">'+rep+' \u2014 '+fmt(rT)+'</div><table class="sec-table"><thead><tr><th>Produto</th><th class="r">Qtd</th><th class="r">Total</th></tr></thead><tbody>';
+      prods.forEach(function(p){body+='<tr><td>'+p[0]+'</td><td class="r">'+fmtN(p[1].qtd)+'</td><td class="r">'+fmt(p[1].total)+'</td></tr>';});
+      body+='</tbody></table>';
+    });
+    body+='</div>';
+  }
+
   const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relat\u00f3rio '+periodo+'</title><style>'+css+'</style></head><body><div class="header"><div><h1>Relat\u00f3rio de Faturamento</h1><p>'+periodo+' \u00b7 Gerado em '+new Date().toLocaleString('pt-BR')+'</p></div><div class="total-box"><span>Total do Per\u00edodo</span><strong>'+fmt(totalGeral)+'</strong></div></div>'+body+'</body></html>';
 
   if(modo==='pdf'){
@@ -6959,9 +7448,19 @@ async function salvarClassificacao(){
   const updates=Object.entries(fatGrupos).map(function(e){
     return{cod_cliente:e[0],grupo:e[1]};
   });
-  if(!updates.length){fecharClassificacao();return;}
-  const {error}=await sb.from('clientes_grupo').upsert(updates,{onConflict:'cod_cliente'});
-  if(error){showT('Erro ao salvar classificação','erro');return;}
+  if(updates.length){
+    const {error}=await sb.from('clientes_grupo').upsert(updates,{onConflict:'cod_cliente'});
+    if(error){showT('Erro ao salvar classificação','erro');return;}
+  }
+
+  const updatesRep=Object.entries(fatRepresentantes)
+    .filter(function(e){return e[1];}) // só salva os preenchidos
+    .map(function(e){return{cod_cliente:e[0],representante:e[1]};});
+  if(updatesRep.length){
+    const {error:errRep}=await sb.from('clientes_representante').upsert(updatesRep,{onConflict:'cod_cliente'});
+    if(errRep){showT('Erro ao salvar representantes: '+errRep.message,'erro');return;}
+  }
+
   fecharClassificacao();
   renderFaturamento();
   showT('Classificação salva ✓','verde');
@@ -7424,10 +7923,18 @@ function setModoApp(m){
     const el=document.getElementById(id);
     if(el)el.classList.toggle('active',modo===m);
   });
-  // Mostrar/ocultar seções
+  // Mostrar/ocultar seções (com transição suave de entrada)
   Object.entries(secs).forEach(([modo,id])=>{
     const el=document.getElementById(id);
-    if(el)el.style.display=modo===m?'':'none';
+    if(!el)return;
+    if(modo===m){
+      el.style.display='';
+      el.classList.remove('gex-section-in');
+      void el.offsetWidth; // força reinício da animação
+      el.classList.add('gex-section-in');
+    }else{
+      el.style.display='none';
+    }
   });
   if(m==='cotacao'){
     requestAnimationFrame(function(){carregarHist();});
@@ -8885,10 +9392,16 @@ function setFreteFilter(f){
 }
 
 function atualizarStatsFrete(){
-  document.getElementById('ftTotal').textContent=fretes.length;
-  document.getElementById('ftAguardando').textContent=fretes.filter(f=>f.status==='aguardando').length;
-  document.getElementById('ftTransito').textContent=fretes.filter(f=>f.status==='transito').length;
-  document.getElementById('ftEntregue').textContent=fretes.filter(f=>f.status==='entregue').length;
+  var set=function(id,valor){
+    var el=document.getElementById(id);
+    if(!el)return;
+    if(typeof gexAnimarNumero==='function')gexAnimarNumero(el,valor);
+    else el.textContent=valor;
+  };
+  set('ftTotal',fretes.length);
+  set('ftAguardando',fretes.filter(f=>f.status==='aguardando').length);
+  set('ftTransito',fretes.filter(f=>f.status==='transito').length);
+  set('ftEntregue',fretes.filter(f=>f.status==='entregue').length);
 }
 
 function calcPctFrete(f){
@@ -10746,63 +11259,109 @@ function mostrarStatus(msg,tipo){
 
 async function analisarEditalGeral(){
   if(!_editalTexto){showT('Selecione o PDF e aguarde a extração do texto','erro');return;}
-  mostrarStatus('⏳ Analisando edital... Isso pode levar 20-40 segundos.','loading');
   document.getElementById('btnAnaliseGeral').disabled=true;
 
-  const prompt=`Você é um analista sênior de licitações. Analise o edital em PDF e extraia as informações abaixo em formato JSON. Responda APENAS com o JSON, sem texto adicional.
+  const promptBase=`Você é um analista sênior de licitações. Este é um TRECHO de um edital (o documento completo foi dividido em partes). Extraia APENAS as informações que aparecerem NESTE trecho, no formato JSON abaixo. Se um campo não aparecer neste trecho, deixe null (string) ou [] (lista) — não invente. Responda APENAS com o JSON, sem texto adicional.
 
 {
-  "orgao": "nome do órgão licitante",
-  "numero": "número do edital/processo",
-  "modalidade": "ex: Pregão Eletrônico",
-  "objeto": "descrição resumida do objeto",
-  "valor_estimado": "valor total estimado",
-  "data_abertura": "data e hora de abertura",
-  "criterio": "critério de julgamento",
-  "exclusividade_me_epp": "Sim/Não/Cota reservada",
-  "prazo_entrega": "prazo de entrega após emissão",
-  "prazo_contrato": "prazo para assinatura do contrato",
-  "validade_proposta": "prazo de validade da proposta",
-  "documentos_habilitacao": ["lista", "de", "documentos"],
-  "documentos_proposta": ["FISPQ", "Registro ANVISA", "outros"],
-  "clausulas_atencao": ["cláusulas restritivas ou incomuns"],
-  "checklist": ["1. documento", "2. documento"]
+  "orgao": "nome do órgão licitante ou null",
+  "numero": "número do edital/processo ou null",
+  "modalidade": "ex: Pregão Eletrônico ou null",
+  "objeto": "descrição resumida do objeto ou null",
+  "valor_estimado": "valor total estimado ou null",
+  "data_abertura": "data e hora de abertura ou null",
+  "criterio": "critério de julgamento ou null",
+  "exclusividade_me_epp": "Sim/Não/Cota reservada ou null",
+  "prazo_entrega": "prazo de entrega após emissão ou null",
+  "prazo_contrato": "prazo para assinatura do contrato ou null",
+  "validade_proposta": "prazo de validade da proposta ou null",
+  "documentos_habilitacao": ["documentos exigidos NESTE trecho"],
+  "documentos_proposta": ["ex: FISPQ, Registro ANVISA — só os citados NESTE trecho"],
+  "clausulas_atencao": ["cláusulas restritivas ou incomuns citadas NESTE trecho"],
+  "checklist": ["itens de checklist mencionados NESTE trecho"]
 }`;
 
-  try{
-    // GitHub Models limita 8k tokens. Texto geral usa só início (dados gerais ficam nas primeiras páginas)
-    const textoGeral=_editalTexto.substring(0,22000);
-    const resp=await fetch('https://models.inference.ai.azure.com/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+GITHUB_TOKEN},
-      body:JSON.stringify({
-        model:'gpt-4o-mini',
-        max_tokens:2000,
-        temperature:0.1,
-        messages:[{role:'user',content:prompt+'\n\n=== TEXTO DO EDITAL (início) ===\n'+textoGeral}]
-      })
-    });
-    const data=await resp.json();
-    if(data.error){mostrarStatus('\u274c Erro da API: '+(data.error.message||data.error),'erro');document.getElementById('btnAnaliseGeral').disabled=false;document.getElementById('btnAnaliseItens').disabled=false;return;}
-    const txt=data.choices?.[0]?.message?.content||'';
-    let clean=txt.replace(/```json|```/g,'').trim();
-    // Tentar reparar JSON truncado
-    try{_editalAnaliseGeral=JSON.parse(clean);}
-    catch(e){
-      // Fechar chaves/colchetes abertos
-      let opens=(clean.match(/\{/g)||[]).length-(clean.match(/\}/g)||[]).length;
-      let openBr=(clean.match(/\[/g)||[]).length-(clean.match(/\]/g)||[]).length;
-      if(clean.endsWith('"')||clean.endsWith(',')){clean=clean.replace(/,\s*$/,'');}
-      for(let i=0;i<openBr;i++)clean+=']';
-      for(let i=0;i<opens;i++)clean+='}';
-      _editalAnaliseGeral=JSON.parse(clean);
-    }
-    renderAnaliseGeral(_editalAnaliseGeral);
-    mostrarStatus('✅ Análise geral concluída!','ok');
-  }catch(e){
-    console.error(e);
-    mostrarStatus('❌ Erro na análise: '+e.message,'erro');
+  // Dividir o EDITAL INTEIRO em pedaços que cabem no limite real do GitHub Models
+  // (8.000 tokens de entrada ≈ 24.000 caracteres, descontando o prompt)
+  const tamPrompt=promptBase.length;
+  const maxChars=Math.max(6000, 23000-tamPrompt);
+  const pedacos=[];
+  for(let i=0;i<_editalTexto.length;i+=maxChars){
+    pedacos.push(_editalTexto.substring(i,i+maxChars));
   }
+
+  // Campos de texto único: fica o primeiro valor não-nulo encontrado
+  const CAMPOS_UNICOS=['orgao','numero','modalidade','objeto','valor_estimado','data_abertura','criterio','exclusividade_me_epp','prazo_entrega','prazo_contrato','validade_proposta'];
+  // Campos de lista: junta e remove duplicados de todos os pedaços
+  const CAMPOS_LISTA=['documentos_habilitacao','documentos_proposta','clausulas_atencao','checklist'];
+
+  const resultado={};
+  CAMPOS_UNICOS.forEach(function(c){resultado[c]=null;});
+  CAMPOS_LISTA.forEach(function(c){resultado[c]=[];});
+
+  let erros=0;
+
+  for(let p=0;p<pedacos.length;p++){
+    mostrarStatus('⏳ Analisando parte '+(p+1)+' de '+pedacos.length+' do edital...','loading');
+    try{
+      const resp=await fetch('https://models.inference.ai.azure.com/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+GITHUB_TOKEN},
+        body:JSON.stringify({
+          model:'gpt-4o-mini',
+          max_tokens:4000,
+          temperature:0.1,
+          messages:[{role:'user',content:promptBase+'\n\n=== TRECHO DO EDITAL (parte '+(p+1)+'/'+pedacos.length+') ===\n'+pedacos[p]}]
+        })
+      });
+      const data=await resp.json();
+      if(data.error){
+        if((data.error.message||'').toLowerCase().includes('rate')||(data.error.code==='RateLimitReached')){
+          mostrarStatus('⏳ Limite de taxa atingido. Aguardando 30s antes de continuar...','loading');
+          await new Promise(function(r){setTimeout(r,30000);});
+          p--; continue;
+        }
+        erros++;
+        continue;
+      }
+      let clean=(data.choices?.[0]?.message?.content||'').replace(/```json|```/g,'').trim();
+      const jsonStart=clean.indexOf('{');
+      if(jsonStart>0)clean=clean.substring(jsonStart);
+      let parsed;
+      try{parsed=JSON.parse(clean);}
+      catch(e){
+        clean=clean.replace(/,\s*$/,'');
+        const opens=(clean.match(/\{/g)||[]).length-(clean.match(/\}/g)||[]).length;
+        const openBr=(clean.match(/\[/g)||[]).length-(clean.match(/\]/g)||[]).length;
+        for(let k=0;k<openBr;k++)clean+=']';
+        for(let k=0;k<opens;k++)clean+='}';
+        try{parsed=JSON.parse(clean);}catch(e2){parsed=null;}
+      }
+      if(parsed){
+        // Campos únicos: preenche se ainda estiver vazio
+        CAMPOS_UNICOS.forEach(function(c){
+          if(!resultado[c]&&parsed[c]&&parsed[c]!=='null')resultado[c]=parsed[c];
+        });
+        // Campos de lista: acumula de todos os pedaços
+        CAMPOS_LISTA.forEach(function(c){
+          if(Array.isArray(parsed[c]))resultado[c]=resultado[c].concat(parsed[c]);
+        });
+      }
+    }catch(e){
+      console.error(e);
+      erros++;
+    }
+  }
+
+  // Remover duplicados das listas (mesma cláusula pode repetir entre pedaços)
+  CAMPOS_LISTA.forEach(function(c){
+    resultado[c]=[...new Set(resultado[c].map(function(x){return String(x).trim();}))].filter(Boolean);
+  });
+
+  _editalAnaliseGeral=resultado;
+  renderAnaliseGeral(_editalAnaliseGeral);
+  const msg='✅ Análise geral concluída ('+pedacos.length+' parte'+(pedacos.length>1?'s':'')+' do edital)'+(erros?' — '+erros+' parte(s) falharam':'');
+  mostrarStatus(msg,erros?'loading':'ok');
   document.getElementById('btnAnaliseGeral').disabled=false;
 }
 
@@ -11906,6 +12465,7 @@ async function sbCarregarTudo(){
   await sbCarregarEstoqueHist();
   await sbCarregarProdutos();
   await sbCarregarGrupos();
+  await sbCarregarRepresentantes();
   await sbCarregarVendas();
   await carregarMonitorados();
   await carregarSolicitacoes();
@@ -11950,12 +12510,7 @@ async function sbCarregarCotacoes(){
     if(el)el.innerHTML='<div style="padding:16px;color:#dc2626;font-size:12px">Erro ao carregar: '+error.message+'</div>';
     return;
   }
-  if(!data){
-    showT('Cotações: sem dados retornados — tentando novamente','erro');
-    window._sbCotCarregado=true;
-    carregarHist();
-    return;
-  }
+  if(!data){showT('Cotações: sem dados retornados','');return;}
   window._sbCotCache=data.map(r=>({
     num:r.num,
     cliente:r.cliente||'',
@@ -12360,7 +12915,8 @@ async function sbCarregarAgenda(){
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relTicket" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relTicket" style="font-size:12px;flex:1;cursor:pointer">🎯 Ticket Médio por Grupo</label><select id="relTicketGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relConcentracao" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relConcentracao" style="font-size:12px;flex:1;cursor:pointer">⚠️ Concentração de Risco</label><select id="relConcentracaoGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relMix" style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relMix" style="font-size:12px;flex:1;cursor:pointer">🔀 Mix de Produtos por Grupo</label><select id="relMixGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relPorEstado" style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relPorEstado" style="font-size:12px;flex:1;cursor:pointer">📍 Produtos por Estado</label><select id="relPorEstadoGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relPorEstado" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relPorEstado" style="font-size:12px;flex:1;cursor:pointer">📍 Produtos por Estado</label><select id="relPorEstadoGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relPorRepresentante" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relPorRepresentante" style="font-size:12px;flex:1;cursor:pointer">🧑‍💼 Produtos por Representante</label><select id="relPorRepresentanteGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Filtrar por grupo</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
@@ -12731,11 +13287,12 @@ async function sbCarregarAgenda(){
 <div id="overlayClassificacao" onclick="if(event.target===this)fecharClassificacao()" style="position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:16px 8px">
   <div style="background:#fff;border-radius:16px;width:700px;max-width:100%;max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
     <div style="padding:14px 16px;border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-      <div style="font-size:15px;font-weight:700;color:var(--texto)">🏷️ Classificar Clientes por Grupo</div>
+      <div style="font-size:15px;font-weight:700;color:var(--texto)">🏷️ Classificar Clientes</div>
       <button class="modulo-card-close" aria-label="Fechar" onclick="fecharClassificacao()">✕</button>
     </div>
     <div style="padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Arraste os clientes para o grupo correto. A classificação será lembrada nas próximas importações.</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Arraste os clientes para o grupo correto e ajuste o representante de cada um (já vem preenchido com o que estiver na planilha, mas pode ser alterado aqui). Fica lembrado nas próximas importações.</p>
+      <datalist id="listaRepresentantesDatalist"></datalist>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
         <div>
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#7c3aed;margin-bottom:8px;padding:6px;background:#f5f3ff;border-radius:6px;text-align:center">3A</div>
@@ -13143,6 +13700,7 @@ function renderDashKitCards(){
     '<div class="dk-user">'+
       '<span class="dk-avatar" id="dkAvatar">·</span>'+
       '<span class="dk-user-name" id="dkUserName">—</span>'+
+      '<button class="tema-btn" id="gexTemaBtn" onclick="gexAlternarTema()" title="Alternar tema claro/escuro" aria-label="Alternar tema">🌙</button>'+
       '<button id="dkBtnUsuarios" onclick="abrirModalUsuarios()" style="display:none;background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;padding:2px 5px" title="Gerenciar usuários">&#128101;</button>'+
       '<button class="dk-logout" onclick="fazerLogout()" title="Sair do sistema">SAIR</button>'+
     '</div>';
@@ -14328,7 +14886,7 @@ function renderTVFretes(){
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:7vw">Prazo</th>'
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:10vw">Status Prazo</th>'
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:9vw">Status</th>'
-      +'</tr></thead><tbody>'+tblRows+'</tbody></table>'
+      +'</tr></thead><tbody>'+(criticos.length?'<tr><td colspan="7" style="padding:.4vh .8vw;background:rgba(239,68,68,.08);font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#fca5a5">\u26a0 Cr\u00EDticos ('+criticos.length+')</td></tr>':'')+tblRows+separador+'</tbody></table>'
     :'<div style="text-align:center;padding:4vh;color:#475569;font-size:1.6vh">Nenhum frete cadastrado</div>';
   var el=document.getElementById('tvFreteLista');
   if(el)el.innerHTML=html;
@@ -15390,6 +15948,320 @@ async function carregarListaUsuarios(){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar);
   else iniciar();
+})();
+</script>
+
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   TEMA CLARO / ESCURO
+   ═══════════════════════════════════════════════════════ */
+function gexAplicarTema(tema){
+  document.documentElement.setAttribute('data-tema', tema);
+  var btn = document.getElementById('gexTemaBtn');
+  if(btn){
+    btn.textContent = tema === 'escuro' ? '☀️' : '🌙';
+    btn.title = tema === 'escuro' ? 'Mudar para tema claro' : 'Mudar para tema escuro';
+  }
+
+  // Chart.js não lê variáveis CSS — precisa receber as cores do tema.
+  // Definir nos defaults faz valer para todos os gráficos do sistema.
+  if(typeof Chart !== 'undefined'){
+    var escuro = tema === 'escuro';
+    Chart.defaults.color = escuro ? '#8b949e' : '#64748b';
+    Chart.defaults.borderColor = escuro ? '#262d38' : '#f1f5f9';
+    if(Chart.defaults.scale && Chart.defaults.scale.grid){
+      Chart.defaults.scale.grid.color = escuro ? '#262d38' : '#f1f5f9';
+    }
+  }
+
+  // Redesenhar para aplicar as novas cores
+  try{
+    if(typeof renderFaturamento === 'function' && window._modoAtual === 'faturamento') renderFaturamento();
+    if(typeof renderHomeFatChart === 'function') renderHomeFatChart();
+  }catch(e){}
+}
+
+function gexAlternarTema(){
+  var atual = document.documentElement.getAttribute('data-tema') || 'claro';
+  var novo = atual === 'escuro' ? 'claro' : 'escuro';
+  try{ localStorage.setItem('gex_tema', novo); }catch(e){}
+  gexAplicarTema(novo);
+}
+
+// Aplica o tema salvo assim que possível (evita "flash" de tela clara)
+(function(){
+  var salvo = 'claro';
+  try{ salvo = localStorage.getItem('gex_tema') || 'claro'; }catch(e){}
+  document.documentElement.setAttribute('data-tema', salvo);
+  function sync(){ gexAplicarTema(salvo); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+  else sync();
+})();
+
+
+/* ═══════════════════════════════════════════════════════
+   SKELETON LOADING
+   ═══════════════════════════════════════════════════════ */
+function gexSkeletonLinhas(qtd, larguras){
+  qtd = qtd || 5;
+  larguras = larguras || ['22%','40%','16%','12%'];
+  var html = '';
+  for(var i = 0; i < qtd; i++){
+    html += '<div class="gex-skel-row">';
+    larguras.forEach(function(w){
+      html += '<div class="gex-skel gex-skel-line" style="width:' + w + '"></div>';
+    });
+    html += '</div>';
+  }
+  return '<div aria-busy="true" aria-label="Carregando">' + html + '</div>';
+}
+
+function gexSkeletonCards(qtd){
+  qtd = qtd || 3;
+  var html = '';
+  for(var i = 0; i < qtd; i++){
+    html += '<div class="gex-skel-card">'
+      + '<div class="gex-skel gex-skel-line" style="width:32%;margin-bottom:10px"></div>'
+      + '<div class="gex-skel gex-skel-line" style="width:72%;margin-bottom:7px"></div>'
+      + '<div class="gex-skel gex-skel-line" style="width:52%"></div>'
+      + '</div>';
+  }
+  return '<div aria-busy="true" aria-label="Carregando">' + html + '</div>';
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   ANIMAÇÃO DE NÚMEROS (KPIs contando)
+   ═══════════════════════════════════════════════════════ */
+function gexAnimarNumero(el, valorFinal, opts){
+  if(!el) return;
+  opts = opts || {};
+  var prefixo = opts.prefixo || '';
+  var sufixo = opts.sufixo || '';
+  var casas = opts.casas != null ? opts.casas : 0;
+  var dur = opts.duracao || 850;
+
+  // Respeita quem prefere menos movimento
+  var semMovimento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fmt = function(v){
+    return prefixo + v.toLocaleString('pt-BR', {minimumFractionDigits: casas, maximumFractionDigits: casas}) + sufixo;
+  };
+
+  if(semMovimento){ el.textContent = fmt(valorFinal); return; }
+
+  var inicio = null;
+  var de = 0;
+  function passo(ts){
+    if(inicio === null) inicio = ts;
+    var p = Math.min((ts - inicio) / dur, 1);
+    var eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+    el.textContent = fmt(de + (valorFinal - de) * eased);
+    if(p < 1) requestAnimationFrame(passo);
+  }
+  requestAnimationFrame(passo);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   COMMAND PALETTE (Ctrl+K)
+   ═══════════════════════════════════════════════════════ */
+var _gexCmdSel = 0;
+var _gexCmdResultados = [];
+
+var GEX_CMD_MODULOS = [
+  {modo:'home',        titulo:'Home',        sub:'Painel inicial',              ico:'🏠'},
+  {modo:'cotacao',     titulo:'Cotação',     sub:'Criar e gerenciar cotações',  ico:'📋'},
+  {modo:'tabela',      titulo:'Tabelas',     sub:'Tabelas de preços',           ico:'📊'},
+  {modo:'amostras',    titulo:'Amostras',    sub:'Registro de amostras',        ico:'🧪'},
+  {modo:'crm',         titulo:'CRM',         sub:'Clientes e contatos',         ico:'👥'},
+  {modo:'agenda',      titulo:'Agenda',      sub:'Compromissos e eventos',      ico:'📅'},
+  {modo:'licitacoes',  titulo:'Licitação',   sub:'Pregões e editais',           ico:'⚖️'},
+  {modo:'cadastros',   titulo:'Cadastros',   sub:'Produtos e descrições',       ico:'⚙️'},
+  {modo:'frete',       titulo:'Fretes',      sub:'Notas fiscais e entregas',    ico:'🚛'},
+  {modo:'estoque',     titulo:'Estoque',     sub:'Saldos e produção',           ico:'📦'},
+  {modo:'faturamento', titulo:'Faturamento', sub:'Dashboard de vendas',         ico:'💰'}
+];
+
+function gexCmdAbrir(){
+  var ov = document.getElementById('gexCmdOverlay');
+  if(!ov) return;
+  ov.classList.add('aberto');
+  var inp = document.getElementById('gexCmdInput');
+  if(inp){ inp.value = ''; inp.focus(); }
+  gexCmdBuscar('');
+}
+
+function gexCmdFechar(){
+  var ov = document.getElementById('gexCmdOverlay');
+  if(ov) ov.classList.remove('aberto');
+}
+
+function gexCmdBuscar(termo){
+  termo = (termo || '').trim().toLowerCase();
+  var res = [];
+
+  // ── Módulos (respeitando permissões do usuário) ──
+  GEX_CMD_MODULOS.forEach(function(m){
+    if(typeof gexTemAcesso === 'function' && !gexTemAcesso(m.modo)) return;
+    if(!termo || m.titulo.toLowerCase().indexOf(termo) > -1 || m.sub.toLowerCase().indexOf(termo) > -1){
+      res.push({
+        grupo: 'Ir para',
+        ico: m.ico,
+        titulo: m.titulo,
+        sub: m.sub,
+        acao: function(){ setModoApp(m.modo); }
+      });
+    }
+  });
+
+  // Sem termo: mostra só os módulos, como atalho de navegação
+  if(!termo){ _gexCmdResultados = res; _gexCmdSel = 0; gexCmdRender(); return; }
+
+  // ── Cotações ──
+  var temCot = typeof gexTemAcesso !== 'function' || gexTemAcesso('cotacao');
+  if(temCot){
+    (window._sbCotCache || []).forEach(function(c){
+      var alvo = ((c.num || '') + ' ' + (c.cliente || '')).toLowerCase();
+      if(alvo.indexOf(termo) > -1 && res.length < 40){
+        res.push({
+          grupo: 'Cotações',
+          ico: '📋',
+          titulo: (c.num || 'Cotação') + ' · ' + (c.cliente || 'Sem cliente'),
+          sub: (c.data || '') + (c.uf ? ' · ' + c.uf : ''),
+          acao: function(){ setModoApp('cotacao'); }
+        });
+      }
+    });
+  }
+
+  // ── Fretes / NFs ──
+  var temFrete = typeof gexTemAcesso !== 'function' || gexTemAcesso('frete');
+  if(temFrete && typeof fretes !== 'undefined'){
+    (fretes || []).forEach(function(fr){
+      var alvo = ((fr.nf || '') + ' ' + (fr.cliente || '')).toLowerCase();
+      if(alvo.indexOf(termo) > -1 && res.length < 55){
+        var LB = (typeof STATUS_LABELS !== 'undefined' && STATUS_LABELS[fr.status]) || fr.status || '';
+        res.push({
+          grupo: 'Fretes',
+          ico: '🚛',
+          titulo: 'NF ' + (fr.nf || '?') + ' · ' + (fr.cliente || 'Sem cliente'),
+          sub: LB,
+          acao: function(){ setModoApp('frete'); }
+        });
+      }
+    });
+  }
+
+  _gexCmdResultados = res;
+  _gexCmdSel = 0;
+  gexCmdRender();
+}
+
+function gexCmdRender(){
+  var lista = document.getElementById('gexCmdLista');
+  if(!lista) return;
+
+  if(!_gexCmdResultados.length){
+    lista.innerHTML = '<div class="gex-cmd-vazio">Nada encontrado. Tente o nome de um módulo, cliente ou número de NF.</div>';
+    return;
+  }
+
+  var html = '';
+  var grupoAtual = null;
+  _gexCmdResultados.forEach(function(r, i){
+    if(r.grupo !== grupoAtual){
+      grupoAtual = r.grupo;
+      html += '<div class="gex-cmd-grupo">' + escHtml(grupoAtual) + '</div>';
+    }
+    html += '<div class="gex-cmd-item' + (i === _gexCmdSel ? ' sel' : '') + '" data-idx="' + i + '" role="option">'
+      + '<span class="gex-cmd-ico">' + r.ico + '</span>'
+      + '<span class="gex-cmd-txt">'
+        + '<span class="gex-cmd-titulo">' + escHtml(r.titulo) + '</span>'
+        + (r.sub ? '<span class="gex-cmd-sub">' + escHtml(r.sub) + '</span>' : '')
+      + '</span></div>';
+  });
+  lista.innerHTML = html;
+
+  lista.querySelectorAll('.gex-cmd-item').forEach(function(el){
+    el.onclick = function(){
+      var i = parseInt(el.getAttribute('data-idx'), 10);
+      gexCmdExecutar(i);
+    };
+  });
+
+  var sel = lista.querySelector('.gex-cmd-item.sel');
+  if(sel && sel.scrollIntoView) sel.scrollIntoView({block: 'nearest'});
+}
+
+function gexCmdExecutar(i){
+  var r = _gexCmdResultados[i];
+  if(!r) return;
+  gexCmdFechar();
+  setTimeout(function(){ try{ r.acao(); }catch(e){ console.error(e); } }, 40);
+}
+
+// Atalhos de teclado
+document.addEventListener('keydown', function(e){
+  var ov = document.getElementById('gexCmdOverlay');
+  var aberto = ov && ov.classList.contains('aberto');
+
+  // Ctrl+K / Cmd+K abre
+  if((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')){
+    e.preventDefault();
+    if(aberto) gexCmdFechar(); else gexCmdAbrir();
+    return;
+  }
+
+  if(!aberto) return;
+
+  if(e.key === 'Escape'){ e.preventDefault(); gexCmdFechar(); }
+  else if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    _gexCmdSel = Math.min(_gexCmdSel + 1, _gexCmdResultados.length - 1);
+    gexCmdRender();
+  }
+  else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    _gexCmdSel = Math.max(_gexCmdSel - 1, 0);
+    gexCmdRender();
+  }
+  else if(e.key === 'Enter'){
+    e.preventDefault();
+    gexCmdExecutar(_gexCmdSel);
+  }
+});
+
+// Monta o HTML da paleta
+(function(){
+  function montar(){
+    if(document.getElementById('gexCmdOverlay')) return;
+    var ov = document.createElement('div');
+    ov.id = 'gexCmdOverlay';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-label', 'Busca rápida');
+    ov.innerHTML =
+      '<div class="gex-cmd-box">'
+      + '<div class="gex-cmd-topo">'
+        + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">'
+          + '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>'
+        + '</svg>'
+        + '<input id="gexCmdInput" type="text" placeholder="Buscar módulo, cliente ou NF..." autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="gexCmdLista">'
+        + '<span class="gex-cmd-hint">ESC</span>'
+      + '</div>'
+      + '<div class="gex-cmd-lista" id="gexCmdLista" role="listbox"></div>'
+      + '</div>';
+    document.body.appendChild(ov);
+
+    ov.addEventListener('click', function(e){
+      if(e.target === ov) gexCmdFechar();
+    });
+
+    var inp = document.getElementById('gexCmdInput');
+    if(inp) inp.addEventListener('input', function(){ gexCmdBuscar(inp.value); });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', montar);
+  else montar();
 })();
 </script>
 
