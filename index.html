@@ -2955,27 +2955,25 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
   <!-- SEÇÃO LICITAÇÕES -->
   <div id="secaoLicitacoes" style="display:none">
 
-    <!-- Stats -->
-    <div class="crm-stats">
-      <div class="crm-stat"><div class="crm-stat-num" id="licitTotal">0</div><div class="crm-stat-label">Pregões</div></div>
-      <div class="crm-stat"><div class="crm-stat-num" id="licitVencemos" style="color:#16a34a">0</div><div class="crm-stat-label">🏆 Vencemos</div></div>
-      <div class="crm-stat"><div class="crm-stat-num" id="licitEm1" style="color:#7c3aed">0</div><div class="crm-stat-label">🥇 Em 1° Lugar</div></div>
-      <div class="crm-stat"><div class="crm-stat-num" id="licitAtras" style="color:#f97316">0</div><div class="crm-stat-label">⚔️ Atrás</div></div>
-      <div class="crm-stat"><div class="crm-stat-num" id="licitPerdemos" style="color:#dc2626">0</div><div class="crm-stat-label">❌ Perdemos</div></div>
-    </div>
-    <!-- Stats de itens (placar por item) -->
-    <div class="crm-stats" style="margin-top:-8px" id="licitStatItens">
-      <div class="crm-stat" style="border-top:3px solid #16a34a"><div class="crm-stat-num" id="litItensGanhos" style="color:#16a34a">0</div><div class="crm-stat-label">Itens Ganhos</div></div>
-      <div class="crm-stat" style="border-top:3px solid #7c3aed"><div class="crm-stat-num" id="litItensHomolog" style="color:#7c3aed">0</div><div class="crm-stat-label">Homologados</div></div>
-      <div class="crm-stat" style="border-top:3px solid #0284c7"><div class="crm-stat-num" id="litItensAnalise" style="color:#0284c7">0</div><div class="crm-stat-label">Em Análise</div></div>
-      <div class="crm-stat" style="border-top:3px solid #dc2626"><div class="crm-stat-num" id="litItensDesclass" style="color:#dc2626">0</div><div class="crm-stat-label">Desclassificados</div></div>
-      <div class="crm-stat" style="border-top:3px solid #64748b"><div class="crm-stat-num" id="litItensTaxa" style="color:#059669">—</div><div class="crm-stat-label">Taxa Conversão</div></div>
+    <!-- Stats (compacto) -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:6px;margin-bottom:12px">
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="licitTotal" style="font-size:16px;font-weight:700;color:#0284c7">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">Pregões</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="licitVencemos" style="font-size:16px;font-weight:700;color:#16a34a">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">🏆 Vencemos</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="licitEm1" style="font-size:16px;font-weight:700;color:#7c3aed">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">🥇 1° Lugar</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="licitAtras" style="font-size:16px;font-weight:700;color:#f97316">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">⚔️ Atrás</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="licitPerdemos" style="font-size:16px;font-weight:700;color:#dc2626">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">❌ Perdemos</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="litItensGanhos" style="font-size:16px;font-weight:700;color:#16a34a">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">It. Ganhos</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="litItensHomolog" style="font-size:16px;font-weight:700;color:#7c3aed">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">Homolog.</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="litItensAnalise" style="font-size:16px;font-weight:700;color:#0284c7">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">Análise</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="litItensDesclass" style="font-size:16px;font-weight:700;color:#dc2626">0</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">Desclass.</div></div>
+      <div style="background:#fff;border:1px solid var(--borda);border-radius:8px;padding:6px 4px;text-align:center"><div id="litItensTaxa" style="font-size:16px;font-weight:700;color:#059669">—</div><div style="font-size:9px;color:var(--muted);text-transform:uppercase">Conversão</div></div>
     </div>
 
     <!-- Abas -->
     <div style="display:flex;gap:0;background:#f1f5f9;border-radius:10px;padding:4px;width:fit-content;margin-bottom:16px;flex-wrap:wrap">
       <button id="licitAbaAgenda" onclick="setLicitAba('agenda')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:#0f6e5f;color:#fff">📅 Agenda</button>
       <button id="licitAbaPregoes" onclick="setLicitAba('pregoes')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:#64748b">⚖️ Pregões</button>
+      <button id="licitAbaBuscar" onclick="setLicitAba('buscar')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:#64748b">🔎 Buscar Licitação</button>
       <button id="licitAbaPlacar" onclick="setLicitAba('placar')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:#64748b">📊 Placar</button>
       <button id="licitAbaChat" onclick="setLicitAba('chat')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:#64748b">🔔 Monitorar Chat</button>
       <button id="licitAbaUpload" onclick="setLicitAba('upload')" style="padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;background:transparent;color:#64748b">📤 Importar HTML</button>
@@ -3073,6 +3071,84 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
         <div class="modulo-body">
           <input type="text" class="busca-mod" placeholder="Buscar pregão ou órgão..." oninput="renderPregoes(this.value)">
           <div id="licitList"><div class="empty-mod"><div class="empty-icon">⚖️</div>Nenhum pregão cadastrado.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA BUSCAR LICITAÇÃO (PNCP) -->
+    <div id="licitPainelBuscar" style="display:none">
+      <div class="modulo-card">
+        <div class="modulo-header"><div class="modulo-header-title">🔎 Radar de Licitações — PNCP</div></div>
+        <div class="modulo-body">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Busca licitações direto na API oficial do PNCP (Portal Nacional de Contratações Públicas), filtrando pelo objeto conter alguma das palavras-chave abaixo.</p>
+
+          <!-- Configuração do radar automático -->
+          <div class="form-field" style="margin-bottom:14px;background:#f8fafc;padding:12px;border-radius:10px">
+            <label style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="radarAtivo" onchange="salvarConfigRadar()"> 📧 Radar automático por e-mail
+            </label>
+            <div id="radarConfigBox" style="margin-top:10px">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Horários (horário de Brasília)</div>
+              <div id="radarHorarios" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:4px;margin-bottom:10px"></div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Dias da semana</div>
+              <div id="radarDias" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px"></div>
+              <div class="form-field" style="margin-bottom:8px">
+                <label style="font-size:11px">E-mail para receber</label>
+                <input type="email" id="radarEmail" placeholder="seu@email.com" onchange="salvarConfigRadar()">
+              </div>
+              <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="testarRadarAgora()">▶️ Testar agora</button>
+              <span id="radarStatusMsg" style="font-size:11px;color:var(--muted);margin-left:6px"></span>
+            </div>
+          </div>
+
+          <!-- Grupos de filtros salvos -->
+          <div class="form-field" style="margin-bottom:14px">
+            <label>⭐ Grupos de filtros salvos (clique para aplicar e buscar)</label>
+            <div id="gruposFiltros" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+            <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px;margin-top:8px" onclick="salvarGrupoFiltros()">💾 Salvar filtros atuais como grupo</button>
+            <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px;margin-top:8px" onclick="toggleListaOcultas()">🚫 Ver ocultadas</button>
+            <div id="listaOcultas" style="display:none;margin-top:8px"></div>
+          </div>
+
+          <!-- Palavras-chave -->
+          <div class="form-field" style="margin-bottom:14px">
+            <label>Palavras-chave do filtro</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="buscaPalavraInput" placeholder="Ex: enzimático, glutaraldeído..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarPalavraFiltro();}">
+              <button class="acoes-btn" onclick="adicionarPalavraFiltro()">+ Adicionar</button>
+              <button class="btn-cancel-mod" onclick="limparFiltrosPalavras()">🗑️ Limpar tudo</button>
+            </div>
+            <div id="filtroChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
+          </div>
+
+          <!-- Estados -->
+          <div class="form-field" style="margin-bottom:14px">
+            <label>Estados (deixe todos desmarcados para busca nacional)</label>
+            <div style="margin-bottom:6px">
+              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="selecionarTodasUfs()">Selecionar todos</button>
+              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="limparUfsBusca()">Limpar</button>
+            </div>
+            <div id="buscaUfGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px"></div>
+          </div>
+
+          <!-- Modalidade e datas -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px">
+            <div class="form-field">
+              <label>Modalidade</label>
+              <label style="font-size:12px;font-weight:400;display:block"><input type="checkbox" id="modPregao" checked> Pregão Eletrônico</label>
+              <label style="font-size:12px;font-weight:400;display:block"><input type="checkbox" id="modDispensa" checked> Dispensa de Licitação</label>
+              <label style="font-size:12px;font-weight:400;display:block"><input type="checkbox" id="modConcorrencia"> Concorrência Eletrônica</label>
+            </div>
+            <div class="form-field"><label>Publicado a partir de</label><input type="date" id="buscaDataIni"></div>
+            <div class="form-field"><label id="labelDataFim">Publicado até</label><input type="date" id="buscaDataFim"></div>
+          </div>
+
+          <label style="display:block;font-size:12px;font-weight:400;margin-bottom:10px"><input type="checkbox" id="buscaSomenteAbertas" onchange="atualizarModoBuscaPncp()"> ⏳ Somente com prazo de proposta ainda aberto (ignora "Publicado a partir de")</label>
+
+          <button class="btn-salvar-mod" onclick="buscarLicitacoesPNCP()">🔍 Buscar no PNCP</button>
+          <label style="display:block;font-size:12px;font-weight:400;margin-top:8px"><input type="checkbox" id="buscaViaItens"> 🔬 Também buscar por item no catálogo CATMAT (Compras.gov.br) — cobre o Brasil todo, não só o objeto geral do edital</label>
+          <div id="buscaPncpStatus" style="margin-top:10px"></div>
+          <div id="buscaPncpResultados" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"></div>
         </div>
       </div>
     </div>
@@ -6858,19 +6934,40 @@ async function importarFaturamento(input){
 
       if(!registros.length){showT('Nenhum registro válido na planilha','erro');return;}
 
-      // Inserir no Supabase (insert simples — constraint de unicidade foi removida)
-      const {error}=await sb.from('vendas').insert(registros);
+      // ── Evitar duplicatas: ignora linhas cuja NF+item+valor já estão lançadas ──
+      // (mesma nota, mesmo item e mesmo valor total = já existe, não insere de novo)
+      var chaveReg=function(r){return r.nf+'|'+r.cod_item+'|'+(parseFloat(r.v_total)||0).toFixed(2);};
+      var existentes=new Set((fatDados||[]).map(chaveReg));
+      var vistosNoArquivo=new Set();
+      var duplicadas=0;
+      var registrosNovos=registros.filter(function(r){
+        var k=chaveReg(r);
+        if(existentes.has(k)||vistosNoArquivo.has(k)){duplicadas++;return false;}
+        vistosNoArquivo.add(k);
+        return true;
+      });
+
+      if(!registrosNovos.length){
+        showT('Nenhum registro novo — '+duplicadas+' já estavam lançados com os mesmos valores','erro');
+        input.value='';
+        return;
+      }
+
+      // Inserir no Supabase apenas os registros que ainda não existem
+      const {error}=await sb.from('vendas').insert(registrosNovos);
       if(error){console.error('import erro:',error);showT('Erro ao importar: '+error.message,'erro');return;}
 
       // Registrar novos clientes sem grupo
-      const novosClientes=[...new Set(registros.map(function(r){return r.cod_cliente;}))].filter(Boolean);
+      const novosClientes=[...new Set(registrosNovos.map(function(r){return r.cod_cliente;}))].filter(Boolean);
       const clientesPayload=novosClientes.map(function(cod){
-        const r=registros.find(function(x){return x.cod_cliente===cod;});
+        const r=registrosNovos.find(function(x){return x.cod_cliente===cod;});
         return{cod_cliente:cod,nome_cliente:r?r.cliente:'',grupo:fatGrupos[cod]||'venda_direta'};
       });
       await sb.from('clientes_grupo').upsert(clientesPayload,{onConflict:'cod_cliente',ignoreDuplicates:true});
 
-      showT(registros.length+' registros importados ✓','verde');
+      var msgImport=registrosNovos.length+' registro(s) importado(s) ✓';
+      if(duplicadas)msgImport+=' — '+duplicadas+' ignorado(s) por já estarem lançados';
+      showT(msgImport,'verde');
       await sbCarregarGrupos();
       await sbCarregarRepresentantes();
       await sbCarregarVendas();
@@ -7223,8 +7320,15 @@ function gerarRelatorioFaturamento(modo){
     mixGrupo:document.getElementById('relMixGrupo').value,
     porEstado:document.getElementById('relPorEstado').checked,
     porEstadoGrupo:document.getElementById('relPorEstadoGrupo').value,
+    porEstadoFiltro:document.getElementById('relPorEstadoFiltro').value,
+    porEstadoMesAMes:document.getElementById('relPorEstadoMesAMes').checked,
     porRepresentante:document.getElementById('relPorRepresentante').checked,
     porRepresentanteGrupo:document.getElementById('relPorRepresentanteGrupo').value,
+    produtoMes:document.getElementById('relProdutoMes').checked,
+    produtoMesTipo:document.getElementById('relProdutoMesTipo').value,
+    produtoMesGrupo:document.getElementById('relProdutoMesGrupo').value,
+    produtoMesPorEstado:document.getElementById('relProdutoMesPorEstado').checked,
+    produtoMesEstadoFiltro:document.getElementById('relProdutoMesEstadoFiltro').value,
   };
   const allDados=getDadosFiltrados();
   const filtrar=function(g){return g?allDados.filter(function(r){return(fatGrupos[r.cod_cliente]||'venda_direta')===g;}):allDados;};
@@ -7271,7 +7375,7 @@ function gerarRelatorioFaturamento(modo){
     '.secao-title{font-size:12px;font-weight:700;color:#0f172a;letter-spacing:.3px;padding:0 0 4px 8px;border-left:4px solid #0f6e5f;margin-bottom:3px}'+
     '.sec-table th{padding:4px 7px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:#475569;border-bottom:1.5px solid #cbd5e1;text-align:left}'+
     '.sec-table th.r{text-align:right}.sec-table th.c{text-align:center}'+
-    '.sec-table td{padding:3px 7px;font-size:10.5px;color:#1e293b;border-bottom:1px solid #f1f5f9}'+
+    '.sec-table td{padding:3px 7px;font-size:10.5px;color:#1e293b;border-bottom:1px solid #f1f5f9;word-wrap:break-word;overflow-wrap:break-word}'+
     '.sec-table td.r{text-align:right;font-weight:600;color:#0f172a}.sec-table td.c{text-align:center;color:#475569}'+
     '.sec-table .tr-total td{font-weight:700;color:#0f6e5f;border-top:1.5px solid #0f6e5f;border-bottom:none;background:#f0fdf9}'+
     '.alerta{background:#fffbeb;border-left:3px solid #f59e0b;padding:6px 11px;font-size:10.5px;color:#92400e;margin-bottom:8px;border-radius:0 4px 4px 0}'+
@@ -7363,11 +7467,36 @@ function gerarRelatorioFaturamento(modo){
   }
 
   if(opts.porEstado){
-    const d=filtrar(opts.porEstadoGrupo);
-    const label='Produtos por Estado'+(opts.porEstadoGrupo?' \u2014 '+GRUPOS[opts.porEstadoGrupo]?.label:'');
-    const porEP={};d.forEach(function(r){const e=r.estado||'N/D';const p=r.item||'N/D';if(!porEP[e])porEP[e]={};if(!porEP[e][p])porEP[e][p]={qtd:0,total:0};porEP[e][p].qtd+=parseFloat(r.quantidade||0);porEP[e][p].total+=parseFloat(r.v_total||0);});
+    let d=filtrar(opts.porEstadoGrupo);
+    const ufsFiltro=(opts.porEstadoFiltro||'').split(',').map(function(s){return s.trim().toUpperCase();}).filter(Boolean);
+    if(ufsFiltro.length)d=d.filter(function(r){return ufsFiltro.includes((r.estado||'').toUpperCase());});
+    const label='Produtos por Estado'+(opts.porEstadoGrupo?' \u2014 '+GRUPOS[opts.porEstadoGrupo]?.label:'')+(ufsFiltro.length?' \u2014 '+ufsFiltro.join(', '):'');
     body+='<div class="secao"><div class="secao-title">'+label+'</div>';
-    Object.keys(porEP).sort().forEach(function(e){const prods=Object.entries(porEP[e]).sort(function(a,b){return b[1].total-a[1].total;});const eT=prods.reduce(function(s,p){return s+p[1].total;},0);body+='<div style="font-size:10px;font-weight:700;color:#475569;margin:10px 0 4px">'+e+' \u2014 '+fmt(eT)+'</div><table class="sec-table"><thead><tr><th>Produto</th><th class="r">Qtd</th><th class="r">Total</th></tr></thead><tbody>';prods.forEach(function(p){body+='<tr><td>'+p[0]+'</td><td class="r">'+fmtN(p[1].qtd)+'</td><td class="r">'+fmt(p[1].total)+'</td></tr>';});body+='</tbody></table>';});
+
+    function tabelaEstadoProduto(dadosSecao){
+      const porEP={};dadosSecao.forEach(function(r){const e=r.estado||'N/D';const p=r.item||'N/D';if(!porEP[e])porEP[e]={};if(!porEP[e][p])porEP[e][p]={qtd:0,total:0};porEP[e][p].qtd+=parseFloat(r.quantidade||0);porEP[e][p].total+=parseFloat(r.v_total||0);});
+      let html='';
+      Object.keys(porEP).sort().forEach(function(e){const prods=Object.entries(porEP[e]).sort(function(a,b){return b[1].total-a[1].total;});const eT=prods.reduce(function(s,p){return s+p[1].total;},0);html+='<div style="font-size:10px;font-weight:700;color:#475569;margin:10px 0 4px">'+e+' \u2014 '+fmt(eT)+'</div><table class="sec-table"><thead><tr><th>Produto</th><th class="r">Qtd</th><th class="r">Total</th></tr></thead><tbody>';prods.forEach(function(p){html+='<tr><td>'+p[0]+'</td><td class="r">'+fmtN(p[1].qtd)+'</td><td class="r">'+fmt(p[1].total)+'</td></tr>';});html+='</tbody></table>';});
+      return html;
+    }
+
+    if(!d.length){
+      body+='<p style="font-size:11px;color:#94a3b8;padding:8px 0">Nenhum dado encontrado'+(ufsFiltro.length?' para os estados selecionados neste período.':' neste período.')+'</p>';
+    }else if(opts.porEstadoMesAMes){
+      // Agrupar por mês (mes_ano no formato MM/AAAA), em ordem cronológica
+      const meses=[...new Set(d.map(function(r){return r.mes_ano;}).filter(Boolean))].sort(function(a,b){
+        const [ma,aa]=a.split('/'),[mb,ab]=b.split('/');
+        return (aa+ma.padStart(2,'0')).localeCompare(ab+mb.padStart(2,'0'));
+      });
+      meses.forEach(function(mes){
+        const dMes=d.filter(function(r){return r.mes_ano===mes;});
+        const mesTotal=dMes.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+        body+='<div style="font-size:12px;font-weight:800;color:#0f6e5f;margin:16px 0 4px;padding-top:8px;border-top:2px solid #e2e8f0">🗓️ '+mes+' \u2014 '+fmt(mesTotal)+'</div>';
+        body+=tabelaEstadoProduto(dMes);
+      });
+    }else{
+      body+=tabelaEstadoProduto(d);
+    }
     body+='</div>';
   }
 
@@ -7395,6 +7524,78 @@ function gerarRelatorioFaturamento(modo){
       prods.forEach(function(p){body+='<tr><td>'+p[0]+'</td><td class="r">'+fmtN(p[1].qtd)+'</td><td class="r">'+fmt(p[1].total)+'</td></tr>';});
       body+='</tbody></table>';
     });
+    body+='</div>';
+  }
+
+  if(opts.produtoMes){
+    let d=filtrar(opts.produtoMesGrupo);
+    const ufsFiltroPM=(opts.produtoMesEstadoFiltro||'').split(',').map(function(s){return s.trim().toUpperCase();}).filter(Boolean);
+    if(ufsFiltroPM.length)d=d.filter(function(r){return ufsFiltroPM.includes((r.estado||'').toUpperCase());});
+    const tipo=opts.produtoMesTipo; // 'quantidade' ou 'valor'
+    const labelBase='Produtos x Mês ('+(tipo==='valor'?'Valor':'Quantidade')+')'+(opts.produtoMesGrupo?' \u2014 '+GRUPOS[opts.produtoMesGrupo]?.label:'');
+
+    // Meses calculados UMA VEZ com base em todo o período filtrado — garante que
+    // todas as tabelas (geral ou por estado) usem exatamente as mesmas colunas,
+    // na mesma ordem, mesmo que um estado específico não tenha vendido em algum mês.
+    const mesesGlobais=[...new Set(d.map(function(r){return r.mes_ano;}).filter(Boolean))].sort(function(a,b){
+      const pa=a.split('/'),pb=b.split('/');
+      return (pa[1]+pa[0].padStart(2,'0')).localeCompare(pb[1]+pb[0].padStart(2,'0'));
+    });
+
+    function tabelaPivot(dadosSecao,meses){
+      const matriz={};
+      dadosSecao.forEach(function(r){
+        const p=r.item||'N/D';
+        const m=r.mes_ano;
+        if(!m||!meses.includes(m))return;
+        if(!matriz[p])matriz[p]={};
+        if(!matriz[p][m])matriz[p][m]=0;
+        matriz[p][m]+=tipo==='valor'?parseFloat(r.v_total||0):parseFloat(r.quantidade||0);
+      });
+      const produtos=Object.keys(matriz).sort(function(a,b){
+        const totA=Object.values(matriz[a]).reduce(function(s,v){return s+v;},0);
+        const totB=Object.values(matriz[b]).reduce(function(s,v){return s+v;},0);
+        return totB-totA;
+      });
+      if(!produtos.length||!meses.length){
+        return '<p style="font-size:11px;color:#94a3b8;padding:8px 0">Nenhum dado encontrado neste período.</p>';
+      }
+      const fmtCel=tipo==='valor'?fmt:fmtN;
+      let html='<table class="sec-table" style="table-layout:fixed"><thead><tr><th style="width:34%">Produto</th>';
+      meses.forEach(function(m){html+='<th class="r">'+m+'</th>';});
+      html+='<th class="r" style="font-weight:800">Total</th></tr></thead><tbody>';
+      produtos.forEach(function(p){
+        const linha=matriz[p];
+        const totalLinha=meses.reduce(function(s,m){return s+(linha[m]||0);},0);
+        html+='<tr><td>'+p+'</td>';
+        meses.forEach(function(m){html+='<td class="r">'+(linha[m]?fmtCel(linha[m]):'\u2014')+'</td>';});
+        html+='<td class="r" style="font-weight:700">'+fmtCel(totalLinha)+'</td></tr>';
+      });
+      html+='<tr style="border-top:2px solid #cbd5e1;font-weight:800"><td>TOTAL</td>';
+      let granTotal=0;
+      meses.forEach(function(m){
+        const totalMes=produtos.reduce(function(s,p){return s+(matriz[p][m]||0);},0);
+        granTotal+=totalMes;
+        html+='<td class="r">'+fmtCel(totalMes)+'</td>';
+      });
+      html+='<td class="r">'+fmtCel(granTotal)+'</td></tr>';
+      html+='</tbody></table>';
+      return html;
+    }
+
+    body+='<div class="secao"><div class="secao-title">'+labelBase+(ufsFiltroPM.length?' \u2014 '+ufsFiltroPM.join(', '):'')+'</div>';
+    if(!d.length){
+      body+='<p style="font-size:11px;color:#94a3b8;padding:8px 0">Nenhum dado encontrado'+(ufsFiltroPM.length?' para os estados selecionados neste período.':' neste período.')+'</p>';
+    }else if(opts.produtoMesPorEstado){
+      const estados=[...new Set(d.map(function(r){return r.estado||'N/D';}))].sort();
+      estados.forEach(function(uf){
+        const dEstado=d.filter(function(r){return(r.estado||'N/D')===uf;});
+        body+='<div style="font-size:12px;font-weight:800;color:#0f6e5f;margin:16px 0 4px;padding-top:8px;border-top:2px solid #e2e8f0">📍 '+uf+'</div>';
+        body+=tabelaPivot(dEstado,mesesGlobais);
+      });
+    }else{
+      body+=tabelaPivot(d,mesesGlobais);
+    }
     body+='</div>';
   }
 
@@ -9952,7 +10153,7 @@ function mostrarEventosDia(dataStr){
 
 function setLicitAba(aba){
   licitAbaAtual=aba;
-  ['agenda','pregoes','placar','chat','upload','edital','mapa'].forEach(function(a){
+  ['agenda','pregoes','buscar','placar','chat','upload','edital','mapa'].forEach(function(a){
     const key=a.charAt(0).toUpperCase()+a.slice(1);
     const btn=document.getElementById('licitAba'+key);
     const painel=document.getElementById('licitPainel'+key);
@@ -9961,6 +10162,7 @@ function setLicitAba(aba){
   });
   if(aba==='agenda'){renderAgendaLicit();renderCalendario();}
   if(aba==='pregoes')renderPregoes();
+  if(aba==='buscar')initBuscaLicitacoes();
   if(aba==='mapa')renderMapaPregoes();
   if(aba==='chat')renderChatMonitorados();
   if(aba==='placar')atualizarStatsLicit();
@@ -9975,6 +10177,986 @@ const REGIOES_BR={
   sul:{nome:'Sul',estados:['PR','RS','SC']}
 };
 const UF_NOME={AC:'Acre',AL:'Alagoas',AP:'Amapá',AM:'Amazonas',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MT:'Mato Grosso',MS:'Mato Grosso do Sul',MG:'Minas Gerais',PA:'Pará',PB:'Paraíba',PR:'Paraná',PE:'Pernambuco',PI:'Piauí',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RS:'Rio Grande do Sul',RO:'Rondônia',RR:'Roraima',SC:'Santa Catarina',SP:'São Paulo',SE:'Sergipe',TO:'Tocantins'};
+
+/* ══════════════ BUSCAR LICITAÇÃO — PNCP ══════════════ */
+let buscaFiltros={palavras:[],ufs:[]};
+let licitacoesOcultas=new Set();
+let buscaPncpResultadosCache=[];
+let buscaLicitInit=false;
+
+function atualizarModoBuscaPncp(){
+  const somenteAbertas=document.getElementById('buscaSomenteAbertas').checked;
+  const iniInput=document.getElementById('buscaDataIni');
+  const labelFim=document.getElementById('labelDataFim');
+  iniInput.disabled=somenteAbertas;
+  iniInput.style.opacity=somenteAbertas?'0.4':'1';
+  labelFim.textContent=somenteAbertas?'Ver propostas abertas até':'Publicado até';
+}
+
+async function initBuscaLicitacoes(){
+  if(!buscaLicitInit){
+    renderUfGridBusca();
+    await sbCarregarFiltrosBusca();
+    // datas padrão: últimos 15 dias
+    const hoje=new Date();
+    const ini=new Date();ini.setDate(hoje.getDate()-15);
+    document.getElementById('buscaDataFim').value=hoje.toISOString().slice(0,10);
+    document.getElementById('buscaDataIni').value=ini.toISOString().slice(0,10);
+    buscaLicitInit=true;
+  }
+  renderFiltroChips();
+  renderUfGridBusca();
+  atualizarModoBuscaPncp();
+  sbCarregarGruposFiltros();
+  sbCarregarConfigRadar();
+}
+
+async function sbCarregarFiltrosBusca(){
+  try{
+    const {data,error}=await sb.from('licitacoes_busca_filtros').select('*').eq('id',1).maybeSingle();
+    if(error){console.error('Erro ao carregar filtros:',error);}
+    else if(data){
+      buscaFiltros.palavras=data.palavras_chave||[];
+      buscaFiltros.ufs=data.ufs||[];
+    }
+  }catch(e){console.error(e);}
+  // Carrega a lista de licitações ocultas ("não participar")
+  try{
+    const {data:oc}=await sb.from('licitacoes_ocultas').select('pncp_id');
+    licitacoesOcultas=new Set((oc||[]).map(function(x){return x.pncp_id;}));
+  }catch(e){console.warn('Tabela licitacoes_ocultas indisponível:',e);}
+}
+
+async function sbSalvarFiltrosBusca(){
+  try{
+    const {error}=await sb.from('licitacoes_busca_filtros').upsert({
+      id:1,palavras_chave:buscaFiltros.palavras,ufs:buscaFiltros.ufs,atualizado_em:new Date().toISOString()
+    },{onConflict:'id'});
+    if(error){showT('⚠️ Filtros NÃO salvos: '+error.message,'erro');console.error(error);}
+  }catch(e){console.error('Erro ao salvar filtros:',e);}
+}
+
+/* ── CONFIGURAÇÃO DO RADAR AUTOMÁTICO ── */
+let radarCfg={ativo:false,horarios:[8],dias:[1,2,3,4,5],email:''};
+
+async function sbCarregarConfigRadar(){
+  try{
+    const {data,error}=await sb.from('radar_config').select('*').eq('id',1).maybeSingle();
+    if(error){console.warn('radar_config indisponível:',error.message);}
+    else if(data){
+      radarCfg={
+        ativo:!!data.ativo,
+        horarios:data.horarios&&data.horarios.length?data.horarios:[8],
+        dias:data.dias&&data.dias.length?data.dias:[1,2,3,4,5],
+        email:data.email||''
+      };
+    }
+  }catch(e){console.warn(e);}
+  renderConfigRadar();
+}
+
+function renderConfigRadar(){
+  const chk=document.getElementById('radarAtivo');
+  if(!chk)return;
+  chk.checked=radarCfg.ativo;
+  document.getElementById('radarEmail').value=radarCfg.email||'';
+
+  const gh=document.getElementById('radarHorarios');
+  let html='';
+  for(let h=0;h<24;h++){
+    const on=radarCfg.horarios.includes(h);
+    html+='<button onclick="toggleHorarioRadar('+h+')" style="padding:4px 2px;border-radius:6px;border:1px solid '+(on?'#0f6e5f':'var(--borda)')+';background:'+(on?'#0f6e5f':'#fff')+';color:'+(on?'#fff':'#64748b')+';font-size:11px;font-weight:600;cursor:pointer">'+String(h).padStart(2,'0')+'h</button>';
+  }
+  gh.innerHTML=html;
+
+  const gd=document.getElementById('radarDias');
+  gd.innerHTML=DIAS_SEMANA.map(function(nome,i){
+    const on=radarCfg.dias.includes(i);
+    return '<button onclick="toggleDiaRadar('+i+')" style="padding:4px 10px;border-radius:6px;border:1px solid '+(on?'#0f6e5f':'var(--borda)')+';background:'+(on?'#0f6e5f':'#fff')+';color:'+(on?'#fff':'#64748b')+';font-size:11px;font-weight:600;cursor:pointer">'+nome+'</button>';
+  }).join('');
+}
+
+function toggleHorarioRadar(h){
+  const i=radarCfg.horarios.indexOf(h);
+  if(i>=0)radarCfg.horarios.splice(i,1); else radarCfg.horarios.push(h);
+  radarCfg.horarios.sort(function(a,b){return a-b;});
+  renderConfigRadar();salvarConfigRadar();
+}
+
+function toggleDiaRadar(d){
+  const i=radarCfg.dias.indexOf(d);
+  if(i>=0)radarCfg.dias.splice(i,1); else radarCfg.dias.push(d);
+  radarCfg.dias.sort(function(a,b){return a-b;});
+  renderConfigRadar();salvarConfigRadar();
+}
+
+async function salvarConfigRadar(){
+  radarCfg.ativo=document.getElementById('radarAtivo').checked;
+  radarCfg.email=document.getElementById('radarEmail').value.trim();
+  const {error}=await sb.from('radar_config').upsert({
+    id:1,ativo:radarCfg.ativo,horarios:radarCfg.horarios,dias:radarCfg.dias,
+    email:radarCfg.email||null,atualizado_em:new Date().toISOString()
+  },{onConflict:'id'});
+  const msg=document.getElementById('radarStatusMsg');
+  if(error){if(msg)msg.textContent='⚠️ Não salvou: '+error.message;return;}
+  if(msg){msg.textContent='✓ Configuração salva';setTimeout(function(){msg.textContent='';},2500);}
+}
+
+async function testarRadarAgora(){
+  const msg=document.getElementById('radarStatusMsg');
+  if(msg)msg.textContent='⏳ Executando o radar... (pode levar 1 minuto)';
+  try{
+    const resp=await fetch(SB_URL+'/functions/v1/radar-licitacoes',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
+      body:JSON.stringify({force:true})
+    });
+    const data=await resp.json();
+    if(msg)msg.textContent=data.novas?('✓ '+data.novas+' nova(s) — e-mail enviado'):(data.msg||'Nenhuma novidade encontrada');
+  }catch(e){
+    if(msg)msg.textContent='⚠️ Erro ao executar: '+e.message;
+  }
+}
+
+/* ── GRUPOS DE FILTROS SALVOS ── */
+let filtroGrupos=[];
+
+async function sbCarregarGruposFiltros(){
+  try{
+    const {data,error}=await sb.from('licitacoes_filtros_grupos').select('*').order('nome');
+    if(error){console.warn('Tabela de grupos indisponível:',error.message);return;}
+    filtroGrupos=data||[];
+    renderGruposFiltros();
+  }catch(e){console.warn(e);}
+}
+
+function renderGruposFiltros(){
+  const el=document.getElementById('gruposFiltros');
+  if(!el)return;
+  if(!filtroGrupos.length){
+    el.innerHTML='<span style="font-size:12px;color:var(--muted-light)">Nenhum grupo salvo. Configure palavras/estados abaixo e clique em salvar.</span>';
+    return;
+  }
+  el.innerHTML=filtroGrupos.map(function(g){
+    return '<span style="display:inline-flex;align-items:center;gap:6px;background:#e0f2fe;color:#075985;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer" onclick="aplicarGrupoFiltros('+g.id+')">'
+      +'⭐ '+String(g.nome||'').replace(/</g,'&lt;')
+      +'<span style="font-weight:800" onclick="event.stopPropagation();excluirGrupoFiltros('+g.id+')" title="Excluir grupo">×</span></span>';
+  }).join('');
+}
+
+// Lista as licitações ocultadas, com opção de restaurar.
+async function toggleListaOcultas(){
+  const el=document.getElementById('listaOcultas');
+  if(!el)return;
+  if(el.style.display==='block'){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML='<span style="font-size:12px;color:var(--muted)">Carregando...</span>';
+  const {data,error}=await sb.from('licitacoes_ocultas').select('*').order('criado_em',{ascending:false});
+  if(error){el.innerHTML='<span style="font-size:12px;color:#dc2626">Erro: '+error.message+'</span>';return;}
+  if(!data||!data.length){el.innerHTML='<span style="font-size:12px;color:var(--muted-light)">Nenhuma licitação ocultada.</span>';return;}
+  el.innerHTML='<div style="font-size:12px;font-weight:700;margin-bottom:4px">🚫 '+data.length+' ocultada(s)</div>'
+    +data.map(function(o){
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;padding:4px 8px;background:#f8fafc;border-radius:6px;margin:3px 0">'
+        +'<span>'+(o.pncp_id||'')+'</span>'
+        +'<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px" onclick="restaurarOculta(\''+o.pncp_id+'\')">↩️ Restaurar</button></div>';
+    }).join('');
+}
+
+async function restaurarOculta(pncpId){
+  const {error}=await sb.from('licitacoes_ocultas').delete().eq('pncp_id',pncpId);
+  if(error){showT('Erro ao restaurar: '+error.message,'erro');return;}
+  licitacoesOcultas.delete(pncpId);
+  showT('Licitação restaurada — aparecerá nas próximas buscas ✓','verde');
+  toggleListaOcultas();toggleListaOcultas();
+}
+
+async function salvarGrupoFiltros(){
+  if(!buscaFiltros.palavras.length){showT('Adicione palavras-chave antes de salvar um grupo','erro');return;}
+  const nome=prompt('Nome do grupo de filtros (ex: Enzimáticos PE):');
+  if(!nome||!nome.trim())return;
+  const modalidades=[];
+  if(document.getElementById('modPregao').checked)modalidades.push(6);
+  if(document.getElementById('modDispensa').checked)modalidades.push(8);
+  if(document.getElementById('modConcorrencia').checked)modalidades.push(4);
+  const {error}=await sb.from('licitacoes_filtros_grupos').insert([{
+    nome:nome.trim(),
+    palavras:buscaFiltros.palavras,
+    ufs:buscaFiltros.ufs,
+    modalidades:modalidades,
+    somente_abertas:document.getElementById('buscaSomenteAbertas').checked
+  }]);
+  if(error){showT('Erro ao salvar grupo (rode o SQL da tabela de grupos): '+error.message,'erro');return;}
+  showT('Grupo "'+nome.trim()+'" salvo ✓','verde');
+  await sbCarregarGruposFiltros();
+}
+
+async function aplicarGrupoFiltros(id){
+  const g=filtroGrupos.find(function(x){return x.id===id;});
+  if(!g)return;
+  buscaFiltros.palavras=(g.palavras||[]).slice();
+  buscaFiltros.ufs=(g.ufs||[]).slice();
+  const mods=g.modalidades||[6,8];
+  document.getElementById('modPregao').checked=mods.includes(6);
+  document.getElementById('modDispensa').checked=mods.includes(8);
+  document.getElementById('modConcorrencia').checked=mods.includes(4);
+  document.getElementById('buscaSomenteAbertas').checked=!!g.somente_abertas;
+  atualizarModoBuscaPncp();
+  renderFiltroChips();
+  renderUfGridBusca();
+  sbSalvarFiltrosBusca();
+  showT('Filtro "'+(g.nome||'')+'" aplicado — buscando...','verde');
+  buscarLicitacoesPNCP(); // busca automática
+}
+
+async function excluirGrupoFiltros(id){
+  const g=filtroGrupos.find(function(x){return x.id===id;});
+  if(!g)return;
+  if(!await confirmar({titulo:'Excluir grupo',mensagem:'O grupo "'+(g.nome||'')+'" será removido.',confirmar:'Excluir'}))return;
+  const {error}=await sb.from('licitacoes_filtros_grupos').delete().eq('id',id);
+  if(error){showT('Erro ao excluir: '+error.message,'erro');return;}
+  await sbCarregarGruposFiltros();
+  showT('Grupo excluído ✓','verde');
+}
+
+function renderFiltroChips(){
+  const el=document.getElementById('filtroChips');
+  if(!el)return;
+  if(!buscaFiltros.palavras.length){
+    el.innerHTML='<span style="font-size:12px;color:var(--muted-light)">Nenhuma palavra-chave adicionada ainda.</span>';
+    return;
+  }
+  el.innerHTML=buscaFiltros.palavras.map(function(p){
+    return '<span style="display:inline-flex;align-items:center;gap:6px;background:var(--teal-pale);color:#0f6e5f;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600">'
+      +p.replace(/</g,'&lt;')
+      +'<span style="cursor:pointer;font-weight:800" onclick="removerPalavraFiltro(\''+p.replace(/'/g,"\\'")+'\')">×</span></span>';
+  }).join('');
+}
+
+function adicionarPalavraFiltro(){
+  const input=document.getElementById('buscaPalavraInput');
+  const val=input.value.trim();
+  if(!val)return;
+  const jaExiste=buscaFiltros.palavras.some(function(p){return p.toLowerCase()===val.toLowerCase();});
+  if(jaExiste){showT('Essa palavra já está no filtro','erro');return;}
+  buscaFiltros.palavras.push(val);
+  input.value='';
+  renderFiltroChips();
+  sbSalvarFiltrosBusca();
+}
+
+function removerPalavraFiltro(palavra){
+  buscaFiltros.palavras=buscaFiltros.palavras.filter(function(p){return p!==palavra;});
+  renderFiltroChips();
+  sbSalvarFiltrosBusca();
+}
+
+async function limparFiltrosPalavras(){
+  if(!buscaFiltros.palavras.length)return;
+  if(!await confirmar({titulo:'Limpar palavras-chave',mensagem:'Todas as palavras-chave do filtro serão removidas.',confirmar:'Limpar'}))return;
+  buscaFiltros.palavras=[];
+  renderFiltroChips();
+  sbSalvarFiltrosBusca();
+}
+
+function renderUfGridBusca(){
+  const el=document.getElementById('buscaUfGrid');
+  if(!el)return;
+  el.innerHTML=Object.keys(UF_NOME).sort().map(function(uf){
+    const marcado=buscaFiltros.ufs.includes(uf);
+    return '<label style="display:flex;align-items:center;gap:4px;font-size:12px;background:'+(marcado?'var(--teal-pale)':'#f8fafc')+';padding:4px 6px;border-radius:6px;cursor:pointer">'
+      +'<input type="checkbox" '+(marcado?'checked':'')+' onchange="toggleUfBusca(\''+uf+'\')"> '+uf+'</label>';
+  }).join('');
+}
+
+function toggleUfBusca(uf){
+  const i=buscaFiltros.ufs.indexOf(uf);
+  if(i>=0)buscaFiltros.ufs.splice(i,1);
+  else buscaFiltros.ufs.push(uf);
+  sbSalvarFiltrosBusca();
+}
+
+function selecionarTodasUfs(){
+  buscaFiltros.ufs=Object.keys(UF_NOME);
+  renderUfGridBusca();
+  sbSalvarFiltrosBusca();
+}
+
+function limparUfsBusca(){
+  buscaFiltros.ufs=[];
+  renderUfGridBusca();
+  sbSalvarFiltrosBusca();
+}
+
+function normalizarTexto(s){
+  return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+
+// Chama o endpoint de contratações por publicação do PNCP, com retry simples.
+async function fetchPncpContratacoes(endpoint,params){
+  const url=new URL('https://pncp.gov.br/api/consulta/v1/contratacoes/'+endpoint);
+  Object.keys(params).forEach(function(k){
+    if(params[k]!==undefined&&params[k]!==null&&params[k]!=='')url.searchParams.set(k,params[k]);
+  });
+  for(let tentativa=1;tentativa<=3;tentativa++){
+    try{
+      const resp=await fetch(url.toString(),{headers:{'Accept':'application/json'}});
+      if(resp.status===204)return{data:[]};
+      if(!resp.ok){
+        if((resp.status===429||resp.status>=500)&&tentativa<3){
+          await new Promise(function(r){setTimeout(r,800*tentativa);});
+          continue;
+        }
+        throw new Error('PNCP HTTP '+resp.status);
+      }
+      return await resp.json();
+    }catch(e){
+      if(tentativa>=3)throw e;
+      await new Promise(function(r){setTimeout(r,800*tentativa);});
+    }
+  }
+  return{data:[]};
+}
+
+// Busca no catálogo CATMAT (Compras.gov.br) itens cuja descrição bate com a palavra-chave.
+// Retorna [] em caso de falha (não trava a busca geral).
+async function fetchCatmatPorDescricao(descricao){
+  try{
+    const url=new URL('https://dadosabertos.compras.gov.br/modulo-material/4_consultarItemMaterial');
+    url.searchParams.set('descricaoItem',descricao);
+    url.searchParams.set('statusItem','true');
+    url.searchParams.set('tamanhoPagina','50');
+    url.searchParams.set('pagina','1');
+    const resp=await fetch(url.toString(),{headers:{'Accept':'application/json'}});
+    if(!resp.ok){console.warn('CATMAT HTTP '+resp.status+' para "'+descricao+'"');return[];}
+    const data=await resp.json();
+    return data.resultado||[];
+  }catch(e){
+    console.warn('Erro ao consultar CATMAT para "'+descricao+'":',e);
+    return[];
+  }
+}
+
+// Busca, nacionalmente, as compras (Lei 14.133) que usaram um item de catálogo (CATMAT) específico.
+async function fetchContratacoesPorCatmat(codigoClasse,codigoGrupo,codItemCatalogo,dIni,dFim){
+  try{
+    const url=new URL('https://dadosabertos.compras.gov.br/modulo-contratacoes/2_consultarItensContratacoes_PNCP_14133');
+    url.searchParams.set('materialOuServico','M');
+    url.searchParams.set('codigoClasse',codigoClasse);
+    url.searchParams.set('codigoGrupo',codigoGrupo);
+    url.searchParams.set('codItemCatalogo',codItemCatalogo);
+    url.searchParams.set('dataInclusaoPncpInicial',dIni);
+    url.searchParams.set('dataInclusaoPncpFinal',dFim);
+    url.searchParams.set('tamanhoPagina','50');
+    url.searchParams.set('pagina','1');
+    const resp=await fetch(url.toString(),{headers:{'Accept':'application/json'}});
+    if(!resp.ok){console.warn('Contratações/CATMAT HTTP '+resp.status+' para item '+codItemCatalogo);return[];}
+    const data=await resp.json();
+    return data.resultado||[];
+  }catch(e){
+    console.warn('Erro ao consultar contratações do item '+codItemCatalogo+':',e);
+    return[];
+  }
+}
+
+// Busca textual do próprio site do PNCP (mesma usada em pncp.gov.br/app/editais).
+// Retorna null se o endpoint falhar (aí a busca cai no método tradicional da API documentada).
+async function fetchPncpSearch(termo,opts){
+  try{
+    const url=new URL('https://pncp.gov.br/api/search/');
+    url.searchParams.set('q',termo);
+    url.searchParams.set('tipos_documento','edital');
+    url.searchParams.set('ordenacao','-data');
+    url.searchParams.set('pagina',String((opts&&opts.pagina)||1));
+    url.searchParams.set('tam_pagina','50');
+    if(opts&&opts.status)url.searchParams.set('status',opts.status);
+    if(opts&&opts.ufs)url.searchParams.set('ufs',opts.ufs);
+    const resp=await fetch(url.toString(),{headers:{'Accept':'application/json'}});
+    if(!resp.ok){console.warn('Busca textual PNCP HTTP '+resp.status);return null;}
+    const data=await resp.json();
+    const lista=data.items||data.data||data.resultado||null;
+    if(!Array.isArray(lista))return null;
+    return lista;
+  }catch(e){
+    console.warn('Busca textual PNCP falhou:',e);
+    return null;
+  }
+}
+
+// Converte um resultado da busca textual pro formato usado nos cards.
+function mapResultadoBuscaTextual(it){
+  const numeroControle=it.numero_controle_pncp||it.numeroControlePNCP||it.id||'';
+  const m=/^(\d{14})-1-(\d+)\/(\d{4})$/.exec(numeroControle);
+  const titulo=it.title||it.titulo||'';
+  const mNum=/n[ºo°]?\s*([\d]+[\/\-][\d]{4})/i.exec(titulo);
+  return{
+    numeroControlePNCP:numeroControle,
+    _numeroEdital:mNum?mNum[1]:null,
+    objetoCompra:it.description||it.descricao||it.title||it.titulo||'',
+    orgaoEntidade:{
+      cnpj:m?m[1]:(it.orgao_cnpj||it.cnpj||''),
+      razaosocial:it.orgao_nome||it.orgao||('CNPJ '+(m?m[1]:(it.orgao_cnpj||'?')))
+    },
+    unidadeOrgao:{
+      ufSigla:it.uf||it.unidade_orgao_uf_sigla||null,
+      municipioNome:it.municipio_nome||it.municipio||it.unidade_orgao_municipio_nome||null,
+      codigoUnidade:null
+    },
+    modalidadeNome:it.modalidade_licitacao_nome||it.modalidade_nome||'—',
+    valorTotalEstimado:it.valor_global||null,
+    dataEncerramentoProposta:it.data_fim_vigencia||null,
+    anoCompra:m?m[3]:(it.ano||null),
+    sequencialCompra:m?m[2]:null,
+    _origemMatch:'texto'
+  };
+}
+
+let buscaTextualPagina=1;
+let buscaTextualVistos=new Set();
+let buscaTextualSomenteAbertas=false;
+let buscaTextualTemMais=false;
+
+// Carrega uma página da busca textual. Retorna array de novos resultados, ou null se o endpoint falhar.
+async function carregarPaginaBuscaTextual(pagina){
+  const novos=[];
+  let algumRetorno=false;
+  let cheia=false;
+  for(const palavra of buscaFiltros.palavras){
+    const lista=await fetchPncpSearch(palavra,{
+      pagina:pagina,
+      status:buscaTextualSomenteAbertas?'recebendo_proposta':undefined,
+      ufs:buscaFiltros.ufs.length?buscaFiltros.ufs.join(','):undefined
+    });
+    if(lista===null)return null;
+    algumRetorno=true;
+    if(lista.length>=50)cheia=true;
+    lista.forEach(function(it){
+      const mapeado=mapResultadoBuscaTextual(it);
+      if(!mapeado.numeroControlePNCP||buscaTextualVistos.has(mapeado.numeroControlePNCP))return;
+      if(licitacoesOcultas.has(mapeado.numeroControlePNCP))return;
+      if(buscaFiltros.ufs.length&&mapeado.unidadeOrgao.ufSigla&&!buscaFiltros.ufs.includes(mapeado.unidadeOrgao.ufSigla))return;
+      buscaTextualVistos.add(mapeado.numeroControlePNCP);
+      novos.push(mapeado);
+    });
+  }
+  buscaTextualTemMais=algumRetorno&&cheia;
+  return novos;
+}
+
+function atualizarStatusBuscaTextual(){
+  const statusEl=document.getElementById('buscaPncpStatus');
+  statusEl.innerHTML='✅ '+buscaPncpResultadosCache.length+' licitação(ões) encontrada(s) pela busca textual do PNCP.'
+    +(buscaTextualTemMais?' <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px;margin-left:6px" onclick="carregarMaisResultados()">⬇️ Carregar mais</button>':'');
+}
+
+async function carregarMaisResultados(){
+  const statusEl=document.getElementById('buscaPncpStatus');
+  statusEl.innerHTML='⏳ Carregando mais resultados...';
+  buscaTextualPagina++;
+  const novos=await carregarPaginaBuscaTextual(buscaTextualPagina);
+  if(novos===null){statusEl.innerHTML='⚠️ Não foi possível carregar mais resultados.';return;}
+  if(!novos.length){
+    buscaTextualTemMais=false;
+    atualizarStatusBuscaTextual();
+    showT('Não há mais resultados','verde');
+    return;
+  }
+  buscaPncpResultadosCache=buscaPncpResultadosCache.concat(novos);
+  atualizarStatusBuscaTextual();
+  renderResultadosBuscaPncp();
+}
+
+async function buscarLicitacoesPNCP(){
+  if(!buscaFiltros.palavras.length){showT('Adicione ao menos 1 palavra-chave antes de buscar','erro');return;}
+  const somenteAbertas=document.getElementById('buscaSomenteAbertas').checked;
+  const dIni=(document.getElementById('buscaDataIni').value||'').replace(/-/g,'');
+  const dFim=(document.getElementById('buscaDataFim').value||'').replace(/-/g,'');
+  if(!dFim||(!somenteAbertas&&!dIni)){showT('Informe o período de publicação','erro');return;}
+
+  const modalidades=[];
+  if(document.getElementById('modPregao').checked)modalidades.push(6);
+  if(document.getElementById('modDispensa').checked)modalidades.push(8);
+  if(document.getElementById('modConcorrencia').checked)modalidades.push(4);
+  if(!modalidades.length){showT('Selecione ao menos uma modalidade','erro');return;}
+
+  const ufsAlvo=buscaFiltros.ufs.length?buscaFiltros.ufs:[null]; // null = busca nacional (sem filtro de uf)
+  const statusEl=document.getElementById('buscaPncpStatus');
+  const resultEl=document.getElementById('buscaPncpResultados');
+  resultEl.innerHTML='';
+  const palavrasNorm=buscaFiltros.palavras.map(normalizarTexto);
+
+  /* ── MÉTODO 1: busca textual do próprio site do PNCP (acha até quando o termo só está nos itens/edital) ── */
+  statusEl.innerHTML='🔎 Buscando pelo texto no PNCP...';
+  buscaTextualPagina=1;
+  buscaTextualVistos=new Set();
+  buscaTextualSomenteAbertas=somenteAbertas;
+  const resultadosTexto=await carregarPaginaBuscaTextual(1);
+
+  if(resultadosTexto!==null){
+    buscaPncpResultadosCache=resultadosTexto;
+    if(!resultadosTexto.length){
+      statusEl.innerHTML='Nenhuma licitação encontrada na busca textual do PNCP com essas palavras.';
+      return;
+    }
+    atualizarStatusBuscaTextual();
+    renderResultadosBuscaPncp();
+    return;
+  }
+
+  /* ── MÉTODO 2 (reserva): API documentada por data/modalidade/UF, filtrando o objeto no app ── */
+  statusEl.innerHTML='⚠️ Busca textual indisponível — usando o método tradicional...';
+
+  const brutos=[];
+  let combosFeitas=0;
+  const totalCombos=modalidades.length*ufsAlvo.length;
+
+  for(const modalidade of modalidades){
+    for(const uf of ufsAlvo){
+      combosFeitas++;
+      statusEl.innerHTML='⏳ Consultando PNCP... ('+combosFeitas+'/'+totalCombos+') — modalidade '+modalidade+(uf?(' — '+uf):' — nacional');
+      try{
+        const resp=somenteAbertas
+          ? await fetchPncpContratacoes('proposta',{
+              dataFinal:dFim,codigoModalidadeContratacao:modalidade,
+              uf:uf||undefined,pagina:1,tamanhoPagina:50
+            })
+          : await fetchPncpContratacoes('publicacao',{
+              dataInicial:dIni,dataFinal:dFim,codigoModalidadeContratacao:modalidade,
+              uf:uf||undefined,pagina:1,tamanhoPagina:50
+            });
+        if(Array.isArray(resp.data))brutos.push.apply(brutos,resp.data);
+      }catch(e){
+        console.error('Erro PNCP modalidade='+modalidade+' uf='+uf+':',e);
+      }
+    }
+  }
+
+  // Filtra client-side pelas palavras-chave no objeto da contratação + dedup por numeroControlePNCP
+  const vistosObjeto=new Set();
+  const candidatos=[];
+  brutos.forEach(function(item){
+    const chave=item.numeroControlePNCP;
+    if(vistosObjeto.has(chave))return;
+    vistosObjeto.add(chave);
+    candidatos.push(item);
+  });
+
+  const filtrados=[];
+  candidatos.forEach(function(item){
+    if(licitacoesOcultas.has(item.numeroControlePNCP))return; // ocultada pelo usuário
+    const objetoNorm=normalizarTexto(item.objetoCompra);
+    if(palavrasNorm.some(function(p){return objetoNorm.includes(p);})){
+      item._origemMatch='objeto';
+      filtrados.push(item);
+    }
+  });
+
+  const buscarItens=document.getElementById('buscaViaItens').checked;
+  if(buscarItens){
+    // 1) Busca no CATMAT os códigos de item que batem com cada palavra-chave
+    statusEl.innerHTML='🔬 Consultando catálogo CATMAT...';
+    const itensCatalogo=[];
+    const vistosCatmat=new Set();
+    for(const palavra of buscaFiltros.palavras){
+      const achados=await fetchCatmatPorDescricao(palavra);
+      achados.forEach(function(it){
+        if(vistosCatmat.has(it.codigoItem))return;
+        vistosCatmat.add(it.codigoItem);
+        itensCatalogo.push(it);
+      });
+    }
+
+    if(!itensCatalogo.length){
+      statusEl.innerHTML+=' — nenhum item de catálogo encontrado para essas palavras-chave.';
+    } else {
+      // 2) Para cada item de catálogo achado, busca compras nacionais (14.133) que o usaram no período
+      const LIMITE_CATALOGO=40;
+      const aVerificar=itensCatalogo.slice(0,LIMITE_CATALOGO);
+      for(let i=0;i<aVerificar.length;i++){
+        const cat=aVerificar[i];
+        statusEl.innerHTML='🔬 Verificando compras do item "'+(cat.descricaoItem||'').slice(0,60)+'"... ('+(i+1)+'/'+aVerificar.length+') — '+filtrados.length+' encontrada(s) até agora';
+        const compras=await fetchContratacoesPorCatmat(cat.codigoClasse,cat.codigoGrupo,cat.codigoItem,dIni,dFim);
+        compras.forEach(function(c){
+          const chave=c.idContratacaoPNCP||c.idCompra;
+          if(vistosObjeto.has(chave))return; // já veio pelo objeto
+          if(licitacoesOcultas.has(chave))return; // ocultada pelo usuário
+          vistosObjeto.add(chave);
+          // idContratacaoPNCP segue a máscara CNPJ(14)-1-sequencial/ano
+          const m=/^(\d{14})-1-(\d+)\/(\d{4})$/.exec(c.idContratacaoPNCP||'');
+          filtrados.push({
+            numeroControlePNCP:c.idContratacaoPNCP||chave,
+            objetoCompra:c.descricaodetalhada||c.descricaoResumida||cat.descricaoItem,
+            orgaoEntidade:{cnpj:m?m[1]:c.orgaoEntidadeCnpj,razaosocial:'CNPJ '+(m?m[1]:c.orgaoEntidadeCnpj)},
+            unidadeOrgao:{ufSigla:null,codigoUnidade:c.unidadeOrgaoCodigoUnidade},
+            modalidadeNome:'—',
+            valorTotalEstimado:c.valorTotal,
+            dataEncerramentoProposta:null,
+            anoCompra:m?m[3]:null,sequencialCompra:m?m[2]:null,
+            _origemMatch:'item',
+            _itemBatido:cat.descricaoItem
+          });
+        });
+      }
+    }
+  }
+
+  buscaPncpResultadosCache=filtrados;
+
+  if(!filtrados.length){
+    statusEl.innerHTML='Nenhuma licitação encontrada com esses filtros no período informado.';
+    return;
+  }
+  const viaObjeto=filtrados.filter(function(f){return f._origemMatch==='objeto';}).length;
+  const viaItem=filtrados.filter(function(f){return f._origemMatch==='item';}).length;
+  statusEl.innerHTML='✅ '+filtrados.length+' licitação(ões) encontrada(s) — '+viaObjeto+' pelo objeto'+(buscarItens?(' + '+viaItem+' só encontradas no item'):'')+'.';
+  renderResultadosBuscaPncp();
+}
+
+function renderResultadosBuscaPncp(){
+  const el=document.getElementById('buscaPncpResultados');
+  // Ordena: prazo mais próximo primeiro; sem data vai pro final
+  buscaPncpResultadosCache.sort(function(a,b){
+    const da=a.dataEncerramentoProposta?new Date(a.dataEncerramentoProposta).getTime():Infinity;
+    const db=b.dataEncerramentoProposta?new Date(b.dataEncerramentoProposta).getTime():Infinity;
+    return da-db;
+  });
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  el.innerHTML=buscaPncpResultadosCache.map(function(item,idx){
+    const uf=(item.unidadeOrgao&&item.unidadeOrgao.ufSigla)||'—';
+    const orgao=(item.orgaoEntidade&&item.orgaoEntidade.razaosocial)||'Órgão não informado';
+    const valor=item.valorTotalEstimado?('R$ '+Number(item.valorTotalEstimado).toLocaleString('pt-BR',{minimumFractionDigits:2})):'Valor não informado';
+    // Destaque de data: prazo de encerramento das propostas, com contagem de dias e cor por urgência
+    let badgeData;
+    if(item.dataEncerramentoProposta){
+      const d=new Date(item.dataEncerramentoProposta);
+      const dias=Math.ceil((d-hoje)/(1000*60*60*24));
+      const diasStr=dias<0?('Encerrou há '+Math.abs(dias)+' dia(s)'):dias===0?'Encerra HOJE':dias===1?'Encerra amanhã':('Em '+dias+' dias');
+      const cor=dias<0?'#94a3b8':dias<=1?'#dc2626':dias<=7?'#f97316':'#16a34a';
+      const bg=dias<0?'#f1f5f9':dias<=1?'#fef2f2':dias<=7?'#fff7ed':'#f0fdf4';
+      badgeData='<div style="display:inline-block;font-size:13px;font-weight:800;color:'+cor+';background:'+bg+';padding:4px 12px;border-radius:8px;margin-bottom:6px">📅 '+d.toLocaleDateString('pt-BR')+' · '+diasStr+'</div>';
+    } else {
+      badgeData='<div style="display:inline-block;font-size:12px;font-weight:600;color:#64748b;background:#f1f5f9;padding:4px 12px;border-radius:8px;margin-bottom:6px">📅 Prazo não informado</div>';
+    }
+    const numPregao=item.numeroCompra?(item.numeroCompra+'/'+(item.anoCompra||''))
+      :(item._numeroEdital||((item.sequencialCompra&&item.anoCompra)?(item.sequencialCompra+'/'+item.anoCompra):null));
+    const chip=function(txt,cor,bg){return '<span style="font-size:12px;font-weight:700;color:'+cor+';background:'+bg+';padding:4px 10px;border-radius:8px;white-space:nowrap">'+txt+'</span>';};
+    const chips='<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px">'
+      +badgeData
+      +(numPregao?chip('⚖️ Nº '+numPregao,'#075985','#e0f2fe'):'')
+      +(uf!=='—'?chip('📍 '+((item.unidadeOrgao&&item.unidadeOrgao.municipioNome)?(item.unidadeOrgao.municipioNome+'/'+uf):uf),'#0f6e5f','#d1fae5'):'')
+      +((item.modalidadeNome&&item.modalidadeNome!=='—')?chip(item.modalidadeNome,'#7c3aed','#f5f3ff'):'')
+      +(item.valorTotalEstimado?chip('💰 '+valor,'#166534','#f0fdf4'):'')
+      +'</div>';
+    const link=(item.anoCompra&&item.sequencialCompra)
+      ?('https://pncp.gov.br/app/editais/'+(item.orgaoEntidade?item.orgaoEntidade.cnpj:'')+'/'+item.anoCompra+'/'+item.sequencialCompra)
+      :('https://pncp.gov.br/app/editais?q='+encodeURIComponent(item.numeroControlePNCP||''));
+    const tagItem=item._origemMatch==='item'?'<div style="font-size:11px;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;display:inline-block;margin:4px 0">🔬 Achado no item: "'+(item._itemBatido||'').slice(0,120)+'"</div>':'';
+    const temIds=Boolean(item.orgaoEntidade&&item.orgaoEntidade.cnpj&&item.anoCompra&&item.sequencialCompra);
+    const botoesDetalhe=temIds
+      ?('<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="toggleItensResultado('+idx+')">👁️ Ver itens</button> '
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="toggleArquivosResultado('+idx+')">📄 Ver arquivos</button>')
+      :'';
+    const jaAdicionado=pregoes.some(function(p){return p.pncp_id&&p.pncp_id===item.numeroControlePNCP;});
+    const acoes=jaAdicionado
+      ?'<span style="font-size:11px;font-weight:700;color:#16a34a;background:#dcfce7;padding:6px 12px;border-radius:8px;white-space:nowrap;align-self:flex-start">✅ Já na agenda</span>'
+      :('<div style="display:flex;flex-direction:column;gap:6px;align-self:flex-start">'
+        +'<button class="acoes-btn" onclick="adicionarResultadoComoPregao('+idx+')">➕ Adicionar</button>'
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="ocultarResultadoPncp('+idx+')">🚫 Não participar</button>'
+        +'</div>');
+    return '<div class="modulo-card" style="padding:14px">'
+      +'<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">'
+      +'<div style="flex:1;min-width:240px">'
+      +chips
+      +'<div style="font-weight:700;font-size:13px">'+orgao+' — <span style="color:#0f6e5f">'+uf+'</span></div>'
+      +'<div style="font-size:12px;color:var(--texto);margin:4px 0">'+(item.objetoCompra||'').slice(0,300)+'</div>'
+      +tagItem
+      +'<a href="'+link+'" target="_blank" style="font-size:11px;color:#0284c7">Ver no PNCP ↗</a>'
+      +'<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'+botoesDetalhe+'</div>'
+      +'<div id="previaItens'+idx+'" style="margin-top:6px"></div>'
+      +'<div id="itensResultado'+idx+'" style="display:none;margin-top:8px;overflow-x:auto"></div>'
+      +'<div id="arquivosResultado'+idx+'" style="display:none;margin-top:8px"></div>'
+      +'</div>'
+      +acoes
+      +'</div></div>';
+  }).join('');
+  carregarPreviasItens();
+}
+
+// Carrega automaticamente uma prévia dos itens que batem com as palavras-chave (nos primeiros resultados).
+async function carregarPreviasItens(){
+  const palavrasNorm=buscaFiltros.palavras.map(normalizarTexto);
+  const max=Math.min(buscaPncpResultadosCache.length,12);
+  for(let idx=0;idx<max;idx++){
+    const item=buscaPncpResultadosCache[idx];
+    const el=document.getElementById('previaItens'+idx);
+    if(!el)continue;
+    const cnpj=item.orgaoEntidade&&item.orgaoEntidade.cnpj;
+    if(!cnpj||!item.anoCompra||!item.sequencialCompra)continue;
+    el.innerHTML='<span style="font-size:11px;color:var(--muted-light)">Carregando prévia dos itens...</span>';
+    const itens=await fetchPncpItens(cnpj,item.anoCompra,item.sequencialCompra);
+    item._itensCache=itens;
+    const batidos=itens.filter(function(it){
+      const descNorm=normalizarTexto(it.descricao);
+      return palavrasNorm.some(function(p){return descNorm.includes(p);});
+    });
+    item._itensBatidos=batidos;
+    if(!batidos.length){el.innerHTML='';continue;}
+    el.innerHTML=batidos.slice(0,3).map(function(it){
+      return '<div style="font-size:11px;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;margin:2px 0">🔬 Item '+(it.numeroItem||'?')+' · '+(it.descricao||'').slice(0,110)+' · Qtd: '+(it.quantidade||'—')+'</div>';
+    }).join('')+(batidos.length>3?'<div style="font-size:10px;color:var(--muted)">+ '+(batidos.length-3)+' item(ns) que batem com o filtro</div>':'');
+  }
+}
+
+// Busca TODOS os itens de uma contratação (pagina de 500 em 500, até o limite de segurança de 2000).
+async function fetchPncpItens(cnpj,ano,sequencial){
+  const bases=['https://pncp.gov.br/pncp-api/v1','https://pncp.gov.br/api/consulta/v1'];
+  for(const base of bases){
+    try{
+      const todos=[];
+      for(let pagina=1;pagina<=4;pagina++){
+        const resp=await fetch(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial+'/itens?pagina='+pagina+'&tamanhoPagina=500',{headers:{'Accept':'application/json'}});
+        if(!resp.ok)break;
+        const data=await resp.json();
+        const lista=Array.isArray(data)?data:(data.data||[]);
+        if(!lista.length)break;
+        todos.push.apply(todos,lista);
+        if(lista.length<500)break; // última página
+      }
+      if(todos.length)return todos;
+    }catch(e){
+      console.warn('Erro ao buscar itens em '+base+':',e);
+    }
+  }
+  return[];
+}
+
+async function toggleItensResultado(idx){
+  const el=document.getElementById('itensResultado'+idx);
+  if(!el)return;
+  if(el.style.display==='block'){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML='<span style="font-size:12px;color:var(--muted)">Carregando itens...</span>';
+  const item=buscaPncpResultadosCache[idx];
+  const cnpj=item.orgaoEntidade&&item.orgaoEntidade.cnpj;
+  const itens=item._itensCache&&item._itensCache.length?item._itensCache:await fetchPncpItens(cnpj,item.anoCompra,item.sequencialCompra);
+  if(!itens.length){
+    el.innerHTML='<span style="font-size:12px;color:var(--muted)">Nenhum item retornado (edital com orçamento sigiloso, ou endpoint indisponível no momento).</span>';
+    return;
+  }
+  el.innerHTML='<table style="width:100%;font-size:11px;border-collapse:collapse;min-width:400px">'
+    +'<tr style="text-align:left;border-bottom:1px solid var(--borda)"><th style="padding:4px">Nº</th><th style="padding:4px">Descrição</th><th style="padding:4px">Qtd</th><th style="padding:4px">Valor unit.</th></tr>'
+    +itens.map(function(it){
+      const valorIt=it.valorUnitarioEstimado?('R$ '+Number(it.valorUnitarioEstimado).toLocaleString('pt-BR',{minimumFractionDigits:2})):'Sigiloso';
+      return '<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:4px">'+(it.numeroItem||'—')+'</td><td style="padding:4px">'+(it.descricao||'').slice(0,220)+'</td><td style="padding:4px">'+(it.quantidade||'—')+'</td><td style="padding:4px">'+valorIt+'</td></tr>';
+    }).join('')
+    +'</table>';
+}
+
+// Busca a lista de arquivos/documentos de uma contratação (caminho pncp-api confirmado por links reais de edital).
+async function fetchPncpArquivos(cnpj,ano,sequencial){
+  const bases=['https://pncp.gov.br/pncp-api/v1','https://pncp.gov.br/api/consulta/v1'];
+  for(const base of bases){
+    try{
+      const resp=await fetch(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial+'/arquivos',{headers:{'Accept':'application/json'}});
+      if(!resp.ok)continue;
+      const data=await resp.json();
+      const lista=Array.isArray(data)?data:(data.data||[]);
+      if(lista.length)return lista;
+    }catch(e){
+      console.warn('Erro ao buscar arquivos em '+base+':',e);
+    }
+  }
+  return[];
+}
+
+async function toggleArquivosResultado(idx){
+  const el=document.getElementById('arquivosResultado'+idx);
+  if(!el)return;
+  if(el.style.display==='block'){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML='<span style="font-size:12px;color:var(--muted)">Carregando arquivos...</span>';
+  const item=buscaPncpResultadosCache[idx];
+  const cnpj=item.orgaoEntidade&&item.orgaoEntidade.cnpj;
+  const ano=item.anoCompra,seq=item.sequencialCompra;
+  const arquivos=await fetchPncpArquivos(cnpj,ano,seq);
+  if(!arquivos.length){
+    el.innerHTML='<span style="font-size:12px;color:var(--muted)">Nenhum arquivo encontrado (esse endpoint ainda não está confirmado — se aparecer aqui em branco, me avisa que ajusto).</span>';
+    return;
+  }
+  el.innerHTML=arquivos.map(function(a,i){
+    const seqDoc=a.sequencialDocumento||a.sequencial||(i+1);
+    const url=a.uri||a.url||('https://pncp.gov.br/pncp-api/v1/orgaos/'+cnpj+'/compras/'+ano+'/'+seq+'/arquivos/'+seqDoc);
+    const nome=a.titulo||a.tipoDocumentoNome||('Documento '+seqDoc);
+    return '<div style="font-size:12px;padding:3px 0"><a href="'+url+'" target="_blank" style="color:#0284c7">📄 '+nome+' ↗</a></div>';
+  }).join('');
+}
+
+// Busca os dados completos de uma contratação (número real, data de abertura, UASG etc).
+async function fetchPncpDetalheContratacao(cnpj,ano,sequencial){
+  const bases=['https://pncp.gov.br/pncp-api/v1','https://pncp.gov.br/api/consulta/v1'];
+  for(const base of bases){
+    try{
+      const resp=await fetch(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial,{headers:{'Accept':'application/json'}});
+      if(!resp.ok)continue;
+      return await resp.json();
+    }catch(e){console.warn('Erro detalhe contratação em '+base+':',e);}
+  }
+  return null;
+}
+
+async function adicionarResultadoComoPregao(idx){
+  const item=buscaPncpResultadosCache[idx];
+  if(!item)return;
+  showT('Buscando dados completos do pregão...','verde');
+  const cnpj=item.orgaoEntidade&&item.orgaoEntidade.cnpj;
+  const ano=item.anoCompra,seq=item.sequencialCompra;
+
+  // Enriquece com o detalhe oficial da contratação (quando temos os identificadores)
+  let det=null;
+  if(cnpj&&ano&&seq)det=await fetchPncpDetalheContratacao(cnpj,ano,seq);
+
+  const numeroReal=(det&&det.numeroCompra)?det.numeroCompra+'/'+ano
+    :((item.numeroCompra||seq||'?')+'/'+(ano||''));
+  const orgaoNome=(det&&det.orgaoEntidade&&(det.orgaoEntidade.razaoSocial||det.orgaoEntidade.razaosocial))
+    ||(item.orgaoEntidade&&item.orgaoEntidade.razaosocial)||'Órgão não informado';
+  const uasg=(det&&det.unidadeOrgao&&det.unidadeOrgao.codigoUnidade)
+    ||(item.unidadeOrgao&&item.unidadeOrgao.codigoUnidade)||'';
+  const estado=(det&&det.unidadeOrgao&&det.unidadeOrgao.ufSigla)
+    ||(item.unidadeOrgao&&item.unidadeOrgao.ufSigla)||null;
+  // A data da agenda é o FIM do recebimento de propostas (prazo pra participar)
+  const dataFimProposta=(det&&det.dataEncerramentoProposta)?det.dataEncerramentoProposta.slice(0,10)
+    :(item.dataEncerramentoProposta?String(item.dataEncerramentoProposta).slice(0,10):null);
+  const linkEdital=(cnpj&&ano&&seq)?('https://pncp.gov.br/pncp-api/v1/orgaos/'+cnpj+'/compras/'+ano+'/'+seq+'/arquivos/1'):null;
+
+  // Dados completos do PNCP (os campos em negrito da página do edital)
+  const fmtDataHora=function(v){return v?new Date(v).toLocaleString('pt-BR'):null;};
+  const pncpDados=det?{
+    local:(det.unidadeOrgao?((det.unidadeOrgao.municipioNome||'')+'/'+(det.unidadeOrgao.ufSigla||'')):null),
+    orgao:orgaoNome,
+    unidade_compradora:(det.unidadeOrgao?((det.unidadeOrgao.codigoUnidade||'')+' - '+(det.unidadeOrgao.nomeUnidade||'')):null),
+    modalidade:det.modalidadeNome||null,
+    amparo_legal:(det.amparoLegal&&det.amparoLegal.nome)||null,
+    tipo:det.tipoInstrumentoConvocatorioNome||null,
+    modo_disputa:det.modoDisputaNome||null,
+    registro_preco:det.srp?'Sim':'Não',
+    data_divulgacao:det.dataPublicacaoPncp?String(det.dataPublicacaoPncp).slice(0,10):null,
+    situacao:det.situacaoCompraNome||null,
+    inicio_propostas:fmtDataHora(det.dataAberturaProposta),
+    fim_propostas:fmtDataHora(det.dataEncerramentoProposta),
+    id_pncp:det.numeroControlePNCP||item.numeroControlePNCP||null,
+    fonte:det.usuarioNome||null,
+    objeto:det.objetoCompra||null,
+    info_complementar:det.informacaoComplementar||null,
+    valor_estimado:det.valorTotalEstimado||null
+  }:null;
+
+  const payloadCompleto={
+    numero:numeroReal,orgao:orgaoNome,uasg:String(uasg),
+    data_abertura:dataFimProposta,status:'agendado',estado:estado,
+    link_edital:linkEdital,pncp_id:item.numeroControlePNCP||null,
+    pncp_dados:pncpDados
+  };
+
+  // Tenta salvar com os campos extras; se as colunas não existirem ainda, salva o básico.
+  let novoId=null;
+  let r=await sb.from('pregoes').insert([payloadCompleto]).select();
+  if(r.error){
+    const payloadBase={numero:numeroReal,orgao:orgaoNome,uasg:String(uasg),data_abertura:dataFimProposta,status:'agendado',estado:estado};
+    r=await sb.from('pregoes').insert([payloadBase]).select();
+    if(r.error){showT('Erro ao adicionar: '+r.error.message,'erro');return;}
+    showT('Adicionado sem dados extras do PNCP — rode o SQL que enviei para habilitar','verde');
+  }
+  novoId=r.data&&r.data[0]&&r.data[0].id;
+
+  // Insere os itens que bateram com o filtro como itens do pregão
+  let qtdItens=0;
+  if(novoId){
+    let batidos=item._itensBatidos;
+    if(!batidos&&cnpj&&ano&&seq){
+      const palavrasNorm=buscaFiltros.palavras.map(normalizarTexto);
+      const todos=item._itensCache||await fetchPncpItens(cnpj,ano,seq);
+      batidos=todos.filter(function(it){
+        const dNorm=normalizarTexto(it.descricao);
+        return palavrasNorm.some(function(p){return dNorm.includes(p);});
+      });
+    }
+    if(batidos&&batidos.length){
+      // Também guarda os itens filtrados dentro dos dados do PNCP (aparecem no ℹ️ e na edição)
+      if(pncpDados){
+        pncpDados.itens_filtrados=batidos.map(function(it){
+          return{numeroItem:it.numeroItem||null,descricao:(it.descricao||'').slice(0,300),quantidade:it.quantidade||null};
+        });
+        await sb.from('pregoes').update({pncp_dados:pncpDados}).eq('id',novoId);
+      }
+      const linhas=batidos.map(function(it){
+        return{
+          pregao_id:novoId,item_num:it.numeroItem||0,
+          descricao:(it.descricao||'').slice(0,2000),
+          quantidade:it.quantidade||null,
+          valor_estimado:it.valorUnitarioEstimado||null,
+          nosso_status:'em_analise',concorrentes:[]
+        };
+      });
+      const ri=await sb.from('pregao_itens').insert(linhas);
+      if(!ri.error)qtdItens=linhas.length;
+      else console.warn('Itens não salvos:',ri.error.message);
+    }
+  }
+
+  showT('Pregão adicionado'+(qtdItens?(' com '+qtdItens+' item(ns) do filtro'):'')+' ✓','verde');
+  await sbCarregarPregoes();
+  renderResultadosBuscaPncp(); // atualiza o selo "Já na agenda" no card
+}
+
+// Oculta uma licitação das buscas futuras ("não compensa participar"), salvando no banco.
+async function ocultarResultadoPncp(idx){
+  const item=buscaPncpResultadosCache[idx];
+  if(!item||!item.numeroControlePNCP)return;
+  if(!await confirmar({titulo:'Não participar',mensagem:'Esta licitação será ocultada de todas as buscas futuras. Continuar?',confirmar:'Ocultar'}))return;
+  const {error}=await sb.from('licitacoes_ocultas').upsert({pncp_id:item.numeroControlePNCP},{onConflict:'pncp_id'});
+  if(error){showT('Erro ao ocultar (rode o SQL da tabela licitacoes_ocultas): '+error.message,'erro');return;}
+  licitacoesOcultas.add(item.numeroControlePNCP);
+  buscaPncpResultadosCache.splice(idx,1);
+  renderResultadosBuscaPncp();
+  showT('Licitação ocultada das buscas ✓','verde');
+}
+
+// Mostra os dados completos do PNCP salvos junto com o pregão.
+function mostrarDadosPncp(id){
+  const p=pregoes.find(function(x){return String(x.id)===String(id);});
+  if(!p||!p.pncp_dados){showT('Este pregão não tem dados do PNCP salvos','erro');return;}
+  const d=p.pncp_dados;
+  const linha=function(t,v){return v?('<div style="margin:5px 0;font-size:12px;line-height:1.5"><b>'+t+':</b> '+v+'</div>'):'';};
+  const valorFmt=d.valor_estimado?('R$ '+Number(d.valor_estimado).toLocaleString('pt-BR',{minimumFractionDigits:2})):'Sigiloso';
+  const ov=document.createElement('div');
+  ov.id='pncpDadosOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:600px;width:100%;max-height:82vh;overflow-y:auto;padding:22px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    +'<div style="font-weight:700;font-size:15px;color:#0f172a">📋 Dados do PNCP — Pregão '+(p.numero||'')+'</div>'
+    +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'pncpDadosOverlay\').remove()">✕</button></div>'
+    +linha('Local',d.local)
+    +linha('Órgão',d.orgao)
+    +linha('Unidade compradora',d.unidade_compradora)
+    +linha('Modalidade da contratação',d.modalidade)
+    +linha('Amparo legal',d.amparo_legal)
+    +linha('Tipo',d.tipo)
+    +linha('Modo de disputa',d.modo_disputa)
+    +linha('Registro de preço',d.registro_preco)
+    +linha('Data de divulgação no PNCP',d.data_divulgacao?new Date(d.data_divulgacao+'T12:00:00').toLocaleDateString('pt-BR'):null)
+    +linha('Situação',d.situacao)
+    +linha('Início recebimento de propostas',d.inicio_propostas)
+    +linha('<span style="color:#dc2626">Fim recebimento de propostas</span>',d.fim_propostas)
+    +linha('Id contratação PNCP',d.id_pncp)
+    +linha('Fonte',d.fonte)
+    +linha('Valor total estimado',valorFmt)
+    +linha('Objeto',d.objeto)
+    +linha('Informação complementar',d.info_complementar)
+    +((d.itens_filtrados&&d.itens_filtrados.length)?('<div style="margin-top:10px"><div style="font-size:12px;font-weight:700;margin-bottom:4px">🔬 Itens filtrados na busca</div>'+d.itens_filtrados.map(function(it){return '<div style="font-size:11px;background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:6px;margin:3px 0">Item '+(it.numeroItem||'?')+' · '+(it.descricao||'').slice(0,140)+' · Qtd: '+(it.quantidade||'—')+'</div>';}).join('')+'</div>'):'')
+    +(p.link_edital?'<a href="'+p.link_edital+'" target="_blank" style="display:inline-block;margin-top:10px;font-size:12px;color:#0284c7">📄 Baixar edital ↗</a>':'')
+    +'</div>';
+  document.body.appendChild(ov);
+}
 
 function renderMapaPregoes(){
   const el=document.getElementById('mapaPregoesContent');
@@ -10132,19 +11314,103 @@ function limparFormLicit(){
 function editarPregao(id){
   const p=pregoes.find(function(x){return x.id===id;});
   if(!p)return;
-  setLicitAba('pregoes');
-  document.getElementById('licitNum').value=p.numero||'';
-  document.getElementById('licitOrgao').value=p.orgao||'';
-  document.getElementById('licitUasg').value=p.uasg||'';
-  document.getElementById('licitData').value=p.data_abertura?p.data_abertura.substring(0,10):'';
-  document.getElementById('licitStatus').value=p.status||'agendado';
-  document.getElementById('licitEstado').value=p.estado||'';
-  const titulo=document.getElementById('licitFormTitulo');
-  if(titulo){titulo.textContent='Editar Pregão';titulo.dataset.editId=p.id;}
-  window.scrollTo(0,0);
+  const d=p.pncp_dados||{};
+  const esc=function(v){return (v==null?'':String(v)).replace(/"/g,'&quot;');};
+  const campo=function(label,idc,valor,largo){
+    return '<div class="form-field"'+(largo?' style="grid-column:1/-1"':'')+'><label>'+label+'</label><input type="text" id="'+idc+'" value="'+esc(valor)+'"></div>';
+  };
+  const area=function(label,idc,valor){
+    return '<div class="form-field" style="grid-column:1/-1"><label>'+label+'</label><textarea id="'+idc+'" rows="3" style="width:100%;font-size:12px;padding:8px;border:1px solid var(--borda);border-radius:8px;resize:vertical">'+(valor==null?'':String(valor))+'</textarea></div>';
+  };
+  const ufsOpts=Object.keys(UF_NOME).sort().map(function(uf){return '<option value="'+uf+'"'+(p.estado===uf?' selected':'')+'>'+UF_NOME[uf]+'</option>';}).join('');
+  const statusOpts=['agendado','andamento','concluido','cancelado'].map(function(s){
+    const lbl={agendado:'⏳ Agendado',andamento:'🔵 Em Andamento',concluido:'✅ Concluído',cancelado:'⛔ Cancelado'}[s];
+    return '<option value="'+s+'"'+(p.status===s?' selected':'')+'>'+lbl+'</option>';
+  }).join('');
+  const itensFiltrados=(d.itens_filtrados||[]).map(function(it){
+    return '<div style="font-size:11px;background:#fef3c7;color:#92400e;padding:4px 8px;border-radius:6px;margin:3px 0">🔬 Item '+(it.numeroItem||'?')+' · '+(it.descricao||'').slice(0,140)+' · Qtd: '+(it.quantidade||'—')+'</div>';
+  }).join('');
+
+  const ov=document.createElement('div');
+  ov.id='editarPregaoOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:760px;width:100%;padding:22px;margin:auto 0">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    +'<div style="font-weight:700;font-size:16px;color:#0f172a">✏️ Editar Pregão '+(p.numero||'')+'</div>'
+    +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'editarPregaoOverlay\').remove()">✕</button></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">'
+    +campo('Nº do Pregão','epNumero',p.numero)
+    +campo('Órgão / Instituição','epOrgao',p.orgao,true)
+    +'<div class="form-field"><label>Data (fim das propostas)</label><input type="date" id="epData" value="'+(p.data_abertura?p.data_abertura.substring(0,10):'')+'"></div>'
+    +campo('UASG','epUasg',p.uasg)
+    +'<div class="form-field"><label>Estado</label><select id="epEstado"><option value="">—</option>'+ufsOpts+'</select></div>'
+    +'<div class="form-field"><label>Status</label><select id="epStatus">'+statusOpts+'</select></div>'
+    +campo('Local','epLocal',d.local)
+    +campo('Unidade compradora','epUnidade',d.unidade_compradora,true)
+    +campo('Modalidade','epModalidade',d.modalidade)
+    +campo('Amparo legal','epAmparo',d.amparo_legal)
+    +campo('Tipo','epTipo',d.tipo)
+    +campo('Modo de disputa','epModoDisputa',d.modo_disputa)
+    +campo('Registro de preço','epSrp',d.registro_preco)
+    +campo('Situação','epSituacao',d.situacao)
+    +campo('Início propostas','epIniProp',d.inicio_propostas)
+    +campo('Fim propostas','epFimProp',d.fim_propostas)
+    +campo('Id contratação PNCP','epIdPncp',d.id_pncp)
+    +campo('Fonte','epFonte',d.fonte)
+    +campo('Link do edital','epLinkEdital',p.link_edital,true)
+    +area('Objeto','epObjeto',d.objeto)
+    +area('Informação complementar','epInfoComp',d.info_complementar)
+    +'</div>'
+    +(itensFiltrados?('<div style="margin-top:14px"><div style="font-size:12px;font-weight:700;margin-bottom:4px">🔬 Itens filtrados na busca</div>'+itensFiltrados+'</div>'):'')
+    +'<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px">'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'editarPregaoOverlay\').remove()">Cancelar</button>'
+    +'<button class="btn-salvar-mod" onclick="salvarEdicaoPregaoModal('+p.id+')">💾 Salvar</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+}
+
+async function salvarEdicaoPregaoModal(id){
+  const p=pregoes.find(function(x){return x.id===id;});
+  if(!p)return;
+  const v=function(idc){const el=document.getElementById(idc);return el?el.value.trim():'';};
+  const pncpDados=Object.assign({},p.pncp_dados||{},{
+    local:v('epLocal')||null,
+    orgao:v('epOrgao')||null,
+    unidade_compradora:v('epUnidade')||null,
+    modalidade:v('epModalidade')||null,
+    amparo_legal:v('epAmparo')||null,
+    tipo:v('epTipo')||null,
+    modo_disputa:v('epModoDisputa')||null,
+    registro_preco:v('epSrp')||null,
+    situacao:v('epSituacao')||null,
+    inicio_propostas:v('epIniProp')||null,
+    fim_propostas:v('epFimProp')||null,
+    id_pncp:v('epIdPncp')||null,
+    fonte:v('epFonte')||null,
+    objeto:v('epObjeto')||null,
+    info_complementar:v('epInfoComp')||null
+  });
+  const payload={
+    numero:v('epNumero'),orgao:v('epOrgao'),uasg:v('epUasg'),
+    data_abertura:v('epData')||null,status:v('epStatus'),estado:v('epEstado')||null,
+    link_edital:v('epLinkEdital')||null,pncp_dados:pncpDados
+  };
+  let r=await sb.from('pregoes').update(payload).eq('id',id);
+  if(r.error){
+    // Colunas extras podem não existir — salva o básico
+    const base={numero:payload.numero,orgao:payload.orgao,uasg:payload.uasg,data_abertura:payload.data_abertura,status:payload.status,estado:payload.estado};
+    r=await sb.from('pregoes').update(base).eq('id',id);
+    if(r.error){showT('Erro ao salvar: '+r.error.message,'erro');return;}
+  }
+  const ovEl=document.getElementById('editarPregaoOverlay');
+  if(ovEl)ovEl.remove();
+  showT('Pregão atualizado ✓','verde');
+  await sbCarregarPregoes();
 }
 
 async function atualizarStatsLicit(){
+  try{
   document.getElementById('licitTotal').textContent=pregoes.length;
 
   // Buscar todos os itens com mais campos pra o placar
@@ -10155,7 +11421,11 @@ async function atualizarStatsLicit(){
   let ganhos=0,homologados=0,analise=0,desclass=0;
 
   itens.forEach(function(it){
-    const concs=it.concorrentes||[];
+    // concorrentes pode vir como string JSON dependendo de como foi importado
+    let concs=it.concorrentes;
+    if(typeof concs==='string'){try{concs=JSON.parse(concs);}catch(e){concs=[];}}
+    if(!Array.isArray(concs))concs=[];
+    it.concorrentes=concs;
     const grow=concs.find(function(c){return c.is_grow;});
     if(grow){
       const concsSorted=[...concs].sort(function(a,b){return a.pos-b.pos;});
@@ -10241,6 +11511,7 @@ async function atualizarStatsLicit(){
       }).join('')
       +'</div></div>';
   }).join('');
+  }catch(e){console.error('Erro no placar de licitações:',e);}
 }
 
 const PREGAO_STATUS={
@@ -10284,6 +11555,8 @@ function renderAgendaLicit(){
         '</div>'+
       '</div>'+
       '<div class="reg-acoes" onclick="event.stopPropagation()">'+
+        (p.pncp_dados?'<button class="reg-btn" onclick="mostrarDadosPncp('+p.id+')" title="Dados do PNCP" style="color:#7c3aed">ℹ️</button>':'')+
+        (p.link_edital?'<button class="reg-btn" onclick="window.open(\''+p.link_edital+'\',\'_blank\')" title="Baixar edital" style="color:#0284c7">📄</button>':'')+
         '<button class="reg-btn" onclick="abrirPregao('+p.id+')" title="Ver itens" style="color:#0f6e5f">📋</button>'+
         '<button class="reg-btn del" onclick="excluirPregao('+p.id+')" title="Excluir">✕</button>'+
       '</div>'+
@@ -10351,14 +11624,17 @@ function cardPregao(p){
   const temClassif=p.status==='andamento'||p.status==='concluido';
   return '<div class="pregao-row">'+
     '<input type="checkbox" class="pregao-check" value="'+p.id+'" onclick="event.stopPropagation();atualizarBatchBar()" style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0">'+
-    '<div onclick="abrirPregao('+p.id+')" style="cursor:pointer;flex:1;min-width:0;display:flex;align-items:center;gap:10px">'+
+    '<div onclick="abrirPregao('+p.id+')" style="cursor:pointer;flex:1;min-width:0;display:flex;align-items:center;gap:12px">'+
+      '<div style="min-width:80px;flex-shrink:0;font-size:12px;font-weight:700;color:'+st.cor+'">📅 '+d+'</div>'+
+      '<div style="min-width:100px;flex-shrink:0;font-size:12px;font-weight:600;color:var(--texto)">Nº '+p.numero+'</div>'+
       '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:13px;font-weight:600;color:var(--texto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.orgao||'Pregão '+p.numero)+'</div>'+
-        '<div style="font-size:11px;color:var(--muted-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Nº '+p.numero+(p.uasg?' · UASG '+p.uasg:'')+(p.total_itens?' · '+p.total_itens+' itens':'')+'</div>'+
+        '<div style="font-size:13px;font-weight:600;color:var(--texto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.orgao||'—')+'</div>'+
+        '<div style="font-size:11px;color:var(--muted-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.uasg?'UASG '+p.uasg:'')+(p.estado?' · '+p.estado:'')+(p.total_itens?' · '+p.total_itens+' itens':'')+'</div>'+
       '</div>'+
-      '<div style="font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0">'+d+'</div>'+
     '</div>'+
     '<div class="reg-acoes" onclick="event.stopPropagation()" style="flex-shrink:0">'+
+      (p.pncp_dados?'<button class="reg-btn" onclick="mostrarDadosPncp('+p.id+')" title="Dados do PNCP" style="color:#7c3aed">ℹ️</button>':'')+
+      (p.link_edital?'<button class="reg-btn" onclick="window.open(\''+p.link_edital+'\',\'_blank\')" title="Baixar edital" style="color:#0284c7">📄</button>':'')+
       (temClassif?'<button class="reg-btn" onclick="imprimirClassificacaoPregao('+p.id+')" title="Imprimir classificação" style="color:#0f6e5f">🖨️</button>':'')+
       '<button class="reg-btn" onclick="editarPregao('+p.id+')" title="Editar">✏️</button>'+
       '<button class="reg-btn del" onclick="excluirPregao('+p.id+')" title="Excluir">✕</button>'+
@@ -11257,6 +12533,30 @@ function mostrarStatus(msg,tipo){
   el.innerHTML='<div style="background:'+bg[tipo]+';border-radius:8px;padding:12px 16px;font-size:12px;color:'+cores[tipo]+';font-weight:600">'+msg+'</div>';
 }
 
+// Chama o GitHub Models com tratamento robusto de erro/limite de taxa.
+// Retorna {ok:true,texto} ou {ok:false,erro,rate,diario,retryAfter}.
+async function fetchGitHubModel(conteudo){
+  try{
+    const resp=await fetch('https://models.github.ai/inference/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+GITHUB_TOKEN},
+      body:JSON.stringify({model:'openai/gpt-4o-mini',max_tokens:4000,temperature:0.1,messages:[{role:'user',content:conteudo}]})
+    });
+    let data=null;
+    try{data=await resp.json();}catch(e){/* corpo não-JSON, ex: erro 5xx em HTML */}
+    if(!resp.ok||!data||data.error){
+      const msgErro=(data&&data.error&&data.error.message)||('HTTP '+resp.status+(resp.statusText?(' '+resp.statusText):''));
+      const tipoLimite=resp.headers.get('x-ratelimit-type')||'';
+      const retryAfter=parseInt(resp.headers.get('retry-after')||'0',10)||0;
+      const isRate=resp.status===429||(data&&data.error&&(data.error.code==='RateLimitReached'||/rate/i.test(data.error.message||'')));
+      return{ok:false,erro:msgErro,rate:isRate,diario:/day/i.test(tipoLimite)||retryAfter>120,retryAfter:retryAfter};
+    }
+    return{ok:true,texto:(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||''};
+  }catch(e){
+    return{ok:false,erro:e.message,rate:false,diario:false,retryAfter:0};
+  }
+}
+
 async function analisarEditalGeral(){
   if(!_editalTexto){showT('Selecione o PDF e aguarde a extração do texto','erro');return;}
   document.getElementById('btnAnaliseGeral').disabled=true;
@@ -11304,27 +12604,26 @@ async function analisarEditalGeral(){
   for(let p=0;p<pedacos.length;p++){
     mostrarStatus('⏳ Analisando parte '+(p+1)+' de '+pedacos.length+' do edital...','loading');
     try{
-      const resp=await fetch('https://models.inference.ai.azure.com/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+GITHUB_TOKEN},
-        body:JSON.stringify({
-          model:'gpt-4o-mini',
-          max_tokens:4000,
-          temperature:0.1,
-          messages:[{role:'user',content:promptBase+'\n\n=== TRECHO DO EDITAL (parte '+(p+1)+'/'+pedacos.length+') ===\n'+pedacos[p]}]
-        })
-      });
-      const data=await resp.json();
-      if(data.error){
-        if((data.error.message||'').toLowerCase().includes('rate')||(data.error.code==='RateLimitReached')){
-          mostrarStatus('⏳ Limite de taxa atingido. Aguardando 30s antes de continuar...','loading');
-          await new Promise(function(r){setTimeout(r,30000);});
+      const r=await fetchGitHubModel(promptBase+'\n\n=== TRECHO DO EDITAL (parte '+(p+1)+'/'+pedacos.length+') ===\n'+pedacos[p]);
+      if(!r.ok){
+        if(r.rate&&r.diario){
+          const horas=Math.max(1,Math.ceil((r.retryAfter||3600)/3600));
+          mostrarStatus('❌ Limite diário do GitHub Models atingido. Tente novamente em ~'+horas+'h, ou gere/troque o token.','erro');
+          console.error('Limite diário atingido na parte '+(p+1)+': '+r.erro);
+          erros+=(pedacos.length-p);
+          break;
+        }
+        if(r.rate){
+          const espera=r.retryAfter>0?Math.min(r.retryAfter,60):30;
+          mostrarStatus('⏳ Limite de taxa atingido. Aguardando '+espera+'s antes de continuar...','loading');
+          await new Promise(function(res){setTimeout(res,espera*1000);});
           p--; continue;
         }
+        console.error('Erro na parte '+(p+1)+' do edital: '+r.erro);
         erros++;
         continue;
       }
-      let clean=(data.choices?.[0]?.message?.content||'').replace(/```json|```/g,'').trim();
+      let clean=(r.texto||'').replace(/```json|```/g,'').trim();
       const jsonStart=clean.indexOf('{');
       if(jsonStart>0)clean=clean.substring(jsonStart);
       let parsed;
@@ -11347,6 +12646,8 @@ async function analisarEditalGeral(){
           if(Array.isArray(parsed[c]))resultado[c]=resultado[c].concat(parsed[c]);
         });
       }
+      // Pausa entre chamadas para não estourar o limite de requisições/minuto do GitHub Models
+      if(p<pedacos.length-1)await new Promise(function(res){setTimeout(res,4000);});
     }catch(e){
       console.error(e);
       erros++;
@@ -11438,28 +12739,26 @@ JSON: {"itens":[{"num":"1","descricao":"descrição do edital","quantidade":0,"u
   for(let p=0;p<pedacos.length;p++){
     mostrarStatus('⏳ Analisando parte '+(p+1)+' de '+pedacos.length+'... ('+todosItens.length+' itens encontrados)','loading');
     try{
-      const resp=await fetch('https://models.inference.ai.azure.com/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+GITHUB_TOKEN},
-        body:JSON.stringify({
-          model:'gpt-4o-mini',
-          max_tokens:4000,
-          temperature:0.1,
-          messages:[{role:'user',content:prompt+'\n\n=== TRECHO DO EDITAL (parte '+(p+1)+'/'+pedacos.length+') ===\n'+pedacos[p]}]
-        })
-      });
-      const data=await resp.json();
-      if(data.error){
-        // Se for rate limit, espera e tenta de novo
-        if((data.error.message||'').toLowerCase().includes('rate')||(data.error.code==='RateLimitReached')){
-          mostrarStatus('⏳ Limite de taxa atingido. Aguardando 30s antes de continuar...','loading');
-          await new Promise(function(r){setTimeout(r,30000);});
+      const r=await fetchGitHubModel(prompt+'\n\n=== TRECHO DO EDITAL (parte '+(p+1)+'/'+pedacos.length+') ===\n'+pedacos[p]);
+      if(!r.ok){
+        if(r.rate&&r.diario){
+          const horas=Math.max(1,Math.ceil((r.retryAfter||3600)/3600));
+          mostrarStatus('❌ Limite diário do GitHub Models atingido. Tente novamente em ~'+horas+'h, ou gere/troque o token.','erro');
+          console.error('Limite diário atingido na parte '+(p+1)+': '+r.erro);
+          erros+=(pedacos.length-p);
+          break;
+        }
+        if(r.rate){
+          const espera=r.retryAfter>0?Math.min(r.retryAfter,60):30;
+          mostrarStatus('⏳ Limite de taxa atingido. Aguardando '+espera+'s antes de continuar...','loading');
+          await new Promise(function(res){setTimeout(res,espera*1000);});
           p--; continue;
         }
+        console.error('Erro na parte '+(p+1)+' do edital: '+r.erro);
         erros++;
         continue;
       }
-      let clean=(data.choices?.[0]?.message?.content||'').replace(/```json|```/g,'').trim();
+      let clean=(r.texto||'').replace(/```json|```/g,'').trim();
       const jsonStart=clean.indexOf('{');
       if(jsonStart>0)clean=clean.substring(jsonStart);
       let parsed;
@@ -11473,6 +12772,8 @@ JSON: {"itens":[{"num":"1","descricao":"descrição do edital","quantidade":0,"u
         try{parsed=JSON.parse(clean);}catch(e2){parsed={itens:[]};}
       }
       if(parsed&&parsed.itens)todosItens=todosItens.concat(parsed.itens);
+      // Pausa entre chamadas para não estourar o limite de requisições/minuto do GitHub Models
+      if(p<pedacos.length-1)await new Promise(function(res){setTimeout(res,4000);});
     }catch(e){
       console.error(e);
       erros++;
@@ -12082,7 +13383,7 @@ function fazerLogout(){
 const SB_URL='https://vepikflqhwrqdfluzhyo.supabase.co';
 const ANTHROPIC_KEY='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';
 const GEMINI_KEY='AQ.Ab8RN6KKwm3U5kRLrc_zK8IhMU1Ew4QjbDSQDByXovQP6EmJWQ'; // Google AI Studio
-const GITHUB_TOKEN='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';
+const GITHUB_TOKEN='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';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
@@ -12915,8 +14216,9 @@ async function sbCarregarAgenda(){
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relTicket" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relTicket" style="font-size:12px;flex:1;cursor:pointer">🎯 Ticket Médio por Grupo</label><select id="relTicketGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relConcentracao" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relConcentracao" style="font-size:12px;flex:1;cursor:pointer">⚠️ Concentração de Risco</label><select id="relConcentracaoGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relMix" style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relMix" style="font-size:12px;flex:1;cursor:pointer">🔀 Mix de Produtos por Grupo</label><select id="relMixGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
-        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relPorEstado" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relPorEstado" style="font-size:12px;flex:1;cursor:pointer">📍 Produtos por Estado</label><select id="relPorEstadoGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px;flex-wrap:wrap"><input type="checkbox" id="relPorEstado" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relPorEstado" style="font-size:12px;flex:1;cursor:pointer">📍 Produtos por Estado</label><label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" id="relPorEstadoMesAMes" style="width:13px;height:13px;accent-color:#0f6e5f">📅 Mês a mês</label><input type="text" id="relPorEstadoFiltro" placeholder="Todos os estados (ex: RJ,RS,PR,MG,SC)" title="Deixe em branco para mostrar todos os estados" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc;width:190px"><select id="relPorEstadoGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relPorRepresentante" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relPorRepresentante" style="font-size:12px;flex:1;cursor:pointer">🧑‍💼 Produtos por Representante</label><select id="relPorRepresentanteGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px;flex-wrap:wrap"><input type="checkbox" id="relProdutoMes" style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relProdutoMes" style="font-size:12px;flex:1;cursor:pointer">📊 Produtos x Mês (tabela)</label><label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" id="relProdutoMesPorEstado" style="width:13px;height:13px;accent-color:#0f6e5f">📍 Separar por estado</label><input type="text" id="relProdutoMesEstadoFiltro" placeholder="Todos os estados (ex: RJ,RS,PR)" title="Deixe em branco para mostrar todos os estados" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc;width:170px"><select id="relProdutoMesTipo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="quantidade">Quantidade</option><option value="valor">Valor</option></select><select id="relProdutoMesGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Filtrar por grupo</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
