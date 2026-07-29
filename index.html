@@ -1037,8 +1037,16 @@ tbody tr:hover{background:#f5f3ff}
 .registros-list{display:flex;flex-direction:column;gap:8px;max-height:450px;overflow-y:auto}
 .registro-item{background:#fff;border:1px solid var(--borda);border-radius:var(--radius-sm);padding:13px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;transition:all var(--t-fast);margin-bottom:8px}
 .registro-item:hover{border-color:var(--accent-light);box-shadow:0 2px 12px rgba(59,130,246,.08);transform:translateY(-1px)}
-.pregao-row{display:flex;align-items:center;gap:10px;padding:9px 13px;background:#fff;border:1px solid var(--borda);border-radius:9px;margin-bottom:5px;transition:all var(--t-fast)}
-.pregao-row:hover{border-color:var(--accent-light);background:#fafbff}
+.pregao-row{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#fff;border:1px solid var(--borda);border-left:3px solid transparent;border-radius:10px;margin-bottom:6px;transition:all var(--t-fast)}
+.pregao-row:hover{border-color:var(--accent-light);border-left-color:#0f6e5f;background:#fafbff;transform:translateX(2px)}
+.lic-valores{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px 12px}
+@media(max-width:900px){.lic-valores{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.lic-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lic-badge-ok{font-size:9px;font-weight:800;color:#166534;background:#dcfce7;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+.lic-badge-pend{font-size:9px;font-weight:700;color:#92400e;background:#fde68a;padding:2px 7px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+.pregao-data{min-width:78px;flex-shrink:0;font-size:12px;font-weight:700;line-height:1.25}
+.pregao-num{min-width:96px;flex-shrink:0;font-size:12px;font-weight:600;color:var(--texto);font-variant-numeric:tabular-nums}
+@media(max-width:640px){.pregao-row{flex-wrap:wrap}.pregao-num{min-width:0}}
 .uf-chip{width:44px;height:38px;border-radius:8px;border:1px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all var(--t-fast)}
 .uf-chip:hover{transform:translateY(-2px) scale(1.06);box-shadow:0 4px 10px rgba(15,110,95,.2);z-index:2}
 .registro-item.expandido{border-color:var(--teal);background:#fff;box-shadow:var(--shadow)}
@@ -3079,76 +3087,77 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
     <div id="licitPainelBuscar" style="display:none">
       <div class="modulo-card">
         <div class="modulo-header"><div class="modulo-header-title">🔎 Radar de Licitações — PNCP</div></div>
-        <div class="modulo-body">
-          <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Busca licitações direto na API oficial do PNCP (Portal Nacional de Contratações Públicas), filtrando pelo objeto conter alguma das palavras-chave abaixo.</p>
+        <div class="modulo-body" style="padding-top:14px">
 
-          <!-- Configuração do radar automático -->
-          <div class="form-field" style="margin-bottom:14px;background:#f8fafc;padding:12px;border-radius:10px">
-            <label style="display:flex;align-items:center;gap:8px">
-              <input type="checkbox" id="radarAtivo" onchange="salvarConfigRadar()"> 📧 Radar automático por e-mail
-            </label>
-            <div id="radarConfigBox" style="margin-top:10px">
-              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Horários (horário de Brasília)</div>
-              <div id="radarHorarios" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:4px;margin-bottom:10px"></div>
-              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Dias da semana</div>
-              <div id="radarDias" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px"></div>
-              <div class="form-field" style="margin-bottom:8px">
-                <label style="font-size:11px">E-mail para receber</label>
-                <input type="email" id="radarEmail" placeholder="seu@email.com" onchange="salvarConfigRadar()">
-              </div>
-              <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="testarRadarAgora()">▶️ Testar agora</button>
-              <span id="radarStatusMsg" style="font-size:11px;color:var(--muted);margin-left:6px"></span>
-            </div>
+          <!-- BARRA DE BUSCA PRINCIPAL -->
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input type="text" id="buscaPalavraInput" placeholder="Palavra-chave: enzimático, ortoftalaldeído..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarPalavraFiltro();}">
+            <button class="acoes-btn" style="white-space:nowrap" onclick="adicionarPalavraFiltro()">+ Add</button>
+          </div>
+          <div id="filtroChips" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px"></div>
+
+          <!-- GRUPOS SALVOS -->
+          <div id="gruposFiltros" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px"></div>
+
+          <!-- BOTÃO PRINCIPAL -->
+          <button class="btn-salvar-mod" style="width:100%;padding:11px" onclick="buscarLicitacoesPNCP()">🔍 Buscar no PNCP</button>
+
+          <!-- RESUMO DOS FILTROS + LINK PARA AJUSTAR -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <div id="resumoFiltros" style="font-size:11px;color:var(--muted)"></div>
+            <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="toggleSecaoBusca('secaoFiltros')">⚙️ Ajustar filtros</button>
           </div>
 
-          <!-- Grupos de filtros salvos -->
-          <div class="form-field" style="margin-bottom:14px">
-            <label>⭐ Grupos de filtros salvos (clique para aplicar e buscar)</label>
-            <div id="gruposFiltros" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
-            <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px;margin-top:8px" onclick="salvarGrupoFiltros()">💾 Salvar filtros atuais como grupo</button>
-            <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px;margin-top:8px" onclick="toggleListaOcultas()">🚫 Ver ocultadas</button>
+          <!-- SEÇÃO: FILTROS (recolhida) -->
+          <div id="secaoFiltros" style="display:none;margin-top:12px;padding:12px;background:#f8fafc;border-radius:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Estados</div>
+            <div style="margin-bottom:6px">
+              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="selecionarTodasUfs()">Todos</button>
+              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="limparUfsBusca()">Limpar</button>
+            </div>
+            <div id="buscaUfGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:4px;margin-bottom:14px"></div>
+
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Modalidade</div>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+              <label style="font-size:12px;font-weight:400"><input type="checkbox" id="modPregao" checked> Pregão eletrônico</label>
+              <label style="font-size:12px;font-weight:400"><input type="checkbox" id="modDispensa" checked> Dispensa</label>
+              <label style="font-size:12px;font-weight:400"><input type="checkbox" id="modConcorrencia"> Concorrência</label>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Período</div>
+            <label style="display:block;font-size:12px;font-weight:400;margin-bottom:8px"><input type="checkbox" id="buscaSomenteAbertas" onchange="atualizarModoBuscaPncp()"> ⏳ Somente com proposta ainda aberta</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+              <div class="form-field" style="margin:0"><label style="font-size:11px">De</label><input type="date" id="buscaDataIni"></div>
+              <div class="form-field" style="margin:0"><label style="font-size:11px" id="labelDataFim">Até</label><input type="date" id="buscaDataFim"></div>
+            </div>
+
+            <label style="display:block;font-size:12px;font-weight:400"><input type="checkbox" id="buscaViaItens"> 🔬 Buscar também no catálogo CATMAT</label>
+
+            <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+              <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="salvarGrupoFiltros()">💾 Salvar como grupo</button>
+              <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="limparFiltrosPalavras()">🗑️ Limpar palavras</button>
+              <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="toggleListaOcultas()">🚫 Ocultadas</button>
+              <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="toggleSecaoBusca('secaoRadar')">📧 Alertas por e-mail</button>
+            </div>
             <div id="listaOcultas" style="display:none;margin-top:8px"></div>
           </div>
 
-          <!-- Palavras-chave -->
-          <div class="form-field" style="margin-bottom:14px">
-            <label>Palavras-chave do filtro</label>
-            <div style="display:flex;gap:8px">
-              <input type="text" id="buscaPalavraInput" placeholder="Ex: enzimático, glutaraldeído..." style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarPalavraFiltro();}">
-              <button class="acoes-btn" onclick="adicionarPalavraFiltro()">+ Adicionar</button>
-              <button class="btn-cancel-mod" onclick="limparFiltrosPalavras()">🗑️ Limpar tudo</button>
-            </div>
-            <div id="filtroChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
+          <!-- SEÇÃO: RADAR AUTOMÁTICO (recolhida) -->
+          <div id="secaoRadar" style="display:none;margin-top:12px;padding:12px;background:#f8fafc;border-radius:10px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
+              <input type="checkbox" id="radarAtivo" onchange="salvarConfigRadar()"> 📧 Receber alertas por e-mail
+            </label>
+            <div style="font-size:11px;color:var(--muted);margin:10px 0 4px">Horários (Brasília)</div>
+            <div id="radarHorarios" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:3px;margin-bottom:10px"></div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Dias</div>
+            <div id="radarDias" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px"></div>
+            <div class="form-field" style="margin-bottom:8px"><label style="font-size:11px">E-mail</label><input type="email" id="radarEmail" placeholder="seu@email.com" onchange="salvarConfigRadar()"></div>
+            <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="testarRadarAgora()">▶️ Testar agora</button>
+            <span id="radarStatusMsg" style="font-size:11px;color:var(--muted);margin-left:6px"></span>
           </div>
 
-          <!-- Estados -->
-          <div class="form-field" style="margin-bottom:14px">
-            <label>Estados (deixe todos desmarcados para busca nacional)</label>
-            <div style="margin-bottom:6px">
-              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="selecionarTodasUfs()">Selecionar todos</button>
-              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="limparUfsBusca()">Limpar</button>
-            </div>
-            <div id="buscaUfGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px"></div>
-          </div>
-
-          <!-- Modalidade e datas -->
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px">
-            <div class="form-field">
-              <label>Modalidade</label>
-              <label style="font-size:12px;font-weight:400;display:block"><input type="checkbox" id="modPregao" checked> Pregão Eletrônico</label>
-              <label style="font-size:12px;font-weight:400;display:block"><input type="checkbox" id="modDispensa" checked> Dispensa de Licitação</label>
-              <label style="font-size:12px;font-weight:400;display:block"><input type="checkbox" id="modConcorrencia"> Concorrência Eletrônica</label>
-            </div>
-            <div class="form-field"><label>Publicado a partir de</label><input type="date" id="buscaDataIni"></div>
-            <div class="form-field"><label id="labelDataFim">Publicado até</label><input type="date" id="buscaDataFim"></div>
-          </div>
-
-          <label style="display:block;font-size:12px;font-weight:400;margin-bottom:10px"><input type="checkbox" id="buscaSomenteAbertas" onchange="atualizarModoBuscaPncp()"> ⏳ Somente com prazo de proposta ainda aberto (ignora "Publicado a partir de")</label>
-
-          <button class="btn-salvar-mod" onclick="buscarLicitacoesPNCP()">🔍 Buscar no PNCP</button>
-          <label style="display:block;font-size:12px;font-weight:400;margin-top:8px"><input type="checkbox" id="buscaViaItens"> 🔬 Também buscar por item no catálogo CATMAT (Compras.gov.br) — cobre o Brasil todo, não só o objeto geral do edital</label>
-          <div id="buscaPncpStatus" style="margin-top:10px"></div>
-          <div id="buscaPncpResultados" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"></div>
+          <div id="buscaPncpStatus" style="margin-top:12px"></div>
+          <div id="buscaPncpResultados" style="margin-top:14px;display:flex;flex-direction:column;gap:10px"></div>
         </div>
       </div>
     </div>
@@ -3461,6 +3470,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
           <input type="file" accept=".xlsx,.xls" style="display:none" onchange="importarFaturamento(this)">
         </label>
         <button class="acoes-btn" onclick="abrirLancamentoManual()">➕ Lançamento Manual</button>
+        <button class="acoes-btn" onclick="mostrarIgnoradosFaturamento()">⚠️ Ver ignorados</button>
         <button class="acoes-btn" onclick="abrirClassificacao()">🏷️ Classificar Clientes</button>
         <button class="acoes-btn" onclick="abrirRelatorio()">🖨️ Imprimir</button>
         <button class="acoes-btn btn-danger" onclick="excluirDadosPeriodo()">🗑️ Excluir Dados do Período</button>
@@ -6097,6 +6107,9 @@ function novoProduto(){
   document.getElementById('prodEditNome').value='';
   document.getElementById('prodEditResumida').value='';
   document.getElementById('prodEditCompleta').value='';
+  document.getElementById('prodEditVolumeEmb').value='';
+  document.getElementById('prodEditUnidadeBase').value='';
+  document.getElementById('prodEditPalavras').value='';
   setDiluicoesModal([]);
   document.querySelector('#overlayProduto .modulo-card-title').textContent='➕ Novo Produto';
   document.getElementById('overlayProduto').classList.add('open');
@@ -6111,6 +6124,9 @@ function editarProduto(codigo){
   document.getElementById('prodEditNome').value=p.nome||'';
   document.getElementById('prodEditResumida').value=p.desc_resumida||'';
   document.getElementById('prodEditCompleta').value=p.desc_completa||'';
+  document.getElementById('prodEditVolumeEmb').value=p.volume_emb||'';
+  document.getElementById('prodEditUnidadeBase').value=p.unidade_base||'';
+  document.getElementById('prodEditPalavras').value=(p.palavras_edital||[]).join(', ');
   setDiluicoesModal(p.diluicoes||[]);
   document.querySelector('#overlayProduto .modulo-card-title').textContent='✏️ Editar Produto';
   carregarEstruturaModal(codigo);
@@ -6135,8 +6151,18 @@ async function salvarProduto(){
   if(!codigo){showT('Informe o código do produto','erro');return;}
   if(!nome){showT('Informe o nome do produto','erro');return;}
   const diluicoes=getDiluicoesModal();
-  const payload={codigo,nome,desc_resumida:resumida,desc_completa:completa,diluicoes,atualizado_em:new Date().toISOString()};
+  const volEmb=parseFloat(document.getElementById('prodEditVolumeEmb').value)||null;
+  const uniBase=document.getElementById('prodEditUnidadeBase').value||null;
+  const palavras=document.getElementById('prodEditPalavras').value.split(',').map(function(x){return x.trim();}).filter(Boolean);
+  const payload={codigo,nome,desc_resumida:resumida,desc_completa:completa,diluicoes,
+    volume_emb:volEmb,unidade_base:uniBase,palavras_edital:palavras,
+    atualizado_em:new Date().toISOString()};
   const {error}=await sb.from('produtos').upsert(payload,{onConflict:'codigo'});
+  _prodMeta=null;  // força recarregar os dados de embalagem
+  // se a busca de licitação estiver com resultados, atualiza os cálculos na hora
+  if(typeof buscaPncpResultadosCache!=='undefined'&&buscaPncpResultadosCache.length){
+    carregarMetaProdutos().then(function(){carregarPreviasItens();});
+  }
   if(error){console.error('SB produtos save erro:',error);showT('Erro ao salvar produto','erro');return;}
   const idx=cadProdutos.findIndex(function(x){return x.codigo===codigo;});
   if(idx>=0)Object.assign(cadProdutos[idx],payload);
@@ -6889,6 +6915,37 @@ async function excluirVendaNF(nf){
 }
 
 // Importar planilha
+let _fatUltimosIgnorados=[];
+
+// Mostra quais linhas foram ignoradas na última importação de faturamento.
+function mostrarIgnoradosFaturamento(){
+  const L=_fatUltimosIgnorados||[];
+  if(!L.length){showT('Nenhum registro ignorado na última importação','verde');return;}
+  const ov=document.createElement('div');
+  ov.id='fatIgnoradosOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  const linhas=L.map(function(x){
+    return '<tr style="border-bottom:1px solid #f1f5f9">'
+      +'<td style="padding:5px">'+(x.nf||'—')+'</td>'
+      +'<td style="padding:5px">'+(x.item||'—')+'</td>'
+      +'<td style="padding:5px">'+String(x.desc||'').slice(0,40)+'</td>'
+      +'<td style="padding:5px">'+String(x.cliente||'').slice(0,28)+'</td>'
+      +'<td style="padding:5px;white-space:nowrap">R$ '+Number(x.valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+      +'<td style="padding:5px;color:'+(x.motivo==='repetido dentro da planilha'?'#f97316':'#64748b')+'">'+x.motivo+'</td>'
+      +'</tr>';
+  }).join('');
+  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:820px;width:100%;max-height:82vh;overflow:auto;padding:20px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    +'<div style="font-weight:700;font-size:15px">⚠️ '+L.length+' registro(s) ignorado(s) na importação</div>'
+    +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'fatIgnoradosOverlay\').remove()">✕</button></div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Critério: mesma NF + mesmo item + mesmo valor total já lançado em importação anterior. Linhas repetidas dentro da mesma planilha são aceitas.</div>'
+    +'<div style="overflow-x:auto"><table style="width:100%;font-size:11px;border-collapse:collapse;min-width:600px">'
+    +'<tr style="text-align:left;border-bottom:1px solid var(--borda)"><th style="padding:5px">NF</th><th style="padding:5px">Item</th><th style="padding:5px">Descrição</th><th style="padding:5px">Cliente</th><th style="padding:5px">Valor</th><th style="padding:5px">Motivo</th></tr>'
+    +linhas+'</table></div></div>';
+  document.body.appendChild(ov);
+}
+
 async function importarFaturamento(input){
   const file=input.files[0];
   if(!file)return;
@@ -6938,17 +6995,28 @@ async function importarFaturamento(input){
       // (mesma nota, mesmo item e mesmo valor total = já existe, não insere de novo)
       var chaveReg=function(r){return r.nf+'|'+r.cod_item+'|'+(parseFloat(r.v_total)||0).toFixed(2);};
       var existentes=new Set((fatDados||[]).map(chaveReg));
-      var vistosNoArquivo=new Set();
+      // Repetição DENTRO da mesma planilha é aceita (a nota pode ter o mesmo item em várias linhas).
+      // Só é bloqueado o que já foi lançado no sistema em importação anterior.
       var duplicadas=0;
+      var listaIgnorados=[];
       var registrosNovos=registros.filter(function(r){
         var k=chaveReg(r);
-        if(existentes.has(k)||vistosNoArquivo.has(k)){duplicadas++;return false;}
-        vistosNoArquivo.add(k);
+        if(existentes.has(k)){
+          duplicadas++;
+          listaIgnorados.push({
+            nf:r.nf,item:r.cod_item,desc:r.descricao||'',cliente:r.cliente||'',
+            valor:parseFloat(r.v_total)||0,
+            motivo:'já lançado em importação anterior'
+          });
+          return false;
+        }
         return true;
       });
+      _fatUltimosIgnorados=listaIgnorados;
 
       if(!registrosNovos.length){
-        showT('Nenhum registro novo — '+duplicadas+' já estavam lançados com os mesmos valores','erro');
+        showT('Nenhum registro novo — '+duplicadas+' já estavam lançados','erro');
+        if(duplicadas)mostrarIgnoradosFaturamento();
         input.value='';
         return;
       }
@@ -6966,8 +7034,9 @@ async function importarFaturamento(input){
       await sb.from('clientes_grupo').upsert(clientesPayload,{onConflict:'cod_cliente',ignoreDuplicates:true});
 
       var msgImport=registrosNovos.length+' registro(s) importado(s) ✓';
-      if(duplicadas)msgImport+=' — '+duplicadas+' ignorado(s) por já estarem lançados';
+      if(duplicadas)msgImport+=' — '+duplicadas+' ignorado(s)';
       showT(msgImport,'verde');
+      if(duplicadas)mostrarIgnoradosFaturamento();
       await sbCarregarGrupos();
       await sbCarregarRepresentantes();
       await sbCarregarVendas();
@@ -10207,6 +10276,7 @@ async function initBuscaLicitacoes(){
   renderFiltroChips();
   renderUfGridBusca();
   atualizarModoBuscaPncp();
+  renderResumoFiltros();
   sbCarregarGruposFiltros();
   sbCarregarConfigRadar();
 }
@@ -10234,6 +10304,32 @@ async function sbSalvarFiltrosBusca(){
     },{onConflict:'id'});
     if(error){showT('⚠️ Filtros NÃO salvos: '+error.message,'erro');console.error(error);}
   }catch(e){console.error('Erro ao salvar filtros:',e);}
+}
+
+function toggleSecaoBusca(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const abrindo=el.style.display!=='block';
+  // fecha a outra seção pra não empilhar
+  ['secaoFiltros','secaoRadar'].forEach(function(s){
+    const o=document.getElementById(s);
+    if(o&&s!==id)o.style.display='none';
+  });
+  el.style.display=abrindo?'block':'none';
+}
+
+function renderResumoFiltros(){
+  const el=document.getElementById('resumoFiltros');
+  if(!el)return;
+  const ufs=buscaFiltros.ufs.length?buscaFiltros.ufs.join(', '):'todo o Brasil';
+  const mods=[];
+  const mp=document.getElementById('modPregao'),md=document.getElementById('modDispensa'),mc=document.getElementById('modConcorrencia');
+  if(mp&&mp.checked)mods.push('pregão');
+  if(md&&md.checked)mods.push('dispensa');
+  if(mc&&mc.checked)mods.push('concorrência');
+  const abertas=document.getElementById('buscaSomenteAbertas');
+  el.textContent=buscaFiltros.palavras.length+' palavra(s) · '+ufs+' · '+(mods.join(', ')||'nenhuma modalidade')
+    +(abertas&&abertas.checked?' · só propostas abertas':'');
 }
 
 /* ── CONFIGURAÇÃO DO RADAR AUTOMÁTICO ── */
@@ -10419,6 +10515,7 @@ async function excluirGrupoFiltros(id){
 }
 
 function renderFiltroChips(){
+  renderResumoFiltros();
   const el=document.getElementById('filtroChips');
   if(!el)return;
   if(!buscaFiltros.palavras.length){
@@ -10473,6 +10570,7 @@ function toggleUfBusca(uf){
   if(i>=0)buscaFiltros.ufs.splice(i,1);
   else buscaFiltros.ufs.push(uf);
   sbSalvarFiltrosBusca();
+  renderResumoFiltros();
 }
 
 function selecionarTodasUfs(){
@@ -10828,7 +10926,8 @@ function renderResultadosBuscaPncp(){
     let badgeData;
     if(item.dataEncerramentoProposta){
       const d=new Date(item.dataEncerramentoProposta);
-      const dias=Math.ceil((d-hoje)/(1000*60*60*24));
+      const dSemHora=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+      const dias=Math.round((dSemHora-hoje)/(1000*60*60*24));
       const diasStr=dias<0?('Encerrou há '+Math.abs(dias)+' dia(s)'):dias===0?'Encerra HOJE':dias===1?'Encerra amanhã':('Em '+dias+' dias');
       const cor=dias<0?'#94a3b8':dias<=1?'#dc2626':dias<=7?'#f97316':'#16a34a';
       const bg=dias<0?'#f1f5f9':dias<=1?'#fef2f2':dias<=7?'#fff7ed':'#f0fdf4';
@@ -10853,7 +10952,11 @@ function renderResultadosBuscaPncp(){
     const temIds=Boolean(item.orgaoEntidade&&item.orgaoEntidade.cnpj&&item.anoCompra&&item.sequencialCompra);
     const botoesDetalhe=temIds
       ?('<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="toggleItensResultado('+idx+')">👁️ Ver itens</button> '
-        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="toggleArquivosResultado('+idx+')">📄 Ver arquivos</button>')
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="toggleArquivosResultado('+idx+')">📄 Ver arquivos</button> '
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px;border-color:#7c3aed;color:#7c3aed" onclick="analisarEditalDoCard('+idx+')">🤖 Analisar edital</button> '
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="imprimirLicitacao('+idx+',false)">👁️ Ver resumo</button> '
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px;border-color:#dc2626;color:#dc2626" onclick="gerarPdfLicitacao('+idx+')">📄 Gerar PDF</button> '
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="enviarLicitacaoEmail('+idx+')">📧 E-mail</button>')
       :'';
     const jaAdicionado=pregoes.some(function(p){return p.pncp_id&&p.pncp_id===item.numeroControlePNCP;});
     const acoes=jaAdicionado
@@ -10870,52 +10973,1095 @@ function renderResultadosBuscaPncp(){
       +'<div style="font-size:12px;color:var(--texto);margin:4px 0">'+(item.objetoCompra||'').slice(0,300)+'</div>'
       +tagItem
       +'<a href="'+link+'" target="_blank" style="font-size:11px;color:#0284c7">Ver no PNCP ↗</a>'
+      +'</div>'
+      +acoes
+      +'</div>'
       +'<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'+botoesDetalhe+'</div>'
       +'<div id="previaItens'+idx+'" style="margin-top:6px"></div>'
       +'<div id="itensResultado'+idx+'" style="display:none;margin-top:8px;overflow-x:auto"></div>'
       +'<div id="arquivosResultado'+idx+'" style="display:none;margin-top:8px"></div>'
-      +'</div>'
-      +acoes
-      +'</div></div>';
+      +'</div>';
   }).join('');
   carregarPreviasItens();
 }
 
+// Garante que os itens do edital estejam carregados (a prévia só roda nos primeiros resultados)
+async function garantirItensCarregados(idx){
+  const r=buscaPncpResultadosCache[idx];
+  if(!r)return false;
+  if(r._itensCache&&r._itensCache.length)return true;
+  const cnpj=r.orgaoEntidade&&r.orgaoEntidade.cnpj;
+  if(!cnpj||!r.anoCompra||!r.sequencialCompra)return false;
+  r._itensCache=await fetchPncpItens(cnpj,r.anoCompra,r.sequencialCompra);
+  return !!(r._itensCache&&r._itensCache.length);
+}
+
+// Junta os dados do resultado + itens confirmados para exportar
+function montarResumoLicitacao(idx){
+  const r=buscaPncpResultadosCache[idx];
+  if(!r)return null;
+  const uf=(r.unidadeOrgao&&r.unidadeOrgao.ufSigla)||'';
+  const itens=r._itensCache||[];
+  const linhas=[];
+  let total=0,semPreco=0,somaEstimado=0;
+  itens.forEach(function(it){
+    const ch=chaveItemEdital(it.descricao);
+    const aj=_ajustesItens&&_ajustesItens[ch];
+    if(!aj||!aj.confirmado)return;
+    const comps=(aj.componentes&&aj.componentes.length)?aj.componentes:[];
+    const nomes=comps.map(function(c){
+      const p=(PRODUTOS||[]).find(function(x){return x.codigo===c.codigo;})||{};
+      const pr=precoDoProduto(c.codigo,uf);
+      const q=parseFloat(c.qtd)||1;
+      const vl=pr!=null?(' — R$ '+Number(pr*q).toLocaleString('pt-BR',{minimumFractionDigits:2})):' — sem preço';
+      return (p.produto||c.codigo)+(p.apresentacao?(' / '+p.apresentacao):'')+((q!=1)?(' ×'+q):'')+vl;
+    });
+    // Detalhe de cada componente do kit (nome, quantidade, unitário e subtotal) — usado na impressão
+    const compDetalhe=comps.map(function(c){
+      const p=(PRODUTOS||[]).find(function(x){return x.codigo===c.codigo;})||{};
+      const pr=precoDoProduto(c.codigo,uf);
+      const q=parseFloat(c.qtd)||1;
+      return{
+        nome:(p.produto||c.codigo)+(p.apresentacao?(' — '+p.apresentacao):''),
+        qtd:q,unit:pr,sub:(pr!=null?pr*q:null)
+      };
+    });
+    const codPrinc=comps[0]?comps[0].codigo:null;
+    const semb=codPrinc?siglaEmbalagem(codPrinc):{sigla:'emb',nome:'embalagem'};
+    const qtdEd=(aj.quantidade!=null?aj.quantidade:(parseFloat(it.quantidade)||0));
+    const unEd=aj.unidade||it.unidadeMedida||it.unidadeFornecimento||'';
+    const conv=codPrinc?converterQuantidade(qtdEd,unEd,codPrinc,aj.unidade_modo||_unidadeOverride[ch]||''):null;
+
+    // Preço = soma dos componentes do item (kit), recalculado aqui para não depender da tela
+    let precoUnit=null,faltou=false;
+    comps.forEach(function(c){
+      const pr=precoDoProduto(c.codigo,uf);
+      const q=parseFloat(c.qtd)||1;
+      if(pr==null)faltou=true; else precoUnit=(precoUnit||0)+pr*q;
+    });
+    const totalItem=(precoUnit!=null&&conv)?(precoUnit*conv.emb):null;
+    if(totalItem==null||faltou&&precoUnit==null)semPreco++;
+    if(totalItem!=null)total+=totalItem;
+
+    // Preço médio do órgão (por embalagem) e margem
+    const vUnitApi=parseFloat(it.valorUnitarioEstimado)||0;
+    const qtdApi=parseFloat(it.quantidade)||0;
+    let pmedio=null,margem=null,totalEstimado=null;
+    if(vUnitApi>0&&conv&&conv.emb>0){
+      pmedio=(vUnitApi*qtdApi)/conv.emb;
+      totalEstimado=vUnitApi*qtdApi;
+      if(precoUnit!=null&&precoUnit>0)margem=((pmedio-precoUnit)/precoUnit)*100;
+    }
+    if(totalEstimado!=null)somaEstimado+=totalEstimado;
+
+    const benL=beneficioItem(it,aj);
+    linhas.push({
+      beneficio:benL.texto,beneficioManual:benL.manual,
+      componentes:compDetalhe,
+      num:it.numeroItem||'?',
+      desc:String(it.descricao||''),
+      produtos:nomes,
+      qtdEdital:qtdEd.toLocaleString('pt-BR')+' '+unEd,
+      qtdOfertar:conv?((Math.round(conv.emb*100)/100).toLocaleString('pt-BR')+' '+semb.sigla):'—',
+      precoUnit:precoUnit,
+      total:totalItem,
+      pmedio:pmedio,
+      margem:margem,
+      totalEstimado:totalEstimado,
+      parcial:faltou&&precoUnit!=null
+    });
+  });
+  const prazo=r.dataEncerramentoProposta?new Date(r.dataEncerramentoProposta).toLocaleDateString('pt-BR'):'não informado';
+  const numPregao=r.numeroCompra?(r.numeroCompra+'/'+(r.anoCompra||'')):(r._numeroEdital||((r.sequencialCompra&&r.anoCompra)?(r.sequencialCompra+'/'+r.anoCompra):'—'));
+  const municipio=(r.unidadeOrgao&&r.unidadeOrgao.municipioNome)?(r.unidadeOrgao.municipioNome+'/'+uf):uf;
+  return{
+    orgao:(r.orgaoEntidade&&r.orgaoEntidade.razaosocial)||'Órgão não informado',
+    uf:uf,municipio:municipio,numero:numPregao,
+    modalidade:r.modalidadeNome||'—',
+    objeto:String(r.objetoCompra||''),
+    prazo:prazo,
+    idPncp:r.numeroControlePNCP||'',
+    link:(r.anoCompra&&r.sequencialCompra)?('https://pncp.gov.br/app/editais/'+(r.orgaoEntidade?r.orgaoEntidade.cnpj:'')+'/'+r.anoCompra+'/'+r.sequencialCompra):'',
+    linhas:linhas,total:total,somaEstimado:somaEstimado,semPreco:semPreco
+  };
+}
+
+// Abre uma janela pronta para imprimir / salvar em PDF
+function copiarResumoEmail(){
+  const ta=document.getElementById('emailLicitTexto');
+  if(!ta)return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(function(){showT('Texto copiado ✓','verde');},
+      function(){ta.select();document.execCommand('copy');showT('Texto copiado ✓','verde');});
+  }else{
+    ta.select();document.execCommand('copy');showT('Texto copiado ✓','verde');
+  }
+}
+
+function abrirClienteEmail(){
+  const d=window._emailLicit;
+  if(!d)return;
+  const url='mailto:?subject='+encodeURIComponent(d.assunto)+'&body='+encodeURIComponent(d.corpo);
+  if(url.length>1800&&navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(d.corpo);
+    showT('Texto copiado — cole no e-mail com Ctrl+V','verde');
+  }
+  window.location.href=url.length>1800
+    ?('mailto:?subject='+encodeURIComponent(d.assunto))
+    :url;
+}
+
+// Gera o PDF do pregão direto no arquivo, sem abrir janela
+async function gerarPdfLicitacao(idx){
+  showT('Gerando PDF...','verde');
+  let d=null;
+  try{
+    await carregarMetaProdutos();
+    await garantirItensCarregados(idx);
+    d=montarResumoLicitacao(idx);
+  }catch(e){
+    console.error('Erro ao montar resumo:',e);
+    showT('Falha ao carregar os dados: '+(e&&e.message?e.message:e),'erro');
+    return;
+  }
+  if(!d){showT('Não encontrei os dados deste pregão','erro');return;}
+  if(!d.linhas.length){showT('Nenhum item confirmado neste edital — confirme os itens primeiro','erro');return;}
+
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const L=12, W=doc.internal.pageSize.getWidth();
+  const rs=function(v){return v==null?'—':('R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}));};
+  const limpar=function(t){return String(t||'').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').trim();};
+
+  // Cabeçalho
+  doc.setFillColor(15,110,95);doc.rect(0,0,W,22,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont(undefined,'bold');
+  doc.text(limpar(d.orgao).slice(0,80),L,10);
+  doc.setFontSize(9);doc.setFont(undefined,'normal');
+  doc.text(limpar(d.municipio)+'  |  Pregao no '+d.numero+'  |  '+limpar(d.modalidade),L,16.5);
+
+  doc.setTextColor(30,41,59);
+  let y=30;
+  doc.setFontSize(9);doc.setFont(undefined,'bold');
+  doc.text('Prazo de propostas: ',L,y);
+  doc.setFont(undefined,'normal');doc.text(d.prazo,L+34,y);
+  doc.setFont(undefined,'bold');doc.text('Id PNCP: ',L+70,y);
+  doc.setFont(undefined,'normal');doc.text(String(d.idPncp||'-'),L+85,y);
+  y+=6;
+  doc.setFont(undefined,'bold');doc.text('Objeto:',L,y);
+  doc.setFont(undefined,'normal');
+  const objLinhas=doc.splitTextToSize(limpar(d.objeto),W-L*2-16);
+  doc.text(objLinhas.slice(0,3),L+14,y);
+  y+=Math.min(objLinhas.length,3)*4.5+4;
+
+  // Tabela
+  const corpo=d.linhas.map(function(l){
+    const comps=(l.componentes&&l.componentes.length)
+      ? l.componentes.map(function(c){
+          return '• '+limpar(c.nome)+(c.qtd!=1?(' x'+c.qtd):'')
+            +(c.unit!=null?('  '+rs(c.unit)+(c.qtd!=1?(' = '+rs(c.sub)):'')):'  sem preco');
+        }).join('\n')
+      : (l.produtos||[]).map(function(t){return '• '+limpar(t);}).join('\n');
+    const soma=(l.componentes&&l.componentes.length>1)?('\nSoma/emb: '+rs(l.precoUnit)):'';
+    const ben=l.beneficio?('\n['+limpar(l.beneficio)+']'):'\n[participacao nao informada]';
+    return[
+      String(l.num),
+      limpar(l.desc).slice(0,150)+'\n'+comps+soma+ben,
+      l.qtdEdital,
+      l.qtdOfertar,
+      l.pmedio!=null?rs(l.pmedio):'sigiloso',
+      rs(l.precoUnit),
+      l.margem!=null?(l.margem.toFixed(1)+'%'):'—',
+      rs(l.total)
+    ];
+  });
+
+  doc.autoTable({
+    startY:y,
+    head:[['Item','Descricao / produto ofertado','Qtd edital','Qtd a ofertar','P. medio','Tabela '+d.uf,'Margem','Total']],
+    body:corpo,
+    theme:'striped',
+    styles:{fontSize:7.5,cellPadding:2,overflow:'linebreak',valign:'top'},
+    headStyles:{fillColor:[15,110,95],textColor:255,fontSize:7.5,fontStyle:'bold'},
+    columnStyles:{
+      0:{cellWidth:11,halign:'center'},
+      1:{cellWidth:104},
+      2:{cellWidth:24,halign:'center'},
+      3:{cellWidth:24,halign:'center'},
+      4:{cellWidth:26,halign:'right'},
+      5:{cellWidth:26,halign:'right'},
+      6:{cellWidth:18,halign:'right',fontStyle:'bold'},
+      7:{cellWidth:28,halign:'right',fontStyle:'bold'}
+    },
+    margin:{left:L,right:L}
+  });
+
+  // Totais
+  let yf=doc.lastAutoTable.finalY+7;
+  if(yf>doc.internal.pageSize.getHeight()-28){doc.addPage();yf=20;}
+  doc.setFillColor(240,253,244);doc.setDrawColor(134,239,172);
+  doc.roundedRect(L,yf,W-L*2,17,2,2,'FD');
+  doc.setTextColor(22,101,52);doc.setFontSize(9);doc.setFont(undefined,'normal');
+  doc.text(d.linhas.length+' item(ns) confirmado(s)',L+5,yf+6.5);
+  if(d.somaEstimado>0){
+    const mg=d.total>0?(((d.somaEstimado-d.total)/d.total)*100):0;
+    doc.setFontSize(8);doc.setTextColor(71,85,105);
+    doc.text('Estimado do orgao: '+rs(d.somaEstimado)+'   |   Diferenca sobre a tabela: '+mg.toFixed(1)+'%',L+5,yf+12.5);
+  }
+  doc.setFontSize(13);doc.setFont(undefined,'bold');doc.setTextColor(22,101,52);
+  doc.text('Total: '+rs(d.total),W-L-5,yf+10,{align:'right'});
+
+  if(d.semPreco){
+    doc.setFontSize(7.5);doc.setFont(undefined,'normal');doc.setTextColor(180,83,9);
+    doc.text(d.semPreco+' item(ns) sem preco de tabela - nao incluidos no total.',L,yf+23);
+  }
+
+  // Rodapé em todas as páginas
+  const tot=doc.internal.getNumberOfPages();
+  for(let i=1;i<=tot;i++){
+    doc.setPage(i);
+    doc.setFontSize(7);doc.setTextColor(148,163,184);doc.setFont(undefined,'normal');
+    doc.text('GEx Assist',L,doc.internal.pageSize.getHeight()-7);
+    doc.text('Gerado em '+new Date().toLocaleString('pt-BR'),W/2,doc.internal.pageSize.getHeight()-7,{align:'center'});
+    doc.text(i+'/'+tot,W-L,doc.internal.pageSize.getHeight()-7,{align:'right'});
+  }
+
+  const nome='Pregao_'+String(d.numero).replace(/[^0-9A-Za-z]/g,'_')+'_'+limpar(d.orgao).slice(0,25).replace(/[^0-9A-Za-z]/g,'_')+'.pdf';
+  doc.save(nome);
+  showT('PDF gerado ✓','verde');
+}
+
+async function imprimirLicitacao(idx,autoImprimir){
+  // A janela precisa abrir AGORA (no clique) — se abrir depois do await, o navegador bloqueia
+  const w=window.open('','_blank');
+  if(w){
+    w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Gerando...</title></head>'
+      +'<body style="font-family:system-ui,sans-serif;padding:40px;text-align:center;color:#0f172a">'
+      +'<div style="font-size:15px">⏳ Montando o documento do pregão...</div></body></html>');
+  }
+  const mostrarFalha=function(msg){
+    if(w){
+      w.document.open();
+      w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Erro</title></head>'
+        +'<body style="font-family:system-ui,sans-serif;padding:32px;color:#0f172a">'
+        +'<h2 style="color:#dc2626;font-size:16px">Não foi possível gerar o documento</h2>'
+        +'<p style="font-size:13px;line-height:1.6">'+String(msg).replace(/</g,'&lt;')+'</p>'
+        +'<p style="font-size:12px;color:#64748b">Feche esta janela e tente de novo. Se persistir, me envie esta mensagem.</p>'
+        +'</body></html>');
+      w.document.close();
+    }
+    showT(String(msg).slice(0,120),'erro');
+  };
+
+  let d=null;
+  try{
+    await carregarMetaProdutos();
+    await garantirItensCarregados(idx);
+    d=montarResumoLicitacao(idx);
+  }catch(e){
+    console.error('Erro ao montar resumo:',e);
+    mostrarFalha('Falha ao carregar os dados: '+(e&&e.message?e.message:e));
+    return;
+  }
+  if(!d){mostrarFalha('Não encontrei os dados deste pregão na busca atual.');return;}
+  if(!d.linhas.length){
+    mostrarFalha('Nenhum item confirmado neste edital. Confirme os itens (botão "Confirmar informações") antes de gerar o documento.');
+    return;
+  }
+  const rs=function(v){return v==null?'—':('R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}));};
+  const pct=function(v){return v==null?'—':(v.toFixed(1)+'%');};
+  const linhasHtml=d.linhas.map(function(l){
+    const corM=l.margem==null?'#64748b':(l.margem>=0?'#16a34a':'#dc2626');
+    return '<tr>'
+      +'<td class="c">'+l.num+'</td>'
+      +'<td><div class="desc">'+l.desc.slice(0,190)+(l.desc.length>190?'…':'')+'</div>'
+      +'<div class="prod">'+((l.componentes&&l.componentes.length)?l.componentes:[{nome:(l.produtos||[]).join(' + '),qtd:1,unit:null,sub:null}]).map(function(c){
+          return '• '+c.nome+(c.qtd!=1?(' &times;'+c.qtd):'')
+            +(c.unit!=null
+              ?(' <span style="color:#334155;font-weight:400">— '+rs(c.unit)+(c.qtd!=1?(' = '+rs(c.sub)):'')+'</span>')
+              :' <span style="color:#b45309;font-weight:400">— sem preço</span>');
+        }).join('<br>')
+        +(l.componentes.length>1?('<div style="margin-top:2px;padding-top:2px;border-top:1px solid #cbd5e1;color:#0f172a">Soma por embalagem: <b>'+rs(l.precoUnit)+'</b></div>'):'')
+        +'</div>'
+      +(l.beneficio?('<div style="font-size:9px;margin-top:3px;font-weight:700;color:'+corBeneficio(l.beneficio).fg+'">'
+        +(/exclusiv/.test(normalizarTexto(l.beneficio))?'🔒 ':'🌐 ')+l.beneficio+'</div>'):'<div style="font-size:9px;margin-top:3px;color:#b45309">❓ participação não informada</div>')
+      +'</td>'
+      +'<td class="c">'+l.qtdEdital+'</td>'
+      +'<td class="c">'+l.qtdOfertar+'</td>'
+      +'<td class="r">'+(l.pmedio!=null?rs(l.pmedio):'sigiloso')+'</td>'
+      +'<td class="r">'+rs(l.precoUnit)+'</td>'
+      +'<td class="r" style="color:'+corM+';font-weight:700">'+pct(l.margem)+'</td>'
+      +'<td class="r"><b>'+rs(l.total)+'</b>'+(l.parcial?'<div style="font-size:8px;color:#b45309">preço parcial</div>':'')+'</td>'
+      +'</tr>';
+  }).join('');
+  const html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Pregão '+d.numero+' — '+d.orgao+'</title>'
+    +'<style>'
+    +'*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;margin:24px;font-size:12px}'
+    +'h1{font-size:17px;margin:0 0 3px;color:#0f6e5f}h2{font-size:13px;margin:20px 0 7px;color:#0f6e5f}'
+    +'.sub{color:#64748b;font-size:11px;margin-bottom:14px}'
+    +'.info{display:grid;grid-template-columns:repeat(3,1fr);gap:7px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:11px;margin-bottom:16px}'
+    +'.info div span{display:block;font-size:9px;text-transform:uppercase;color:#64748b;letter-spacing:.03em}'
+    +'.info div b{font-size:12px}'
+    +'.obj{background:#f8fafc;border-left:3px solid #0f6e5f;padding:9px 12px;border-radius:0 6px 6px 0;margin-bottom:16px;line-height:1.5}'
+    +'table{width:100%;border-collapse:collapse;table-layout:fixed}'
+    +'col.i{width:4%}col.d{width:30%}col.n{width:9%}col.v{width:11%}col.m{width:8%}col.t{width:14%}'
+    +'th{background:#0f6e5f;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.03em;padding:7px 6px;text-align:left}'
+    +'td{padding:7px 6px;border-bottom:1px solid #e2e8f0;vertical-align:top;line-height:1.45}'
+    +'tr:nth-child(even) td{background:#fafafa}'
+    +'.c{text-align:center;white-space:nowrap}.r{text-align:right;white-space:nowrap}'
+    +'col.w-item{width:34px}col.w-desc{width:auto}col.w-qtd{width:74px}col.w-val{width:82px}col.w-mar{width:56px}'
+    +'td:first-child,th:first-child{width:34px}'
+    +'table{table-layout:fixed}td{word-wrap:break-word;overflow-wrap:anywhere}'
+    +'.prod{margin-top:4px;font-size:9px;color:#1e40af;font-weight:600;line-height:1.5}'
+    +'.desc{font-size:10px;line-height:1.4;color:#334155}'
+    +'td,th{word-wrap:break-word;overflow-wrap:anywhere}'
+    +'.tot{margin-top:14px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center}'
+    +'.tot b{font-size:17px;color:#166534}'
+    +'.aviso{margin-top:10px;font-size:10px;color:#b45309}'
+    +'.rod{margin-top:22px;padding-top:9px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;display:flex;justify-content:space-between}'
+    +'@media print{body{margin:12mm}.noprint{display:none}}'
+    +'</style></head><body>'
+    +'<h1>⚖️ '+d.orgao+'</h1>'
+    +'<div class="sub">'+d.municipio+' · Pregão nº '+d.numero+' · '+d.modalidade+'</div>'
+    +'<div class="info">'
+    +'<div><span>📅 Prazo de propostas</span><b>'+d.prazo+'</b></div>'
+    +'<div><span>📍 Local</span><b>'+d.municipio+'</b></div>'
+    +'<div><span>🆔 Id PNCP</span><b>'+d.idPncp+'</b></div>'
+    +'</div>'
+    +'<div class="obj"><b>Objeto:</b> '+d.objeto+'</div>'
+    +'<h2>📦 Itens confirmados para proposta</h2>'
+    +'<table><colgroup><col class="i"><col class="d"><col class="n"><col class="n"><col class="v"><col class="v"><col class="m"><col class="t"></colgroup>'
+    +'<thead><tr><th>Item</th><th>Descrição / produto ofertado</th><th>Qtd edital</th><th>Qtd a ofertar</th><th>P. médio</th><th>Tabela '+d.uf+'</th><th>Margem</th><th>Total</th></tr></thead>'
+    +'<tbody>'+linhasHtml+'</tbody></table>'
+    +'<div class="tot"><div><div style="font-size:11px;color:#166534">'+d.linhas.length+' item(ns) confirmado(s)</div>'
+    +(d.somaEstimado>0?('<div style="font-size:10px;color:#64748b;margin-top:3px">Estimado do órgão: '+rs(d.somaEstimado)
+      +' &nbsp;·&nbsp; Diferença: <b style="color:'+((d.somaEstimado-d.total)>=0?'#16a34a':'#dc2626')+'">'
+      +(d.total>0?(((d.somaEstimado-d.total)/d.total)*100).toFixed(1):'0.0')+'%</b></div>'):'')
+    +'</div><b>Total: '+rs(d.total)+'</b></div>'
+    +(d.semPreco?('<div class="aviso">⚠️ '+d.semPreco+' item(ns) sem preço de tabela cadastrado — não entraram no total.</div>'):'')
+    +'<div class="rod"><span>GEx Assist</span><span>Gerado em '+new Date().toLocaleString('pt-BR')+'</span></div>'
+    +'<div class="noprint" style="margin-top:18px;text-align:center"><button onclick="window.print()" style="padding:9px 22px;background:#0f6e5f;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer">🖨️ Imprimir / Salvar PDF</button></div>'
+    +'</body></html>';
+  if(typeof html!=='string'||!html){mostrarFalha('Documento vazio ao montar o HTML.');return;}
+  if(!w){
+    // Pop-up bloqueado: baixa o arquivo para abrir manualmente
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='Pregao_'+String(d.numero).replace(/[^0-9A-Za-z]/g,'_')+'.html';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    showT('Pop-up bloqueado — o documento foi baixado. Abra e use Ctrl+P para gerar o PDF.','erro');
+    return;
+  }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  if(autoImprimir){
+    // espera o conteúdo renderizar antes de chamar a impressão
+    setTimeout(function(){try{w.focus();w.print();}catch(e){}},700);
+  }
+}
+
+// Monta o texto do e-mail e abre o cliente de e-mail padrão
+async function enviarLicitacaoEmail(idx){
+  showT('Preparando e-mail...','verde');
+  await carregarMetaProdutos();
+  await garantirItensCarregados(idx);
+  const d=montarResumoLicitacao(idx);
+  if(!d)return;
+  if(!d.linhas.length){showT('Nenhum item confirmado neste edital — confirme os itens primeiro','erro');return;}
+  const rs=function(v){return v==null?'—':('R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}));};
+  let corpo='⚖️ '+d.orgao+'\n';
+  corpo+='📍 '+d.municipio+'  |  Pregão nº '+d.numero+'  |  '+d.modalidade+'\n';
+  corpo+='📅 Prazo de propostas: '+d.prazo+'\n';
+  if(d.idPncp)corpo+='🆔 Id PNCP: '+d.idPncp+'\n';
+  if(d.link)corpo+='🔗 '+d.link+'\n';
+  corpo+='\n📝 OBJETO\n'+d.objeto+'\n';
+  corpo+='\n📦 ITENS CONFIRMADOS ('+d.linhas.length+')\n';
+  corpo+='------------------------------------------\n';
+  d.linhas.forEach(function(l){
+    corpo+='\n🔹 Item '+l.num+' — '+l.desc.slice(0,160)+'\n';
+    corpo+='   '+(l.beneficio?((/exclusiv/.test(normalizarTexto(l.beneficio))?'🔒 ':'🌐 ')+l.beneficio):'❓ Participação não informada')+'\n';
+    corpo+='   💊 Ofertar: '+l.produtos.join(' + ')+'\n';
+    corpo+='   📐 Edital: '+l.qtdEdital+'  →  Ofertar: '+l.qtdOfertar+'\n';
+    corpo+='   📊 P. médio: '+(l.pmedio!=null?rs(l.pmedio):'sigiloso')+'   |   Tabela: '+rs(l.precoUnit)
+      +'   |   Margem: '+(l.margem!=null?(l.margem.toFixed(1)+'%'):'—')+'\n';
+    corpo+='   💰 Total: '+rs(l.total)+(l.parcial?'  (preço parcial)':'')+'\n';
+  });
+  corpo+='\n------------------------------------------\n';
+  corpo+='✅ TOTAL DA PROPOSTA: '+rs(d.total)+'\n';
+  if(d.somaEstimado>0){
+    corpo+='📊 Estimado do órgão: '+rs(d.somaEstimado)+'\n';
+    corpo+='📈 Diferença sobre a tabela: '+(d.total>0?(((d.somaEstimado-d.total)/d.total)*100).toFixed(1):'0.0')+'%\n';
+  }
+  if(d.semPreco)corpo+='⚠️ '+d.semPreco+' item(ns) sem preço de tabela — não incluídos no total.\n';
+  corpo+='\n--\nGEx Assist\n';
+
+  const assunto='Pregão '+d.numero+' — '+d.orgao+' ('+d.uf+') — prazo '+d.prazo;
+  // O mailto tem limite de tamanho e some com o corpo. Mostramos o texto pronto
+  // com botões de copiar e de abrir o e-mail.
+  const ov=document.createElement('div');
+  ov.id='emailLicitOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  const esc=function(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:88vh;display:flex;flex-direction:column;padding:20px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<div style="font-weight:700;font-size:15px">📧 Resumo para e-mail</div>'
+    +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'emailLicitOverlay\').remove()">✕</button></div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:6px"><b>Assunto:</b> '+esc(assunto)+'</div>'
+    +'<textarea id="emailLicitTexto" readonly style="flex:1;min-height:300px;width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;line-height:1.5;padding:10px;border:1px solid var(--borda);border-radius:8px;resize:vertical">'+esc(corpo)+'</textarea>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">'
+    +'<button class="btn-cancel-mod" onclick="copiarResumoEmail()">📋 Copiar texto</button>'
+    +'<button class="btn-salvar-mod" onclick="abrirClienteEmail()">✉️ Abrir e-mail com o texto</button>'
+    +'</div>'
+    +'<div style="font-size:10px;color:var(--muted-light);margin-top:8px">Se o e-mail abrir sem o texto, use "Copiar texto" e cole com Ctrl+V — alguns clientes limitam o tamanho do conteúdo enviado pelo navegador.</div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  window._emailLicit={assunto:assunto,corpo:corpo};
+
+}
+
+// Soma o total dos itens já confirmados e monta a faixa de resumo
+function rodapeTotalConfirmado(itens,idx){
+  let soma=0,qtdConf=0,semPreco=0,pendentes=0;
+  (itens||[]).forEach(function(it){
+    const t=_totaisItens[chaveItemEdital(it.descricao)];
+    if(!t)return;
+    if(!t.confirmado){pendentes++;return;}
+    qtdConf++;
+    if(t.total==null)semPreco++; else soma+=t.total;
+  });
+  if(!qtdConf&&!pendentes)return '';
+  if(!qtdConf){
+    return '<div style="margin-top:8px;padding:8px 10px;background:#fef3c7;border:1px dashed #f59e0b;border-radius:8px;font-size:11px;color:#92400e">'
+      +'⚠ Nenhum item confirmado ainda — confirme os itens para ver o total da proposta.</div>';
+  }
+  return '<div style="margin-top:8px;padding:9px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">'
+    +'<div style="font-size:11px;color:#166534">✅ <b>'+qtdConf+' item(ns) confirmado(s)</b>'
+    +(pendentes?(' · <span style="color:#92400e">'+pendentes+' pendente(s)</span>'):'')
+    +(semPreco?(' · <span style="color:#b45309">'+semPreco+' sem preço de tabela</span>'):'')+'</div>'
+    +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+    +'<button class="btn-cancel-mod" style="font-size:11px;padding:4px 12px" onclick="imprimirLicitacao('+idx+',false)">👁️ Ver resumo</button>'
+    +'<button class="btn-cancel-mod" style="font-size:11px;padding:4px 12px;border-color:#dc2626;color:#dc2626" onclick="gerarPdfLicitacao('+idx+')">📄 Gerar PDF</button>'
+    +'<button class="btn-cancel-mod" style="font-size:11px;padding:4px 12px" onclick="enviarLicitacaoEmail('+idx+')">📧 Enviar por e-mail</button>'
+    +'<div style="font-size:15px;font-weight:800;color:#166534">Total: R$ '+soma.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div>'
+    +'</div></div>';
+}
+
 // Carrega automaticamente uma prévia dos itens que batem com as palavras-chave (nos primeiros resultados).
 async function carregarPreviasItens(){
+  // Carrega antes os vínculos/ajustes salvos — sem isso, itens já confirmados não são reconhecidos
+  await carregarMetaProdutos();
   const palavrasNorm=buscaFiltros.palavras.map(normalizarTexto);
-  const max=Math.min(buscaPncpResultadosCache.length,12);
+  const max=Math.min(buscaPncpResultadosCache.length,20);
   for(let idx=0;idx<max;idx++){
     const item=buscaPncpResultadosCache[idx];
     const el=document.getElementById('previaItens'+idx);
     if(!el)continue;
     const cnpj=item.orgaoEntidade&&item.orgaoEntidade.cnpj;
     if(!cnpj||!item.anoCompra||!item.sequencialCompra)continue;
-    el.innerHTML='<span style="font-size:11px;color:var(--muted-light)">Carregando prévia dos itens...</span>';
-    const itens=await fetchPncpItens(cnpj,item.anoCompra,item.sequencialCompra);
-    item._itensCache=itens;
+    let itens=item._itensCache;
+    if(!itens||!itens.length){
+      el.innerHTML='<span style="font-size:11px;color:var(--muted-light)">Carregando prévia dos itens...</span>';
+      itens=await fetchPncpItens(cnpj,item.anoCompra,item.sequencialCompra);
+      item._itensCache=itens;
+    }
+    // Entram na prévia: itens que batem com as palavras-chave OU que já foram ajustados/vinculados por você
     const batidos=itens.filter(function(it){
+      const ch=chaveItemEdital(it.descricao);
+      const editado=(_ajustesItens&&_ajustesItens[ch])||(_vinculosItens&&_vinculosItens[ch]);
+      if(editado)return true;
       const descNorm=normalizarTexto(it.descricao);
       return palavrasNorm.some(function(p){return descNorm.includes(p);});
+    }).sort(function(a,b){
+      // editados/confirmados primeiro
+      const ca=_ajustesItens&&_ajustesItens[chaveItemEdital(a.descricao)];
+      const cb=_ajustesItens&&_ajustesItens[chaveItemEdital(b.descricao)];
+      const pa=(ca&&ca.confirmado)?2:(ca?1:0);
+      const pb=(cb&&cb.confirmado)?2:(cb?1:0);
+      return pb-pa;
     });
     item._itensBatidos=batidos;
     if(!batidos.length){el.innerHTML='';continue;}
-    el.innerHTML=batidos.slice(0,3).map(function(it){
-      return '<div style="font-size:11px;background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;margin:2px 0">🔬 Item '+(it.numeroItem||'?')+' · '+(it.descricao||'').slice(0,110)+' · Qtd: '+(it.quantidade||'—')+'</div>';
-    }).join('')+(batidos.length>3?'<div style="font-size:10px;color:var(--muted)">+ '+(batidos.length-3)+' item(ns) que batem com o filtro</div>':'');
+
+    // Todos os itens já trabalhados por você aparecem sempre; os da pesquisa entram até completar 5 a mais
+    const trabalhados=batidos.filter(function(it){
+      const ch=chaveItemEdital(it.descricao);
+      return (_ajustesItens&&_ajustesItens[ch])||(_vinculosItens&&_vinculosItens[ch]);
+    });
+    const daPesquisa=batidos.filter(function(it){return trabalhados.indexOf(it)<0;});
+    const visiveis=trabalhados.concat(daPesquisa.slice(0,5));
+    const ocultos=batidos.length-visiveis.length;
+    await carregarMetaProdutos();
+    const ufOrgao=(item.unidadeOrgao&&item.unidadeOrgao.ufSigla)||null;
+    el.innerHTML=visiveis.map(function(it){
+      const iReal=itens.indexOf(it);
+      const un=it.unidadeMedida||it.unidadeFornecimento||'';
+      const chIt=chaveItemEdital(it.descricao);
+      const ajIt=_ajustesItens&&_ajustesItens[chIt];
+      const benIt=beneficioItem(it,ajIt);
+      const cbIt=corBeneficio(benIt.texto);
+      const badgeBen=benIt.texto
+        ?('<span style="font-size:9px;font-weight:700;color:'+cbIt.fg+';background:'+cbIt.bg+';padding:2px 7px;border-radius:5px;white-space:nowrap">'
+          +(/exclusiv/.test(normalizarTexto(benIt.texto))?'🔒 ':'🌐 ')+benIt.texto+(benIt.manual?' ✎':'')+'</span>')
+        :'<span style="font-size:9px;font-weight:700;color:#b45309;background:#fef3c7;padding:2px 7px;border-radius:5px;white-space:nowrap">❓ Participação?</span>';
+      const badge='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">'
+        +((ajIt&&ajIt.confirmado)?'<span class="lic-badge-ok">✅ Info. Confirmadas</span>':'<span class="lic-badge-pend">⚠ Não confirmado</span>')
+        +badgeBen+'</div>';
+      return '<div style="font-size:11px;background:#fef3c7;color:#92400e;padding:6px 9px;border-radius:6px;margin:3px 0">'
+        +'<div class="lic-item-head"><div>🔬 <b>Item '+(it.numeroItem||'?')+'</b> · '+String(it.descricao||'').slice(0,150)
+        +' · Qtd: '+(it.quantidade||'—')+(un?(' '+un):'')+'</div>'
+        +badge+'</div>'
+        +blocoPrecoItem(it,ufOrgao,idx,iReal)
+        +'</div>';
+    }).join('')+(ocultos>0?'<div style="font-size:10px;color:var(--muted)">+ '+ocultos+' item(ns) — veja em "Ver itens"</div>':'')
+      +rodapeTotalConfirmado(visiveis,idx);
   }
 }
 
 // Busca TODOS os itens de uma contratação (pagina de 500 em 500, até o limite de segurança de 2000).
+/* ══════ CASAMENTO ITEM DO EDITAL ↔ PRODUTO / PREÇO ══════ */
+let _prodMeta=null;
+let _vinculosItens=null;
+let _unidadeOverride={};
+
+async function carregarMetaProdutos(){
+  if(_prodMeta)return;
+  _prodMeta={};
+  try{
+    const {data}=await sb.from('produtos').select('codigo,nome,volume_emb,unidade_base,palavras_edital');
+    (data||[]).forEach(function(p){_prodMeta[p.codigo]=p;});
+  }catch(e){console.warn('Meta de produtos indisponivel',e);}
+  try{
+    const {data:v}=await sb.from('licitacao_item_vinculos').select('chave,codigo');
+    _vinculosItens={};
+    (v||[]).forEach(function(x){_vinculosItens[x.chave]=x.codigo;});
+  }catch(e){_vinculosItens={};}
+  await carregarAjustesItens();
+}
+
+// Abre o cadastro do produto direto da tela de licitação
+async function abrirCadastroProdutoDaLicitacao(codigo){
+  if(!window.cadProdutos||!cadProdutos.length){
+    if(typeof sbCarregarProdutos==='function')await sbCarregarProdutos();
+    else{
+      const {data}=await sb.from('produtos').select('*').order('nome');
+      window.cadProdutos=data||[];
+    }
+  }
+  let p=(cadProdutos||[]).find(function(x){return x.codigo===codigo;});
+  if(!p){
+    // Produto existe no catálogo mas ainda não tem cadastro na tabela — cria o registro
+    const doCat=(PRODUTOS||[]).find(function(x){return x.codigo===codigo;})||{};
+    const novo={codigo:codigo,nome:doCat.produto||codigo};
+    const r=await sb.from('produtos').upsert(novo,{onConflict:'codigo'}).select();
+    p=(r.data&&r.data[0])||novo;
+    cadProdutos.push(p);
+  }
+  editarProduto(codigo);
+}
+
+function definirUnidadeItem(idxRes,idxItem,valor){
+  const res=buscaPncpResultadosCache[idxRes];
+  const it=(res&&res._itensCache&&res._itensCache[idxItem])||null;
+  if(!it)return;
+  const ch=chaveItemEdital(it.descricao);
+  if(valor)_unidadeOverride[ch]=valor; else delete _unidadeOverride[ch];
+  carregarPreviasItens();
+  const el=document.getElementById('itensResultado'+idxRes);
+  if(el&&el.style.display==='block'){el.style.display='none';toggleItensResultado(idxRes);}
+}
+
+// Descobre como chamar a embalagem (GL, FR, CX...) a partir da apresentação cadastrada
+function siglaEmbalagem(codigo){
+  const prod=(PRODUTOS||[]).find(function(p){return p.codigo===codigo;})||{};
+  const t=normalizarTexto(prod.apresentacao||'');
+  const mapa=[['galao','GL','Galão'],['frasco','FR','Frasco'],['balde','BD','Balde'],
+    ['bombona','BB','Bombona'],['caixa','CX','Caixa'],['pote','PT','Pote'],
+    ['fardo','FD','Fardo'],['saco','SC','Saco'],['bisnaga','BG','Bisnaga'],
+    ['tubo','TB','Tubo'],['pump','FR','Frasco pump'],['sache','SH','Sachê']];
+  for(let i=0;i<mapa.length;i++){
+    if(t.indexOf(mapa[i][0])>=0)return{sigla:mapa[i][1],nome:mapa[i][2]};
+  }
+  return{sigla:'emb',nome:'embalagem'};
+}
+
+// Tipo de participação do item (exclusivo ME/EPP, ampla, cota reservada)
+const BENEFICIO_PNCP={1:'Exclusivo ME/EPP',2:'Subcontratação ME/EPP',3:'Cota reservada ME/EPP',4:'Ampla participação',5:'Ampla participação'};
+function beneficioItem(it,aj){
+  if(aj&&aj.beneficio)return{texto:aj.beneficio,manual:true};
+  const nome=it.tipoBeneficioNome||it.tipoBeneficioMEEPPNome||'';
+  if(nome){
+    const n=normalizarTexto(nome);
+    if(/nao se aplica|sem beneficio/.test(n))return{texto:'Ampla participação',manual:false};
+    return{texto:nome,manual:false};
+  }
+  const cod=it.tipoBeneficio!=null?parseInt(it.tipoBeneficio,10):null;
+  if(cod&&BENEFICIO_PNCP[cod])return{texto:BENEFICIO_PNCP[cod],manual:false};
+  return{texto:null,manual:false};
+}
+function corBeneficio(txt){
+  const n=normalizarTexto(txt||'');
+  if(/exclusiv/.test(n))return{fg:'#7c2d12',bg:'#fed7aa'};
+  if(/cota/.test(n))return{fg:'#5b21b6',bg:'#ede9fe'};
+  if(/ampla/.test(n))return{fg:'#1e40af',bg:'#dbeafe'};
+  return{fg:'#57534e',bg:'#e7e5e4'};
+}
+
+function chaveItemEdital(desc){
+  return normalizarTexto(desc).replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim().slice(0,120);
+}
+
+const _STOP_PROD=['proaction','de','da','do','com','para','e','a','o','ultra','pronto','uso','nivel','concentrado'];
+
+function sugerirProdutos(descricaoItem){
+  const desc=normalizarTexto(descricaoItem);
+  if(!desc)return[];
+  const cands=[];
+  (PRODUTOS||[]).forEach(function(prod){
+    const meta=(_prodMeta&&_prodMeta[prod.codigo])||{};
+    const palavras=(meta.palavras_edital||[]).map(normalizarTexto).filter(Boolean);
+    let pontos=0,acertos=[],max=0;
+
+    // 1) palavras cadastradas pelo usuário (peso alto)
+    palavras.forEach(function(pl){
+      max+=10;
+      if(pl&&desc.indexOf(pl)>=0){pontos+=10;acertos.push(pl);}
+    });
+
+    // 2) palavras significativas do próprio nome do produto (peso médio)
+    const tokens=normalizarTexto(prod.produto||'').split(/[^a-z0-9]+/)
+      .filter(function(t){return t.length>3&&_STOP_PROD.indexOf(t)<0;});
+    tokens.forEach(function(t){
+      max+=6;
+      if(desc.indexOf(t)>=0){pontos+=6;acertos.push(t);}
+    });
+
+    // 3) pistas de formato: tira/fita/indicador ↔ test strips; inativador/glicina ↔ inativador
+    const nomeN=normalizarTexto(prod.produto||'');
+    const ehTira=/strip/.test(nomeN);
+    const pedeTira=/(tira|fita|indicador quimico|test strip)/.test(desc);
+    if(ehTira&&pedeTira){pontos+=14;acertos.push('tira/indicador');}
+    if(ehTira&&!pedeTira)pontos-=10;
+    if(!ehTira&&pedeTira)pontos-=10;
+
+    const ehInativ=/inativador|glicina/.test(nomeN);
+    const pedeInativ=/(inativador|glicina|neutraliza)/.test(desc);
+    if(ehInativ&&pedeInativ){pontos+=14;acertos.push('inativador');}
+    if(ehInativ&&!pedeInativ)pontos-=10;
+    if(!ehInativ&&pedeInativ)pontos-=10;
+
+    // 4) casamento de embalagem citada no item (frasco 1 litro, galão 5...)
+    const emb=embalagemDaApresentacao(prod.apresentacao);
+    if(emb){
+      const m=desc.match(/([0-9]+[.,]?[0-9]*)\s*(litro|l|ml)\b/);
+      if(m){
+        let v=parseFloat(String(m[1]).replace(',','.'));
+        if(/ml/.test(m[2]))v=v/1000;
+        if(Math.abs(v-emb.vol)<0.01){pontos+=8;acertos.push('embalagem '+m[1]+m[2]);}
+      }
+    }
+
+    if(pontos>0)cands.push({codigo:prod.codigo,
+      nome:(prod.produto||'')+(prod.apresentacao?(' \u2014 '+prod.apresentacao):''),
+      pontos:pontos,acertos:acertos,max:Math.max(max,10)});
+  });
+  cands.sort(function(a,b){return b.pontos-a.pontos;});
+  return cands.slice(0,3).map(function(c){
+    c.confianca=Math.max(5,Math.min(99,Math.round((c.pontos/c.max)*100)));
+    return c;
+  });
+}
+
+function precoDoProduto(codigo,uf){
+  const prod=(PRODUTOS||[]).find(function(p){return p.codigo===codigo;});
+  if(!prod)return null;
+  if(prod.cf&&prod.cf[uf]!=null)return prod.cf[uf];
+  if(prod.ta&&prod.ta[uf]!=null)return prod.ta[uf];   // produtos sem tabela CF
+  return null;
+}
+
+// Extrai volume/unidade do texto da apresentação (ex: "Galão 5 Lt" -> 5 L; "Frasco 750 mL" -> 0,75 L)
+function embalagemDaApresentacao(apres){
+  const t=normalizarTexto(apres||'');
+  let m=t.match(/([0-9]+[.,]?[0-9]*)\s*(ml|l|lt|litro|kg|g|gramas?)\b/);
+  if(!m)return null;
+  let v=parseFloat(String(m[1]).replace(',','.'));
+  const u=m[2];
+  if(/^ml$/.test(u))return{vol:v/1000,base:'l'};
+  if(/^(l|lt|litro)$/.test(u))return{vol:v,base:'l'};
+  if(/^kg$/.test(u))return{vol:v,base:'kg'};
+  if(/^(g|grama|gramas)$/.test(u))return{vol:v/1000,base:'kg'};
+  return null;
+}
+
+function converterQuantidade(qtdEdital,unidadeEdital,codigo,override){
+  const meta=(_prodMeta&&_prodMeta[codigo])||{};
+  const prodCat=(PRODUTOS||[]).find(function(p){return p.codigo===codigo;})||{};
+  const auto=embalagemDaApresentacao(prodCat.apresentacao);
+  const vol=parseFloat(meta.volume_emb)||(auto?auto.vol:null);
+  const base=((meta.unidade_base||(auto?auto.base:''))||'').toLowerCase();
+  const u=normalizarTexto(unidadeEdital||'');
+  const qtd=parseFloat(qtdEdital)||0;
+  if(!qtd)return null;
+
+  // Unidade escolhida manualmente pelo usuário
+  if(override){
+    if(override==='emb')return{emb:qtd,obs:'você definiu: já em embalagens'};
+    if(!vol)return{emb:qtd,obs:'sem volume cadastrado na embalagem',incerto:true};
+    if(override==='avulso')return{emb:qtd/vol,obs:'você definiu: '+qtd+' avulsos ÷ '+vol+' por embalagem'};
+    if(override==='l')return{emb:qtd/vol,obs:'você definiu: '+qtd+' L ÷ '+vol+' por embalagem'};
+    if(override==='ml')return{emb:(qtd/1000)/vol,obs:'você definiu: '+qtd+' mL ÷ '+vol+' por embalagem'};
+    if(override==='kg')return{emb:qtd/vol,obs:'você definiu: '+qtd+' kg ÷ '+vol+' por embalagem'};
+    if(override==='g')return{emb:(qtd/1000)/vol,obs:'você definiu: '+qtd+' g ÷ '+vol+' por embalagem'};
+  }
+
+  if(!vol||!base)return{emb:qtd,obs:'sem cadastro de embalagem - assumido 1:1',incerto:true};
+
+  // Embalagem já é o que o edital pede (frasco, galão, caixa...)
+  const pedeEmbalagem=/galao|frasco|balde|bombona|caixa|pote|fardo|embalagem/.test(u);
+  if(pedeEmbalagem)return{emb:qtd,obs:'edital já pede em embalagens'};
+
+  // Embalagem contável: frasco c/ 40 tiras, caixa c/ 100 un...
+  if(base==='un'){
+    const pedeAvulso=/unidade|^un$|tira|fita|peca|comprimido|sache|envelope|ampola/.test(u);
+    if(pedeAvulso&&vol>1)return{emb:qtd/vol,obs:qtd+' '+(unidadeEdital||'un')+' ÷ '+vol+' por embalagem'};
+    return{emb:qtd,obs:'contagem direta'};
+  }
+
+  // Embalagem por volume/peso
+  const pedeLitro=/litro|^l$|^lt$|ml/.test(u);
+  const pedeKg=/quilo|^kg$|grama|^g$/.test(u);
+  if((pedeLitro&&base==='l')||(pedeKg&&base==='kg')){
+    let q=qtd;
+    if(/^ml$/.test(u))q=qtd/1000;
+    if(/^g$/.test(u)&&base==='kg')q=qtd/1000;
+    return{emb:q/vol,obs:qtd+' '+(unidadeEdital||base)+' ÷ '+vol+' '+base+' por emb'};
+  }
+  if(/unidade|^un$/.test(u))return{emb:qtd,obs:'edital em unidades — assumido 1 emb por unidade',incerto:true};
+  return{emb:qtd,obs:'unidade "'+(unidadeEdital||'?')+'" não reconhecida - assumido 1:1',incerto:true};
+}
+
+function blocoPrecoItem(item,uf,idxRes,idxItem){
+  const chave=chaveItemEdital(item.descricao);
+  const aj=(_ajustesItens&&_ajustesItens[chave])||null;
+  const vinculado=_vinculosItens&&_vinculosItens[chave];
+  const sugestoes=vinculado
+    ?[{codigo:vinculado,nome:(function(){var pp=(PRODUTOS||[]).find(function(p){return p.codigo===vinculado;});return pp?((pp.produto||'')+(pp.apresentacao?(' \u2014 '+pp.apresentacao):'')):vinculado;})(),confianca:100}]
+    :sugerirProdutos(item.descricao);
+
+  const btnEditar='<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px" onclick="abrirAjusteItem('+idxRes+','+idxItem+')">&#9998; editar item</button>';
+  const btnVinc='<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px" onclick="abrirVinculoProduto('+idxRes+','+idxItem+')">'+(vinculado?'trocar produto':'confirmar/corrigir')+'</button>';
+
+  // Componentes do kit (item composto) — se não houver, usa o produto sugerido sozinho
+  let componentes=(aj&&aj.componentes&&aj.componentes.length)?aj.componentes:null;
+  if(!componentes){
+    if(!sugestoes.length){
+      return '<div style="font-size:11px;color:#78716c;margin-top:5px">Sem produto correspondente no catálogo &nbsp;'
+        +'<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px" onclick="abrirVinculoProduto('+idxRes+','+idxItem+')">vincular</button> '+btnEditar+'</div>';
+    }
+    componentes=[{codigo:sugestoes[0].codigo,qtd:1}];
+  }
+
+  // Quantidade e unidade: manual (do edital) tem prioridade sobre a API
+  const qtdOriginal=parseFloat(item.quantidade)||0;
+  const unOriginal=item.unidadeMedida||item.unidadeFornecimento||'';
+  const qtd=(aj&&aj.quantidade!=null)?parseFloat(aj.quantidade):qtdOriginal;
+  const un=(aj&&aj.unidade)?aj.unidade:unOriginal;
+  const editado=!!(aj&&(aj.quantidade!=null||aj.unidade||(aj.componentes&&aj.componentes.length)));
+
+  const ovr=_unidadeOverride[chave]||(aj&&aj.unidade_modo)||'';
+  const codPrincipal=componentes[0].codigo;
+  const conv=converterQuantidade(qtd,un,codPrincipal,ovr);
+
+  // Preço do kit = soma dos componentes
+  let precoKit=0,faltaPreco=false;
+  const detalhes=[];
+  componentes.forEach(function(c){
+    const pr=precoDoProduto(c.codigo,uf);
+    const q=parseFloat(c.qtd)||1;
+    const prod=(PRODUTOS||[]).find(function(p){return p.codigo===c.codigo;})||{};
+    const nome=(prod.produto||c.codigo)+(prod.apresentacao?(' \u2014 '+prod.apresentacao):'');
+    if(pr==null){faltaPreco=true;detalhes.push(nome+' \u00d7'+q+': sem preço em '+(uf||'?'));}
+    else{precoKit+=pr*q;detalhes.push(nome+' \u00d7'+q+': R$ '+Number(pr*q).toLocaleString('pt-BR',{minimumFractionDigits:2}));}
+  });
+  const preco=faltaPreco&&precoKit===0?null:precoKit;
+
+  const vUnit=parseFloat(item.valorUnitarioEstimado)||0;
+  let estPorEmb=null;
+  if(vUnit>0&&conv&&conv.emb>0){
+    // se a quantidade foi corrigida manualmente, o valor total do órgão usa a quantidade ORIGINAL da API
+    estPorEmb=(vUnit*qtdOriginal)/conv.emb;
+  }
+
+  const cel=function(rot,val,cor){
+    return '<div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.03em;opacity:.6;white-space:nowrap">'+rot+'</div>'
+      +'<div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'+(cor?(';color:'+cor):'')+'">'+val+'</div></div>';
+  };
+  const rs=function(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+
+  let margemTxt='\u2014',margemCor='#78716c';
+  if(estPorEmb!=null&&preco!=null&&estPorEmb>0){
+    const m=((estPorEmb-preco)/preco)*100;
+    margemTxt=m.toFixed(1)+'%';
+    margemCor=m>=0?'#16a34a':'#dc2626';
+  }else if(preco!=null){margemTxt='sigiloso';}
+
+  const nomeProd=componentes.length>1
+    ? ('Kit com '+componentes.length+' itens')
+    : ((sugestoes[0]&&sugestoes[0].nome)||(function(){var pp=(PRODUTOS||[]).find(function(p){return p.codigo===codPrincipal;});return pp?((pp.produto||'')+(pp.apresentacao?(' \u2014 '+pp.apresentacao):'')):codPrincipal;})());
+  const conf=componentes.length>1?'definido por você':((sugestoes[0]?sugestoes[0].confianca:100)+'%'+(vinculado?' \u2713':''));
+
+  const confirmado=!!(aj&&aj.confirmado);
+  // registra o total deste item para o somatório do pregão
+  _totaisItens[chave]={total:(preco!=null&&conv)?(preco*conv.emb):null,confirmado:confirmado};
+  let html='<div style="margin-top:5px;padding-top:5px;border-top:1px dashed rgba(146,64,14,.3)">';
+  // Produto + marcação de ajuste na mesma linha
+  html+='<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:5px">'
+    +'<div style="font-size:12px;font-weight:700">'+nomeProd+' <span style="font-weight:400;opacity:.6">('+conf+')</span></div>'
+    +(editado?'<span style="font-size:9px;font-weight:700;color:#b45309">\u270e ajustado pelo edital</span>':'')
+    +'</div>';
+  // Valores: 6 colunas em telas largas, 3 no celular
+  html+='<div class="lic-valores">';
+  const semb=siglaEmbalagem(codPrincipal);
+  html+=cel('Qtd a ofertar',conv?('<span title="'+semb.nome+'">'+(Math.round(conv.emb*100)/100).toLocaleString('pt-BR')+' '+semb.sigla+'</span>'):'\u2014');
+  html+=cel('P. médio',estPorEmb!=null?rs(estPorEmb):'sigiloso');
+  html+=cel('Tabela '+(uf||'\u2014'),preco!=null?rs(preco):'sem preço','#1e40af');
+  html+=cel('Margem',margemTxt,margemCor);
+  html+=cel('Total',(preco!=null&&conv)?rs(preco*conv.emb):'\u2014');
+  html+=cel('Qtd do edital',qtd.toLocaleString('pt-BR')+' '+un+(editado&&qtd!==qtdOriginal?(' <span style="font-weight:400;opacity:.6">(API: '+qtdOriginal.toLocaleString('pt-BR')+' '+unOriginal+')</span>'):''));
+  html+='</div>';
+
+  if(componentes.length>1){
+    html+='<div style="margin-top:7px;padding:6px 9px;background:rgba(255,255,255,.6);border-radius:6px">'
+      +'<div style="font-size:9px;text-transform:uppercase;letter-spacing:.03em;opacity:.6;margin-bottom:3px">Composição do kit (valor por embalagem)</div>'
+      +detalhes.map(function(t){return '<div style="font-size:11px;line-height:1.6">• '+t+'</div>';}).join('')
+      +'<div style="font-size:11px;font-weight:700;margin-top:3px;border-top:1px solid rgba(146,64,14,.25);padding-top:3px">Soma: '+(preco!=null?rs(preco):'—')+' por embalagem</div>'
+      +'</div>';
+  }
+
+  const opts=[['','Automático'],['emb','Já em embalagens (galão/frasco)'],['avulso','Unidade avulsa'],['l','Litro'],['ml','Mililitro'],['kg','Quilo'],['g','Grama']]
+    .map(function(o){return '<option value="'+o[0]+'"'+(ovr===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('');
+  html+='<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">'
+    +'<span style="font-size:10px;opacity:.75">Unidade:</span>'
+    +'<select onchange="definirUnidadeItem('+idxRes+','+idxItem+',this.value)" style="font-size:10px;padding:2px 6px;border:1px solid rgba(146,64,14,.35);border-radius:6px;background:#fff">'+opts+'</select>'
+    +btnVinc+btnEditar
+    +'<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px" onclick="abrirCadastroProdutoDaLicitacao(\''+codPrincipal+'\')">&#128230; cadastro</button>'
+    +(confirmado
+      ?'<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px;border-color:#dc2626;color:#dc2626" onclick="confirmarInfoItem('+idxRes+','+idxItem+',false)">desfazer confirmação</button>'
+      :'<button class="acoes-btn" style="font-size:10px;padding:3px 10px" onclick="confirmarInfoItem('+idxRes+','+idxItem+',true)">\u2705 Confirmar informações</button>')
+    +'</div>';
+  html+='<div style="margin-top:4px;font-size:10px;opacity:.75">'+(conv?conv.obs:'')
+    +(conv&&conv.incerto?' <b style="color:#b45309">confira a conversão</b>':'')+'</div>';
+  html+='</div>';
+  return html;
+}
+
+/* ── AJUSTE MANUAL DO ITEM (quantidade, unidade e composição do kit) ── */
+let _ajustesItens={};
+let _ajusteTemp=null;
+let _totaisItens={};
+
+async function carregarAjustesItens(){
+  try{
+    const {data}=await sb.from('licitacao_item_ajustes').select('*');
+    _ajustesItens={};
+    (data||[]).forEach(function(a){_ajustesItens[a.chave]=a;});
+  }catch(e){console.warn('Tabela de ajustes indisponível',e);_ajustesItens={};}
+}
+
+function abrirAjusteItem(idxRes,idxItem){
+  const res=buscaPncpResultadosCache[idxRes];
+  const it=(res&&res._itensCache&&res._itensCache[idxItem])||null;
+  if(!it)return;
+  const chave=chaveItemEdital(it.descricao);
+  const aj=_ajustesItens[chave]||{};
+  const vinc=_vinculosItens&&_vinculosItens[chave];
+  const sug=sugerirProdutos(it.descricao);
+  const padrao=vinc||(sug[0]&&sug[0].codigo)||'';
+  _ajusteTemp={
+    idxRes:idxRes,idxItem:idxItem,chave:chave,
+    componentes:(aj.componentes&&aj.componentes.length)?JSON.parse(JSON.stringify(aj.componentes)):(padrao?[{codigo:padrao,qtd:1}]:[])
+  };
+  const ov=document.createElement('div');
+  ov.id='ajusteItemOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:20px;margin:auto 0">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<div style="font-weight:700;font-size:15px">&#9998; Ajustar item pelo edital</div>'
+    +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'ajusteItemOverlay\').remove()">&#10005;</button></div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+String(it.descricao||'').slice(0,240)+'</div>'
+    +'<div style="font-size:11px;color:var(--muted-light);margin-bottom:14px">Na API do PNCP: <b>'+(it.quantidade||'?')+' '+(it.unidadeMedida||it.unidadeFornecimento||'')+'</b>. Se o edital disser outra coisa, corrija abaixo — o edital é que vale.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">'
+    +'<div class="form-field" style="margin:0"><label style="font-size:11px">Quantidade (do edital)</label><input type="number" step="0.01" id="ajQtd" value="'+(aj.quantidade!=null?aj.quantidade:'')+'" placeholder="'+(it.quantidade||'')+'"></div>'
+    +'<div class="form-field" style="margin:0"><label style="font-size:11px">Unidade (do edital)</label><input type="text" id="ajUnidade" value="'+(aj.unidade||'')+'" placeholder="'+(it.unidadeMedida||it.unidadeFornecimento||'ex: Galão')+'"></div>'
+    +'</div>'
+    +'<div class="form-field" style="margin:0 0 16px"><label style="font-size:11px">Tipo de participação (conforme o edital)</label>'
+    +'<select id="ajBeneficio" style="width:100%;padding:8px;border:1px solid var(--borda);border-radius:8px;font-size:13px">'
+    +['','Ampla participação','Exclusivo ME/EPP','Cota reservada ME/EPP','Subcontratação ME/EPP'].map(function(o){
+        return '<option value="'+o+'"'+((aj.beneficio||'')===o?' selected':'')+'>'+(o||'— Usar o que vem da API —')+'</option>';}).join('')
+    +'</select></div>'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:4px">&#129513; Composição do item</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:8px">Quando o item exige mais de um produto (ex: galão + inativador + fitas), some tudo aqui. A quantidade é por embalagem ofertada.</div>'
+    +'<div id="ajComponentes"></div>'
+    +'<button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px;margin-top:8px" onclick="ajAddComponente()">+ Adicionar produto</button>'
+    +'<div style="display:flex;justify-content:space-between;gap:8px;margin-top:18px">'
+    +'<button class="btn-cancel-mod" onclick="limparAjusteItem()">&#128465; Limpar ajuste</button>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'ajusteItemOverlay\').remove()">Cancelar</button>'
+    +'<button class="btn-salvar-mod" onclick="salvarAjusteItem()">&#128190; Salvar</button>'
+    +'</div></div></div>';
+  document.body.appendChild(ov);
+  renderAjComponentes();
+}
+
+function renderAjComponentes(){
+  const el=document.getElementById('ajComponentes');
+  if(!el||!_ajusteTemp)return;
+  const opcoes=(PRODUTOS||[]).slice().sort(function(a,b){return (a.produto||'').localeCompare(b.produto||'');})
+    .map(function(p){return{v:p.codigo,t:(p.produto||p.codigo)+(p.apresentacao?(' \u2014 '+p.apresentacao):'')};});
+  el.innerHTML=_ajusteTemp.componentes.map(function(c,i){
+    const sel=opcoes.map(function(o){return '<option value="'+o.v+'"'+(o.v===c.codigo?' selected':'')+'>'+o.t+'</option>';}).join('');
+    return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+      +'<select onchange="_ajusteTemp.componentes['+i+'].codigo=this.value" style="flex:1;padding:7px;border:1px solid var(--borda);border-radius:8px;font-size:12px">'+sel+'</select>'
+      +'<input type="number" step="0.01" value="'+(c.qtd||1)+'" onchange="_ajusteTemp.componentes['+i+'].qtd=parseFloat(this.value)||1" style="width:70px;padding:7px;border:1px solid var(--borda);border-radius:8px;font-size:12px" title="Quantidade por embalagem">'
+      +'<button class="btn-cancel-mod" style="padding:4px 9px" onclick="ajRemoveComponente('+i+')">&#10005;</button>'
+      +'</div>';
+  }).join('')||'<div style="font-size:11px;color:var(--muted-light)">Nenhum produto — adicione abaixo.</div>';
+}
+
+function ajAddComponente(){
+  if(!_ajusteTemp)return;
+  const primeiro=(PRODUTOS&&PRODUTOS[0])?PRODUTOS[0].codigo:'';
+  _ajusteTemp.componentes.push({codigo:primeiro,qtd:1});
+  renderAjComponentes();
+}
+
+function ajRemoveComponente(i){
+  if(!_ajusteTemp)return;
+  _ajusteTemp.componentes.splice(i,1);
+  renderAjComponentes();
+}
+
+async function salvarAjusteItem(){
+  if(!_ajusteTemp)return;
+  const qtdRaw=document.getElementById('ajQtd').value;
+  const uniRaw=document.getElementById('ajUnidade').value.trim();
+  const benSel=document.getElementById('ajBeneficio');
+  const registro=Object.assign({},_ajustesItens[_ajusteTemp.chave]||{},{
+    chave:_ajusteTemp.chave,
+    quantidade:qtdRaw!==''?parseFloat(qtdRaw):null,
+    unidade:uniRaw||null,
+    beneficio:(benSel&&benSel.value)||null,
+    componentes:_ajusteTemp.componentes.filter(function(c){return c.codigo;})
+  });
+  const {error}=await sb.from('licitacao_item_ajustes').upsert(registro,{onConflict:'chave'});
+  if(error){showT('Erro ao salvar (rode o SQL da tabela de ajustes): '+error.message,'erro');return;}
+  _ajustesItens[registro.chave]=registro;
+  const ov=document.getElementById('ajusteItemOverlay');
+  if(ov)ov.remove();
+  showT('Item ajustado ✓','verde');
+  await carregarPreviasItens();
+  const el=document.getElementById('itensResultado'+_ajusteTemp.idxRes);
+  if(el&&el.style.display==='block'){el.style.display='none';await toggleItensResultado(_ajusteTemp.idxRes);}
+}
+
+// Marca (ou desmarca) o item como conferido, gravando o produto e a unidade escolhidos.
+async function confirmarInfoItem(idxRes,idxItem,valor){
+  const res=buscaPncpResultadosCache[idxRes];
+  const it=(res&&res._itensCache&&res._itensCache[idxItem])||null;
+  if(!it)return;
+  const chave=chaveItemEdital(it.descricao);
+  const aj=_ajustesItens[chave]||{chave:chave,quantidade:null,unidade:null,componentes:[]};
+
+  if(valor){
+    // congela o que está na tela: produto sugerido/vinculado e unidade escolhida
+    if(!aj.componentes||!aj.componentes.length){
+      const vinc=_vinculosItens&&_vinculosItens[chave];
+      const sug=sugerirProdutos(it.descricao);
+      const cod=vinc||(sug[0]&&sug[0].codigo);
+      if(cod)aj.componentes=[{codigo:cod,qtd:1}];
+    }
+    if(_unidadeOverride[chave])aj.unidade_modo=_unidadeOverride[chave];
+  }
+  aj.confirmado=!!valor;
+  aj.chave=chave;
+
+  const {error}=await sb.from('licitacao_item_ajustes').upsert(aj,{onConflict:'chave'});
+  if(error){showT('Erro ao confirmar (rode o SQL da coluna confirmado): '+error.message,'erro');return;}
+  _ajustesItens[chave]=aj;
+  showT(valor?'Informações confirmadas ✓':'Confirmação desfeita','verde');
+  await carregarPreviasItens();
+  const el=document.getElementById('itensResultado'+idxRes);
+  if(el&&el.style.display==='block'){el.style.display='none';await toggleItensResultado(idxRes);}
+}
+
+async function limparAjusteItem(){
+  if(!_ajusteTemp)return;
+  await sb.from('licitacao_item_ajustes').delete().eq('chave',_ajusteTemp.chave);
+  delete _ajustesItens[_ajusteTemp.chave];
+  const ov=document.getElementById('ajusteItemOverlay');
+  if(ov)ov.remove();
+  showT('Ajuste removido — voltou ao dado da API','verde');
+  await carregarPreviasItens();
+}
+
+async function abrirVinculoProduto(idxRes,idxItem){
+  const res=buscaPncpResultadosCache[idxRes];
+  const it=(res&&res._itensCache&&res._itensCache[idxItem])||null;
+  if(!it)return;
+  const opcoes=(PRODUTOS||[]).slice().sort(function(a,b){return (a.produto||'').localeCompare(b.produto||'');})
+    .map(function(p){return '<option value="'+p.codigo+'">'+(p.produto||p.codigo)+(p.apresentacao?(' — '+p.apresentacao):'')+'</option>';}).join('');
+  const ov=document.createElement('div');
+  ov.id='vincProdOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:520px;width:100%;padding:20px">'
+    +'<div style="font-weight:700;font-size:15px;margin-bottom:8px">Vincular item a um produto</div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+String(it.descricao||'').slice(0,220)+'</div>'
+    +'<select id="vincProdSelect" style="width:100%;padding:9px;border:1px solid var(--borda);border-radius:8px;font-size:13px"><option value="">- Nenhum -</option>'+opcoes+'</select>'
+    +'<div style="font-size:11px;color:var(--muted-light);margin-top:6px">O vinculo fica salvo: itens com descricao parecida serao reconhecidos sozinhos depois.</div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'vincProdOverlay\').remove()">Cancelar</button>'
+    +'<button class="btn-salvar-mod" onclick="salvarVinculoProduto('+idxRes+','+idxItem+')">Salvar vinculo</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+}
+
+async function salvarVinculoProduto(idxRes,idxItem){
+  const res=buscaPncpResultadosCache[idxRes];
+  const it=(res&&res._itensCache&&res._itensCache[idxItem])||null;
+  if(!it)return;
+  const codigo=document.getElementById('vincProdSelect').value;
+  const chave=chaveItemEdital(it.descricao);
+  if(!codigo){
+    await sb.from('licitacao_item_vinculos').delete().eq('chave',chave);
+    if(_vinculosItens)delete _vinculosItens[chave];
+  }else{
+    const r=await sb.from('licitacao_item_vinculos').upsert({chave:chave,codigo:codigo},{onConflict:'chave'});
+    if(r.error){showT('Erro ao salvar vinculo: '+r.error.message,'erro');return;}
+    if(!_vinculosItens)_vinculosItens={};
+    _vinculosItens[chave]=codigo;
+  }
+  const ov=document.getElementById('vincProdOverlay');
+  if(ov)ov.remove();
+  showT('Vínculo salvo ✓','verde');
+  // Atualiza a prévia automática e a tabela de itens, se estiver aberta
+  await carregarPreviasItens();
+  const el=document.getElementById('itensResultado'+idxRes);
+  if(el&&el.style.display==='block'){el.style.display='none';await toggleItensResultado(idxRes);}
+}
+
 async function fetchPncpItens(cnpj,ano,sequencial){
   const bases=['https://pncp.gov.br/pncp-api/v1','https://pncp.gov.br/api/consulta/v1'];
   for(const base of bases){
     try{
       const todos=[];
       for(let pagina=1;pagina<=4;pagina++){
-        const resp=await fetch(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial+'/itens?pagina='+pagina+'&tamanhoPagina=500',{headers:{'Accept':'application/json'}});
-        if(!resp.ok)break;
-        const data=await resp.json();
+        const data=await fetchPncpJson(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial+'/itens?pagina='+pagina+'&tamanhoPagina=500');
+        if(!data)break;
         const lista=Array.isArray(data)?data:(data.data||[]);
         if(!lista.length)break;
         todos.push.apply(todos,lista);
@@ -10942,23 +12088,134 @@ async function toggleItensResultado(idx){
     el.innerHTML='<span style="font-size:12px;color:var(--muted)">Nenhum item retornado (edital com orçamento sigiloso, ou endpoint indisponível no momento).</span>';
     return;
   }
+  await carregarMetaProdutos();
+  const ufOrgao=(item.unidadeOrgao&&item.unidadeOrgao.ufSigla)||null;
   el.innerHTML='<table style="width:100%;font-size:11px;border-collapse:collapse;min-width:400px">'
-    +'<tr style="text-align:left;border-bottom:1px solid var(--borda)"><th style="padding:4px">Nº</th><th style="padding:4px">Descrição</th><th style="padding:4px">Qtd</th><th style="padding:4px">Valor unit.</th></tr>'
-    +itens.map(function(it){
+    +'<tr style="text-align:left;border-bottom:1px solid var(--borda)"><th style="padding:4px">Nº</th><th style="padding:4px">Descrição / produto sugerido</th><th style="padding:4px">Qtd</th><th style="padding:4px">Valor unit.</th></tr>'
+    +itens.map(function(it,i){
       const valorIt=it.valorUnitarioEstimado?('R$ '+Number(it.valorUnitarioEstimado).toLocaleString('pt-BR',{minimumFractionDigits:2})):'Sigiloso';
-      return '<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:4px">'+(it.numeroItem||'—')+'</td><td style="padding:4px">'+(it.descricao||'').slice(0,220)+'</td><td style="padding:4px">'+(it.quantidade||'—')+'</td><td style="padding:4px">'+valorIt+'</td></tr>';
+      const un=it.unidadeMedida||it.unidadeFornecimento||'';
+      return '<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:4px;vertical-align:top">'+(it.numeroItem||'—')+'</td>'
+        +'<td style="padding:4px">'+String(it.descricao||'').slice(0,220)+blocoPrecoItem(it,ufOrgao,idx,i)+'</td>'
+        +'<td style="padding:4px;vertical-align:top;white-space:nowrap">'+(it.quantidade||'—')+(un?(' '+un):'')+'</td>'
+        +'<td style="padding:4px;vertical-align:top">'+valorIt+'</td></tr>';
     }).join('')
     +'</table>';
 }
 
-// Busca a lista de arquivos/documentos de uma contratação (caminho pncp-api confirmado por links reais de edital).
+// Busca JSON do PNCP; se o navegador bloquear (CORS), tenta pelo proxy no Supabase.
+async function fetchPncpJson(url){
+  try{
+    const r=await fetch(url,{headers:{'Accept':'application/json'}});
+    if(r.ok)return await r.json();
+  }catch(e){/* bloqueado, tenta o proxy */}
+  try{
+    const r2=await fetch(SB_URL+'/functions/v1/baixar-arquivo?url='+encodeURIComponent(url),{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    });
+    if(r2.ok)return await r2.json();
+  }catch(e){console.warn('Proxy falhou para '+url,e);}
+  return null;
+}
+
+// Baixa TODOS os arquivos do edital, junta o texto e manda pra aba Analisar Edital.
+async function analisarEditalDoCard(idx){
+  const item=buscaPncpResultadosCache[idx];
+  if(!item)return;
+  const cnpj=item.orgaoEntidade&&item.orgaoEntidade.cnpj;
+  const ano=item.anoCompra,seq=item.sequencialCompra;
+  if(!cnpj||!ano||!seq){showT('Sem identificação suficiente para baixar o edital','erro');return;}
+
+  const el=document.getElementById('arquivosResultado'+idx);
+  el.style.display='block';
+  el.innerHTML='<span style="font-size:12px;color:var(--muted)">⏳ Buscando arquivos do edital...</span>';
+
+  const arquivos=await fetchPncpArquivos(cnpj,ano,seq);
+  if(!arquivos.length){
+    el.innerHTML='<span style="font-size:12px;color:#dc2626">Nenhum arquivo publicado neste edital. Baixe manualmente pelo PNCP e use a aba "Analisar Edital".</span>';
+    return;
+  }
+
+  let textoTotal='';
+  let baixados=0,falhas=0;
+  const problemasCors=[];
+
+  for(let i=0;i<arquivos.length;i++){
+    const a=arquivos[i];
+    const seqDoc=a.sequencialDocumento||a.sequencial||(i+1);
+    const url=a.uri||a.url||('https://pncp.gov.br/pncp-api/v1/orgaos/'+cnpj+'/compras/'+ano+'/'+seq+'/arquivos/'+seqDoc);
+    const nome=a.titulo||a.tipoDocumentoNome||('Documento '+seqDoc);
+    el.innerHTML='<span style="font-size:12px;color:var(--muted)">⏳ Baixando e lendo '+(i+1)+' de '+arquivos.length+': '+nome+'</span>';
+    try{
+      let resp=null;
+      try{
+        resp=await fetch(url,{headers:{'Accept':'application/pdf,*/*'}});
+        if(!resp.ok)resp=null;
+      }catch(e){resp=null;} // bloqueio de CORS → tenta pelo servidor
+      if(!resp){
+        resp=await fetch(SB_URL+'/functions/v1/baixar-arquivo?url='+encodeURIComponent(url),{
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+        });
+        if(!resp.ok){falhas++;continue;}
+      }
+      const buf=await resp.arrayBuffer();
+      // Só PDF tem extração de texto aqui; outros formatos são ignorados
+      const cabecalho=new Uint8Array(buf.slice(0,5));
+      const ehPdf=String.fromCharCode.apply(null,cabecalho).indexOf('%PDF')===0;
+      if(!ehPdf){falhas++;continue;}
+      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      let texto='';
+      for(let pg=1;pg<=pdf.numPages;pg++){
+        const page=await pdf.getPage(pg);
+        const content=await page.getTextContent();
+        texto+=content.items.map(function(it){return it.str;}).join(' ')+'\n';
+      }
+      if(texto.trim().length>50){
+        textoTotal+='\n\n===== ARQUIVO: '+nome+' =====\n\n'+texto.trim();
+        baixados++;
+      }else{
+        falhas++;
+      }
+    }catch(e){
+      console.warn('Falha ao baixar/ler '+nome+':',e);
+      falhas++;
+      if(/fetch|CORS|Failed/i.test(e.message||''))problemasCors.push(nome);
+    }
+  }
+
+  if(!textoTotal){
+    el.innerHTML='<div style="font-size:12px;color:#dc2626">❌ Não foi possível ler os arquivos pelo navegador'
+      +(problemasCors.length?' (bloqueio de segurança do navegador).':' (podem ser PDFs escaneados ou formatos sem texto).')
+      +'<br>Baixe o edital pelo botão "📄 Ver arquivos" e use a aba "🤖 Analisar Edital" com o arquivo salvo.</div>';
+    return;
+  }
+
+  // Carrega na aba de análise
+  _editalTexto=textoTotal.trim();
+  _editalPDFBase64=null;
+  _editalAnaliseGeral=null;
+  _editalAnaliseItens=null;
+  setLicitAba('edital');
+  const info=document.getElementById('editalArquivoInfo');
+  if(info){
+    info.style.display='flex';
+    const nm=document.getElementById('editalNomeArquivo');
+    const tm=document.getElementById('editalTamArquivo');
+    if(nm)nm.textContent=baixados+' arquivo(s) do PNCP — '+((item.orgaoEntidade&&item.orgaoEntidade.razaosocial)||'edital');
+    if(tm)tm.textContent=(_editalTexto.length/1000).toFixed(0)+' mil caracteres';
+  }
+  const bg=document.getElementById('btnAnaliseGeral'),bi=document.getElementById('btnAnaliseItens');
+  if(bg)bg.disabled=false;
+  if(bi)bi.disabled=false;
+  mostrarStatus('✅ '+baixados+' arquivo(s) lido(s)'+(falhas?(' · '+falhas+' ignorado(s)'):'')
+    +' ('+_editalTexto.length.toLocaleString('pt-BR')+' caracteres). Clique em analisar.','ok');
+}
 async function fetchPncpArquivos(cnpj,ano,sequencial){
   const bases=['https://pncp.gov.br/pncp-api/v1','https://pncp.gov.br/api/consulta/v1'];
   for(const base of bases){
     try{
-      const resp=await fetch(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial+'/arquivos',{headers:{'Accept':'application/json'}});
-      if(!resp.ok)continue;
-      const data=await resp.json();
+      const data=await fetchPncpJson(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial+'/arquivos');
+      if(!data)continue;
       const lista=Array.isArray(data)?data:(data.data||[]);
       if(lista.length)return lista;
     }catch(e){
@@ -10995,9 +12252,9 @@ async function fetchPncpDetalheContratacao(cnpj,ano,sequencial){
   const bases=['https://pncp.gov.br/pncp-api/v1','https://pncp.gov.br/api/consulta/v1'];
   for(const base of bases){
     try{
-      const resp=await fetch(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial,{headers:{'Accept':'application/json'}});
-      if(!resp.ok)continue;
-      return await resp.json();
+      const data=await fetchPncpJson(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial);
+      if(!data)continue;
+      return data;
     }catch(e){console.warn('Erro detalhe contratação em '+base+':',e);}
   }
   return null;
@@ -11359,6 +12616,7 @@ function editarPregao(id){
     +campo('Id contratação PNCP','epIdPncp',d.id_pncp)
     +campo('Fonte','epFonte',d.fonte)
     +campo('Link do edital','epLinkEdital',p.link_edital,true)
+    +area('📌 Informações importantes (entrega, comodato, condições especiais)','epObs',p.observacoes||'')
     +area('Objeto','epObjeto',d.objeto)
     +area('Informação complementar','epInfoComp',d.info_complementar)
     +'</div>'
@@ -11394,7 +12652,8 @@ async function salvarEdicaoPregaoModal(id){
   const payload={
     numero:v('epNumero'),orgao:v('epOrgao'),uasg:v('epUasg'),
     data_abertura:v('epData')||null,status:v('epStatus'),estado:v('epEstado')||null,
-    link_edital:v('epLinkEdital')||null,pncp_dados:pncpDados
+    link_edital:v('epLinkEdital')||null,pncp_dados:pncpDados,
+    observacoes:v('epObs')||null
   };
   let r=await sb.from('pregoes').update(payload).eq('id',id);
   if(r.error){
@@ -11620,13 +12879,20 @@ function renderPregoes(q){
 
 function cardPregao(p){
   const st=PREGAO_STATUS[p.status]||PREGAO_STATUS.agendado;
-  const d=p.data_abertura?new Date(p.data_abertura+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+  const dObj=p.data_abertura?new Date(p.data_abertura+'T12:00:00'):null;
+  const d=dObj?dObj.toLocaleDateString('pt-BR'):'—';
+  let restante='';
+  if(dObj&&p.status==='agendado'){
+    const hj=new Date();hj.setHours(0,0,0,0);
+    const dias=Math.round((new Date(dObj.getFullYear(),dObj.getMonth(),dObj.getDate())-hj)/86400000);
+    restante=dias<0?'encerrado':dias===0?'hoje':dias===1?'amanhã':('em '+dias+'d');
+  }
   const temClassif=p.status==='andamento'||p.status==='concluido';
   return '<div class="pregao-row">'+
     '<input type="checkbox" class="pregao-check" value="'+p.id+'" onclick="event.stopPropagation();atualizarBatchBar()" style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0">'+
     '<div onclick="abrirPregao('+p.id+')" style="cursor:pointer;flex:1;min-width:0;display:flex;align-items:center;gap:12px">'+
-      '<div style="min-width:80px;flex-shrink:0;font-size:12px;font-weight:700;color:'+st.cor+'">📅 '+d+'</div>'+
-      '<div style="min-width:100px;flex-shrink:0;font-size:12px;font-weight:600;color:var(--texto)">Nº '+p.numero+'</div>'+
+      '<div class="pregao-data" style="color:'+st.cor+'">'+d+(restante?('<div style="font-size:10px;font-weight:600;color:var(--muted-light)">'+restante+'</div>'):'')+'</div>'+
+      '<div class="pregao-num">Nº '+p.numero+(p.observacoes?' <span title="'+String(p.observacoes).replace(/"/g,'&quot;').slice(0,180)+'" style="cursor:help">📌</span>':'')+'</div>'+
       '<div style="flex:1;min-width:0">'+
         '<div style="font-size:13px;font-weight:600;color:var(--texto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.orgao||'—')+'</div>'+
         '<div style="font-size:11px;color:var(--muted-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.uasg?'UASG '+p.uasg:'')+(p.estado?' · '+p.estado:'')+(p.total_itens?' · '+p.total_itens+' itens':'')+'</div>'+
@@ -12468,6 +13734,8 @@ async function adicionarCodAlt(codPrincipal){
 let _editalPDFBase64=null;
 let _editalTexto=null;
 let _editalAnaliseGeral=null;
+let _editalPartesFalhas=[];
+let _editalUltimoErro='';
 let _editalAnaliseItens=null;
 let _portfolioCache=null;
 
@@ -12536,9 +13804,12 @@ function mostrarStatus(msg,tipo){
 // Chama o GitHub Models com tratamento robusto de erro/limite de taxa.
 // Retorna {ok:true,texto} ou {ok:false,erro,rate,diario,retryAfter}.
 async function fetchGitHubModel(conteudo){
+  const ctrl=new AbortController();
+  const timer=setTimeout(function(){ctrl.abort();},90000); // 90s de limite por chamada
   try{
     const resp=await fetch('https://models.github.ai/inference/chat/completions',{
       method:'POST',
+      signal:ctrl.signal,
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+GITHUB_TOKEN},
       body:JSON.stringify({model:'openai/gpt-4o-mini',max_tokens:4000,temperature:0.1,messages:[{role:'user',content:conteudo}]})
     });
@@ -12553,7 +13824,10 @@ async function fetchGitHubModel(conteudo){
     }
     return{ok:true,texto:(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||''};
   }catch(e){
-    return{ok:false,erro:e.message,rate:false,diario:false,retryAfter:0};
+    const abortou=e.name==='AbortError';
+    return{ok:false,erro:abortou?'Tempo esgotado (90s sem resposta)':e.message,rate:false,diario:false,retryAfter:0};
+  }finally{
+    clearTimeout(timer);
   }
 }
 
@@ -12600,9 +13874,11 @@ async function analisarEditalGeral(){
   CAMPOS_LISTA.forEach(function(c){resultado[c]=[];});
 
   let erros=0;
+  const partesFalhas=[];
+  let tentativasPedaco=0;
 
   for(let p=0;p<pedacos.length;p++){
-    mostrarStatus('⏳ Analisando parte '+(p+1)+' de '+pedacos.length+' do edital...','loading');
+    mostrarStatus('⏳ Analisando parte '+(p+1)+' de '+pedacos.length+' do edital...'+(tentativasPedaco?(' (tentativa '+(tentativasPedaco+1)+')'):''),'loading');
     try{
       const r=await fetchGitHubModel(promptBase+'\n\n=== TRECHO DO EDITAL (parte '+(p+1)+'/'+pedacos.length+') ===\n'+pedacos[p]);
       if(!r.ok){
@@ -12610,19 +13886,25 @@ async function analisarEditalGeral(){
           const horas=Math.max(1,Math.ceil((r.retryAfter||3600)/3600));
           mostrarStatus('❌ Limite diário do GitHub Models atingido. Tente novamente em ~'+horas+'h, ou gere/troque o token.','erro');
           console.error('Limite diário atingido na parte '+(p+1)+': '+r.erro);
+          for(let q=p;q<pedacos.length;q++)partesFalhas.push(q+1);
           erros+=(pedacos.length-p);
           break;
         }
-        if(r.rate){
+        if(r.rate&&tentativasPedaco<2){
+          tentativasPedaco++;
           const espera=r.retryAfter>0?Math.min(r.retryAfter,60):30;
-          mostrarStatus('⏳ Limite de taxa atingido. Aguardando '+espera+'s antes de continuar...','loading');
+          mostrarStatus('⏳ Limite de taxa atingido. Aguardando '+espera+'s... (tentativa '+tentativasPedaco+' de 2)','loading');
           await new Promise(function(res){setTimeout(res,espera*1000);});
           p--; continue;
         }
         console.error('Erro na parte '+(p+1)+' do edital: '+r.erro);
+        partesFalhas.push(p+1);
+        _editalUltimoErro=r.erro;
         erros++;
+        tentativasPedaco=0;
         continue;
       }
+      tentativasPedaco=0;
       let clean=(r.texto||'').replace(/```json|```/g,'').trim();
       const jsonStart=clean.indexOf('{');
       if(jsonStart>0)clean=clean.substring(jsonStart);
@@ -12661,8 +13943,15 @@ async function analisarEditalGeral(){
 
   _editalAnaliseGeral=resultado;
   renderAnaliseGeral(_editalAnaliseGeral);
-  const msg='✅ Análise geral concluída ('+pedacos.length+' parte'+(pedacos.length>1?'s':'')+' do edital)'+(erros?' — '+erros+' parte(s) falharam':'');
-  mostrarStatus(msg,erros?'loading':'ok');
+  if(erros){
+    _editalPartesFalhas=partesFalhas;
+    const lista=partesFalhas.slice(0,10).join(', ')+(partesFalhas.length>10?'...':'');
+    mostrarStatus('⚠️ Análise INCOMPLETA: '+erros+' de '+pedacos.length+' partes falharam (partes '+lista+').'
+      +(_editalUltimoErro?('<br><b>Motivo:</b> '+String(_editalUltimoErro).slice(0,220)):'')
+      +'<br>Os dados abaixo podem estar faltando informações.','erro');
+  } else {
+    mostrarStatus('✅ Análise geral concluída ('+pedacos.length+' parte'+(pedacos.length>1?'s':'')+' do edital, todas processadas)','ok');
+  }
   document.getElementById('btnAnaliseGeral').disabled=false;
 }
 
@@ -12735,6 +14024,7 @@ JSON: {"itens":[{"num":"1","descricao":"descrição do edital","quantidade":0,"u
 
   let todosItens=[];
   let erros=0;
+  let tentItens=0;
 
   for(let p=0;p<pedacos.length;p++){
     mostrarStatus('⏳ Analisando parte '+(p+1)+' de '+pedacos.length+'... ('+todosItens.length+' itens encontrados)','loading');
@@ -12748,12 +14038,14 @@ JSON: {"itens":[{"num":"1","descricao":"descrição do edital","quantidade":0,"u
           erros+=(pedacos.length-p);
           break;
         }
-        if(r.rate){
+        if(r.rate&&tentItens<2){
+          tentItens++;
           const espera=r.retryAfter>0?Math.min(r.retryAfter,60):30;
-          mostrarStatus('⏳ Limite de taxa atingido. Aguardando '+espera+'s antes de continuar...','loading');
+          mostrarStatus('⏳ Limite de taxa atingido. Aguardando '+espera+'s... (tentativa '+tentItens+' de 2)','loading');
           await new Promise(function(res){setTimeout(res,espera*1000);});
           p--; continue;
         }
+        tentItens=0;
         console.error('Erro na parte '+(p+1)+' do edital: '+r.erro);
         erros++;
         continue;
@@ -14671,6 +15963,30 @@ async function sbCarregarAgenda(){
       <div class="field">
         <label>Descrição Completa <span style="font-weight:400;color:var(--muted)">(modo detalhado na cotação)</span></label>
         <textarea id="prodEditCompleta" rows="6" style="width:100%;padding:8px;border:1px solid var(--borda);border-radius:8px;font-family:inherit;font-size:13px;resize:vertical;margin-top:4px"></textarea>
+      </div>
+      <div class="field">
+        <label>📦 Embalagem <span style="font-weight:400;color:var(--muted)">(usado para converter a unidade do edital)</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Volume/peso da embalagem</div>
+            <input type="number" id="prodEditVolumeEmb" step="0.001" placeholder="Ex: 5" style="width:100%;padding:8px;border:1px solid var(--borda);border-radius:8px;font-size:13px">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Unidade base</div>
+            <select id="prodEditUnidadeBase" style="width:100%;padding:8px;border:1px solid var(--borda);border-radius:8px;font-size:13px">
+              <option value="">—</option>
+              <option value="L">Litro (L)</option>
+              <option value="kg">Quilo (kg)</option>
+              <option value="un">Unidade</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted-light);margin-top:4px">Ex: galão de 5 litros → volume 5, unidade Litro. Se o edital pedir 1200 L, o app calcula 240 galões.</div>
+      </div>
+      <div class="field">
+        <label>🔎 Palavras de identificação no edital <span style="font-weight:400;color:var(--muted)">(separadas por vírgula)</span></label>
+        <input type="text" id="prodEditPalavras" placeholder="Ex: ortoftalaldeido, 0,55%, alto nivel" style="width:100%;padding:8px;border:1px solid var(--borda);border-radius:8px;font-size:13px;margin-top:4px">
+        <div style="font-size:11px;color:var(--muted-light);margin-top:4px">Ajuda o app a reconhecer este produto na descrição dos itens da licitação.</div>
       </div>
       <div class="field">
         <label>Diluições <span style="font-weight:400;color:var(--muted)">(opcional — para cálculo de custo por litro diluído)</span></label>
