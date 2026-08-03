@@ -3898,6 +3898,14 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
 
             <label style="display:block;font-size:12px;font-weight:400"><input type="checkbox" id="buscaViaItens"> 🔬 Buscar também no catálogo CATMAT</label>
 
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">🚫 Palavras a evitar</div>
+            <div style="font-size:11px;color:var(--muted-light);margin-bottom:6px">Descarta resultados que contenham estas palavras — útil para separar "hipoclorito" de "água sanitária", ou "enzima" de itens que não são detergente enzimático.</div>
+            <div style="display:flex;gap:6px;margin-bottom:6px">
+              <input type="text" id="buscaBloqueadaInput" placeholder="Ex: agua sanitaria" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarPalavraBloqueada();}">
+              <button class="btn-cancel-mod" onclick="adicionarPalavraBloqueada()">+ Add</button>
+            </div>
+            <div id="filtroChipsBloqueadas" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px"></div>
+
             <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
               <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="salvarGrupoFiltros()">💾 Salvar como grupo</button>
               <button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="limparFiltrosPalavras()">🗑️ Limpar palavras</button>
@@ -3964,6 +3972,26 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
             <button class="btn-salvar-mod" onclick="analisarMercado()">📊 Analisar mercado</button>
             <button class="btn-cancel-mod" onclick="analisarMercado(true)">🇧🇷 Analisar Brasil todo</button>
+            <button class="btn-cancel-mod" style="border-color:#7c3aed;color:#7c3aed" onclick="mapaMercadoPerdido()">🗺️ Mapa de Mercado Perdido</button>
+            <button class="btn-cancel-mod" style="border-color:#0891b2;color:#0891b2" onclick="radarOrgaos()">🎯 Radar de Órgãos</button>
+            <label style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:400;padding:0 4px">
+              <input type="checkbox" id="intelRestringirProduto"> Restringir ao <b>produto selecionado</b> acima (em vez de todos os cadastrados)
+            </label>
+          </div>
+
+          <!-- Vendedor virtual: pergunta em linguagem natural sobre os dados -->
+          <div style="background:#f8fafc;border:1px solid var(--borda);border-radius:12px;padding:12px;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:700;margin-bottom:6px">🤖 Pergunte ao assistente</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <input type="text" id="intelPergunta" placeholder="Ex: onde temos mais oportunidade em PE? Quem é meu maior concorrente?" style="flex:1;min-width:220px;padding:9px;border:1px solid var(--borda);border-radius:8px;font-size:13px" onkeydown="if(event.key==='Enter'){event.preventDefault();perguntarAssistente();}">
+              <button class="btn-salvar-mod" onclick="perguntarAssistente()">Perguntar</button>
+            </div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:7px">
+              <button class="btn-cancel-mod" style="font-size:10px;padding:3px 9px" onclick="perguntaRapida('Onde estamos deixando mais dinheiro na mesa e por quê?')">Onde perdemos mercado?</button>
+              <button class="btn-cancel-mod" style="font-size:10px;padding:3px 9px" onclick="perguntaRapida('Quais órgãos devo atacar primeiro e qual a abordagem?')">Prioridade de ataque</button>
+              <button class="btn-cancel-mod" style="font-size:10px;padding:3px 9px" onclick="perguntaRapida('Quem são meus principais concorrentes e como eles se comportam?')">Analisar concorrência</button>
+            </div>
+            <div id="intelResposta" style="margin-top:10px"></div>
           </div>
 
           <div id="intelStatus" style="font-size:12px;margin-bottom:10px"></div>
@@ -4283,7 +4311,9 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <button class="acoes-btn" onclick="abrirLancamentoManual()">➕ Lançamento Manual</button>
         <button class="acoes-btn" onclick="mostrarIgnoradosFaturamento()">⚠️ Ver ignorados</button>
         <button class="acoes-btn" onclick="abrirClassificacao()">🏷️ Classificar Clientes</button>
-        <button class="acoes-btn" onclick="abrirRelatorio()">🖨️ Imprimir</button>
+        <button class="acoes-btn" onclick="abrirRelatorio()">🖨️ Imprimir (relatório personalizado)</button>
+        <button class="acoes-btn" style="background:#0f6e5f;color:#fff" onclick="imprimirDashboardFaturamento()">📄 Imprimir esta página (KPIs + gráficos)</button>
+        <button class="acoes-btn" style="background:linear-gradient(120deg,#0891b2,#7c3aed);color:#fff" onclick="abrirRelatorioComercial()">📊 Relatório Comercial Mensal</button>
         <button class="acoes-btn btn-danger" onclick="excluirDadosPeriodo()">🗑️ Excluir Dados do Período</button>
       </div>
 
@@ -6991,6 +7021,574 @@ function novoProduto(){
   document.getElementById('overlayProduto').classList.add('open');
 }
 
+
+
+
+
+/* ══════ ÚLTIMO GANHADOR (sob demanda) ══════
+   Busca, pelo CATMAT do item, quem venceu a última compra desse material —
+   priorizando o mesmo órgão do edital. Só roda quando o usuário pede, para
+   não disparar dezenas de chamadas a cada busca. */
+const _cacheGanhador={};
+
+async function carregarUltimoGanhador(idxRes,idxItem,codProduto){
+  const el=document.getElementById('ganhador'+idxRes+'_'+idxItem);
+  if(!el)return;
+  const res=buscaPncpResultadosCache[idxRes];
+  const it=(res&&res._itensCache&&res._itensCache[idxItem])||null;
+  if(!it)return;
+
+  // 1) CATMAT: primeiro o do próprio item do edital; senão, o cadastrado no produto
+  let catmat=String(it.codigoItemCatalogo||it.catmat||it.codigoItem||'').trim();
+  if(!/^\d{3,10}$/.test(catmat)){
+    await carregarMetaProdutos();
+    const meta=(_prodMeta&&_prodMeta[codProduto])||{};
+    const cats=(meta.catmat||[]).map(function(c){return String((c&&c.codigo!=null)?c.codigo:c);}).filter(Boolean);
+    catmat=cats[0]||'';
+  }
+  if(!catmat){
+    el.innerHTML='<div style="font-size:10px;color:#b45309">Sem CATMAT neste item nem no produto — não dá para consultar o histórico.</div>';
+    return;
+  }
+
+  const orgaoEdital=(res.orgaoEntidade&&res.orgaoEntidade.razaosocial)||'';
+  const ufEdital=(res.unidadeOrgao&&res.unidadeOrgao.ufSigla)||'';
+  const chave=catmat+'|'+normalizarTexto(orgaoEdital).slice(0,25);
+
+  if(_cacheGanhador[chave]){renderGanhador(el,_cacheGanhador[chave],catmat);return;}
+
+  el.innerHTML='<div style="font-size:10px;color:var(--muted)">⏳ Buscando último ganhador do CATMAT '+catmat+'...</div>';
+
+  const hoje=new Date(), ini=new Date(hoje.getTime()-730*86400000);   // 2 anos
+  const fmt=function(d){return d.toISOString().slice(0,10);};
+  const url='https://dadosabertos.compras.gov.br/modulo-pesquisa-preco/1_consultarMaterial'
+    +'?tipo=codigoItemCatalogo&codigo='+encodeURIComponent(catmat)
+    +'&dataCompraInicio='+fmt(ini)+'&dataCompraFim='+fmt(hoje)
+    +'&pagina=1&tamanhoPagina=200';
+  const d=await fetchComprasGov(url);
+  if(!d){
+    el.innerHTML='<div style="font-size:10px;color:#dc2626">Não consegui consultar: '+(_ultimoErroComprasGov||'?')+'</div>';
+    return;
+  }
+  const lista=(d.resultado||[]).filter(function(r){return (parseFloat(r.precoUnitario)||0)>0;});
+  if(!lista.length){
+    el.innerHTML='<div style="font-size:10px;color:var(--muted-light)">Nenhuma compra registrada deste material nos últimos 2 anos.</div>';
+    return;
+  }
+
+  const porData=function(a,b){return String(b.dataCompra||b.dataResultado||'').localeCompare(String(a.dataCompra||a.dataResultado||''));};
+
+  // 2) Prioriza o MESMO órgão; depois o mesmo estado; por fim, o mais recente do Brasil
+  const alvo=normalizarTexto(orgaoEdital).slice(0,20);
+  const mesmoOrgao=alvo?lista.filter(function(r){return normalizarTexto(r.nomeOrgao||'').indexOf(alvo)>=0;}):[];
+  const mesmoEstado=ufEdital?lista.filter(function(r){return (r.estado||'').toUpperCase()===ufEdital;}):[];
+
+  let escolhido,origem;
+  if(mesmoOrgao.length){escolhido=mesmoOrgao.sort(porData)[0];origem='mesmo órgão';}
+  else if(mesmoEstado.length){escolhido=mesmoEstado.sort(porData)[0];origem='mesmo estado';}
+  else{escolhido=lista.slice().sort(porData)[0];origem='outro estado';}
+
+  const dados={r:escolhido,origem:origem,total:lista.length,
+    mediana:(function(){
+      const v=lista.map(function(x){return parseFloat(x.precoUnitario)||0;}).sort(function(a,b){return a-b;});
+      return v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
+    })()};
+  _cacheGanhador[chave]=dados;
+  renderGanhador(el,dados,catmat);
+}
+
+function renderGanhador(el,dados,catmat){
+  const r=dados.r;
+  const rs=function(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  const preco=parseFloat(r.precoUnitario)||0;
+  const data=(r.dataCompra||r.dataResultado||'').toString().slice(0,10);
+  const dataFmt=data?data.split('-').reverse().join('/'):'—';
+  const un=(r.nomeUnidadeFornecimento||r.siglaUnidadeFornecimento||'').toString().trim();
+  const local=dados.origem;
+
+  // Quando o registro é de outro estado, ele não serve como precedente local:
+  // o destaque passa a ser a MEDIANA nacional, e o caso isolado vira nota de rodapé.
+  if(local==='outro estado'){
+    el.innerHTML='<div style="font-size:10.5px;background:#f8fafc;border:1px solid var(--borda);border-radius:6px;padding:6px 8px;line-height:1.55">'
+      +'<div style="color:#b45309;font-weight:700">⚠️ Nenhuma compra deste material neste órgão nem neste estado.</div>'
+      +'<div style="margin-top:3px">Referência nacional — mediana de <b>'+dados.total+'</b> compras: '
+      +'<b style="color:#7c3aed;font-size:12px">'+rs(dados.mediana)+'</b>'+(un?('<span style="color:var(--muted)"> /'+un.toLowerCase()+'</span>'):'')+'</div>'
+      +'<div style="color:var(--muted-light);margin-top:2px">Compra mais recente foi em '+String(r.nomeOrgao||'').slice(0,38)
+      +' ('+(r.estado||'?')+') a '+rs(preco)+' em '+dataFmt+' — outro mercado, use só como ordem de grandeza.</div>'
+      +'</div>';
+    return;
+  }
+
+  const corOrigem=local==='mesmo órgão'?'#16a34a':'#0891b2';
+  el.innerHTML='<div style="font-size:10.5px;background:#faf5ff;border:1px solid #e9d5ff;border-radius:6px;padding:5px 8px;line-height:1.55">'
+    +'<span style="font-weight:700;color:#7c3aed">🏆 '+String(r.nomeFornecedor||'fornecedor não informado').slice(0,42)+'</span>'
+    +'<span style="color:#94a3b8"> · </span><b>'+rs(preco)+'</b>'+(un?('<span style="color:var(--muted)"> /'+un.toLowerCase()+'</span>'):'')
+    +(r.marca?('<span style="color:#0891b2"> · 🏷️ '+String(r.marca).slice(0,24)+'</span>'):'')
+    +'<br><span style="color:var(--muted)">'+String(r.nomeOrgao||'').slice(0,44)+' · '+dataFmt+' · </span>'
+    +'<span style="color:'+corOrigem+';font-weight:700">'+local+'</span>'
+    +'<span style="color:var(--muted)"> · mediana de '+dados.total+' compras: '+rs(dados.mediana)+'</span>'
+    +'</div>';
+}
+
+
+/* ══════ VENDEDOR VIRTUAL — perguntas em linguagem natural ══════
+   Monta um resumo dos dados já analisados e pede à IA uma leitura comercial. */
+let _intelContexto=null;   // preenchido pelas análises (mapa, radar, mercado)
+
+function registrarContextoIntel(tipo,dados){
+  if(!_intelContexto)_intelContexto={};
+  _intelContexto[tipo]=dados;
+  _intelContexto.atualizado=new Date().toLocaleString('pt-BR');
+}
+
+function perguntaRapida(t){
+  document.getElementById('intelPergunta').value=t;
+  perguntarAssistente();
+}
+
+async function perguntarAssistente(){
+  const inp=document.getElementById('intelPergunta');
+  const box=document.getElementById('intelResposta');
+  const pergunta=(inp.value||'').trim();
+  if(!pergunta){showT('Escreva a pergunta','erro');return;}
+
+  if(!_intelContexto||!Object.keys(_intelContexto).length){
+    box.innerHTML='<div style="font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:10px">'
+      +'⚠️ Rode antes uma análise (🗺️ Mapa de Mercado Perdido, 🎯 Radar de Órgãos ou 📊 Analisar mercado). '
+      +'O assistente responde sobre os dados carregados, não inventa números.</div>';
+    return;
+  }
+
+  box.innerHTML='<div style="font-size:12px;color:var(--muted)">🤖 Analisando os dados...</div>';
+
+  // Monta um resumo compacto dos dados disponíveis
+  let ctx='DADOS DISPONÍVEIS (analisados em '+_intelContexto.atualizado+'):\n\n';
+
+  if(_intelContexto.mercado){
+    const m=_intelContexto.mercado;
+    ctx+='== PARTICIPAÇÃO DE MERCADO POR ESTADO ==\n';
+    ctx+='Mercado total medido: R$ '+Math.round(m.totalMercado).toLocaleString('pt-BR')
+      +' | Faturamento Grow: R$ '+Math.round(m.totalNosso).toLocaleString('pt-BR')
+      +' | Participação: '+m.shareGeral.toFixed(1)+'%\n';
+    m.linhas.slice(0,15).forEach(function(l){
+      ctx+=l.uf+': mercado R$ '+Math.round(l.mercado).toLocaleString('pt-BR')
+        +', Grow R$ '+Math.round(l.nosso).toLocaleString('pt-BR')
+        +' ('+l.share.toFixed(1)+'%), líder: '+l.lider+'\n';
+    });
+    ctx+='\n';
+  }
+
+  if(_intelContexto.orgaos){
+    ctx+='== ÓRGÃOS COM MAIOR ÍNDICE DE OPORTUNIDADE ==\n';
+    _intelContexto.orgaos.slice(0,12).forEach(function(o){
+      ctx+='['+o.score+'/100] '+o.nome+' ('+o.uf+') — R$ '+Math.round(o.valor).toLocaleString('pt-BR')
+        +' em '+o.compras+' compras, última há '+o.diasDesde+' dias'
+        +(o.nosso?', JÁ É CLIENTE':', nunca comprou da Grow')
+        +(o.probEdital>=50?(', '+o.probEdital+'% de chance de licitar em breve'):'')
+        +', fornecedor atual: '+o.fornPrincipal+'\n';
+    });
+    ctx+='\n';
+  }
+
+  if(_intelContexto.concorrentes){
+    ctx+='== CONCORRENTES ==\n';
+    _intelContexto.concorrentes.slice(0,10).forEach(function(c){
+      ctx+=c.nome+': '+c.d.n+' vitórias, preço médio R$ '
+        +(c.d.soma/c.d.n).toLocaleString('pt-BR',{maximumFractionDigits:2})
+        +', menor R$ '+c.d.min.toLocaleString('pt-BR',{maximumFractionDigits:2})+'\n';
+    });
+    ctx+='\n';
+  }
+
+  const prompt='Você é um analista comercial da Grow Química, empresa que vende saneantes e '
+    +'detergentes enzimáticos para hospitais (linha Proaction: OPA, GTA 2%, ácido peracético, '
+    +'detergentes enzimáticos AS 100/110/130, entre outros), atuando em licitações públicas.\n\n'
+    +ctx
+    +'\nPERGUNTA DO USUÁRIO: '+pergunta+'\n\n'
+    +'INSTRUÇÕES:\n'
+    +'- Responda em português do Brasil, direto e prático, como um consultor experiente.\n'
+    +'- Use SOMENTE os números dos dados acima. Se algo não estiver nos dados, diga que não tem essa informação.\n'
+    +'- Cite valores e nomes concretos para embasar cada afirmação.\n'
+    +'- Termine com 2 ou 3 ações práticas e específicas.\n'
+    +'- Máximo de 300 palavras. Use marcadores quando ajudar.';
+
+  const r=await fetchGitHubModel(prompt);
+  if(!r.ok){
+    box.innerHTML='<div style="font-size:12px;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px">'
+      +'Não consegui responder: '+String(r.erro||'erro desconhecido').slice(0,200)
+      +(r.rate?'<br><b>Limite da IA atingido.</b> Aguarde alguns minutos ou troque o modelo no secret GEMINI_MODELO da função ia-gemini.':'')
+      +'</div>';
+    return;
+  }
+
+  const texto=String(r.texto||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+    .replace(/^[-•]\s*(.+)$/gm,'<div style="margin:3px 0 3px 10px">• $1</div>')
+    .replace(/\n{2,}/g,'<br><br>').replace(/\n/g,'<br>');
+
+  box.innerHTML='<div style="background:#fff;border:1px solid #c4b5fd;border-left:3px solid #7c3aed;'
+    +'border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.65;color:var(--texto)">'
+    +'<div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">🤖 Análise do assistente</div>'
+    +texto
+    +'<div style="font-size:10px;color:var(--muted-light);margin-top:10px;border-top:1px solid #f1f5f9;padding-top:6px">'
+    +'Gerado por IA a partir dos dados carregados. Confira os números antes de usar em negociação.</div>'
+    +'</div>';
+}
+
+/* ══════ RADAR DE ÓRGÃOS — índice de oportunidade + previsão de edital ══════
+   Analisa o histórico de compras de cada órgão para responder:
+   "quem vale a pena atacar agora, e quem está prestes a abrir licitação?" */
+// Reúne os códigos CATMAT a usar: de um produto só (se restringido) ou de todos os cadastrados.
+function coletarCatmatParaAnalise(){
+  const restringir=document.getElementById('intelRestringirProduto');
+  if(restringir&&restringir.checked){
+    const cod=document.getElementById('intelProduto').value;
+    const meta=(_prodMeta&&_prodMeta[cod])||{};
+    const catSel=document.getElementById('intelCatmat');
+    const escolhido=catSel?catSel.value:'';
+    const cats=(meta.catmat||[]).map(function(c){return String((c&&c.codigo!=null)?c.codigo:c).trim();}).filter(Boolean);
+    return escolhido?[escolhido]:cats;
+  }
+  const todos=[];
+  Object.keys(_prodMeta||{}).forEach(function(codProd){
+    ((_prodMeta[codProd].catmat)||[]).forEach(function(c){
+      const cc=String((c&&c.codigo!=null)?c.codigo:c).trim();
+      if(cc&&todos.indexOf(cc)<0)todos.push(cc);
+    });
+  });
+  return todos;
+}
+
+async function radarOrgaos(){
+  const st=document.getElementById('intelStatus');
+  const boxResumo=document.getElementById('intelResumo');
+  const boxDet=document.getElementById('intelDetalhe');
+  boxResumo.innerHTML='';boxDet.innerHTML='';
+
+  await carregarMetaProdutos();
+
+  const codigos=coletarCatmatParaAnalise();
+  if(!codigos.length){
+    st.innerHTML='<span style="color:#b45309">⚠️ Nenhum código CATMAT disponível para essa seleção. '
+      +'Cadastre em Cadastros → Produtos, ou desmarque "restringir ao produto selecionado".</span>';
+    return;
+  }
+
+  // Janela ampla: precisamos de histórico para detectar padrão sazonal
+  const hoje=new Date();
+  const ini=new Date(hoje.getTime()-1095*86400000);   // 3 anos
+  const fmt=function(d){return d.toISOString().slice(0,10);};
+
+  const LIMITE=25;
+  const usar=codigos.slice(0,LIMITE);
+  const compras=[];
+  for(let i=0;i<usar.length;i++){
+    st.innerHTML='🎯 Lendo histórico de compras — código '+usar[i]+' ('+(i+1)+'/'+usar.length+')...';
+    const url='https://dadosabertos.compras.gov.br/modulo-pesquisa-preco/1_consultarMaterial'
+      +'?tipo=codigoItemCatalogo&codigo='+encodeURIComponent(usar[i])
+      +'&dataCompraInicio='+fmt(ini)+'&dataCompraFim='+fmt(hoje)
+      +'&pagina=1&tamanhoPagina=500';
+    const d=await fetchComprasGov(url);
+    if(!d)continue;
+    (d.resultado||[]).forEach(function(r){compras.push(r);});
+  }
+
+  if(!compras.length){
+    st.innerHTML='<span style="color:#b45309">Sem histórico de compras no período. '
+      +(_ultimoErroComprasGov||'')+'</span>';
+    return;
+  }
+
+  // Quem a Grow já atende (nomes que aparecem no faturamento)
+  const clientesGrow={};
+  (fatDados||[]).forEach(function(r){
+    if(r.excluida)return;
+    const n=normalizarTexto(r.cliente||'');
+    if(n)clientesGrow[n]=(clientesGrow[n]||0)+(parseFloat(r.v_total)||0);
+  });
+  const jaAtendemos=function(nomeOrgao){
+    const n=normalizarTexto(nomeOrgao||'');
+    if(!n)return 0;
+    // casamento aproximado: primeiras palavras significativas
+    const chaves=Object.keys(clientesGrow);
+    for(let i=0;i<chaves.length;i++){
+      if(chaves[i].indexOf(n.slice(0,18))>=0||n.indexOf(chaves[i].slice(0,18))>=0)return clientesGrow[chaves[i]];
+    }
+    return 0;
+  };
+
+  // Agrupa por órgão
+  const orgaos={};
+  compras.forEach(function(r){
+    const nome=r.nomeOrgao||r.nomeUasg;
+    if(!nome)return;
+    const dt=(r.dataCompra||r.dataResultado||'').toString().slice(0,10);
+    if(!orgaos[nome]){
+      orgaos[nome]={nome:nome,uf:(r.estado||'').toUpperCase(),valor:0,compras:0,
+        datas:[],meses:{},fornecedores:{},produtos:{}};
+    }
+    const o=orgaos[nome];
+    const preco=parseFloat(r.precoUnitario)||0, qtd=parseFloat(r.quantidade)||0;
+    o.valor+=preco*qtd;
+    o.compras++;
+    if(dt){o.datas.push(dt);o.meses[dt.slice(5,7)]=(o.meses[dt.slice(5,7)]||0)+1;}
+    if(r.nomeFornecedor)o.fornecedores[r.nomeFornecedor]=(o.fornecedores[r.nomeFornecedor]||0)+1;
+    if(r.descricaoItem)o.produtos[String(r.descricaoItem).slice(0,60)]=true;
+  });
+
+  const MESES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const mesAtual=hoje.getMonth();   // 0-11
+
+  // Calcula índice de oportunidade e previsão para cada órgão
+  const lista=Object.keys(orgaos).map(function(k){
+    const o=orgaos[k];
+    o.datas.sort();
+    const ultima=o.datas[o.datas.length-1]||'';
+    const diasDesde=ultima?Math.round((hoje-new Date(ultima+'T12:00:00'))/86400000):9999;
+    const nosso=jaAtendemos(o.nome);
+
+    // Mês em que costuma comprar (o mais frequente)
+    let mesPico=null,maxN=0;
+    Object.keys(o.meses).forEach(function(m){
+      if(o.meses[m]>maxN){maxN=o.meses[m];mesPico=parseInt(m,10)-1;}
+    });
+    // Distância até o mês de pico (em meses, à frente)
+    let mesesAte=null;
+    if(mesPico!==null){
+      mesesAte=mesPico-mesAtual;
+      if(mesesAte<0)mesesAte+=12;
+    }
+    // Probabilidade de abrir edital nos próximos 90 dias
+    let probEdital=0;
+    if(mesPico!==null&&maxN>=2){
+      if(mesesAte<=2)probEdital=Math.min(95,40+maxN*12);        // pico chegando
+      else if(mesesAte>=10)probEdital=Math.min(70,25+maxN*8);   // pico logo após virar o ano
+    }
+    // Recorrência anual: comprou em anos diferentes?
+    const anos={};o.datas.forEach(function(d){anos[d.slice(0,4)]=true;});
+    const nAnos=Object.keys(anos).length;
+    if(nAnos>=2&&diasDesde>300)probEdital=Math.max(probEdital,60);
+
+    const fornPrincipal=Object.keys(o.fornecedores)
+      .sort(function(a,b){return o.fornecedores[b]-o.fornecedores[a];})[0]||'—';
+
+    // ── Índice de oportunidade (0-100) ──
+    let score=0;const motivos=[];
+    if(o.compras>=5){score+=25;motivos.push('comprador recorrente ('+o.compras+' compras)');}
+    else if(o.compras>=2){score+=15;motivos.push(o.compras+' compras no histórico');}
+    if(o.valor>=200000){score+=25;motivos.push('volume alto ('+('R$ '+Math.round(o.valor).toLocaleString('pt-BR'))+')');}
+    else if(o.valor>=50000){score+=15;motivos.push('volume relevante');}
+    if(!nosso){score+=25;motivos.push('a Grow nunca faturou para este órgão');}
+    else{motivos.push('já é cliente da Grow');}
+    if(probEdital>=60){score+=25;motivos.push('provável nova licitação em breve');}
+    else if(probEdital>=40){score+=12;motivos.push('possível licitação no horizonte');}
+    if(nAnos>=3){score+=10;motivos.push('compra há '+nAnos+' anos seguidos');}
+    score=Math.min(100,score);
+
+    return{nome:o.nome,uf:o.uf,valor:o.valor,compras:o.compras,ultima:ultima,diasDesde:diasDesde,
+      nosso:nosso,score:score,motivos:motivos,probEdital:probEdital,
+      mesPico:mesPico!==null?MESES[mesPico]:null,fornPrincipal:fornPrincipal,nAnos:nAnos};
+  }).sort(function(a,b){return b.score-a.score;});
+
+  const rs=function(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});};
+  const quentes=lista.filter(function(x){return x.probEdital>=50;})
+    .sort(function(a,b){return b.probEdital-a.probEdital;});
+
+  st.innerHTML='✅ '+lista.length+' órgão(s) analisado(s) em '+compras.length+' compras dos últimos 3 anos'
+    +(codigos.length>LIMITE?(' <span style="color:#b45309">(limitado a '+LIMITE+' códigos)</span>'):'');
+
+  boxResumo.innerHTML='<div class="intel-kpi">'
+    +'<div><div class="rot">Órgãos mapeados</div><div class="val" style="color:#0891b2">'+lista.length+'</div></div>'
+    +'<div><div class="rot">Alta oportunidade</div><div class="val" style="color:#16a34a">'+lista.filter(function(x){return x.score>=70;}).length+'</div></div>'
+    +'<div><div class="rot">Podem abrir edital</div><div class="val" style="color:#f59e0b">'+quentes.length+'</div></div>'
+    +'<div><div class="rot">Nunca compraram da Grow</div><div class="val" style="color:#dc2626">'+lista.filter(function(x){return !x.nosso;}).length+'</div></div>'
+    +'</div>';
+
+  // ── Painel 1: previsão de edital ──
+  let html='<div class="intel-card" style="margin-top:14px">'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:4px">🔮 Prováveis licitações nos próximos 90 dias</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:10px">Baseado no mês em que cada órgão historicamente compra e no tempo desde a última compra</div>';
+  if(!quentes.length){
+    html+='<div style="font-size:12px;color:var(--muted)">Nenhum padrão sazonal claro no histórico disponível. '
+      +'Isso melhora conforme mais compras entram na base.</div>';
+  }else{
+    html+=quentes.slice(0,10).map(function(o){
+      const cor=o.probEdital>=70?'#dc2626':'#f59e0b';
+      return '<div style="padding:9px 0;border-bottom:1px solid #f1f5f9">'
+        +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap">'
+        +'<div style="font-size:12px;font-weight:700;flex:1;min-width:200px">'+String(o.nome).slice(0,55)+' <span style="color:var(--muted-light);font-weight:400">'+o.uf+'</span></div>'
+        +'<div style="font-size:14px;font-weight:800;color:'+cor+'">'+o.probEdital+'%</div></div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'
+        +(o.mesPico?('costuma comprar em <b>'+o.mesPico+'</b> · '):'')
+        +'última compra há '+o.diasDesde+' dias · '+o.compras+' compras · '+rs(o.valor)+'</div>'
+        +'<div style="font-size:11px;color:#7c3aed;margin-top:1px">Fornecedor atual: '+String(o.fornPrincipal).slice(0,40)+'</div>'
+        +'</div>';
+    }).join('');
+  }
+  html+='</div>';
+
+  // ── Painel 2: índice de oportunidade ──
+  html+='<div class="intel-card" style="margin-top:12px">'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:4px">🎯 Índice de oportunidade por órgão</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:10px">Nota de 0 a 100 — quanto maior, mais vale o esforço comercial</div>'
+    +lista.slice(0,20).map(function(o){
+      const cor=o.score>=70?'#16a34a':o.score>=45?'#f59e0b':'#94a3b8';
+      return '<div style="padding:9px 0;border-bottom:1px solid #f1f5f9">'
+        +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+        +'<div style="width:44px;height:44px;border-radius:50%;background:'+cor+';color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">'+o.score+'</div>'
+        +'<div style="flex:1;min-width:200px">'
+          +'<div style="font-size:12px;font-weight:700">'+String(o.nome).slice(0,55)+' <span style="color:var(--muted-light);font-weight:400">'+o.uf+'</span></div>'
+          +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+o.motivos.slice(0,3).join(' · ')+'</div>'
+          +(o.nosso?('<div style="font-size:11px;color:#16a34a;margin-top:1px">✓ já faturamos '+rs(o.nosso)+' para este cliente</div>'):'')
+        +'</div></div></div>';
+    }).join('')
+    +'</div>';
+
+  registrarContextoIntel('orgaos',lista);
+  boxDet.innerHTML=html;
+}
+
+/* ══════ MAPA DE MERCADO PERDIDO ══════
+   Cruza o mercado público (API Compras.gov) com o faturamento da Grow (base interna)
+   para responder: "onde estamos deixando dinheiro na mesa?" */
+async function mapaMercadoPerdido(){
+  const st=document.getElementById('intelStatus');
+  const boxResumo=document.getElementById('intelResumo');
+  const boxDet=document.getElementById('intelDetalhe');
+  boxResumo.innerHTML='';boxDet.innerHTML='';
+
+  await carregarMetaProdutos();
+
+  const codigos=coletarCatmatParaAnalise();
+  if(!codigos.length){
+    st.innerHTML='<span style="color:#b45309">⚠️ Nenhum código CATMAT disponível para essa seleção. '
+      +'Cadastre em Cadastros → Produtos, ou desmarque "restringir ao produto selecionado".</span>';
+    return;
+  }
+
+  const dias=parseInt(document.getElementById('intelPeriodo').value,10)||365;
+  const hoje=new Date(), ini=new Date(hoje.getTime()-dias*86400000);
+  const fmt=function(d){return d.toISOString().slice(0,10);};
+
+  // 2) Mercado público por UF
+  const mercadoUf={};   // uf -> {valor, compras, orgaos:Set, fornecedores:{}}
+  const LIMITE=25;      // teto de códigos por rodada, para não estourar a API
+  const usar=codigos.slice(0,LIMITE);
+  for(let i=0;i<usar.length;i++){
+    st.innerHTML='🗺️ Medindo o mercado — código '+usar[i]+' ('+(i+1)+'/'+usar.length+')...';
+    const url='https://dadosabertos.compras.gov.br/modulo-pesquisa-preco/1_consultarMaterial'
+      +'?tipo=codigoItemCatalogo&codigo='+encodeURIComponent(usar[i])
+      +'&dataCompraInicio='+fmt(ini)+'&dataCompraFim='+fmt(hoje)
+      +'&pagina=1&tamanhoPagina=500';
+    const d=await fetchComprasGov(url);
+    if(!d)continue;
+    (d.resultado||[]).forEach(function(r){
+      const uf=(r.estado||'').toString().trim().toUpperCase();
+      if(!uf)return;
+      const preco=parseFloat(r.precoUnitario)||0;
+      const qtd=parseFloat(r.quantidade)||0;
+      const total=preco*qtd;
+      if(!mercadoUf[uf])mercadoUf[uf]={valor:0,compras:0,orgaos:{},fornecedores:{}};
+      mercadoUf[uf].valor+=total;
+      mercadoUf[uf].compras++;
+      if(r.nomeOrgao)mercadoUf[uf].orgaos[r.nomeOrgao]=(mercadoUf[uf].orgaos[r.nomeOrgao]||0)+total;
+      if(r.nomeFornecedor)mercadoUf[uf].fornecedores[r.nomeFornecedor]=(mercadoUf[uf].fornecedores[r.nomeFornecedor]||0)+total;
+    });
+  }
+
+  if(!Object.keys(mercadoUf).length){
+    st.innerHTML='<span style="color:#b45309">Não foi possível medir o mercado. '
+      +(_ultimoErroComprasGov||'A API não retornou dados no período.')+'</span>';
+    return;
+  }
+
+  // 3) Faturamento da Grow por UF, no mesmo período
+  const growUf={};
+  const iniISO=fmt(ini);
+  (fatDados||[]).forEach(function(r){
+    if(r.excluida)return;
+    const dt=(r.dt_emissao||'').toString().slice(0,10);
+    if(dt&&dt<iniISO)return;
+    const uf=(r.estado||r.uf||'').toString().trim().toUpperCase().slice(0,2);
+    if(!uf)return;
+    growUf[uf]=(growUf[uf]||0)+(parseFloat(r.v_total)||0);
+  });
+
+  // 4) Cruza os dois lados
+  const linhas=Object.keys(mercadoUf).map(function(uf){
+    const mercado=mercadoUf[uf].valor;
+    const nosso=growUf[uf]||0;
+    const share=mercado>0?(nosso/mercado)*100:0;
+    const topForn=Object.keys(mercadoUf[uf].fornecedores)
+      .sort(function(a,b){return mercadoUf[uf].fornecedores[b]-mercadoUf[uf].fornecedores[a];})[0]||'—';
+    return{uf:uf,mercado:mercado,nosso:nosso,share:share,perdido:Math.max(mercado-nosso,0),
+      orgaos:Object.keys(mercadoUf[uf].orgaos).length,lider:topForn,
+      topOrgaos:Object.keys(mercadoUf[uf].orgaos).sort(function(a,b){return mercadoUf[uf].orgaos[b]-mercadoUf[uf].orgaos[a];}).slice(0,3)};
+  }).sort(function(a,b){return b.perdido-a.perdido;});
+
+  const rs=function(v){return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});};
+  const totalMercado=linhas.reduce(function(a,b){return a+b.mercado;},0);
+  const totalNosso=linhas.reduce(function(a,b){return a+b.nosso;},0);
+  const shareGeral=totalMercado>0?(totalNosso/totalMercado)*100:0;
+
+  st.innerHTML='✅ '+usar.length+' código(s) CATMAT analisados em '+linhas.length+' estado(s)'
+    +(codigos.length>LIMITE?(' <span style="color:#b45309">(limitado aos '+LIMITE+' primeiros de '+codigos.length+')</span>'):'');
+
+  boxResumo.innerHTML='<div class="intel-kpi">'
+    +'<div><div class="rot">Mercado público medido</div><div class="val" style="color:#0891b2">'+rs(totalMercado)+'</div></div>'
+    +'<div><div class="rot">Faturamento Grow</div><div class="val" style="color:#16a34a">'+rs(totalNosso)+'</div></div>'
+    +'<div><div class="rot">Nossa participação</div><div class="val" style="color:'+(shareGeral>=10?'#16a34a':shareGeral>=3?'#f59e0b':'#dc2626')+'">'+shareGeral.toFixed(1)+'%</div></div>'
+    +'<div><div class="rot">Deixado na mesa</div><div class="val" style="color:#dc2626">'+rs(totalMercado-totalNosso)+'</div></div>'
+    +'</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5">'
+    +'⚠️ O mercado medido cobre apenas compras federais registradas no Compras.gov para os seus códigos CATMAT — '
+    +'não é o mercado total de saneantes. Serve para comparar <b>onde você está forte e onde está ausente</b>, não como valor absoluto.</div>';
+
+  registrarContextoIntel('mercado',{totalMercado:totalMercado,totalNosso:totalNosso,shareGeral:shareGeral,linhas:linhas});
+
+  boxDet.innerHTML='<div class="intel-card" style="margin-top:14px">'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:4px">🗺️ Onde estamos deixando dinheiro na mesa</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:10px">Ordenado pelo maior valor não capturado</div>'
+    +'<div style="overflow-x:auto"><table style="width:100%;font-size:11px;border-collapse:collapse;min-width:640px">'
+    +'<tr style="text-align:left;border-bottom:1px solid var(--borda)">'
+    +'<th style="padding:5px">UF</th><th style="padding:5px;text-align:right">Mercado</th>'
+    +'<th style="padding:5px;text-align:right">Grow</th><th style="padding:5px;text-align:center">Participação</th>'
+    +'<th style="padding:5px;text-align:right">Não capturado</th><th style="padding:5px">Órgãos</th>'
+    +'<th style="padding:5px">Quem domina</th></tr>'
+    +linhas.map(function(l){
+      const cor=l.share>=10?'#16a34a':l.share>=3?'#f59e0b':'#dc2626';
+      const barra=Math.min(l.share,100);
+      return '<tr style="border-bottom:1px solid #f1f5f9">'
+        +'<td style="padding:5px;font-weight:800">'+l.uf+'</td>'
+        +'<td style="padding:5px;text-align:right">'+rs(l.mercado)+'</td>'
+        +'<td style="padding:5px;text-align:right;color:#16a34a;font-weight:600">'+(l.nosso?rs(l.nosso):'—')+'</td>'
+        +'<td style="padding:5px;text-align:center">'
+          +'<div style="font-weight:800;color:'+cor+'">'+l.share.toFixed(1)+'%</div>'
+          +'<div style="height:4px;background:#e2e8f0;border-radius:3px;margin-top:2px;overflow:hidden">'
+          +'<div style="height:100%;width:'+barra+'%;background:'+cor+'"></div></div></td>'
+        +'<td style="padding:5px;text-align:right;color:#dc2626;font-weight:700">'+rs(l.perdido)+'</td>'
+        +'<td style="padding:5px">'+l.orgaos+'</td>'
+        +'<td style="padding:5px;font-size:10px;color:#7c3aed">'+String(l.lider).slice(0,28)+'</td>'
+        +'</tr>';
+    }).join('')+'</table></div></div>'
+
+    +'<div class="intel-card" style="margin-top:12px">'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:8px">🎯 Alvos de prospecção</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:10px">Estados com mercado relevante e participação da Grow abaixo de 3%</div>'
+    +(function(){
+      const alvos=linhas.filter(function(l){return l.share<3&&l.mercado>0;}).slice(0,8);
+      if(!alvos.length)return '<div style="font-size:12px;color:#16a34a">Nenhum estado com participação crítica. 👏</div>';
+      return alvos.map(function(l){
+        return '<div style="padding:8px 0;border-bottom:1px solid #f1f5f9">'
+          +'<div style="font-size:12px;font-weight:700">'+l.uf+' — mercado de '+rs(l.mercado)+', Grow com '+l.share.toFixed(1)+'%</div>'
+          +'<div style="font-size:11px;color:var(--muted);margin-top:2px">Principais compradores: '+(l.topOrgaos.join(' · ')||'—')+'</div>'
+          +'<div style="font-size:11px;color:#7c3aed;margin-top:1px">Fornecedor dominante: '+l.lider+'</div>'
+          +'</div>';
+      }).join('');
+    })()
+    +'</div>';
+}
+
 /* ══════ PERFIL DO CONCORRENTE (histórico ao longo do tempo) ══════ */
 
 // Cada vez que a Inteligência de Mercado roda, guarda um retrato dos concorrentes.
@@ -7349,6 +7947,7 @@ async function analisarMercado(nacional){
       .map(function(k){return{nome:k,d:m[k]};});
   };
   const conc=agrupa('fornecedor'), marcas=agrupa('marca');
+  registrarContextoIntel('concorrentes',conc);
 
   // Guarda o snapshot desta análise para o Perfil do Concorrente consultar
   window._intelUsarAtual=usar;
@@ -7430,6 +8029,395 @@ async function analisarMercado(nacional){
         +(x.homologado?'<span style="font-size:9px;font-weight:600;color:#16a34a;margin-left:5px">homologado</span>':'')
         +'</div></div>';
     }).join('')+'</div></div></div>';
+}
+
+
+
+/* ══════ IMPRIMIR PÁGINA DE FATURAMENTO (KPIs + gráficos) ══════
+   A impressão nativa do navegador saía em branco porque os gráficos são
+   <canvas> desenhados via JS — o navegador não "vê" o desenho ao imprimir.
+   Aqui capturamos a tela como imagem (html2canvas) e geramos o PDF direto. */
+async function imprimirDashboardFaturamento(){
+  const metrics=document.getElementById('fatMetrics');
+  const charts=document.getElementById('fatCharts');
+  if(!metrics||!charts||charts.style.display==='none'){
+    showT('Nada para imprimir ainda — selecione um período com dados primeiro','erro');
+    return;
+  }
+  showT('Preparando impressão...','verde');
+
+  // Monta um container temporário só com o que deve sair impresso
+  const label=document.getElementById('fatMesLabel');
+  const wrap=document.createElement('div');
+  wrap.id='fatPrintWrap';
+  wrap.style.cssText='background:#fff;padding:18px;width:1100px';
+  wrap.innerHTML='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;border-bottom:2px solid #0f6e5f;padding-bottom:10px">'
+    +'<div><div style="font-weight:800;font-size:18px;color:#0f172a">Faturamento — Grow Química</div>'
+    +'<div style="font-size:12px;color:#64748b">'+((label&&label.textContent)||'')+'</div></div>'
+    +'<div style="font-size:11px;color:#94a3b8">Gerado em '+new Date().toLocaleString('pt-BR')+'</div></div>';
+
+  const metricsClone=metrics.cloneNode(true);
+  metricsClone.style.marginBottom='18px';
+  wrap.appendChild(metricsClone);
+
+  const chartsClone=charts.cloneNode(false); // clona só o container; os <canvas> viram imagem abaixo
+  chartsClone.style.display='block';
+  wrap.appendChild(chartsClone);
+
+  document.body.appendChild(wrap);
+  wrap.style.position='fixed';wrap.style.left='-9999px';wrap.style.top='0';
+
+  // Cada gráfico original vira uma imagem estática dentro do clone (os <canvas>
+  // clonados via cloneNode ficam em branco — precisam ser redesenhados como <img>).
+  const canvasOriginais=charts.querySelectorAll('canvas');
+  const blocosOriginais=charts.children;
+  for(let i=0;i<blocosOriginais.length;i++){
+    const blocoClone=blocosOriginais[i].cloneNode(true);
+    const canvasClone=blocoClone.querySelectorAll('canvas');
+    const canvasReal=blocosOriginais[i].querySelectorAll('canvas');
+    canvasClone.forEach(function(cv,j){
+      if(canvasReal[j]){
+        const img=document.createElement('img');
+        img.src=canvasReal[j].toDataURL('image/png',1.0);
+        img.style.width='100%';
+        cv.replaceWith(img);
+      }
+    });
+    chartsClone.appendChild(blocoClone);
+  }
+
+  try{
+    await html2pdf().set({
+      margin:8,
+      filename:'Faturamento_'+((label&&label.textContent)||'periodo').replace(/[^0-9A-Za-z]/g,'_')+'.pdf',
+      image:{type:'jpeg',quality:0.95},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy']}
+    }).from(wrap).save();
+    showT('PDF gerado ✓','verde');
+  }catch(e){
+    console.error(e);
+    showT('Erro ao gerar PDF: '+e.message,'erro');
+  }finally{
+    wrap.remove();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RELATÓRIO COMERCIAL MENSAL — comparativo mês a mês
+   NFs faturadas, cotações enviadas/convertidas, faturamento por
+   grupo, e indicadores de esforço do time comercial.
+   ══════════════════════════════════════════════════════════════ */
+let _relComercialDados=null;
+let _relComercialView='tabela';
+let _chartsRelComercial=[];
+
+function mesAnoDeData(d){
+  if(!d)return '';
+  const s=String(d);
+  if(/^\d{4}-\d{2}/.test(s))return s.slice(0,7);
+  const p=s.split('/');
+  if(p.length===3)return p[2]+'-'+p[1].padStart(2,'0');
+  return '';
+}
+function rotuloMesAno(k){
+  const MESN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const p=String(k).split('-');
+  return p.length===2?(MESN[parseInt(p[1],10)-1]+'/'+p[0].slice(2)):k;
+}
+
+async function abrirRelatorioComercial(){
+  const ov=document.createElement('div');
+  ov.id='relComercialOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99995;display:flex;align-items:center;justify-content:center;padding:14px';
+  ov.onclick=function(e){if(e.target===ov)fecharRelatorioComercial();};
+  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:16px;max-width:1180px;width:100%;max-height:94vh;overflow-y:auto;padding:0">'
+    +'<div id="relComercialCorpo" style="padding:22px"><div style="text-align:center;padding:40px;color:var(--muted)">⏳ Reunindo dados de cotações e faturamento...</div></div>'
+    +'</div>';
+  document.body.appendChild(ov);
+
+  await montarDadosRelatorioComercial();
+  renderRelatorioComercial();
+}
+
+function fecharRelatorioComercial(){
+  const ov=document.getElementById('relComercialOverlay');
+  if(ov)ov.remove();
+  _chartsRelComercial.forEach(function(c){try{c.destroy();}catch(e){}});
+  _chartsRelComercial=[];
+}
+
+// Busca TODAS as cotações (a cache normal do app é limitada às 100 mais recentes,
+// insuficiente para um comparativo histórico completo).
+async function buscarTodasCotacoesParaRelatorio(){
+  try{
+    const {data,error}=await sb.from('cotacoes').select('num,data_cot,status,total,vendedor,cliente').limit(5000);
+    if(error){console.warn('Relatório: erro ao buscar cotações',error);return window._sbCotCache||[];}
+    return (data||[]).map(function(r){
+      return{num:r.num,data:r.data_cot,status:r.status||'aguardando',total:parseFloat(r.total)||0,
+        vendedor:r.vendedor||'—',cliente:r.cliente||''};
+    });
+  }catch(e){console.warn(e);return window._sbCotCache||[];}
+}
+
+async function montarDadosRelatorioComercial(){
+  const cots=await buscarTodasCotacoesParaRelatorio();
+  const vendas=(fatDados||[]).filter(function(r){return !r.excluida;});
+
+  const meses={};   // 'AAAA-MM' -> {...}
+  const garante=function(k){
+    if(!meses[k])meses[k]={
+      key:k,nfs:new Set(),cotEnviadas:0,cotConvertidas:0,cotPerdidas:0,valorCotEnviadas:0,valorCotConvertidas:0,
+      fatGrupo:{},fatTotal:0,vendedores:{},clientesFat:new Set(),diasParaConverter:[]
+    };
+    return meses[k];
+  };
+
+  cots.forEach(function(c){
+    const k=mesAnoDeData(c.data);
+    if(!k)return;
+    const m=garante(k);
+    m.cotEnviadas++;
+    m.valorCotEnviadas+=c.total||0;
+    if(c.status==='convertida'){m.cotConvertidas++;m.valorCotConvertidas+=c.total||0;}
+    if(c.status==='perdida')m.cotPerdidas++;
+    const v=c.vendedor||'—';
+    if(!m.vendedores[v])m.vendedores[v]={enviadas:0,convertidas:0,valor:0};
+    m.vendedores[v].enviadas++;
+    if(c.status==='convertida'){m.vendedores[v].convertidas++;m.vendedores[v].valor+=c.total||0;}
+  });
+
+  vendas.forEach(function(r){
+    const k=mesAnoDeData(r.dt_emissao)||mesAnoDeData(r.mes_ano&&(String(r.mes_ano).split('/').reverse().join('-')));
+    if(!k)return;
+    const m=garante(k);
+    if(r.nf)m.nfs.add(String(r.nf));
+    const v=parseFloat(r.v_total)||0;
+    m.fatTotal+=v;
+    const g=(fatGrupos&&fatGrupos[r.cod_cliente])||'venda_direta';
+    m.fatGrupo[g]=(m.fatGrupo[g]||0)+v;
+    if(r.cod_cliente)m.clientesFat.add(r.cod_cliente);
+  });
+
+  const chaves=Object.keys(meses).sort();
+  const linhas=chaves.map(function(k){
+    const m=meses[k];
+    const taxa=m.cotEnviadas>0?(m.cotConvertidas/m.cotEnviadas*100):null;
+    const ticketNf=m.nfs.size>0?(m.fatTotal/m.nfs.size):0;
+    const ticketCot=m.cotConvertidas>0?(m.valorCotConvertidas/m.cotConvertidas):0;
+    const topVendedor=Object.keys(m.vendedores).sort(function(a,b){return m.vendedores[b].convertidas-m.vendedores[a].convertidas;})[0]||null;
+    return{
+      key:k,label:rotuloMesAno(k),
+      nfs:m.nfs.size,cotEnviadas:m.cotEnviadas,cotConvertidas:m.cotConvertidas,cotPerdidas:m.cotPerdidas,
+      taxa:taxa,fatGrupo:m.fatGrupo,fatTotal:m.fatTotal,ticketNf:ticketNf,ticketCot:ticketCot,
+      clientesAtivos:m.clientesFat.size,vendedores:m.vendedores,
+      topVendedor:topVendedor?(topVendedor+' ('+m.vendedores[topVendedor].convertidas+')'):'—'
+    };
+  }).slice(-24); // últimos 24 meses
+
+  _relComercialDados=linhas;
+}
+
+function renderRelatorioComercial(){
+  const box=document.getElementById('relComercialCorpo');
+  const linhas=_relComercialDados||[];
+  const rs=function(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});};
+
+  if(!linhas.length){
+    box.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Sem dados suficientes de cotações ou faturamento para montar o comparativo.</div>'
+      +'<div style="text-align:right"><button class="btn-cancel-mod" onclick="fecharRelatorioComercial()">Fechar</button></div>';
+    return;
+  }
+
+  // KPIs do período todo
+  const totNfs=linhas.reduce(function(a,b){return a+b.nfs;},0);
+  const totEnv=linhas.reduce(function(a,b){return a+b.cotEnviadas;},0);
+  const totConv=linhas.reduce(function(a,b){return a+b.cotConvertidas;},0);
+  const totFat=linhas.reduce(function(a,b){return a+b.fatTotal;},0);
+  const taxaGeral=totEnv>0?(totConv/totEnv*100):0;
+
+  let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">'
+    +'<div><div style="font-weight:800;font-size:17px">📊 Relatório Comercial Mensal</div>'
+    +'<div style="font-size:11px;color:var(--muted)">Comparativo dos últimos '+linhas.length+' meses com dados</div></div>'
+    +'<button class="btn-cancel-mod" onclick="fecharRelatorioComercial()">✕ Fechar</button></div>';
+
+  html+='<div class="intel-kpi" style="margin-bottom:16px">'
+    +'<div><div class="rot">NFs faturadas</div><div class="val" style="color:#0891b2">'+totNfs+'</div></div>'
+    +'<div><div class="rot">Cotações enviadas</div><div class="val" style="color:#3b82f6">'+totEnv+'</div></div>'
+    +'<div><div class="rot">Convertidas</div><div class="val" style="color:#16a34a">'+totConv+'</div></div>'
+    +'<div><div class="rot">Taxa de conversão</div><div class="val" style="color:'+(taxaGeral>=30?'#16a34a':taxaGeral>=15?'#f59e0b':'#dc2626')+'">'+taxaGeral.toFixed(1)+'%</div></div>'
+    +'<div><div class="rot">Faturamento total</div><div class="val" style="color:#8b5cf6">'+rs(totFat)+'</div></div>'
+    +'</div>';
+
+  html+='<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">'
+    +'<button class="btn-cancel-mod" style="'+(_relComercialView==='tabela'?'background:#0f6e5f;color:#fff':'')+'" onclick="_relComercialView=\'tabela\';renderRelatorioComercial()">📋 Tabela</button>'
+    +'<button class="btn-cancel-mod" style="'+(_relComercialView==='dashboard'?'background:#0f6e5f;color:#fff':'')+'" onclick="_relComercialView=\'dashboard\';renderRelatorioComercial()">📊 Dashboard visual</button>'
+    +'<span style="flex:1"></span>'
+    +'<button class="btn-cancel-mod" onclick="exportarRelatorioComercialPDF()">📄 Baixar '+(_relComercialView==='tabela'?'tabela':'dashboard')+' em PDF</button>'
+    +'</div>';
+
+  html+='<div id="relComercialConteudo"></div>';
+  box.innerHTML=html;
+
+  if(_relComercialView==='tabela')renderTabelaComercial(linhas);
+  else renderDashboardComercial(linhas);
+}
+
+// Valor cheio, sem abreviar: R$ 1.350.217
+function rsCompleto(v){
+  return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+// Mantido para uso pontual; agora as tabelas usam valor completo por padrão.
+function rsCompacto(v){return rsCompleto(v);}
+
+// Variação percentual vs. o mês anterior, com seta e cor
+function chipVariacao(atual,anterior){
+  if(anterior==null||anterior===0||atual==null)return '<span style="color:var(--muted-light);font-size:10px">—</span>';
+  const d=((atual-anterior)/Math.abs(anterior))*100;
+  const cor=d>=0?'#16a34a':'#dc2626';
+  const seta=d>=0?'▲':'▼';
+  return '<span style="font-size:10px;font-weight:700;color:'+cor+';white-space:nowrap">'+seta+' '+Math.abs(d).toFixed(0)+'%</span>';
+}
+
+function renderTabelaComercial(linhas){
+  const el=document.getElementById('relComercialConteudo');
+
+  const cabecalho=['Mês','NFs','Cotações\nenviadas','Convertidas','Taxa de\nconversão','Faturamento\ntotal','Ticket\npor NF','Vendedor\ndestaque'];
+  const larguras=['72px','60px','98px','98px','108px','170px','110px','140px'];
+
+  el.innerHTML='<div id="relComercialTabelaExp" style="overflow-x:auto;border:1px solid var(--borda);border-radius:10px">'
+    +'<table style="width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed;min-width:820px">'
+    +'<colgroup>'+larguras.map(function(w){return '<col style="width:'+w+'">';}).join('')+'</colgroup>'
+    +'<thead><tr style="background:#0f2744;color:#dbeafe">'
+    +cabecalho.map(function(t,i){
+      return '<th style="padding:9px 10px;text-align:'+(i===0?'left':'right')+';font-size:10px;text-transform:uppercase;letter-spacing:.03em;white-space:pre-line;line-height:1.3">'+t+'</th>';
+    }).join('')
+    +'</tr></thead><tbody>'
+    +linhas.map(function(l,i){
+      const ant=linhas[i-1]||null;
+      const cor=l.taxa==null?'#94a3b8':l.taxa>=30?'#16a34a':l.taxa>=15?'#f59e0b':'#dc2626';
+      const td=function(conteudo,alinhar,extra){
+        return '<td style="padding:9px 10px;text-align:'+(alinhar||'right')+';white-space:nowrap'+(extra||'')+'">'+conteudo+'</td>';
+      };
+      return '<tr style="border-bottom:1px solid #f1f5f9;'+(i%2?'background:rgba(148,163,184,.05)':'')+'">'
+        +td(l.label,'left',';font-weight:800')
+        +td(l.nfs+'<br>'+chipVariacao(l.nfs,ant&&ant.nfs))
+        +td(l.cotEnviadas+'<br>'+chipVariacao(l.cotEnviadas,ant&&ant.cotEnviadas))
+        +td('<span style="color:#16a34a;font-weight:700">'+l.cotConvertidas+'</span><br>'+chipVariacao(l.cotConvertidas,ant&&ant.cotConvertidas))
+        +td('<span style="font-weight:800;color:'+cor+'">'+(l.taxa==null?'—':l.taxa.toFixed(0)+'%')+'</span><br>'
+            +(ant&&ant.taxa!=null&&l.taxa!=null?chipVariacao(l.taxa,ant.taxa):'<span style="color:var(--muted-light);font-size:10px">—</span>'))
+        +td('<span style="font-weight:800">'+rsCompleto(l.fatTotal)+'</span><br>'+chipVariacao(l.fatTotal,ant&&ant.fatTotal))
+        +td(rsCompleto(l.ticketNf))
+        +td('<span style="font-size:11px;color:#7c3aed;white-space:normal">'+l.topVendedor+'</span>')
+        +'</tr>';
+    }).join('')+'</tbody></table></div>'
+
+    +'<div style="margin-top:14px;overflow-x:auto;border:1px solid var(--borda);border-radius:10px">'
+    +'<div style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--muted);background:#f8fafc;border-bottom:1px solid var(--borda)">💰 Detalhe do faturamento por grupo</div>'
+    +'<table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;min-width:600px">'
+    +'<colgroup><col style="width:72px"><col><col><col><col></colgroup>'
+    +'<thead><tr style="background:#f8fafc"><th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--muted);text-transform:uppercase">Mês</th>'
+    +Object.keys(GRUPOS).map(function(g){return '<th style="padding:7px 10px;text-align:right;font-size:10px;color:'+GRUPOS[g].cor+';text-transform:uppercase">'+GRUPOS[g].label+'</th>';}).join('')
+    +'<th style="padding:7px 10px;text-align:right;font-size:10px;color:var(--muted);text-transform:uppercase">Total do mês</th>'
+    +'</tr></thead><tbody>'
+    +linhas.map(function(l,i){
+      const ant=linhas[i-1]||null;
+      const totalMes=Object.keys(GRUPOS).reduce(function(a,g){return a+(l.fatGrupo[g]||0);},0);
+      return '<tr style="border-bottom:1px solid #f1f5f9;'+(i%2?'background:rgba(148,163,184,.05)':'')+'">'
+        +'<td style="padding:7px 10px;font-weight:700;vertical-align:top">'+l.label+'</td>'
+        +Object.keys(GRUPOS).map(function(g){
+          const v=l.fatGrupo[g]||0;
+          const vAnt=ant?(ant.fatGrupo[g]||0):null;
+          return '<td style="padding:7px 10px;text-align:right;vertical-align:top">'
+            +rsCompleto(v)
+            +'<br>'+chipVariacao(v,vAnt)+'</td>';
+        }).join('')
+        +'<td style="padding:7px 10px;text-align:right;font-weight:800;vertical-align:top">'+rsCompleto(totalMes)+'</td>'
+        +'</tr>';
+    }).join('')+'</tbody></table></div>'
+
+    +'<div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.6">'
+    +'<b>▲/▼ ao lado de cada número</b> = variação percentual em relação ao mesmo indicador no mês anterior — inclusive dentro de cada grupo de faturamento.<br>'
+    +'<b>Ideias adicionais para medir esforço do time:</b> clientes ativos faturados no mês e tempo médio entre cotação e conversão já são calculados internamente — me avise se quiser esses dois como colunas extras.</div>';
+}
+
+function renderDashboardComercial(linhas){
+  const el=document.getElementById('relComercialConteudo');
+  el.innerHTML='<div id="relComercialDashboardExp" style="background:#0b1220;border-radius:14px;padding:18px">'
+    +'<div style="color:#fff;font-weight:800;font-size:15px;margin-bottom:2px">Grow Química — Painel Comercial</div>'
+    +'<div style="color:#94a3b8;font-size:11px;margin-bottom:16px">Gerado em '+new Date().toLocaleString('pt-BR')+'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px">'
+    +'<div style="background:#111a2e;border-radius:12px;padding:14px"><div style="color:#e2e8f0;font-weight:700;font-size:12px;margin-bottom:8px">💰 Faturamento por grupo</div><div style="height:220px"><canvas id="cvRelFat"></canvas></div></div>'
+    +'<div style="background:#111a2e;border-radius:12px;padding:14px"><div style="color:#e2e8f0;font-weight:700;font-size:12px;margin-bottom:8px">📈 Taxa de conversão</div><div style="height:220px"><canvas id="cvRelTaxa"></canvas></div></div>'
+    +'<div style="background:#111a2e;border-radius:12px;padding:14px"><div style="color:#e2e8f0;font-weight:700;font-size:12px;margin-bottom:8px">📨 Cotações: enviadas x convertidas</div><div style="height:220px"><canvas id="cvRelCot"></canvas></div></div>'
+    +'<div style="background:#111a2e;border-radius:12px;padding:14px"><div style="color:#e2e8f0;font-weight:700;font-size:12px;margin-bottom:8px">🎟️ Ticket médio (NF x Cotação)</div><div style="height:220px"><canvas id="cvRelTicket"></canvas></div></div>'
+    +'</div></div>';
+
+  _chartsRelComercial.forEach(function(c){try{c.destroy();}catch(e){}});
+  _chartsRelComercial=[];
+  if(typeof Chart==='undefined')return;
+
+  const labels=linhas.map(function(l){return l.label;});
+  const tip={backgroundColor:'rgba(15,23,42,.94)',titleColor:'#fff',bodyColor:'#e2e8f0',padding:10,cornerRadius:8};
+  const gridDark={color:'rgba(148,163,184,.12)'};
+  const tickDark={color:'#94a3b8',font:{size:10}};
+
+  _chartsRelComercial.push(new Chart(document.getElementById('cvRelFat'),{
+    type:'bar',
+    data:{labels:labels,datasets:['3a','parceiros','venda_direta','exportacao'].map(function(g){
+      return{label:GRUPOS[g].label,data:linhas.map(function(l){return l.fatGrupo[g]||0;}),backgroundColor:GRUPOS[g].cor,stack:'s',borderRadius:4};
+    })},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#cbd5e1',boxWidth:10,font:{size:10}}},tooltip:tip},
+      scales:{x:{stacked:true,ticks:tickDark,grid:{display:false}},y:{stacked:true,ticks:tickDark,grid:gridDark}}}
+  }));
+
+  _chartsRelComercial.push(new Chart(document.getElementById('cvRelTaxa'),{
+    type:'line',
+    data:{labels:labels,datasets:[{data:linhas.map(function(l){return l.taxa;}),borderColor:'#22d3ee',
+      backgroundColor:'rgba(34,211,238,.15)',fill:true,tension:.35,pointRadius:3,spanGaps:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:Object.assign({},tip,{callbacks:{label:function(c){return c.parsed.y.toFixed(1)+'%';}}})},
+      scales:{x:{ticks:tickDark,grid:{display:false}},y:{ticks:Object.assign({},tickDark,{callback:function(v){return v+'%';}}),grid:gridDark}}}
+  }));
+
+  _chartsRelComercial.push(new Chart(document.getElementById('cvRelCot'),{
+    type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'Enviadas',data:linhas.map(function(l){return l.cotEnviadas;}),backgroundColor:'#3b82f6',borderRadius:4},
+      {label:'Convertidas',data:linhas.map(function(l){return l.cotConvertidas;}),backgroundColor:'#16a34a',borderRadius:4}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#cbd5e1',boxWidth:10,font:{size:10}}},tooltip:tip},
+      scales:{x:{ticks:tickDark,grid:{display:false}},y:{ticks:tickDark,grid:gridDark}}}
+  }));
+
+  _chartsRelComercial.push(new Chart(document.getElementById('cvRelTicket'),{
+    type:'line',
+    data:{labels:labels,datasets:[
+      {label:'Por NF',data:linhas.map(function(l){return l.ticketNf;}),borderColor:'#f59e0b',tension:.3,pointRadius:3},
+      {label:'Por cotação',data:linhas.map(function(l){return l.ticketCot;}),borderColor:'#8b5cf6',tension:.3,pointRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#cbd5e1',boxWidth:10,font:{size:10}}},
+      tooltip:Object.assign({},tip,{callbacks:{label:function(c){return c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR',{maximumFractionDigits:0});}}})},
+      scales:{x:{ticks:tickDark,grid:{display:false}},y:{ticks:Object.assign({},tickDark,{callback:function(v){return 'R$'+(v/1000).toFixed(0)+'k';}}),grid:gridDark}}}
+  }));
+}
+
+async function exportarRelatorioComercialPDF(){
+  const alvo=document.getElementById(_relComercialView==='tabela'?'relComercialTabelaExp':'relComercialDashboardExp');
+  if(!alvo){showT('Nada para exportar','erro');return;}
+  showT('Gerando PDF...','verde');
+  const nome='Relatorio_Comercial_'+_relComercialView+'_'+new Date().toISOString().slice(0,10)+'.pdf';
+  try{
+    await html2pdf().set({
+      margin:8,filename:nome,image:{type:'jpeg',quality:0.95},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:_relComercialView==='dashboard'?'#0b1220':'#ffffff'},
+      jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}
+    }).from(alvo).save();
+    showT('PDF gerado ✓','verde');
+  }catch(e){
+    console.error(e);
+    showT('Erro ao gerar PDF: '+e.message,'erro');
+  }
 }
 
 /* ══════ CÓDIGOS CATMAT DO PRODUTO ══════ */
@@ -12020,7 +13008,7 @@ const REGIOES_BR={
 const UF_NOME={AC:'Acre',AL:'Alagoas',AP:'Amapá',AM:'Amazonas',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MT:'Mato Grosso',MS:'Mato Grosso do Sul',MG:'Minas Gerais',PA:'Pará',PB:'Paraíba',PR:'Paraná',PE:'Pernambuco',PI:'Piauí',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RS:'Rio Grande do Sul',RO:'Rondônia',RR:'Roraima',SC:'Santa Catarina',SP:'São Paulo',SE:'Sergipe',TO:'Tocantins'};
 
 /* ══════════════ BUSCAR LICITAÇÃO — PNCP ══════════════ */
-let buscaFiltros={palavras:[],ufs:[]};
+let buscaFiltros={palavras:[],ufs:[],bloqueadas:[]};
 let licitacoesOcultas=new Set();
 let buscaPncpResultadosCache=[];
 let buscaLicitInit=false;
@@ -12046,6 +13034,7 @@ async function initBuscaLicitacoes(){
     buscaLicitInit=true;
   }
   renderFiltroChips();
+  renderChipsBloqueadas();
   renderUfGridBusca();
   atualizarModoBuscaPncp();
   renderResumoFiltros();
@@ -12060,6 +13049,7 @@ async function sbCarregarFiltrosBusca(){
     else if(data){
       buscaFiltros.palavras=data.palavras_chave||[];
       buscaFiltros.ufs=data.ufs||[];
+      buscaFiltros.bloqueadas=data.palavras_bloqueadas||[];
     }
   }catch(e){console.error(e);}
   // Carrega a lista de licitações ocultas ("não participar")
@@ -12072,7 +13062,8 @@ async function sbCarregarFiltrosBusca(){
 async function sbSalvarFiltrosBusca(){
   try{
     const {error}=await sb.from('licitacoes_busca_filtros').upsert({
-      id:1,palavras_chave:buscaFiltros.palavras,ufs:buscaFiltros.ufs,atualizado_em:new Date().toISOString()
+      id:1,palavras_chave:buscaFiltros.palavras,ufs:buscaFiltros.ufs,
+      palavras_bloqueadas:buscaFiltros.bloqueadas,atualizado_em:new Date().toISOString()
     },{onConflict:'id'});
     if(error){showT('⚠️ Filtros NÃO salvos: '+error.message,'erro');console.error(error);}
   }catch(e){console.error('Erro ao salvar filtros:',e);}
@@ -12273,6 +13264,7 @@ async function aplicarGrupoFiltros(id){
   document.getElementById('buscaSomenteAbertas').checked=!!g.somente_abertas;
   atualizarModoBuscaPncp();
   renderFiltroChips();
+  renderChipsBloqueadas();
   renderUfGridBusca();
   sbSalvarFiltrosBusca();
   showT('Filtro "'+(g.nome||'')+'" aplicado — buscando...','verde');
@@ -12304,6 +13296,52 @@ function renderFiltroChips(){
   }).join('');
 }
 
+function renderChipsBloqueadas(){
+  const el=document.getElementById('filtroChipsBloqueadas');
+  if(!el)return;
+  const lista=buscaFiltros.bloqueadas||[];
+  if(!lista.length){
+    el.innerHTML='<span style="font-size:11px;color:var(--muted-light)">Nenhuma palavra bloqueada.</span>';
+    return;
+  }
+  el.innerHTML=lista.map(function(p){
+    return '<span style="display:inline-flex;align-items:center;gap:6px;background:#fef2f2;color:#b91c1c;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600">'
+      +p.replace(/</g,'&lt;')
+      +'<span style="cursor:pointer;font-weight:800" onclick="removerPalavraBloqueada(\''+p.replace(/'/g,"\\'")+'\')">×</span></span>';
+  }).join('');
+}
+
+function adicionarPalavraBloqueada(){
+  const input=document.getElementById('buscaBloqueadaInput');
+  const val=input.value.trim();
+  if(!val)return;
+  if(!buscaFiltros.bloqueadas)buscaFiltros.bloqueadas=[];
+  const jaExiste=buscaFiltros.bloqueadas.some(function(p){return p.toLowerCase()===val.toLowerCase();});
+  if(jaExiste){showT('Já está na lista','erro');return;}
+  buscaFiltros.bloqueadas.push(val);
+  input.value='';
+  renderChipsBloqueadas();
+  sbSalvarFiltrosBusca();
+  showT('Palavra bloqueada — refaça a busca para aplicar','verde');
+}
+
+function removerPalavraBloqueada(palavra){
+  buscaFiltros.bloqueadas=(buscaFiltros.bloqueadas||[]).filter(function(p){return p!==palavra;});
+  renderChipsBloqueadas();
+  sbSalvarFiltrosBusca();
+}
+
+// Verdadeiro se o texto (objeto/descrição do item) contém alguma palavra bloqueada
+function contemPalavraBloqueada(texto){
+  const lista=buscaFiltros.bloqueadas||[];
+  if(!lista.length)return false;
+  const t=normalizarTexto(texto||'');
+  return lista.some(function(p){
+    const pn=normalizarTexto(p);
+    return pn&&t.indexOf(pn)>=0;
+  });
+}
+
 function adicionarPalavraFiltro(){
   const input=document.getElementById('buscaPalavraInput');
   const val=input.value.trim();
@@ -12313,12 +13351,14 @@ function adicionarPalavraFiltro(){
   buscaFiltros.palavras.push(val);
   input.value='';
   renderFiltroChips();
+  renderChipsBloqueadas();
   sbSalvarFiltrosBusca();
 }
 
 function removerPalavraFiltro(palavra){
   buscaFiltros.palavras=buscaFiltros.palavras.filter(function(p){return p!==palavra;});
   renderFiltroChips();
+  renderChipsBloqueadas();
   sbSalvarFiltrosBusca();
 }
 
@@ -12327,6 +13367,7 @@ async function limparFiltrosPalavras(){
   if(!await confirmar({titulo:'Limpar palavras-chave',mensagem:'Todas as palavras-chave do filtro serão removidas.',confirmar:'Limpar'}))return;
   buscaFiltros.palavras=[];
   renderFiltroChips();
+  renderChipsBloqueadas();
   sbSalvarFiltrosBusca();
 }
 
@@ -12433,26 +13474,116 @@ async function fetchContratacoesPorCatmat(codigoClasse,codigoGrupo,codItemCatalo
 
 // Busca textual do próprio site do PNCP (mesma usada em pncp.gov.br/app/editais).
 // Retorna null se o endpoint falhar (aí a busca cai no método tradicional da API documentada).
-async function fetchPncpSearch(termo,opts){
+
+/* ══════ CACHE LOCAL DAS LICITAÇÕES ══════
+   Toda busca bem-sucedida guarda os resultados no banco. Se o PNCP cair,
+   a busca continua funcionando com o que já foi visto antes. */
+async function salvarCacheLicitacoes(lista){
+  if(!lista||!lista.length)return;
   try{
-    const url=new URL('https://pncp.gov.br/api/search/');
-    url.searchParams.set('q',termo);
-    url.searchParams.set('tipos_documento','edital');
-    url.searchParams.set('ordenacao','-data');
-    url.searchParams.set('pagina',String((opts&&opts.pagina)||1));
-    url.searchParams.set('tam_pagina','50');
-    if(opts&&opts.status)url.searchParams.set('status',opts.status);
-    if(opts&&opts.ufs)url.searchParams.set('ufs',opts.ufs);
-    const resp=await fetch(url.toString(),{headers:{'Accept':'application/json'}});
-    if(!resp.ok){console.warn('Busca textual PNCP HTTP '+resp.status);return null;}
-    const data=await resp.json();
-    const lista=data.items||data.data||data.resultado||null;
-    if(!Array.isArray(lista))return null;
-    return lista;
+    const agora=new Date().toISOString();
+    const linhas=lista.filter(function(x){return x.numeroControlePNCP;}).map(function(x){
+      return{
+        pncp_id:x.numeroControlePNCP,
+        uf:(x.unidadeOrgao&&x.unidadeOrgao.ufSigla)||null,
+        orgao:(x.orgaoEntidade&&x.orgaoEntidade.razaosocial)||null,
+        objeto:String(x.objetoCompra||'').slice(0,1000),
+        prazo:x.dataEncerramentoProposta||null,
+        dados:x,
+        atualizado_em:agora
+      };
+    });
+    if(!linhas.length)return;
+    const {error}=await sb.from('licitacoes_cache').upsert(linhas,{onConflict:'pncp_id'});
+    if(error)console.warn('Cache de licitações não salvo:',error.message);
+  }catch(e){console.warn('Cache de licitações:',e);}
+}
+
+// Busca no cache local aplicando os mesmos filtros da tela
+async function buscarNoCacheLicitacoes(){
+  try{
+    const {data,error}=await sb.from('licitacoes_cache')
+      .select('*').order('prazo',{ascending:true}).limit(500);
+    if(error||!data)return null;
+
+    const palavras=buscaFiltros.palavras.map(normalizarTexto);
+    const ufs=buscaFiltros.ufs;
+    const somenteAbertas=document.getElementById('buscaSomenteAbertas').checked;
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+
+    return data.filter(function(r){
+      if(licitacoesOcultas.has(r.pncp_id))return false;
+      if(ufs.length&&r.uf&&ufs.indexOf(r.uf)<0)return false;
+      if(somenteAbertas&&r.prazo){
+        if(new Date(r.prazo)<hoje)return false;
+      }
+      if(palavras.length){
+        const txt=normalizarTexto((r.objeto||'')+' '+(r.orgao||''));
+        if(!palavras.some(function(p){return txt.indexOf(p)>=0;}))return false;
+      }
+      return true;
+    }).map(function(r){return r.dados;});
   }catch(e){
-    console.warn('Busca textual PNCP falhou:',e);
+    console.warn('Leitura do cache falhou:',e);
     return null;
   }
+}
+
+// Monta a faixa de aviso do modo offline
+function faixaModoOffline(qtd,motivo){
+  return '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:11px 13px;color:#92400e">'
+    +'📴 <b>Modo offline — mostrando '+qtd+' licitação(ões) já vistas antes.</b><br>'
+    +'<span style="font-size:11px">'+(motivo||'O PNCP não respondeu')+'. '
+    +'Estes resultados vêm do que o app já baixou em buscas anteriores, então podem estar desatualizados '
+    +'e não incluem editais publicados depois da última consulta bem-sucedida.</span>'
+    +'<div style="margin-top:8px"><button class="btn-cancel-mod" style="font-size:11px;padding:4px 12px" onclick="buscarLicitacoesPNCP()">🔄 Tentar conectar de novo</button></div>'
+    +'</div>';
+}
+
+// Guarda o motivo da última falha, para distinguir "API fora do ar" de "nada encontrado"
+let _erroPncpBusca='';
+let _falhasPncp=0;
+
+async function fetchPncpSearch(termo,opts){
+  _erroPncpBusca='';
+  const url=new URL('https://pncp.gov.br/api/search/');
+  url.searchParams.set('q',termo);
+  url.searchParams.set('tipos_documento','edital');
+  url.searchParams.set('ordenacao','-data');
+  url.searchParams.set('pagina',String((opts&&opts.pagina)||1));
+  url.searchParams.set('tam_pagina','50');
+  if(opts&&opts.status)url.searchParams.set('status',opts.status);
+  if(opts&&opts.ufs)url.searchParams.set('ufs',opts.ufs);
+
+  // Até 3 tentativas — instabilidade momentânea do PNCP é comum
+  for(let t=1;t<=3;t++){
+    try{
+      const ctrl=new AbortController();
+      const tmr=setTimeout(function(){ctrl.abort();},20000);
+      const resp=await fetch(url.toString(),{headers:{'Accept':'application/json'},signal:ctrl.signal});
+      clearTimeout(tmr);
+      if(!resp.ok){
+        _erroPncpBusca='O PNCP respondeu com erro '+resp.status+(resp.status>=500?' (instabilidade no servidor deles)':'');
+        if(resp.status<500)return null;          // erro do pedido: não adianta repetir
+      }else{
+        const data=await resp.json();
+        const lista=data.items||data.data||data.resultado||null;
+        if(!Array.isArray(lista)){
+          _erroPncpBusca='O PNCP devolveu um formato inesperado';
+          return null;
+        }
+        _erroPncpBusca='';
+        return lista;
+      }
+    }catch(e){
+      _erroPncpBusca=(e&&e.name==='AbortError')
+        ? 'O PNCP demorou demais para responder (mais de 20s)'
+        : 'Não foi possível conectar ao PNCP — verifique sua internet';
+      console.warn('Busca textual PNCP tentativa '+t+':',e);
+    }
+    if(t<3)await new Promise(function(r){setTimeout(r,900*t);});
+  }
+  return null;
 }
 
 // Converte um resultado da busca textual pro formato usado nos cards.
@@ -12506,6 +13637,7 @@ async function carregarPaginaBuscaTextual(pagina){
       const mapeado=mapResultadoBuscaTextual(it);
       if(!mapeado.numeroControlePNCP||buscaTextualVistos.has(mapeado.numeroControlePNCP))return;
       if(licitacoesOcultas.has(mapeado.numeroControlePNCP))return;
+      if(contemPalavraBloqueada(mapeado.objetoCompra))return; // contém palavra que você marcou pra evitar
       if(buscaFiltros.ufs.length&&mapeado.unidadeOrgao.ufSigla&&!buscaFiltros.ufs.includes(mapeado.unidadeOrgao.ufSigla))return;
       buscaTextualVistos.add(mapeado.numeroControlePNCP);
       novos.push(mapeado);
@@ -12557,6 +13689,7 @@ async function buscarLicitacoesPNCP(){
   resultEl.innerHTML='';
   const palavrasNorm=buscaFiltros.palavras.map(normalizarTexto);
 
+  _falhasPncp=0;_erroPncpBusca='';
   /* ── MÉTODO 1: busca textual do próprio site do PNCP (acha até quando o termo só está nos itens/edital) ── */
   statusEl.innerHTML='🔎 Buscando pelo texto no PNCP...';
   buscaTextualPagina=1;
@@ -12567,7 +13700,10 @@ async function buscarLicitacoesPNCP(){
   if(resultadosTexto!==null){
     buscaPncpResultadosCache=resultadosTexto;
     if(!resultadosTexto.length){
-      statusEl.innerHTML='Nenhuma licitação encontrada na busca textual do PNCP com essas palavras.';
+      statusEl.innerHTML='<div style="background:#f8fafc;border:1px solid var(--borda);border-radius:8px;padding:10px 12px">'
+        +'🔍 <b>Nenhuma licitação encontrada</b> com essas palavras no período.<br>'
+        +'<span style="font-size:11px;color:var(--muted)">A consulta ao PNCP funcionou — apenas não há resultado para os filtros atuais. '
+        +'Tente ampliar o período, remover o filtro de UF ou usar uma palavra mais genérica.</span></div>';
       return;
     }
     atualizarStatusBuscaTextual();
@@ -12576,7 +13712,9 @@ async function buscarLicitacoesPNCP(){
   }
 
   /* ── MÉTODO 2 (reserva): API documentada por data/modalidade/UF, filtrando o objeto no app ── */
-  statusEl.innerHTML='⚠️ Busca textual indisponível — usando o método tradicional...';
+  statusEl.innerHTML='<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:10px 12px;color:#92400e">'
+    +'⚠️ <b>Não consegui usar a busca do PNCP.</b> '+(_erroPncpBusca||'Motivo desconhecido')+'.<br>'
+    +'<span style="font-size:11px">Tentando pelo método alternativo (mais limitado)…</span></div>';
 
   const brutos=[];
   let combosFeitas=0;
@@ -12598,6 +13736,8 @@ async function buscarLicitacoesPNCP(){
             });
         if(Array.isArray(resp.data))brutos.push.apply(brutos,resp.data);
       }catch(e){
+        _falhasPncp++;
+        _erroPncpBusca=_erroPncpBusca||'Falha ao consultar a API do PNCP';
         console.error('Erro PNCP modalidade='+modalidade+' uf='+uf+':',e);
       }
     }
@@ -12616,6 +13756,7 @@ async function buscarLicitacoesPNCP(){
   const filtrados=[];
   candidatos.forEach(function(item){
     if(licitacoesOcultas.has(item.numeroControlePNCP))return; // ocultada pelo usuário
+    if(contemPalavraBloqueada(item.objetoCompra))return; // contém palavra que você marcou pra evitar
     const objetoNorm=normalizarTexto(item.objetoCompra);
     if(palavrasNorm.some(function(p){return objetoNorm.includes(p);})){
       item._origemMatch='objeto';
@@ -12675,7 +13816,20 @@ async function buscarLicitacoesPNCP(){
   buscaPncpResultadosCache=filtrados;
 
   if(!filtrados.length){
-    statusEl.innerHTML='Nenhuma licitação encontrada com esses filtros no período informado.';
+    // Se as chamadas ao PNCP falharam, isso não é "vazio" — é falha de conexão
+    if(_erroPncpBusca||_falhasPncp>0){
+      statusEl.innerHTML='<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:11px 13px;color:#991b1b">'
+        +'🔌 <b>Não foi possível consultar o PNCP agora.</b><br>'
+        +'<span style="font-size:11px">'+(_erroPncpBusca||'As consultas à API falharam')+'. '
+        +'Isso costuma ser instabilidade momentânea do portal — aguarde alguns minutos e tente de novo. '
+        +'<b>Não significa que não existam licitações.</b></span>'
+        +'<div style="margin-top:8px"><button class="btn-cancel-mod" style="font-size:11px;padding:4px 12px" onclick="buscarLicitacoesPNCP()">🔄 Tentar novamente</button></div>'
+        +'</div>';
+      return;
+    }
+    statusEl.innerHTML='<div style="background:#f8fafc;border:1px solid var(--borda);border-radius:8px;padding:10px 12px">'
+      +'🔍 <b>Nenhuma licitação encontrada</b> com esses filtros no período informado.<br>'
+      +'<span style="font-size:11px;color:var(--muted)">A consulta funcionou — apenas não há resultado. Tente ampliar o período ou remover o filtro de UF.</span></div>';
     return;
   }
   const viaObjeto=filtrados.filter(function(f){return f._origemMatch==='objeto';}).length;
@@ -13248,6 +14402,7 @@ async function carregarPreviasItens(){
       const ch=chaveItemEdital(it.descricao);
       const editado=(_ajustesItens&&_ajustesItens[ch])||(_vinculosItens&&_vinculosItens[ch]);
       if(editado)return true;
+      if(contemPalavraBloqueada(it.descricao))return false; // ex: "enzima" sem ser detergente enzimático
       const descNorm=normalizarTexto(it.descricao);
       return palavrasNorm.some(function(p){return descNorm.includes(p);});
     }).sort(function(a,b){
@@ -13644,10 +14799,12 @@ function blocoPrecoItem(item,uf,idxRes,idxItem){
     +'<select onchange="definirUnidadeItem('+idxRes+','+idxItem+',this.value)" style="font-size:10px;padding:2px 6px;border:1px solid rgba(146,64,14,.35);border-radius:6px;background:#fff">'+opts+'</select>'
     +btnVinc+btnEditar
     +'<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px" onclick="abrirCadastroProdutoDaLicitacao(\''+codPrincipal+'\')">&#128230; cadastro</button>'
+    +'<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px;border-color:#c4b5fd;color:#7c3aed" onclick="carregarUltimoGanhador('+idxRes+','+idxItem+',\''+codPrincipal+'\')">&#127942; último ganhador</button>'
     +(confirmado
       ?'<button class="btn-cancel-mod" style="font-size:10px;padding:2px 8px;border-color:#dc2626;color:#dc2626" onclick="confirmarInfoItem('+idxRes+','+idxItem+',false)">desfazer confirmação</button>'
       :'<button class="acoes-btn" style="font-size:10px;padding:3px 10px" onclick="confirmarInfoItem('+idxRes+','+idxItem+',true)">\u2705 Confirmar informações</button>')
     +'</div>';
+  html+='<div id="ganhador'+idxRes+'_'+idxItem+'" style="margin-top:5px"></div>';
   html+='<div style="margin-top:4px;font-size:10px;opacity:.75">'+(conv?conv.obs:'')
     +(conv&&conv.incerto?' <b style="color:#b45309">confira a conversão</b>':'')+'</div>';
   html+='</div>';
@@ -14151,10 +15308,15 @@ async function adicionarResultadoComoPregao(idx){
     valor_estimado:det.valorTotalEstimado||null
   }:null;
 
+  // Link do sistema de origem: onde a sessão/disputa/chat realmente acontece
+  // (Compras.gov, BEC-SP, Licitações-e...) — a API já traz esse campo.
+  const linkDisputa=(det&&det.linkSistemaOrigem)||(item&&item.linkSistemaOrigem)||null;
+
   const payloadCompleto={
     numero:numeroReal,orgao:orgaoNome,uasg:String(uasg),
     data_abertura:dataFimProposta,status:'agendado',estado:estado,
     link_edital:linkEdital,pncp_id:item.numeroControlePNCP||null,
+    link_disputa:linkDisputa,
     pncp_dados:pncpDados
   };
 
@@ -14461,6 +15623,7 @@ function editarPregao(id){
     +campo('Id contratação PNCP','epIdPncp',d.id_pncp)
     +campo('Fonte','epFonte',d.fonte)
     +campo('Link do edital','epLinkEdital',p.link_edital,true)
+    +campo('🚪 Link da sala de disputa (sistema de origem)','epLinkDisputa',p.link_disputa,true)
     +area('📌 Informações importantes (entrega, comodato, condições especiais)','epObs',p.observacoes||'')
     +area('Objeto','epObjeto',d.objeto)
     +area('Informação complementar','epInfoComp',d.info_complementar)
@@ -14497,7 +15660,7 @@ async function salvarEdicaoPregaoModal(id){
   const payload={
     numero:v('epNumero'),orgao:v('epOrgao'),uasg:v('epUasg'),
     data_abertura:v('epData')||null,status:v('epStatus'),estado:v('epEstado')||null,
-    link_edital:v('epLinkEdital')||null,pncp_dados:pncpDados,
+    link_edital:v('epLinkEdital')||null,link_disputa:v('epLinkDisputa')||null,pncp_dados:pncpDados,
     observacoes:v('epObs')||null
   };
   let r=await sb.from('pregoes').update(payload).eq('id',id);
@@ -14650,6 +15813,7 @@ function cardAgendaPregao(p,hoje){
     '<div class="reg-acoes" onclick="event.stopPropagation()">'+
       (p.pncp_dados?'<button class="reg-btn" onclick="mostrarDadosPncp('+p.id+')" title="Dados do PNCP" style="color:#7c3aed">ℹ️</button>':'')+
       (p.link_edital?'<button class="reg-btn" onclick="window.open(limparUrlPncp(\''+p.link_edital+'\'),\'_blank\')" title="Baixar edital" style="color:#0284c7">📄</button>':'')+
+      (p.link_disputa?('<button class="reg-btn" onclick="window.open(\''+p.link_disputa+'\',\'_blank\')" title="Entrar na disputa (sala do orgao)" style="color:#7c3aed">🚪</button>'):'')+
       '<button class="reg-btn" onclick="abrirPregao('+p.id+')" title="Ver dossiê e itens" style="color:#0f6e5f">📋</button>'+
       '<button class="reg-btn del" onclick="excluirPregao('+p.id+')" title="Excluir">✕</button>'+
     '</div>'+
@@ -14781,6 +15945,7 @@ function cardPregao(p){
     '<div class="reg-acoes" onclick="event.stopPropagation()" style="flex-shrink:0">'+
       (p.pncp_dados?'<button class="reg-btn" onclick="mostrarDadosPncp('+p.id+')" title="Dados do PNCP" style="color:#7c3aed">ℹ️</button>':'')+
       (p.link_edital?'<button class="reg-btn" onclick="window.open(limparUrlPncp(\''+p.link_edital+'\'),\'_blank\')" title="Baixar edital" style="color:#0284c7">📄</button>':'')+
+      (p.link_disputa?('<button class="reg-btn" onclick="window.open(\''+p.link_disputa+'\',\'_blank\')" title="Entrar na disputa (sala do orgao)" style="color:#7c3aed">🚪</button>'):'')+
       (temClassif?'<button class="reg-btn" onclick="imprimirClassificacaoPregao('+p.id+')" title="Imprimir classificação" style="color:#0f6e5f">🖨️</button>':'')+
       '<button class="reg-btn" onclick="editarPregao('+p.id+')" title="Editar">✏️</button>'+
       '<button class="reg-btn del" onclick="excluirPregao('+p.id+')" title="Excluir">✕</button>'+
@@ -15697,29 +16862,36 @@ function mostrarStatus(msg,tipo){
 
 // Chama o GitHub Models com tratamento robusto de erro/limite de taxa.
 // Retorna {ok:true,texto} ou {ok:false,erro,rate,diario,retryAfter}.
+// Chama a IA através da Edge Function "ia-gemini" no Supabase.
+// A chave da IA fica no servidor — nunca no código do site.
 async function fetchGitHubModel(conteudo){
   const ctrl=new AbortController();
-  const timer=setTimeout(function(){ctrl.abort();},90000); // 90s de limite por chamada
+  const timer=setTimeout(function(){ctrl.abort();},90000);
   try{
-    const resp=await fetch('https://models.github.ai/inference/chat/completions',{
+    const resp=await fetch(SB_URL+'/functions/v1/ia-gemini',{
       method:'POST',
       signal:ctrl.signal,
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+GITHUB_TOKEN},
-      body:JSON.stringify({model:'openai/gpt-4o-mini',max_tokens:4000,temperature:0.1,messages:[{role:'user',content:conteudo}]})
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
+      body:JSON.stringify({prompt:conteudo,maxTokens:4000,temperatura:0.2})
     });
+
     let data=null;
-    try{data=await resp.json();}catch(e){/* corpo não-JSON, ex: erro 5xx em HTML */}
-    if(!resp.ok||!data||data.error){
-      const msgErro=(data&&data.error&&data.error.message)||('HTTP '+resp.status+(resp.statusText?(' '+resp.statusText):''));
-      const tipoLimite=resp.headers.get('x-ratelimit-type')||'';
-      const retryAfter=parseInt(resp.headers.get('retry-after')||'0',10)||0;
-      const isRate=resp.status===429||(data&&data.error&&(data.error.code==='RateLimitReached'||/rate/i.test(data.error.message||'')));
-      return{ok:false,erro:msgErro,rate:isRate,diario:/day/i.test(tipoLimite)||retryAfter>120,retryAfter:retryAfter};
+    try{data=await resp.json();}catch(e){}
+
+    if(!resp.ok||!data||data.erro){
+      let msg=(data&&data.erro)||('HTTP '+resp.status);
+      if(resp.status===404)msg='A função "ia-gemini" não existe no Supabase — publique-a primeiro';
+      else if(resp.status===401)msg='Desligue "Verify JWT" nas Settings da função ia-gemini';
+      else if(resp.status===500&&/GEMINI_API_KEY/.test(String(msg)))msg='Falta o secret GEMINI_API_KEY na função ia-gemini';
+      const ehRate=(data&&data.rate)||resp.status===429;
+      return{ok:false,erro:msg,rate:ehRate,diario:false,retryAfter:ehRate?60:0};
     }
-    return{ok:true,texto:(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||''};
+    return{ok:true,texto:data.texto||''};
   }catch(e){
     const abortou=e.name==='AbortError';
-    return{ok:false,erro:abortou?'Tempo esgotado (90s sem resposta)':e.message,rate:false,diario:false,retryAfter:0};
+    return{ok:false,
+      erro:abortou?'Tempo esgotado (90s sem resposta da IA)':('Não consegui chamar a IA: '+(e.message||e)),
+      rate:false,diario:false,retryAfter:0};
   }finally{
     clearTimeout(timer);
   }
@@ -16579,7 +17751,8 @@ function fazerLogout(){
 const SB_URL='https://vepikflqhwrqdfluzhyo.supabase.co';
 const ANTHROPIC_KEY='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';
 const GEMINI_KEY='AQ.Ab8RN6KKwm3U5kRLrc_zK8IhMU1Ew4QjbDSQDByXovQP6EmJWQ'; // Google AI Studio
-const GITHUB_TOKEN='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';
+// Token do GitHub removido: a IA agora roda pela Edge Function 'ia-gemini',
+// com a chave protegida no servidor.
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcGlrZmxxaHdycWRmbHV6aHlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzQ3ODYsImV4cCI6MjA5NTMxMDc4Nn0.Xjy4lRtpUzFgBc5vM_FSO7PVGri1RGAs1hKtMtQ-2Eo';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 
