@@ -3752,6 +3752,10 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <button id="licitAbaPlacar" onclick="setLicitAba('placar')" class="licit-tab">📊 Placar</button>
         <button id="licitAbaUpload" onclick="setLicitAba('upload')" class="licit-tab">📤 Importar HTML</button>
       </div>
+      <div class="licit-tabs-grupo">
+        <span class="licit-tabs-label">Consultar</span>
+        <button id="licitAbaDatasus" onclick="setLicitAba('datasus')" class="licit-tab">🏥 DATASUS</button>
+      </div>
     </div>
 
     <!-- ABA AGENDA -->
@@ -3997,6 +4001,26 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
           <div id="intelStatus" style="font-size:12px;margin-bottom:10px"></div>
           <div id="intelResumo" style="margin-bottom:14px"></div>
           <div id="intelDetalhe"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA DATASUS / CNES -->
+    <div id="licitPainelDatasus" style="display:none">
+      <div class="modulo-card">
+        <div class="modulo-header"><div class="modulo-header-title">🏥 DATASUS — Estabelecimentos de Saúde (CNES)</div></div>
+        <div class="modulo-body">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Consulta o Cadastro Nacional de Estabelecimentos de Saúde: endereço, telefone, natureza jurídica e leitos — útil para dimensionar o hospital/órgão antes de decidir participar de um pregão.</p>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+            <input type="text" id="datasusNome" placeholder="Nome do hospital/órgão (ex: Hospital das Clínicas)" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarDatasus();}">
+            <select id="datasusUf" style="width:110px"></select>
+            <button class="btn-salvar-mod" onclick="buscarDatasus()">🔍 Buscar</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted-light);margin-bottom:12px">Dica: abra esta aba a partir do botão 🏥 dentro de um pregão para já vir com o nome do órgão preenchido.</div>
+
+          <div id="datasusStatus" style="font-size:12px;margin-bottom:10px"></div>
+          <div id="datasusResultados" style="display:flex;flex-direction:column;gap:10px"></div>
         </div>
       </div>
     </div>
@@ -4314,6 +4338,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <button class="acoes-btn" onclick="abrirRelatorio()">🖨️ Imprimir (relatório personalizado)</button>
         <button class="acoes-btn" style="background:#0f6e5f;color:#fff" onclick="imprimirDashboardFaturamento()">📄 Imprimir esta página (KPIs + gráficos)</button>
         <button class="acoes-btn" style="background:linear-gradient(120deg,#0891b2,#7c3aed);color:#fff" onclick="abrirRelatorioComercial()">📊 Relatório Comercial Mensal</button>
+        <button class="acoes-btn" style="background:#059669;color:#fff" onclick="abrirComissoes()">💰 Comissões</button>
         <button class="acoes-btn btn-danger" onclick="excluirDadosPeriodo()">🗑️ Excluir Dados do Período</button>
       </div>
 
@@ -8046,62 +8071,252 @@ async function imprimirDashboardFaturamento(){
   }
   showT('Preparando impressão...','verde');
 
-  // Monta um container temporário só com o que deve sair impresso
+  // Mesmo método já usado (e funcionando) no PDF da Licitação e do Relatório Comercial:
+  // o conteúdo fica de fato VISÍVEL na tela (num overlay) enquanto é fotografado.
+  // Tentar esconder o elemento (fora da tela ou atrás de outros) é o que causava o PDF em branco.
   const label=document.getElementById('fatMesLabel');
-  const wrap=document.createElement('div');
-  wrap.id='fatPrintWrap';
-  wrap.style.cssText='background:#fff;padding:18px;width:1100px';
-  wrap.innerHTML='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;border-bottom:2px solid #0f6e5f;padding-bottom:10px">'
+  const ov=document.createElement('div');
+  ov.id='fatPrintOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
+  ov.innerHTML='<div style="background:#fff;border-radius:10px;max-width:1100px;width:100%;padding:0">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;background:#fff;border-radius:10px 10px 0 0;z-index:2">'
+    +'<div style="font-size:13px;font-weight:700;color:#0f172a">Pré-visualização — gerando PDF...</div>'
+    +'<button id="fatPrintFechar" style="border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer">✕ Cancelar</button>'
+    +'</div>'
+    +'<div id="fatPrintConteudo" style="padding:18px"></div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  document.getElementById('fatPrintFechar').onclick=function(){ov.remove();};
+
+  const conteudo=document.getElementById('fatPrintConteudo');
+  conteudo.innerHTML='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;border-bottom:2px solid #0f6e5f;padding-bottom:10px">'
     +'<div><div style="font-weight:800;font-size:18px;color:#0f172a">Faturamento — Grow Química</div>'
     +'<div style="font-size:12px;color:#64748b">'+((label&&label.textContent)||'')+'</div></div>'
     +'<div style="font-size:11px;color:#94a3b8">Gerado em '+new Date().toLocaleString('pt-BR')+'</div></div>';
 
   const metricsClone=metrics.cloneNode(true);
   metricsClone.style.marginBottom='18px';
-  wrap.appendChild(metricsClone);
+  conteudo.appendChild(metricsClone);
 
-  const chartsClone=charts.cloneNode(false); // clona só o container; os <canvas> viram imagem abaixo
+  const chartsClone=charts.cloneNode(false);
   chartsClone.style.display='block';
-  wrap.appendChild(chartsClone);
+  conteudo.appendChild(chartsClone);
 
-  document.body.appendChild(wrap);
-  wrap.style.position='fixed';wrap.style.left='-9999px';wrap.style.top='0';
-
-  // Cada gráfico original vira uma imagem estática dentro do clone (os <canvas>
-  // clonados via cloneNode ficam em branco — precisam ser redesenhados como <img>).
-  const canvasOriginais=charts.querySelectorAll('canvas');
+  // Cada gráfico original vira uma imagem estática (os <canvas> clonados via
+  // cloneNode ficam em branco — precisam ser redesenhados como <img>).
   const blocosOriginais=charts.children;
+  const promessasImg=[];
   for(let i=0;i<blocosOriginais.length;i++){
     const blocoClone=blocosOriginais[i].cloneNode(true);
     const canvasClone=blocoClone.querySelectorAll('canvas');
     const canvasReal=blocosOriginais[i].querySelectorAll('canvas');
     canvasClone.forEach(function(cv,j){
       if(canvasReal[j]){
+        const dataUrl=canvasReal[j].toDataURL('image/png',1.0);
         const img=document.createElement('img');
-        img.src=canvasReal[j].toDataURL('image/png',1.0);
         img.style.width='100%';
+        promessasImg.push(new Promise(function(res){img.onload=res;img.onerror=res;img.src=dataUrl;}));
         cv.replaceWith(img);
       }
     });
     chartsClone.appendChild(blocoClone);
   }
+  await Promise.all(promessasImg);
+  await new Promise(function(r){requestAnimationFrame(function(){requestAnimationFrame(r);});}); // garante 2 frames pintados
 
+  const alvo=conteudo.parentElement; // o cartão branco inteiro, já visível na tela
   try{
     await html2pdf().set({
       margin:8,
       filename:'Faturamento_'+((label&&label.textContent)||'periodo').replace(/[^0-9A-Za-z]/g,'_')+'.pdf',
       image:{type:'jpeg',quality:0.95},
-      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
       jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
       pagebreak:{mode:['css','legacy']}
-    }).from(wrap).save();
+    }).from(alvo).save();
     showT('PDF gerado ✓','verde');
   }catch(e){
     console.error(e);
-    showT('Erro ao gerar PDF: '+e.message,'erro');
+    showT('Erro ao gerar PDF: '+(e&&e.message?e.message:e),'erro');
   }finally{
-    wrap.remove();
+    ov.remove();
   }
+}
+
+
+
+/* ══════════════════════════════════════════════════════════════
+   COMISSÕES POR REPRESENTANTE
+   Cada representante tem uma comissão padrão (%). Opcionalmente,
+   pode ter comissões diferentes para clientes específicos —
+   essas exceções sempre valem mais que o padrão.
+   ══════════════════════════════════════════════════════════════ */
+let _comissoesDados=[];   // linhas cruas vindas do Supabase: {representante, cliente_cod, percentual}
+let _comissoesPorRep={};  // {representante: {padrao:number|null, excecoes:{cod:{pct,nome}}}}
+
+async function carregarComissoes(){
+  try{
+    const {data,error}=await sb.from('comissoes_representante').select('*');
+    if(error){console.warn('Comissões: erro ao carregar',error);_comissoesDados=[];}
+    else _comissoesDados=data||[];
+  }catch(e){console.warn(e);_comissoesDados=[];}
+  montarMapaComissoes();
+}
+
+function montarMapaComissoes(){
+  _comissoesPorRep={};
+  _comissoesDados.forEach(function(r){
+    if(!_comissoesPorRep[r.representante])_comissoesPorRep[r.representante]={padrao:null,excecoes:{}};
+    if(r.cliente_cod==null){
+      _comissoesPorRep[r.representante].padrao=parseFloat(r.percentual);
+    }else{
+      _comissoesPorRep[r.representante].excecoes[r.cliente_cod]={pct:parseFloat(r.percentual),nome:r.cliente_nome||r.cliente_cod};
+    }
+  });
+}
+
+// Percentual de comissão aplicável: exceção do cliente > padrão do representante > 0
+function percentualComissao(representante,cod_cliente){
+  const cfg=_comissoesPorRep[representante];
+  if(!cfg)return 0;
+  if(cod_cliente&&cfg.excecoes[cod_cliente])return cfg.excecoes[cod_cliente].pct;
+  return cfg.padrao||0;
+}
+
+async function abrirComissoes(){
+  await carregarComissoes();
+  const ov=document.createElement('div');
+  ov.id='comissoesOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99994;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:760px;width:100%;padding:22px;margin:20px 0">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+    +'<div style="font-weight:800;font-size:16px">💰 Comissões por Representante</div>'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'comissoesOverlay\').remove()">✕ Fechar</button></div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:16px">Defina uma comissão padrão para cada representante. Se um cliente específico tiver uma comissão diferente, cadastre uma exceção — ela sempre vale mais que o padrão.</div>'
+    +'<div id="comissoesLista"></div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  renderComissoesLista();
+}
+
+function renderComissoesLista(){
+  const el=document.getElementById('comissoesLista');
+  if(!el)return;
+  const representantes=listaRepresentantesConhecidos();
+  if(!representantes.length){
+    el.innerHTML='<div class="empty-mod"><div class="empty-icon">👤</div>Nenhum representante encontrado ainda. Importe uma planilha de faturamento ou classifique clientes primeiro.</div>';
+    return;
+  }
+  el.innerHTML=representantes.map(function(rep){
+    const cfg=_comissoesPorRep[rep]||{padrao:null,excecoes:{}};
+    const excArr=Object.keys(cfg.excecoes);
+    return '<div style="border:1px solid var(--borda);border-radius:10px;padding:12px 14px;margin-bottom:10px">'
+      +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+      +'<div style="font-weight:700;font-size:13px;flex:1;min-width:140px">👤 '+rep+'</div>'
+      +'<label style="font-size:11px;color:var(--muted)">Comissão padrão</label>'
+      +'<div style="display:flex;align-items:center;gap:4px">'
+      +'<input type="number" step="0.1" min="0" max="100" id="comPadrao_'+cssId(rep)+'" value="'+(cfg.padrao!=null?cfg.padrao:'')+'" placeholder="0" style="width:70px;padding:6px;border:1px solid var(--borda);border-radius:6px;text-align:right">'
+      +'<span style="font-size:12px;color:var(--muted)">%</span></div>'
+      +'<button class="btn-cancel-mod" style="font-size:11px;padding:4px 10px" onclick="salvarComissaoPadrao(\''+repEsc(rep)+'\')">💾 Salvar</button>'
+      +'</div>'
+      +'<div id="excecoes_'+cssId(rep)+'" style="margin-top:8px;padding-left:4px">'
+      +(excArr.length
+        ? excArr.map(function(cod){
+            const e=cfg.excecoes[cod];
+            return '<div style="display:flex;align-items:center;gap:8px;font-size:11px;padding:4px 0;border-top:1px dashed var(--borda)">'
+              +'<span style="flex:1;color:var(--muted)">↳ '+e.nome+'</span>'
+              +'<b>'+e.pct+'%</b>'
+              +'<button class="reg-btn del" style="font-size:10px" onclick="removerExcecaoComissao(\''+repEsc(rep)+'\',\''+cod+'\')" title="Remover exceção">✕</button>'
+              +'</div>';
+          }).join('')
+        : '')
+      +'</div>'
+      +'<button class="btn-cancel-mod" style="font-size:10px;padding:3px 9px;margin-top:6px" onclick="abrirNovaExcecaoComissao(\''+repEsc(rep)+'\')">+ comissão diferente para um cliente</button>'
+      +'</div>';
+  }).join('');
+}
+
+function cssId(s){return String(s).replace(/[^a-zA-Z0-9]/g,'_');}
+function repEsc(s){return String(s).replace(/'/g,"\\\\'");}
+
+async function salvarComissaoPadrao(representante){
+  const inp=document.getElementById('comPadrao_'+cssId(representante));
+  const val=parseFloat(inp.value);
+  if(isNaN(val)||val<0||val>100){showT('Digite um percentual entre 0 e 100','erro');return;}
+  const {error}=await sb.from('comissoes_representante')
+    .upsert({representante:representante,cliente_cod:null,percentual:val},{onConflict:'representante,cliente_cod'});
+  if(error){showT('Erro ao salvar: '+error.message,'erro');return;}
+  showT('Comissão padrão de '+representante+' salva ✓','verde');
+  await carregarComissoes();
+}
+
+// Abre um mini-formulário para escolher o cliente e o % de exceção
+function abrirNovaExcecaoComissao(representante){
+  const clientesDoRep=[];
+  const vistos={};
+  fatDados.forEach(function(r){
+    if(getRepresentanteCliente(r.cod_cliente)===representante&&r.cod_cliente&&!vistos[r.cod_cliente]){
+      vistos[r.cod_cliente]=true;
+      clientesDoRep.push({cod:r.cod_cliente,nome:r.cliente||r.cod_cliente});
+    }
+  });
+  clientesDoRep.sort(function(a,b){return a.nome.localeCompare(b.nome);});
+
+  const box=document.getElementById('excecoes_'+cssId(representante));
+  if(!box)return;
+  const idSel='novaExcCliente_'+cssId(representante);
+  const idPct='novaExcPct_'+cssId(representante);
+  const linha=document.createElement('div');
+  linha.style.cssText='display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap';
+  linha.innerHTML='<select id="'+idSel+'" style="flex:1;min-width:160px;padding:6px;border:1px solid var(--borda);border-radius:6px;font-size:11px">'
+    +(clientesDoRep.length
+      ? clientesDoRep.map(function(c){return '<option value="'+c.cod+'" data-nome="'+String(c.nome).replace(/"/g,'&quot;')+'">'+c.nome+'</option>';}).join('')
+      : '<option value="">Nenhum cliente conhecido deste representante</option>')
+    +'</select>'
+    +'<input type="number" step="0.1" min="0" max="100" id="'+idPct+'" placeholder="%" style="width:60px;padding:6px;border:1px solid var(--borda);border-radius:6px;text-align:right">'
+    +'<button class="btn-cancel-mod" style="font-size:10px;padding:4px 10px" onclick="salvarExcecaoComissao(\''+repEsc(representante)+'\',\''+idSel+'\',\''+idPct+'\')">Salvar</button>';
+  box.appendChild(linha);
+}
+
+async function salvarExcecaoComissao(representante,idSel,idPct){
+  const sel=document.getElementById(idSel);
+  const pctInp=document.getElementById(idPct);
+  const cod=sel&&sel.value;
+  const nome=sel&&sel.selectedOptions[0]&&sel.selectedOptions[0].dataset.nome;
+  const val=parseFloat(pctInp&&pctInp.value);
+  if(!cod){showT('Escolha um cliente','erro');return;}
+  if(isNaN(val)||val<0||val>100){showT('Digite um percentual entre 0 e 100','erro');return;}
+
+  const {error}=await sb.from('comissoes_representante')
+    .upsert({representante:representante,cliente_cod:cod,cliente_nome:nome,percentual:val},{onConflict:'representante,cliente_cod'});
+  if(error){showT('Erro ao salvar: '+error.message,'erro');return;}
+  showT('Exceção salva ✓','verde');
+  await carregarComissoes();
+  renderComissoesLista();
+}
+
+async function removerExcecaoComissao(representante,cod){
+  if(!await confirmar({titulo:'Remover exceção',mensagem:'A comissão deste cliente volta a usar o padrão do representante.',confirmar:'Remover'}))return;
+  const {error}=await sb.from('comissoes_representante').delete().eq('representante',representante).eq('cliente_cod',cod);
+  if(error){showT('Erro: '+error.message,'erro');return;}
+  await carregarComissoes();
+  renderComissoesLista();
+  showT('Exceção removida ✓','verde');
+}
+
+// Comissão total calculada para um representante, no conjunto de vendas informado
+// (ex: fatDados já filtrado por mês) — soma venda a venda, respeitando exceções por cliente.
+function calcularComissaoRepresentante(representante,vendas){
+  let total=0,faturamento=0;
+  (vendas||[]).forEach(function(r){
+    if(getRepresentanteCliente(r.cod_cliente)!==representante)return;
+    const v=parseFloat(r.v_total)||0;
+    const pct=percentualComissao(representante,r.cod_cliente);
+    faturamento+=v;
+    total+=v*(pct/100);
+  });
+  return{faturamento:faturamento,comissao:total};
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -8162,6 +8377,7 @@ async function buscarTodasCotacoesParaRelatorio(){
 }
 
 async function montarDadosRelatorioComercial(){
+  if(!_comissoesDados||!_comissoesDados.length)await carregarComissoes();
   const cots=await buscarTodasCotacoesParaRelatorio();
   const vendas=(fatDados||[]).filter(function(r){return !r.excluida;});
 
@@ -8200,6 +8416,27 @@ async function montarDadosRelatorioComercial(){
     if(r.cod_cliente)m.clientesFat.add(r.cod_cliente);
   });
 
+  // Comissões: recalcula por representante dentro de cada mês (respeita exceções por cliente)
+  const comissaoDoMes=function(k){
+    const vendasDoMes=vendas.filter(function(r){
+      const km=mesAnoDeData(r.dt_emissao)||mesAnoDeData(r.mes_ano&&(String(r.mes_ano).split('/').reverse().join('-')));
+      return km===k;
+    });
+    const reps={};
+    vendasDoMes.forEach(function(r){
+      const rep=getRepresentanteCliente(r.cod_cliente)||'—';
+      if(!reps[rep])reps[rep]=true;
+    });
+    let totalComissao=0;
+    const porRep={};
+    Object.keys(reps).forEach(function(rep){
+      const res=calcularComissaoRepresentante(rep,vendasDoMes);
+      porRep[rep]=res;
+      totalComissao+=res.comissao;
+    });
+    return{total:totalComissao,porRep:porRep};
+  };
+
   const chaves=Object.keys(meses).sort();
   const linhas=chaves.map(function(k){
     const m=meses[k];
@@ -8207,12 +8444,14 @@ async function montarDadosRelatorioComercial(){
     const ticketNf=m.nfs.size>0?(m.fatTotal/m.nfs.size):0;
     const ticketCot=m.cotConvertidas>0?(m.valorCotConvertidas/m.cotConvertidas):0;
     const topVendedor=Object.keys(m.vendedores).sort(function(a,b){return m.vendedores[b].convertidas-m.vendedores[a].convertidas;})[0]||null;
+    const com=comissaoDoMes(k);
     return{
       key:k,label:rotuloMesAno(k),
       nfs:m.nfs.size,cotEnviadas:m.cotEnviadas,cotConvertidas:m.cotConvertidas,cotPerdidas:m.cotPerdidas,
       taxa:taxa,fatGrupo:m.fatGrupo,fatTotal:m.fatTotal,ticketNf:ticketNf,ticketCot:ticketCot,
       clientesAtivos:m.clientesFat.size,vendedores:m.vendedores,
-      topVendedor:topVendedor?(topVendedor+' ('+m.vendedores[topVendedor].convertidas+')'):'—'
+      topVendedor:topVendedor?(topVendedor+' ('+m.vendedores[topVendedor].convertidas+')'):'—',
+      comissaoTotal:com.total,comissaoPorRep:com.porRep
     };
   }).slice(-24); // últimos 24 meses
 
@@ -8283,8 +8522,8 @@ function chipVariacao(atual,anterior){
 function renderTabelaComercial(linhas){
   const el=document.getElementById('relComercialConteudo');
 
-  const cabecalho=['Mês','NFs','Cotações\nenviadas','Convertidas','Taxa de\nconversão','Faturamento\ntotal','Ticket\npor NF','Vendedor\ndestaque'];
-  const larguras=['72px','60px','98px','98px','108px','170px','110px','140px'];
+  const cabecalho=['Mês','NFs','Cotações\nenviadas','Convertidas','Taxa de\nconversão','Faturamento\ntotal','Comissões\ndo mês','Ticket\npor NF','Vendedor\ndestaque'];
+  const larguras=['72px','60px','98px','98px','108px','160px','120px','100px','140px'];
 
   el.innerHTML='<div id="relComercialTabelaExp" style="overflow-x:auto;border:1px solid var(--borda);border-radius:10px">'
     +'<table style="width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed;min-width:820px">'
@@ -8308,6 +8547,7 @@ function renderTabelaComercial(linhas){
         +td('<span style="font-weight:800;color:'+cor+'">'+(l.taxa==null?'—':l.taxa.toFixed(0)+'%')+'</span><br>'
             +(ant&&ant.taxa!=null&&l.taxa!=null?chipVariacao(l.taxa,ant.taxa):'<span style="color:var(--muted-light);font-size:10px">—</span>'))
         +td('<span style="font-weight:800">'+rsCompleto(l.fatTotal)+'</span><br>'+chipVariacao(l.fatTotal,ant&&ant.fatTotal))
+        +td('<span style="font-weight:700;color:#059669">'+rsCompleto(l.comissaoTotal||0)+'</span>')
         +td(rsCompleto(l.ticketNf))
         +td('<span style="font-size:11px;color:#7c3aed;white-space:normal">'+l.topVendedor+'</span>')
         +'</tr>';
@@ -8336,6 +8576,32 @@ function renderTabelaComercial(linhas){
         +'<td style="padding:7px 10px;text-align:right;font-weight:800;vertical-align:top">'+rsCompleto(totalMes)+'</td>'
         +'</tr>';
     }).join('')+'</tbody></table></div>'
+
+    +'<div style="margin-top:14px;overflow-x:auto;border:1px solid var(--borda);border-radius:10px">'
+    +'<div style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--muted);background:#f8fafc;border-bottom:1px solid var(--borda)">💰 Comissão por representante (mês mais recente com dados)</div>'
+    +(function(){
+      const ultimo=linhas[linhas.length-1];
+      if(!ultimo||!ultimo.comissaoPorRep||!Object.keys(ultimo.comissaoPorRep).length)
+        return '<div style="padding:10px;font-size:11px;color:var(--muted)">Sem comissões configuradas — clique em "💰 Comissões" para cadastrar.</div>';
+      const reps=Object.keys(ultimo.comissaoPorRep).sort(function(a,b){return ultimo.comissaoPorRep[b].comissao-ultimo.comissaoPorRep[a].comissao;});
+      return '<table style="width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;min-width:500px">'
+        +'<colgroup><col><col style="width:150px"><col style="width:100px"><col style="width:150px"></colgroup>'
+        +'<thead><tr style="background:#f8fafc"><th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--muted);text-transform:uppercase">Representante</th>'
+        +'<th style="padding:7px 10px;text-align:right;font-size:10px;color:var(--muted);text-transform:uppercase">Faturamento</th>'
+        +'<th style="padding:7px 10px;text-align:right;font-size:10px;color:var(--muted);text-transform:uppercase">% médio</th>'
+        +'<th style="padding:7px 10px;text-align:right;font-size:10px;color:var(--muted);text-transform:uppercase">Comissão</th></tr></thead><tbody>'
+        +reps.map(function(rep,i){
+          const d=ultimo.comissaoPorRep[rep];
+          const pctMedio=d.faturamento>0?(d.comissao/d.faturamento*100):0;
+          return '<tr style="border-bottom:1px solid #f1f5f9;'+(i%2?'background:rgba(148,163,184,.05)':'')+'">'
+            +'<td style="padding:7px 10px;font-weight:700">'+rep+'</td>'
+            +'<td style="padding:7px 10px;text-align:right">'+rsCompleto(d.faturamento)+'</td>'
+            +'<td style="padding:7px 10px;text-align:right;color:var(--muted)">'+pctMedio.toFixed(1)+'%</td>'
+            +'<td style="padding:7px 10px;text-align:right;font-weight:800;color:#059669">'+rsCompleto(d.comissao)+'</td>'
+            +'</tr>';
+        }).join('')+'</tbody></table>';
+    })()
+    +'</div>'
 
     +'<div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.6">'
     +'<b>▲/▼ ao lado de cada número</b> = variação percentual em relação ao mesmo indicador no mês anterior — inclusive dentro de cada grupo de faturamento.<br>'
@@ -8418,6 +8684,93 @@ async function exportarRelatorioComercialPDF(){
     console.error(e);
     showT('Erro ao gerar PDF: '+e.message,'erro');
   }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   DATASUS / CNES — Cadastro Nacional de Estabelecimentos de Saúde
+   Usada para checar porte (leitos), endereço e contato de um
+   hospital/órgão antes de decidir participar de um pregão.
+
+   IMPORTANTE: essa API (apidadosabertos.saude.gov.br) EXIGE uma chave
+   de autenticação — diferente do PNCP e do Compras.gov, que são livres.
+   Sem a chave configurada, a busca mostra instrução de como obter.
+   ══════════════════════════════════════════════════════════════ */
+let _datasusInit=false;
+
+function initDatasus(){
+  const sel=document.getElementById('datasusUf');
+  if(sel&&!sel.options.length){
+    sel.innerHTML='<option value="">Todo o Brasil</option>'
+      +Object.keys(UF_NOME).sort().map(function(uf){return '<option value="'+uf+'">'+uf+'</option>';}).join('');
+  }
+  if(!_datasusInit){
+    document.getElementById('datasusStatus').innerHTML='Digite o nome do hospital/órgão e clique em Buscar.';
+    _datasusInit=true;
+  }
+}
+
+// Abre a aba DATASUS já com o nome do órgão do pregão preenchido.
+function abrirDatasusDoOrgao(nomeOrgao,uf){
+  setLicitAba('datasus');
+  const inp=document.getElementById('datasusNome');
+  const sel=document.getElementById('datasusUf');
+  if(inp)inp.value=(nomeOrgao||'').replace(/EMPRESA BRASILEIRA DE SERVICOS HOSPITALARES.*?-\s*/i,'').trim();
+  if(sel&&uf)sel.value=uf;
+  buscarDatasus();
+}
+
+async function buscarDatasus(){
+  const nome=(document.getElementById('datasusNome').value||'').trim();
+  const uf=document.getElementById('datasusUf').value;
+  const st=document.getElementById('datasusStatus');
+  const box=document.getElementById('datasusResultados');
+  box.innerHTML='';
+
+  if(!nome){showT('Digite o nome do hospital/órgão','erro');return;}
+  st.innerHTML='⏳ Consultando o CNES...';
+
+  const url='https://apidadosabertos.saude.gov.br/cnes/estabelecimentos?nome_fantasia='+encodeURIComponent(nome)
+    +(uf?('&uf='+uf):'')+'&limit=20';
+
+  const resp=await fetchComprasGov(url); // mesmo helper já usado (tenta direto, cai no proxy se CORS bloquear)
+
+  if(!resp){
+    const erroTxt=_ultimoErroComprasGov||'';
+    const semAuth=/401|403|token|autentic/i.test(erroTxt);
+    st.innerHTML='<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px;color:#991b1b;font-size:12px;line-height:1.6">'
+      +'🔒 <b>Não foi possível consultar o CNES.</b><br>'
+      +(semAuth
+        ? 'Essa API exige uma chave de autenticação que ainda não está configurada. '
+          +'Crie uma conta em <a href="https://apidadosabertos.saude.gov.br" target="_blank" style="color:#991b1b;text-decoration:underline">apidadosabertos.saude.gov.br</a>, '
+          +'gere uma chave e me avise para eu ligar isso na função baixar-arquivo.'
+        : String(erroTxt||'Erro desconhecido').slice(0,200))
+      +'</div>';
+    return;
+  }
+
+  const lista=resp.estabelecimentos||resp.data||resp.resultado||(Array.isArray(resp)?resp:[]);
+  if(!lista||!lista.length){
+    st.innerHTML='Nenhum estabelecimento encontrado para "'+nome+'"'+(uf?(' em '+uf):'')+'.';
+    return;
+  }
+  st.innerHTML='✅ '+lista.length+' estabelecimento(s) encontrado(s)';
+
+  box.innerHTML=lista.map(function(e){
+    const nomeEst=e.nome_fantasia||e.razao_social||e.nome||'Estabelecimento sem nome';
+    const end=[e.logradouro,e.numero,e.bairro,e.municipio,e.uf].filter(Boolean).join(', ');
+    const tel=e.telefone||e.numero_telefone||'';
+    const cnes=e.codigo_cnes||e.cnes||e.co_cnes||'';
+    const natureza=e.natureza_juridica||e.tipo_gestao||'';
+    const leitos=e.qtd_leitos||e.leitos_existentes||e.quantidade_leitos||null;
+    return '<div class="modulo-card" style="padding:14px">'
+      +'<div style="font-weight:700;font-size:13px">'+nomeEst+'</div>'
+      +(cnes?('<div style="font-size:11px;color:var(--muted)">CNES '+cnes+(natureza?(' · '+natureza):'')+'</div>'):'')
+      +(end?('<div style="font-size:12px;margin-top:4px">📍 '+end+'</div>'):'')
+      +(tel?('<div style="font-size:12px;color:var(--muted)">📞 '+tel+'</div>'):'')
+      +(leitos?('<div style="font-size:12px;font-weight:700;color:#0f6e5f;margin-top:4px">🛏️ '+leitos+' leito(s)</div>'):'')
+      +'</div>';
+  }).join('');
 }
 
 /* ══════ CÓDIGOS CATMAT DO PRODUTO ══════ */
@@ -12980,7 +13333,7 @@ function mostrarEventosDia(dataStr){
 
 function setLicitAba(aba){
   licitAbaAtual=aba;
-  ['agenda','pregoes','buscar','inteligencia','placar','chat','upload','edital','mapa'].forEach(function(a){
+  ['agenda','pregoes','buscar','inteligencia','placar','chat','upload','edital','mapa','datasus'].forEach(function(a){
     const key=a.charAt(0).toUpperCase()+a.slice(1);
     const btn=document.getElementById('licitAba'+key);
     const painel=document.getElementById('licitPainel'+key);
@@ -12994,6 +13347,7 @@ function setLicitAba(aba){
   if(aba==='mapa')renderMapaPregoes();
   if(aba==='chat')renderChatMonitorados();
   if(aba==='placar')atualizarStatsLicit();
+  if(aba==='datasus')initDatasus();
 }
 
 
@@ -13885,7 +14239,8 @@ function renderResultadosBuscaPncp(){
         +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px;border-color:#7c3aed;color:#7c3aed" onclick="analisarEditalDoCard('+idx+')">🤖 Analisar edital</button> '
         +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="imprimirLicitacao('+idx+',false)">👁️ Ver resumo</button> '
         +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px;border-color:#dc2626;color:#dc2626" onclick="gerarPdfLicitacao('+idx+')">📄 Gerar PDF</button> '
-        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="enviarLicitacaoEmail('+idx+')">📧 E-mail</button>')
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="enviarLicitacaoEmail('+idx+')">📧 E-mail</button> '
+        +'<button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px;border-color:#0f6e5f;color:#0f6e5f" onclick="abrirDatasusDoOrgao(\''+orgao.replace(/\x27/g,'\\x27')+'\',\''+uf+'\')">🏥 DATASUS</button>')
       :'';
     const jaAdicionado=pregoes.some(function(p){return p.pncp_id&&p.pncp_id===item.numeroControlePNCP;});
     const acoes=jaAdicionado
