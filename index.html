@@ -3903,7 +3903,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
             <label style="display:block;font-size:12px;font-weight:400"><input type="checkbox" id="buscaViaItens"> 🔬 Buscar também no catálogo CATMAT</label>
 
             <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:14px 0 6px">🚫 Palavras a evitar</div>
-            <div style="font-size:11px;color:var(--muted-light);margin-bottom:6px">Descarta resultados que contenham estas palavras — útil para separar "hipoclorito" de "água sanitária", ou "enzima" de itens que não são detergente enzimático.</div>
+            <div style="font-size:11px;color:var(--muted-light);margin-bottom:6px">Descarta apenas <b>itens específicos</b> que contenham estas palavras (ex: "fórmula infantil" dentro de um pregão) — o pregão em si continua aparecendo normalmente, só esse item some da lista destacada.</div>
             <div style="display:flex;gap:6px;margin-bottom:6px">
               <input type="text" id="buscaBloqueadaInput" placeholder="Ex: agua sanitaria" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarPalavraBloqueada();}">
               <button class="btn-cancel-mod" onclick="adicionarPalavraBloqueada()">+ Add</button>
@@ -13991,7 +13991,8 @@ async function carregarPaginaBuscaTextual(pagina){
       const mapeado=mapResultadoBuscaTextual(it);
       if(!mapeado.numeroControlePNCP||buscaTextualVistos.has(mapeado.numeroControlePNCP))return;
       if(licitacoesOcultas.has(mapeado.numeroControlePNCP))return;
-      if(contemPalavraBloqueada(mapeado.objetoCompra))return; // contém palavra que você marcou pra evitar
+      // "Palavras a evitar" agora só descarta ITENS específicos (veja carregarPreviasItens),
+      // não o pregão inteiro — o objeto geral do edital não é mais verificado aqui.
       if(buscaFiltros.ufs.length&&mapeado.unidadeOrgao.ufSigla&&!buscaFiltros.ufs.includes(mapeado.unidadeOrgao.ufSigla))return;
       buscaTextualVistos.add(mapeado.numeroControlePNCP);
       novos.push(mapeado);
@@ -14110,7 +14111,7 @@ async function buscarLicitacoesPNCP(){
   const filtrados=[];
   candidatos.forEach(function(item){
     if(licitacoesOcultas.has(item.numeroControlePNCP))return; // ocultada pelo usuário
-    if(contemPalavraBloqueada(item.objetoCompra))return; // contém palavra que você marcou pra evitar
+    // "Palavras a evitar" só descarta itens específicos, não o pregão inteiro (veja carregarPreviasItens)
     const objetoNorm=normalizarTexto(item.objetoCompra);
     if(palavrasNorm.some(function(p){return objetoNorm.includes(p);})){
       item._origemMatch='objeto';
