@@ -4339,6 +4339,8 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <button class="acoes-btn" style="background:#0f6e5f;color:#fff" onclick="imprimirDashboardFaturamento()">📄 Imprimir esta página (KPIs + gráficos)</button>
         <button class="acoes-btn" style="background:linear-gradient(120deg,#0891b2,#7c3aed);color:#fff" onclick="abrirRelatorioComercial()">📊 Relatório Comercial Mensal</button>
         <button class="acoes-btn" style="background:#059669;color:#fff" onclick="abrirComissoes()">💰 Comissões</button>
+        <button class="acoes-btn" style="background:#0f6e5f;color:#fff" onclick="abrirSelecaoImpressaoComissao('combinado')">🖨️ Imprimir Faturamento + Comissões</button>
+        <button class="acoes-btn" style="background:#059669;color:#fff" onclick="abrirSelecaoImpressaoComissao('somente')">💰 Imprimir só o Relatório de Comissão</button>
         <button class="acoes-btn btn-danger" onclick="excluirDadosPeriodo()">🗑️ Excluir Dados do Período</button>
       </div>
 
@@ -8132,7 +8134,7 @@ async function imprimirDashboardFaturamento(){
       image:{type:'jpeg',quality:0.95},
       html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
       jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-      pagebreak:{mode:['css','legacy']}
+      pagebreak:{mode:['css','avoid-all','legacy']}
     }).from(alvo).save();
     showT('PDF gerado ✓','verde');
   }catch(e){
@@ -8144,6 +8146,418 @@ async function imprimirDashboardFaturamento(){
 }
 
 
+
+
+/* ══════════════════════════════════════════════════════════════
+   IMPRESSÃO DE COMISSÕES — com seleção prévia de mês e representantes
+   ══════════════════════════════════════════════════════════════ */
+let _impComissaoModo='somente';
+// Controla se os itens de fita teste devem SER EXCLUÍDOS do cálculo da comissão do relatório.
+// Falso (padrão) = fita teste entra com comissão normal. Verdadeiro = fita teste vira 0%. Definido pelo checkbox do modal.
+let _excluirFitaComissao=false;
+// Nomes que aparecem na lista mas não são representantes de verdade — vêm desmarcados por padrão.
+const REPS_DESMARCAR_PADRAO=['CLEBER LUCIANO BARRIL','COMERCIAL 3 ALBE LTDA','REPRESENTANTE'];
+function repDeveVirDesmarcado(nome){
+  const n=normalizarTexto(nome||'');
+  return REPS_DESMARCAR_PADRAO.some(function(x){return normalizarTexto(x)===n;});
+}
+
+// Todos os meses (AAAA-MM) presentes no faturamento, mais recente primeiro
+function mesesDisponiveisFaturamento(){
+  const set={};
+  (fatDados||[]).forEach(function(r){
+    if(r.excluida)return;
+    const k=mesAnoDeData(r.dt_emissao)||mesAnoDeData(r.mes_ano&&(String(r.mes_ano).split('/').reverse().join('-')));
+    if(k)set[k]=true;
+  });
+  return Object.keys(set).sort().reverse();
+}
+
+async function abrirSelecaoImpressaoComissao(modo){
+  _impComissaoModo=modo;
+  await carregarComissoes();
+  const meses=mesesDisponiveisFaturamento();
+  const reps=listaRepresentantesConhecidos();
+
+  if(!meses.length){showT('Nenhum dado de faturamento encontrado ainda','erro');return;}
+  if(!reps.length){showT('Nenhum representante encontrado — importe faturamento ou classifique clientes primeiro','erro');return;}
+
+  const ov=document.createElement('div');
+  ov.id='selImpComissaoOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99996;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+    +'<div style="font-weight:800;font-size:16px">'+(modo==='combinado'?'🖨️ Imprimir Faturamento + Comissões':'💰 Imprimir Relatório de Comissão')+'</div>'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'selImpComissaoOverlay\').remove()">✕</button></div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:16px">Encontrei '+reps.length+' representante(s) cadastrado(s) no sistema. Todos vêm pré-selecionados — desmarque quem não quiser incluir.</div>'
+
+    +'<div class="form-field" style="margin-bottom:14px">'
+    +'<label>Mês</label>'
+    +'<select id="impComMes">'+meses.map(function(k,i){return '<option value="'+k+'"'+(i===0?' selected':'')+'>'+rotuloMesAno(k)+'</option>';}).join('')+'</select>'
+    +'</div>'
+
+    +'<div class="form-field" style="margin-bottom:14px">'
+    +'<label>Base de cálculo da comissão</label>'
+    +'<div style="display:flex;gap:14px;margin-top:4px">'
+    +'<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400"><input type="radio" name="impComBase" value="v_total" checked> Valor Faturado <span style="color:var(--muted-light)">(com imposto/frete)</span></label>'
+    +'<label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:400"><input type="radio" name="impComBase" value="v_mercadoria"> Valor da Mercadoria</label>'
+    +'</div></div>'
+
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+    +'<label style="font-size:12px;font-weight:700">Representantes ('+reps.length+' encontrado(s))</label>'
+    +'<div><button class="btn-cancel-mod" style="font-size:10px;padding:3px 8px" onclick="marcarTodosReps(true)">Todos</button> '
+    +'<button class="btn-cancel-mod" style="font-size:10px;padding:3px 8px" onclick="marcarTodosReps(false)">Nenhum</button></div>'
+    +'</div>'
+    +'<div id="impComRepsLista" style="max-height:220px;overflow-y:auto;border:1px solid var(--borda);border-radius:8px;padding:8px 10px;margin-bottom:16px">'
+    +reps.map(function(r){
+      const cfg=(_comissoesPorRep&&_comissoesPorRep[r])||null;
+      const semComissao=!cfg||cfg.padrao==null;
+      const desmarcado=repDeveVirDesmarcado(r);
+      return '<label style="display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0'+(desmarcado?';opacity:.6':'')+'">'
+        +'<input type="checkbox" class="impComRepChk" value="'+String(r).replace(/"/g,'&quot;')+'"'+(desmarcado?'':' checked')+'>'
+        +'<span style="flex:1">'+r+'</span>'
+        +(semComissao?'<span style="font-size:10px;color:#b45309">sem % cadastrado</span>':'<span style="font-size:10px;color:#16a34a">'+cfg.padrao+'% padrão</span>')
+        +'</label>';
+    }).join('')
+    +'</div>'
+
+    +'<div style="margin-bottom:16px">'
+    +'<label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Relatórios a incluir</label>'
+    +'<label style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0">'
+    +'<input type="checkbox" id="relTipoResumo" checked> <b>Resumo</b> — comissão total por representante</label>'
+    +'<label style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0">'
+    +'<input type="checkbox" id="relTipoCliente" checked> <b>Vendas por Cliente</b> — detalhado por representante</label>'
+    +'<label style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0">'
+    +'<input type="checkbox" id="relTipoProduto" checked> <b>Vendas por Produto</b> — detalhado por representante</label>'
+    +'<label style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0">'
+    +'<input type="checkbox" id="relTipoMercadoria"> <b>Venda de Mercadoria</b> — só quantidade e valor, sem comissão nem %</label>'
+    +'</div>'
+
+    +'<div style="margin-bottom:16px;padding:10px 12px;background:var(--surface-1,#f8fafc);border:1px solid var(--borda,#e8ecf4);border-radius:8px">'
+    +'<label style="display:flex;align-items:center;gap:8px;font-size:12px">'
+    +'<input type="checkbox" id="relExcluirFita"> <b>Excluir fita teste da comissão</b></label>'
+    +'<div style="font-size:10px;color:var(--muted,#64748b);margin-top:4px;margin-left:24px">Desmarcado (padrão): fitas teste recebem o percentual normal de comissão do cliente/representante. Marcado: fitas teste entram no relatório com comissão zerada (0%).</div>'
+    +'</div>'
+
+    +'<div style="display:flex;justify-content:flex-end;gap:8px">'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'selImpComissaoOverlay\').remove()">Cancelar</button>'
+    +'<button class="btn-salvar-mod" onclick="gerarPdfComissaoSelecionada()">📄 Gerar PDF</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+}
+
+function marcarTodosReps(valor){
+  document.querySelectorAll('.impComRepChk').forEach(function(c){c.checked=valor;});
+}
+
+async function gerarPdfComissaoSelecionada(){
+  const mesKey=document.getElementById('impComMes').value;
+  const repsMarcados=Array.from(document.querySelectorAll('.impComRepChk:checked')).map(function(c){return c.value;});
+  if(!repsMarcados.length){showT('Selecione ao menos um representante','erro');return;}
+  const incluirResumo=document.getElementById('relTipoResumo').checked;
+  const incluirCliente=document.getElementById('relTipoCliente').checked;
+  const incluirProduto=document.getElementById('relTipoProduto').checked;
+  const incluirMercadoria=document.getElementById('relTipoMercadoria').checked;
+  if(!incluirResumo&&!incluirCliente&&!incluirProduto&&!incluirMercadoria){showT('Selecione ao menos um tipo de relatório','erro');return;}
+  const chkExcluirFita=document.getElementById('relExcluirFita');
+  _excluirFitaComissao=!!(chkExcluirFita&&chkExcluirFita.checked);
+  const baseSel=document.querySelector('input[name="impComBase"]:checked');
+  const baseValor=(baseSel&&baseSel.value)||'v_total';
+  // Se a linha não tiver v_mercadoria preenchido (registros antigos), cai para v_total
+  const valorLinha=function(r){
+    if(baseValor==='v_mercadoria'){
+      const vm=parseFloat(r.v_mercadoria);
+      return (vm&&vm>0)?vm:(parseFloat(r.v_total)||0);
+    }
+    return parseFloat(r.v_total)||0;
+  };
+  const rotuloBase=baseValor==='v_mercadoria'?'Valor da Mercadoria':'Valor Faturado';
+
+  document.getElementById('selImpComissaoOverlay').remove();
+  showT('Gerando PDF...','verde');
+
+  const vendasDoMes=(fatDados||[]).filter(function(r){
+    if(r.excluida)return false;
+    const k=mesAnoDeData(r.dt_emissao)||mesAnoDeData(r.mes_ano&&(String(r.mes_ano).split('/').reverse().join('-')));
+    return k===mesKey;
+  });
+
+  // ── Monta a janela visível (mesmo método que já funciona nos outros PDFs) ──
+  const ov=document.createElement('div');
+  ov.id='pdfComissaoOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
+  ov.innerHTML='<div style="background:#fff;border-radius:10px;max-width:1100px;width:100%;padding:0">'
+    +'<div style="padding:12px 18px;border-bottom:1px solid #e2e8f0;font-size:13px;font-weight:700;color:#0f172a">Gerando PDF...</div>'
+    +'<div id="pdfComissaoConteudo" style="padding:20px"></div></div>';
+  document.body.appendChild(ov);
+  const conteudo=document.getElementById('pdfComissaoConteudo');
+
+  let html='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;border-bottom:2px solid #059669;padding-bottom:10px">'
+    +'<div><div style="font-weight:800;font-size:18px;color:#0f172a">'+(_impComissaoModo==='combinado'?'Faturamento e Comissões':'Relatório de Comissão')+' — Grow Química</div>'
+    +'<div style="font-size:12px;color:#64748b">'+rotuloMesAno(mesKey)+'</div></div>'
+    +'<div style="font-size:11px;color:#94a3b8">Gerado em '+new Date().toLocaleString('pt-BR')+'</div></div>';
+
+  // ── Bloco opcional: KPIs + gráficos gerais (só no modo combinado) ──
+  const promessasImg=[];
+  if(_impComissaoModo==='combinado'){
+    const metrics=document.getElementById('fatMetrics');
+    const charts=document.getElementById('fatCharts');
+    if(metrics)html+='<div id="pdfComMetrics"></div>';
+    if(charts&&charts.style.display!=='none')html+='<div id="pdfComCharts" style="margin-top:16px"></div>';
+    conteudo.innerHTML=html;
+    if(metrics){
+      const mc=metrics.cloneNode(true);
+      document.getElementById('pdfComMetrics').appendChild(mc);
+    }
+    if(charts&&charts.style.display!=='none'){
+      const wrapCharts=document.getElementById('pdfComCharts');
+      const blocosOriginais=charts.children;
+      for(let i=0;i<blocosOriginais.length;i++){
+        const blocoClone=blocosOriginais[i].cloneNode(true);
+        const canvasClone=blocoClone.querySelectorAll('canvas');
+        const canvasReal=blocosOriginais[i].querySelectorAll('canvas');
+        canvasClone.forEach(function(cv,j){
+          if(canvasReal[j]){
+            const dataUrl=canvasReal[j].toDataURL('image/png',1.0);
+            const img=document.createElement('img');
+            img.style.width='100%';
+            promessasImg.push(new Promise(function(res){img.onload=res;img.onerror=res;img.src=dataUrl;}));
+            cv.replaceWith(img);
+          }
+        });
+        wrapCharts.appendChild(blocoClone);
+      }
+    }
+  }else{
+    conteudo.innerHTML=html;
+  }
+
+  // ── Tabela de comissão dos representantes selecionados ──
+  const rs=function(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  let totalGeralFat=0,totalGeralCom=0;
+  const linhasTabela=repsMarcados.map(function(rep){
+    const res=calcularComissaoRepresentante(rep,vendasDoMes,baseValor);
+    totalGeralFat+=res.faturamento;totalGeralCom+=res.comissao;
+    const pctMedio=res.faturamento>0?(res.comissao/res.faturamento*100):0;
+    const cfg=(_comissoesPorRep&&_comissoesPorRep[rep])||{padrao:null,excecoes:{}};
+    const excecoesUsadas=Object.keys(cfg.excecoes).filter(function(cod){
+      return vendasDoMes.some(function(v){return v.cod_cliente===cod;});
+    });
+    const detalheExc=excecoesUsadas.length
+      ? excecoesUsadas.map(function(cod){return cfg.excecoes[cod].nome+' ('+cfg.excecoes[cod].pct+'%)';}).join(', ')
+      : '';
+    return{rep:rep,faturamento:res.faturamento,comissao:res.comissao,pctMedio:pctMedio,detalheExc:detalheExc};
+  });
+
+  let blocosHtml='';
+
+  // ── RESUMO: comissão total por representante ──
+  if(incluirResumo){
+    blocosHtml+='<div style="margin-top:20px">'
+      +'<div style="font-weight:800;font-size:14px;color:#0f172a;margin-bottom:2px">💰 Resumo — Comissões de '+rotuloMesAno(mesKey)+'</div>'
+      +'<div style="font-size:10px;color:#64748b;margin-bottom:10px">Base de cálculo: '+rotuloBase+'</div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:12px">'
+      +'<thead><tr style="background:#059669;color:#fff">'
+      +'<th style="padding:8px 10px;text-align:left">Representante</th>'
+      +'<th style="padding:8px 10px;text-align:right">Faturamento</th>'
+      +'<th style="padding:8px 10px;text-align:right">% médio efetivo</th>'
+      +'<th style="padding:8px 10px;text-align:right">Comissão</th>'
+      +'<th style="padding:8px 10px;text-align:left">Exceções aplicadas</th>'
+      +'</tr></thead><tbody>'
+      +linhasTabela.map(function(l,i){
+        return '<tr style="border-bottom:1px solid #e2e8f0;page-break-inside:avoid;'+(i%2?'background:#f8fafc':'')+'">'
+          +'<td style="padding:7px 10px;font-weight:700">'+l.rep+'</td>'
+          +'<td style="padding:7px 10px;text-align:right">'+rs(l.faturamento)+'</td>'
+          +'<td style="padding:7px 10px;text-align:right">'+l.pctMedio.toFixed(1)+'%</td>'
+          +'<td style="padding:7px 10px;text-align:right;font-weight:800;color:#059669">'+rs(l.comissao)+'</td>'
+          +'<td style="padding:7px 10px;font-size:10px;color:#64748b">'+(l.detalheExc||'—')+'</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody><tfoot><tr style="background:#f0fdf4;font-weight:800">'
+      +'<td style="padding:9px 10px">TOTAL</td>'
+      +'<td style="padding:9px 10px;text-align:right">'+rs(totalGeralFat)+'</td>'
+      +'<td style="padding:9px 10px"></td>'
+      +'<td style="padding:9px 10px;text-align:right;color:#059669">'+rs(totalGeralCom)+'</td>'
+      +'<td style="padding:9px 10px"></td>'
+      +'</tr></tfoot></table></div>';
+  }
+
+  // ── VENDAS POR CLIENTE: para cada representante, quebra por cliente ──
+  if(incluirCliente){
+    let totalGeralClienteCom=0,totalGeralClienteFat=0;
+    blocosHtml+='<div style="margin-top:26px;page-break-before:'+(incluirResumo?'always':'auto')+'">'
+      +'<div style="font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px;page-break-after:avoid">👥 Vendas por Cliente — '+rotuloMesAno(mesKey)+'</div>'
+      +'<div style="font-size:11px;color:#64748b;margin-bottom:14px;page-break-after:avoid">Detalhamento das vendas de cada representante, cliente a cliente. Base: '+rotuloBase+'. '+(_excluirFitaComissao?'Itens de fita teste entram com comissão zerada (0%).':'Itens de fita teste entram com comissão normal, conforme o percentual do cliente/representante.')+'</div>';
+    const blocosPorRep=repsMarcados.map(function(rep){
+      const vendasRep=vendasDoMes.filter(function(r){return getRepresentanteCliente(r.cod_cliente)===rep;});
+      const porCliente={};
+      // Comissão calculada LINHA A LINHA (não sobre o total agregado), para
+      // respeitar itens de fita teste (comissão 0%) dentro do mesmo cliente.
+      vendasRep.forEach(function(r){
+        const cod=r.cod_cliente||'—';
+        const nome=r.cliente||cod;
+        const v=valorLinha(r);
+        const nomeProd=r.produto||r.item||r.descricao||'';
+        const pctLinha=percentualComissaoLinha(rep,cod,nomeProd);
+        if(!porCliente[cod])porCliente[cod]={nome:nome,valor:0,comissao:0,temFita:false};
+        porCliente[cod].valor+=v;
+        porCliente[cod].comissao+=v*(pctLinha/100);
+        if(ehFitaTeste(nomeProd))porCliente[cod].temFita=true;
+      });
+      const linhasCli=Object.keys(porCliente).map(function(cod){
+        const d=porCliente[cod];
+        const pctEfetivo=d.valor>0?(d.comissao/d.valor*100):0;
+        return{nome:d.nome,valor:d.valor,pct:pctEfetivo,comissao:d.comissao,temFita:d.temFita};
+      }).sort(function(a,b){return b.valor-a.valor;});
+      const totRepValor=linhasCli.reduce(function(a,b){return a+b.valor;},0);
+      const totRepCom=linhasCli.reduce(function(a,b){return a+b.comissao;},0);
+      totalGeralClienteFat+=totRepValor;totalGeralClienteCom+=totRepCom;
+
+      return '<div style="margin-bottom:18px;page-break-inside:avoid">'
+        +'<div style="font-weight:700;font-size:13px;color:#0f6e5f;margin-bottom:6px">'+rep+' <span style="font-weight:400;color:#94a3b8;font-size:11px">('+linhasCli.length+' cliente(s))</span></div>'
+        +(linhasCli.length
+          ? '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">'
+            +'<colgroup><col style="width:50%"><col style="width:20%"><col style="width:10%"><col style="width:20%"></colgroup>'
+            +'<thead><tr style="background:#f1f5f9"><th style="padding:6px 9px;text-align:left">Cliente</th>'
+            +'<th style="padding:6px 9px;text-align:right">Faturamento</th><th style="padding:6px 9px;text-align:right">%</th>'
+            +'<th style="padding:6px 9px;text-align:right">Comissão</th></tr></thead><tbody>'
+            +linhasCli.map(function(l,i){
+              return '<tr style="border-bottom:1px solid #f1f5f9;page-break-inside:avoid;'+(i%2?'background:#fafbfc':'')+'">'
+                +'<td style="padding:5px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+String(l.nome).replace(/"/g,'&quot;')+'">'+l.nome+(l.temFita?' <span style="font-size:9px;color:#b45309">('+(_excluirFitaComissao?'inclui fita teste — 0%':'inclui fita teste — comissão normal')+')</span>':'')+'</td>'
+                +'<td style="padding:5px 9px;text-align:right">'+rs(l.valor)+'</td>'
+                +'<td style="padding:5px 9px;text-align:right">'+l.pct.toFixed(1)+'%</td>'
+                +'<td style="padding:5px 9px;text-align:right;color:#059669;font-weight:700">'+rs(l.comissao)+'</td>'
+                +'</tr>';
+            }).join('')
+            +'</tbody><tfoot><tr style="font-weight:700;background:#f8fafc"><td style="padding:6px 9px">Total</td>'
+            +'<td style="padding:6px 9px;text-align:right">'+rs(totRepValor)+'</td><td></td>'
+            +'<td style="padding:6px 9px;text-align:right;color:#059669">'+rs(totRepCom)+'</td></tr></tfoot></table>'
+          : '<div style="font-size:11px;color:#94a3b8">Nenhuma venda neste mês.</div>')
+        +'</div>';
+    });
+    blocosHtml+=blocosPorRep.join('');
+    // Total geral do relatório (soma de todos os representantes selecionados)
+    blocosHtml+='<div style="margin-top:6px;padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;display:flex;justify-content:space-between;font-weight:800;font-size:12px">'
+      +'<span>TOTAL GERAL — '+repsMarcados.length+' representante(s)</span>'
+      +'<span>Faturamento: '+rs(totalGeralClienteFat)+' &nbsp;·&nbsp; <span style="color:#059669">Comissão: '+rs(totalGeralClienteCom)+'</span></span></div>';
+    blocosHtml+='</div>';
+  }
+
+  // ── VENDAS POR PRODUTO: para cada representante, quebra por produto ──
+  if(incluirProduto){
+    blocosHtml+='<div style="margin-top:26px;page-break-before:'+((incluirResumo||incluirCliente)?'always':'auto')+'">'
+      +'<div style="font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px;page-break-after:avoid">📦 Vendas por Produto — '+rotuloMesAno(mesKey)+'</div>'
+      +'<div style="font-size:11px;color:#64748b;margin-bottom:14px;page-break-after:avoid">O que cada representante vendeu, produto a produto. Base: '+rotuloBase+'.</div>';
+    repsMarcados.forEach(function(rep){
+      const vendasRep=vendasDoMes.filter(function(r){return getRepresentanteCliente(r.cod_cliente)===rep;});
+      const porProd={};
+      vendasRep.forEach(function(r){
+        // Nome do produto: 'produto' é o campo principal; 'item'/'descricao' como reserva
+        const chave=r.produto||r.item||r.descricao||('Item '+(r.cod_item||'não identificado'));
+        if(!porProd[chave])porProd[chave]={valor:0,qtd:0,comissao:0};
+        const vLinha=valorLinha(r);
+        const pctLinha=percentualComissaoLinha(rep,r.cod_cliente,chave);
+        porProd[chave].valor+=vLinha;
+        porProd[chave].qtd+=parseFloat(r.quantidade)||0;
+        porProd[chave].comissao+=vLinha*(pctLinha/100);
+      });
+      const linhasProd=Object.keys(porProd).map(function(nome){
+        return{nome:nome,valor:porProd[nome].valor,qtd:porProd[nome].qtd,comissao:porProd[nome].comissao};
+      }).sort(function(a,b){return b.valor-a.valor;});
+      const totRepValor=linhasProd.reduce(function(a,b){return a+b.valor;},0);
+      const totRepCom=linhasProd.reduce(function(a,b){return a+b.comissao;},0);
+
+      blocosHtml+='<div style="margin-bottom:18px;page-break-inside:avoid">'
+        +'<div style="font-weight:700;font-size:13px;color:#0f6e5f;margin-bottom:6px">'+rep+' <span style="font-weight:400;color:#94a3b8;font-size:11px">('+linhasProd.length+' produto(s))</span></div>'
+        +(linhasProd.length
+          ? '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">'
+            +'<colgroup><col style="width:50%"><col style="width:15%"><col style="width:17.5%"><col style="width:17.5%"></colgroup>'
+            +'<thead><tr style="background:#f1f5f9"><th style="padding:6px 9px;text-align:left">Produto</th>'
+            +'<th style="padding:6px 9px;text-align:right">Qtd</th><th style="padding:6px 9px;text-align:right">Faturamento</th>'
+            +'<th style="padding:6px 9px;text-align:right">Comissão</th></tr></thead><tbody>'
+            +linhasProd.map(function(l,i){
+              return '<tr style="border-bottom:1px solid #f1f5f9;page-break-inside:avoid;'+(i%2?'background:#fafbfc':'')+'">'
+                +'<td style="padding:5px 9px;white-space:normal;word-break:break-word">'+String(l.nome).slice(0,90)+'</td>'
+                +'<td style="padding:5px 9px;text-align:right">'+l.qtd.toLocaleString('pt-BR')+'</td>'
+                +'<td style="padding:5px 9px;text-align:right;font-weight:700">'+rs(l.valor)+'</td>'
+                +'<td style="padding:5px 9px;text-align:right;color:#059669;font-weight:700">'+rs(l.comissao)+'</td>'
+                +'</tr>';
+            }).join('')
+            +'</tbody><tfoot><tr style="font-weight:700;background:#f8fafc"><td style="padding:6px 9px">Total</td><td></td>'
+            +'<td style="padding:6px 9px;text-align:right">'+rs(totRepValor)+'</td>'
+            +'<td style="padding:6px 9px;text-align:right;color:#059669">'+rs(totRepCom)+'</td></tr></tfoot></table>'
+          : '<div style="font-size:11px;color:#94a3b8">Nenhuma venda neste mês.</div>')
+        +'</div>';
+    });
+    blocosHtml+='</div>';
+  }
+
+  // ── VENDA DE MERCADORIA: relatório consolidado, sem comissão nem % ──
+  // Junta todos os representantes selecionados numa tabela só (o foco é o
+  // produto/quantidade vendida, não quem vendeu ou quanto de comissão gerou).
+  if(incluirMercadoria){
+    const vendasSelecionadas=vendasDoMes.filter(function(r){
+      return repsMarcados.indexOf(getRepresentanteCliente(r.cod_cliente))>=0;
+    });
+    const porProdMerc={};
+    vendasSelecionadas.forEach(function(r){
+      const chave=r.produto||r.item||r.descricao||('Item '+(r.cod_item||'não identificado'));
+      if(!porProdMerc[chave])porProdMerc[chave]={valor:0,qtd:0};
+      porProdMerc[chave].valor+=valorLinha(r);
+      porProdMerc[chave].qtd+=parseFloat(r.quantidade)||0;
+    });
+    const linhasMerc=Object.keys(porProdMerc).map(function(nome){
+      return{nome:nome,valor:porProdMerc[nome].valor,qtd:porProdMerc[nome].qtd};
+    }).sort(function(a,b){return b.valor-a.valor;});
+    const totMerc=linhasMerc.reduce(function(a,b){return a+b.valor;},0);
+    const totQtdMerc=linhasMerc.reduce(function(a,b){return a+b.qtd;},0);
+
+    blocosHtml+='<div style="margin-top:26px;page-break-before:'+((incluirResumo||incluirCliente||incluirProduto)?'always':'auto')+'">'
+      +'<div style="font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px;page-break-after:avoid">🧾 Venda de Mercadoria — '+rotuloMesAno(mesKey)+'</div>'
+      +'<div style="font-size:11px;color:#64748b;margin-bottom:14px;page-break-after:avoid">Consolidado de '+repsMarcados.length+' representante(s) selecionado(s) — apenas produto, quantidade e valor (sem percentual ou comissão). Base: '+rotuloBase+'.</div>'
+      +(linhasMerc.length
+        ? '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">'
+          +'<colgroup><col style="width:60%"><col style="width:20%"><col style="width:20%"></colgroup>'
+          +'<thead><tr style="background:#0f2744;color:#dbeafe"><th style="padding:7px 9px;text-align:left">Produto</th>'
+          +'<th style="padding:7px 9px;text-align:right">Qtd</th><th style="padding:7px 9px;text-align:right">Valor</th></tr></thead><tbody>'
+          +linhasMerc.map(function(l,i){
+            return '<tr style="border-bottom:1px solid #f1f5f9;page-break-inside:avoid;'+(i%2?'background:#fafbfc':'')+'">'
+              +'<td style="padding:6px 9px;white-space:normal;word-break:break-word">'+String(l.nome).slice(0,90)+'</td>'
+              +'<td style="padding:6px 9px;text-align:right">'+l.qtd.toLocaleString('pt-BR')+'</td>'
+              +'<td style="padding:6px 9px;text-align:right;font-weight:700">'+rs(l.valor)+'</td>'
+              +'</tr>';
+          }).join('')
+          +'</tbody><tfoot><tr style="font-weight:800;background:#f8fafc"><td style="padding:8px 9px">TOTAL</td>'
+          +'<td style="padding:8px 9px;text-align:right">'+totQtdMerc.toLocaleString('pt-BR')+'</td>'
+          +'<td style="padding:8px 9px;text-align:right">'+rs(totMerc)+'</td></tr></tfoot></table>'
+        : '<div style="font-size:11px;color:#94a3b8">Nenhuma venda neste mês para os representantes selecionados.</div>')
+      +'</div>';
+  }
+
+  conteudo.insertAdjacentHTML('beforeend',blocosHtml);
+
+  await Promise.all(promessasImg);
+  await new Promise(function(r){requestAnimationFrame(function(){requestAnimationFrame(r);});});
+
+  const alvo=ov.firstElementChild;
+  try{
+    await html2pdf().set({
+      margin:8,
+      filename:(_impComissaoModo==='combinado'?'Faturamento_Comissoes_':'Comissoes_')+rotuloMesAno(mesKey).replace('/','_')+'.pdf',
+      image:{type:'jpeg',quality:0.95},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
+      jsPDF:{unit:'mm',format:'a4',orientation:_impComissaoModo==='combinado'?'portrait':'landscape'},
+      pagebreak:{mode:['css','legacy']}
+    }).from(alvo).save();
+    showT('PDF gerado ✓','verde');
+  }catch(e){
+    console.error(e);
+    showT('Erro ao gerar PDF: '+(e&&e.message?e.message:e),'erro');
+  }finally{
+    ov.remove();
+  }
+}
 
 /* ══════════════════════════════════════════════════════════════
    COMISSÕES POR REPRESENTANTE
@@ -8176,6 +8590,18 @@ function montarMapaComissoes(){
 }
 
 // Percentual de comissão aplicável: exceção do cliente > padrão do representante > 0
+// Fitas teste (test strips) não geram comissão — aparecem no relatório com % zerado.
+function ehFitaTeste(nomeProduto){
+  const n=normalizarTexto(nomeProduto||'');
+  return /\bfita\b/.test(n)||/\bteste?\b/.test(n)||/test\s*strip/.test(n);
+}
+
+// Comissão de UMA linha de venda: 0% se for fita teste, senão o percentual normal do cliente.
+function percentualComissaoLinha(representante,cod_cliente,nomeProduto){
+  if(ehFitaTeste(nomeProduto)&&_excluirFitaComissao)return 0;
+  return percentualComissao(representante,cod_cliente);
+}
+
 function percentualComissao(representante,cod_cliente){
   const cfg=_comissoesPorRep[representante];
   if(!cfg)return 0;
@@ -8307,12 +8733,14 @@ async function removerExcecaoComissao(representante,cod){
 
 // Comissão total calculada para um representante, no conjunto de vendas informado
 // (ex: fatDados já filtrado por mês) — soma venda a venda, respeitando exceções por cliente.
-function calcularComissaoRepresentante(representante,vendas){
+function calcularComissaoRepresentante(representante,vendas,baseValor){
   let total=0,faturamento=0;
   (vendas||[]).forEach(function(r){
     if(getRepresentanteCliente(r.cod_cliente)!==representante)return;
-    const v=parseFloat(r.v_total)||0;
-    const pct=percentualComissao(representante,r.cod_cliente);
+    let v=parseFloat(r.v_total)||0;
+    if(baseValor==='v_mercadoria'){const vm=parseFloat(r.v_mercadoria);v=(vm&&vm>0)?vm:v;}
+    const nomeProd=r.produto||r.item||r.descricao||'';
+    const pct=percentualComissaoLinha(representante,r.cod_cliente,nomeProd);
     faturamento+=v;
     total+=v*(pct/100);
   });
@@ -10090,7 +10518,7 @@ async function importarFaturamento(input){
           cod_item:String(r['Cód. Item']||''),
           item:String(r['Item']||''),
           quantidade:parseFloat(r['Quantidade'])||0,
-          v_unitario:parseFloat(r['Quantidade'])>0?(parseFloat(r['V. Total'])||0)/(parseFloat(r['Quantidade'])||1):0,
+          v_unitario:parseFloat(r['V. Unitário'])||(parseFloat(r['Quantidade'])>0?(parseFloat(r['V. Total'])||0)/(parseFloat(r['Quantidade'])||1):0),
           v_mercadoria:parseFloat(r['V. Mercadoria'])||0,
           v_total:parseFloat(r['V. Total'])||0,
           transportadora:String(r['Razão Transportadora']||''),
