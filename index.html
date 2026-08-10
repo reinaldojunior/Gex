@@ -4618,7 +4618,8 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
       <label class="btn-cancel-mod" style="cursor:pointer">📎 Importar XML <input type="file" accept=".xml" multiple style="display:none" onchange="importarXML(this)"></label>
       <button class="btn-cancel-mod" onclick="imprimirFrete('aguardando')">🖨 Aguardando</button>
       <button class="btn-cancel-mod" onclick="imprimirFrete('entregue')">🖨 Concluídos</button>
-      <button onclick="abrirRelatorioFretes()" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📊 Relatório</button>
+      <button onclick="abrirRelatorioFretes()" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📊 Relatório de Desempenho</button>
+      <button onclick="abrirRelatorioFinanceiroFretes()" style="background:#059669;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">💰 Relatório de Custos</button>
       <button onclick="compartilharWhatsApp()" style="background:#25d366;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📱 WhatsApp</button>
       <button onclick="abrirModalEmailFretes()" style="background:#fff;color:#475569;border:1px solid #e2e8f0;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📧 Email diário</button>
       <input type="text" class="busca-mod" style="max-width:220px;margin:0" placeholder="Buscar NF ou cliente..." oninput="renderFretes(freteFilter,this.value)">
@@ -8152,9 +8153,6 @@ async function imprimirDashboardFaturamento(){
    IMPRESSÃO DE COMISSÕES — com seleção prévia de mês e representantes
    ══════════════════════════════════════════════════════════════ */
 let _impComissaoModo='somente';
-// Controla se os itens de fita teste devem SER EXCLUÍDOS do cálculo da comissão do relatório.
-// Falso (padrão) = fita teste entra com comissão normal. Verdadeiro = fita teste vira 0%. Definido pelo checkbox do modal.
-let _excluirFitaComissao=false;
 // Nomes que aparecem na lista mas não são representantes de verdade — vêm desmarcados por padrão.
 const REPS_DESMARCAR_PADRAO=['CLEBER LUCIANO BARRIL','COMERCIAL 3 ALBE LTDA','REPRESENTANTE'];
 function repDeveVirDesmarcado(nome){
@@ -8234,12 +8232,6 @@ async function abrirSelecaoImpressaoComissao(modo){
     +'<input type="checkbox" id="relTipoMercadoria"> <b>Venda de Mercadoria</b> — só quantidade e valor, sem comissão nem %</label>'
     +'</div>'
 
-    +'<div style="margin-bottom:16px;padding:10px 12px;background:var(--surface-1,#f8fafc);border:1px solid var(--borda,#e8ecf4);border-radius:8px">'
-    +'<label style="display:flex;align-items:center;gap:8px;font-size:12px">'
-    +'<input type="checkbox" id="relExcluirFita"> <b>Excluir fita teste da comissão</b></label>'
-    +'<div style="font-size:10px;color:var(--muted,#64748b);margin-top:4px;margin-left:24px">Desmarcado (padrão): fitas teste recebem o percentual normal de comissão do cliente/representante. Marcado: fitas teste entram no relatório com comissão zerada (0%).</div>'
-    +'</div>'
-
     +'<div style="display:flex;justify-content:flex-end;gap:8px">'
     +'<button class="btn-cancel-mod" onclick="document.getElementById(\'selImpComissaoOverlay\').remove()">Cancelar</button>'
     +'<button class="btn-salvar-mod" onclick="gerarPdfComissaoSelecionada()">📄 Gerar PDF</button>'
@@ -8260,8 +8252,6 @@ async function gerarPdfComissaoSelecionada(){
   const incluirProduto=document.getElementById('relTipoProduto').checked;
   const incluirMercadoria=document.getElementById('relTipoMercadoria').checked;
   if(!incluirResumo&&!incluirCliente&&!incluirProduto&&!incluirMercadoria){showT('Selecione ao menos um tipo de relatório','erro');return;}
-  const chkExcluirFita=document.getElementById('relExcluirFita');
-  _excluirFitaComissao=!!(chkExcluirFita&&chkExcluirFita.checked);
   const baseSel=document.querySelector('input[name="impComBase"]:checked');
   const baseValor=(baseSel&&baseSel.value)||'v_total';
   // Se a linha não tiver v_mercadoria preenchido (registros antigos), cai para v_total
@@ -8388,7 +8378,7 @@ async function gerarPdfComissaoSelecionada(){
     let totalGeralClienteCom=0,totalGeralClienteFat=0;
     blocosHtml+='<div style="margin-top:26px;page-break-before:'+(incluirResumo?'always':'auto')+'">'
       +'<div style="font-weight:800;font-size:15px;color:#0f172a;margin-bottom:4px;page-break-after:avoid">👥 Vendas por Cliente — '+rotuloMesAno(mesKey)+'</div>'
-      +'<div style="font-size:11px;color:#64748b;margin-bottom:14px;page-break-after:avoid">Detalhamento das vendas de cada representante, cliente a cliente. Base: '+rotuloBase+'. '+(_excluirFitaComissao?'Itens de fita teste entram com comissão zerada (0%).':'Itens de fita teste entram com comissão normal, conforme o percentual do cliente/representante.')+'</div>';
+      +'<div style="font-size:11px;color:#64748b;margin-bottom:14px;page-break-after:avoid">Detalhamento das vendas de cada representante, cliente a cliente. Base: '+rotuloBase+'. Itens de fita teste entram com comissão zerada (0%).</div>';
     const blocosPorRep=repsMarcados.map(function(rep){
       const vendasRep=vendasDoMes.filter(function(r){return getRepresentanteCliente(r.cod_cliente)===rep;});
       const porCliente={};
@@ -8424,7 +8414,7 @@ async function gerarPdfComissaoSelecionada(){
             +'<th style="padding:6px 9px;text-align:right">Comissão</th></tr></thead><tbody>'
             +linhasCli.map(function(l,i){
               return '<tr style="border-bottom:1px solid #f1f5f9;page-break-inside:avoid;'+(i%2?'background:#fafbfc':'')+'">'
-                +'<td style="padding:5px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+String(l.nome).replace(/"/g,'&quot;')+'">'+l.nome+(l.temFita?' <span style="font-size:9px;color:#b45309">('+(_excluirFitaComissao?'inclui fita teste — 0%':'inclui fita teste — comissão normal')+')</span>':'')+'</td>'
+                +'<td style="padding:5px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+String(l.nome).replace(/"/g,'&quot;')+'">'+l.nome+(l.temFita?' <span style="font-size:9px;color:#b45309">(inclui fita teste)</span>':'')+'</td>'
                 +'<td style="padding:5px 9px;text-align:right">'+rs(l.valor)+'</td>'
                 +'<td style="padding:5px 9px;text-align:right">'+l.pct.toFixed(1)+'%</td>'
                 +'<td style="padding:5px 9px;text-align:right;color:#059669;font-weight:700">'+rs(l.comissao)+'</td>'
@@ -8598,7 +8588,7 @@ function ehFitaTeste(nomeProduto){
 
 // Comissão de UMA linha de venda: 0% se for fita teste, senão o percentual normal do cliente.
 function percentualComissaoLinha(representante,cod_cliente,nomeProduto){
-  if(ehFitaTeste(nomeProduto)&&_excluirFitaComissao)return 0;
+  if(ehFitaTeste(nomeProduto))return 0;
   return percentualComissao(representante,cod_cliente);
 }
 
@@ -21411,7 +21401,11 @@ function renderTVFretes(){
   var COR={aguardando:{dot:'#3b82f6',txt:'Aguardando'},transito:{dot:'#f59e0b',txt:'Em Trânsito'},
     entregue:{dot:'#22c55e',txt:'Entregue'},ocorrencia:{dot:'#ef4444',txt:'Ocorrência'}};
   // Renderizar tabela
-  var tblRows=ordenada.map(function(fr,i){
+  // Fretes atrasados já ficam no topo (ordenada já está assim ordenada) —
+  // aqui só contamos quantos são, para o cabeçalho "⚠ Críticos".
+  var criticos=ordenada.filter(function(fr){return freteAtrasado(fr);});
+
+  var linhas=ordenada.map(function(fr,i){
     var st=COR[fr.status]||COR.transito;
     var atras=freteAtrasado(fr);
     var dA=diasAtraso(fr);
@@ -21436,9 +21430,16 @@ function renderTVFretes(){
       +'<td style="padding:.7vh .8vw;white-space:nowrap">'+statusPrazo+'</td>'
       +'<td style="padding:.7vh .8vw;white-space:nowrap">'+stBadge+'</td>'
       +'</tr>';
-  }).join('');
+  });
 
-  var html=tblRows.length
+  // Divisor entre os fretes críticos (atrasados) e o restante, se houver mistura
+  var separador=(criticos.length>0&&criticos.length<ordenada.length)
+    ?'<tr><td colspan="7" style="padding:.4vh .8vw;background:rgba(255,255,255,.06);font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b">Demais fretes</td></tr>'
+    :'';
+  if(separador)linhas.splice(criticos.length,0,separador);
+  var tblRows=linhas.join('');
+
+  var html=ordenada.length
     ?'<table style="width:100%;border-collapse:collapse">'
       +'<thead><tr style="background:rgba(255,255,255,.08);position:sticky;top:0">'
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:5vw">NF</th>'
@@ -21448,7 +21449,7 @@ function renderTVFretes(){
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:7vw">Prazo</th>'
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:10vw">Status Prazo</th>'
       +'<th style="padding:.6vh .8vw;font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;text-align:left;width:9vw">Status</th>'
-      +'</tr></thead><tbody>'+(criticos.length?'<tr><td colspan="7" style="padding:.4vh .8vw;background:rgba(239,68,68,.08);font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#fca5a5">\u26a0 Cr\u00EDticos ('+criticos.length+')</td></tr>':'')+tblRows+separador+'</tbody></table>'
+      +'</tr></thead><tbody>'+(criticos.length?'<tr><td colspan="7" style="padding:.4vh .8vw;background:rgba(239,68,68,.08);font-size:1.1vh;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#fca5a5">\u26a0 Cr\u00EDticos ('+criticos.length+')</td></tr>':'')+tblRows+'</tbody></table>'
     :'<div style="text-align:center;padding:4vh;color:#475569;font-size:1.6vh">Nenhum frete cadastrado</div>';
   var el=document.getElementById('tvFreteLista');
   if(el)el.innerHTML=html;
@@ -21764,6 +21765,271 @@ function importarNFsFaturamento(lista){
 }
 
 /* ════ RELATÓRIO DE FRETES ════ */
+
+/* ══════════════════════════════════════════════════════════════
+   RELATÓRIO DE CUSTOS DE FRETE — para negociação com transportadoras
+   Cruza a tabela de fretes (valor, peso, transportadora) com o
+   faturamento (NF → estado/região), com filtro de período e status.
+   ══════════════════════════════════════════════════════════════ */
+const REGIAO_UF={
+  norte:['AC','AP','AM','PA','RO','RR','TO'],
+  nordeste:['AL','BA','CE','MA','PB','PE','PI','RN','SE'],
+  centro_oeste:['DF','GO','MT','MS'],
+  sudeste:['ES','MG','RJ','SP'],
+  sul:['PR','RS','SC']
+};
+const REGIAO_LABEL={norte:'Norte',nordeste:'Nordeste',centro_oeste:'Centro-Oeste',sudeste:'Sudeste',sul:'Sul'};
+function regiaoDaUf(uf){
+  uf=String(uf||'').toUpperCase().trim();
+  for(const r in REGIAO_UF){if(REGIAO_UF[r].indexOf(uf)>=0)return r;}
+  return 'nao_informado';
+}
+
+// Descobre a UF de destino de um frete cruzando pelo número da NF com o faturamento
+function ufDoFrete(f){
+  if(f.uf)return String(f.uf).toUpperCase(); // caso já venha preenchido no futuro
+  const venda=(fatDados||[]).find(function(r){return String(r.nf)===String(f.nf);});
+  return venda?String(venda.estado||venda.uf||'').toUpperCase():'';
+}
+
+function rsFrete(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function kgFrete(v){return Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0})+' kg';}
+
+async function abrirRelatorioFinanceiroFretes(){
+  const ov=document.createElement('div');
+  ov.id='selRelFinFreteOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99997;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+
+  const statusOpts=Object.keys(STATUS_LABELS).map(function(k){
+    return '<label style="display:flex;align-items:center;gap:6px;font-size:12px;padding:3px 0">'
+      +'<input type="checkbox" class="relFinFreteStatus" value="'+k+'" checked> '+STATUS_LABELS[k]+'</label>';
+  }).join('');
+
+  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+    +'<div style="font-weight:800;font-size:16px">💰 Relatório de Custos de Frete</div>'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'selRelFinFreteOverlay\').remove()">✕</button></div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:16px">Valores, percentual sobre a mercadoria, peso e custo por kg — cruzando frete com as notas fiscais do faturamento.</div>'
+
+    +'<div class="form-field" style="margin-bottom:10px">'
+    +'<label>Período</label>'
+    +'<select id="relFinFretePeriodo" onchange="document.getElementById(\'relFinFretePersonalizado\').style.display=(this.value===\'personalizado\'?\'flex\':\'none\')">'
+    +'<option value="3">Últimos 3 meses</option><option value="6" selected>Últimos 6 meses</option>'
+    +'<option value="12">Últimos 12 meses</option><option value="todo">Todo o histórico</option>'
+    +'<option value="personalizado">Período selecionado...</option></select>'
+    +'</div>'
+    +'<div id="relFinFretePersonalizado" style="display:none;gap:8px;margin-bottom:14px">'
+    +'<input type="date" id="relFinFreteDe" style="flex:1"><span style="align-self:center;font-size:12px;color:var(--muted)">até</span><input type="date" id="relFinFreteAte" style="flex:1">'
+    +'</div>'
+
+    +'<div style="margin-bottom:16px">'
+    +'<label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px">Status a incluir</label>'
+    +statusOpts
+    +'</div>'
+
+    +'<div style="display:flex;justify-content:flex-end;gap:8px">'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'selRelFinFreteOverlay\').remove()">Cancelar</button>'
+    +'<button class="btn-salvar-mod" onclick="gerarRelatorioFinanceiroFretes()">📄 Gerar Relatório</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+}
+
+async function gerarRelatorioFinanceiroFretes(){
+  const periodoSel=document.getElementById('relFinFretePeriodo').value;
+  const statusMarcados=Array.from(document.querySelectorAll('.relFinFreteStatus:checked')).map(function(c){return c.value;});
+  if(!statusMarcados.length){showT('Selecione ao menos um status','erro');return;}
+
+  let dataIni=null,dataFim=null;
+  const hoje=new Date();
+  if(periodoSel==='personalizado'){
+    dataIni=document.getElementById('relFinFreteDe').value||null;
+    dataFim=document.getElementById('relFinFreteAte').value||null;
+  }else if(periodoSel!=='todo'){
+    const d=new Date(hoje.getTime()-parseInt(periodoSel,10)*30*86400000);
+    dataIni=d.toISOString().slice(0,10);
+  }
+
+  document.getElementById('selRelFinFreteOverlay').remove();
+  showT('Gerando relatório...','verde');
+
+  // ── Filtra os fretes ──
+  const lista=(fretes||[]).filter(function(f){
+    if(statusMarcados.indexOf(f.status)<0)return false;
+    const d=f.dataEmissao;
+    if(dataIni&&d&&d<dataIni)return false;
+    if(dataFim&&d&&d>dataFim)return false;
+    return true;
+  });
+
+  if(!lista.length){
+    showT('Nenhum frete encontrado para esse período/status','erro');
+    return;
+  }
+
+  // Só entram no relatório fretes com preço realmente lançado — sem isso, a
+  // média/percentual/R$ por kg ficava distorcida por fretes ainda sem valor.
+  const listaComPreco=lista.filter(function(f){return (parseFloat(f.valorFrete)||0)>0;});
+  const semPreco=lista.length-listaComPreco.length;
+
+  if(!listaComPreco.length){
+    document.getElementById('selRelFinFreteOverlay')&&document.getElementById('selRelFinFreteOverlay').remove();
+    showT('Nenhum frete com preço lançado nesse período/status — nada para calcular','erro');
+    return;
+  }
+
+  // ── Enriquece cada frete com UF e região (via cruzamento com a NF do faturamento) ──
+  const enriquecidos=listaComPreco.map(function(f){
+    const uf=ufDoFrete(f);
+    return{
+      nf:f.nf,transportadora:f.transportadora||'Não informada',
+      valorFrete:parseFloat(f.valorFrete)||0,
+      valorComercial:parseFloat(f.valorComercial)||0,
+      pesoBruto:parseFloat(f.pesoBruto)||0,
+      uf:uf||'—',regiao:uf?regiaoDaUf(uf):'nao_informado'
+    };
+  });
+
+  const semUf=enriquecidos.filter(function(e){return e.uf==='—';}).length;
+
+  // ── Agrupador genérico ──
+  const agrupar=function(chaveFn,rotuloFn){
+    const m={};
+    enriquecidos.forEach(function(e){
+      const k=chaveFn(e);
+      if(!m[k])m[k]={rotulo:rotuloFn(k),n:0,valorFrete:0,valorComercial:0,peso:0};
+      m[k].n++;m[k].valorFrete+=e.valorFrete;m[k].valorComercial+=e.valorComercial;m[k].peso+=e.pesoBruto;
+    });
+    return Object.keys(m).map(function(k){
+      const d=m[k];
+      return{
+        rotulo:d.rotulo,n:d.n,valorFrete:d.valorFrete,valorComercial:d.valorComercial,peso:d.peso,
+        pctMedio:d.valorComercial>0?(d.valorFrete/d.valorComercial*100):null,
+        rsPorKg:d.peso>0?(d.valorFrete/d.peso):null
+      };
+    }).sort(function(a,b){return b.valorFrete-a.valorFrete;});
+  };
+
+  const porTransp=agrupar(function(e){return e.transportadora;},function(k){return k;});
+  const porRegiao=agrupar(function(e){return e.regiao;},function(k){return REGIAO_LABEL[k]||'Não informado';});
+  const porUf=agrupar(function(e){return e.uf;},function(k){return k;});
+
+  const totalFrete=enriquecidos.reduce(function(a,b){return a+b.valorFrete;},0);
+  const totalComercial=enriquecidos.reduce(function(a,b){return a+b.valorComercial;},0);
+  const totalPeso=enriquecidos.reduce(function(a,b){return a+b.pesoBruto;},0);
+  const pctGeral=totalComercial>0?(totalFrete/totalComercial*100):null;
+  const rsKgGeral=totalPeso>0?(totalFrete/totalPeso):null;
+
+  // ── Monta a janela visível (mesmo método já usado nos outros PDFs do app) ──
+  const ov=document.createElement('div');
+  ov.id='pdfRelFinFreteOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
+  ov.innerHTML='<div style="background:#fff;border-radius:10px;max-width:1000px;width:100%;padding:0">'
+    +'<div style="padding:12px 18px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">'
+    +'<div style="font-size:13px;font-weight:700;color:#0f172a">Pré-visualização — Relatório de Custos de Frete</div>'
+    +'<button id="relFinFreteFechar" style="border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer">✕ Fechar</button>'
+    +'</div><div id="relFinFreteConteudo" style="padding:20px"></div></div>';
+  document.body.appendChild(ov);
+  document.getElementById('relFinFreteFechar').onclick=function(){ov.remove();};
+
+  const periodoTxt=periodoSel==='todo'?'Todo o histórico'
+    :periodoSel==='personalizado'?((dataIni||'início')+' até '+(dataFim||'hoje'))
+    :'Últimos '+periodoSel+' meses';
+
+  const tabelaAgrupada=function(titulo,linhas,corTema){
+    return '<div style="margin-top:18px">'
+      +'<div style="font-weight:800;font-size:14px;color:#0f172a;margin-bottom:8px">'+titulo+'</div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:12px">'
+      +'<thead><tr style="background:'+corTema+';color:#fff">'
+      +'<th style="padding:7px 10px;text-align:left">'+(titulo.indexOf('Transportadora')>=0?'Transportadora':titulo.indexOf('Região')>=0?'Região':'UF')+'</th>'
+      +'<th style="padding:7px 10px;text-align:right">NFs</th>'
+      +'<th style="padding:7px 10px;text-align:right">Valor Frete</th>'
+      +'<th style="padding:7px 10px;text-align:right">Valor Mercadoria</th>'
+      +'<th style="padding:7px 10px;text-align:right">% Médio</th>'
+      +'<th style="padding:7px 10px;text-align:right">Peso Bruto</th>'
+      +'<th style="padding:7px 10px;text-align:right">R$/kg</th>'
+      +'</tr></thead><tbody>'
+      +linhas.map(function(l,i){
+        return '<tr style="border-bottom:1px solid #e2e8f0;page-break-inside:avoid;'+(i%2?'background:#f8fafc':'')+'">'
+          +'<td style="padding:6px 10px;font-weight:700">'+l.rotulo+'</td>'
+          +'<td style="padding:6px 10px;text-align:right">'+l.n+'</td>'
+          +'<td style="padding:6px 10px;text-align:right;font-weight:700;color:#059669">'+rsFrete(l.valorFrete)+'</td>'
+          +'<td style="padding:6px 10px;text-align:right">'+rsFrete(l.valorComercial)+'</td>'
+          +'<td style="padding:6px 10px;text-align:right">'+(l.pctMedio!=null?l.pctMedio.toFixed(1)+'%':'—')+'</td>'
+          +'<td style="padding:6px 10px;text-align:right">'+kgFrete(l.peso)+'</td>'
+          +'<td style="padding:6px 10px;text-align:right;font-weight:700">'+(l.rsPorKg!=null?rsFrete(l.rsPorKg):'—')+'</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody></table></div>';
+  };
+
+  let html='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;border-bottom:2px solid #059669;padding-bottom:10px">'
+    +'<div><div style="font-weight:800;font-size:18px;color:#0f172a">Relatório de Custos de Frete</div>'
+    +'<div style="font-size:12px;color:#64748b">'+periodoTxt+' · '+statusMarcados.map(function(s){return STATUS_LABELS[s];}).join(', ')+'</div></div>'
+    +'<div style="font-size:11px;color:#94a3b8">Gerado em '+new Date().toLocaleString('pt-BR')+'</div></div>';
+
+  html+='<div class="intel-kpi" style="margin-bottom:6px">'
+    +'<div><div class="rot">Total em frete</div><div class="val" style="color:#059669">'+rsFrete(totalFrete)+'</div></div>'
+    +'<div><div class="rot">Valor da mercadoria</div><div class="val">'+rsFrete(totalComercial)+'</div></div>'
+    +'<div><div class="rot">% médio (frete/merc.)</div><div class="val" style="color:'+(pctGeral!=null&&pctGeral>10?'#dc2626':'#f59e0b')+'">'+(pctGeral!=null?pctGeral.toFixed(1)+'%':'—')+'</div></div>'
+    +'<div><div class="rot">Peso bruto total</div><div class="val">'+kgFrete(totalPeso)+'</div></div>'
+    +'<div><div class="rot">Custo médio por kg</div><div class="val" style="color:#7c3aed">'+(rsKgGeral!=null?rsFrete(rsKgGeral):'—')+'</div></div>'
+    +'<div><div class="rot">NFs com frete precificado</div><div class="val">'+enriquecidos.length+(semPreco>0?(' <span style="font-size:10px;color:#b45309;font-weight:400">(+'+semPreco+' sem preço)</span>'):'')+'</div></div>'
+    +'</div>';
+
+  if(semPreco>0||semUf>0){
+    html+='<div style="font-size:11px;color:#b45309;background:#fffbeb;border:1px solid #fcd34d;border-radius:6px;padding:7px 10px;margin-top:6px">'
+      +(semPreco>0?('⚠️ '+semPreco+' frete(s) sem valor lançado foram excluídos do cálculo (não têm preço definido ainda).'):'')
+      +(semPreco>0&&semUf>0?'<br>':'')
+      +(semUf>0?('⚠️ '+semUf+' frete(s) sem NF correspondente no faturamento — não entraram nas tabelas de Região/UF (mas contam nos totais e na tabela por Transportadora).'):'')
+      +'</div>';
+  }
+
+  html+='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;border-bottom:2px solid #059669;padding-bottom:10px">'
+    +'<div><div style="font-weight:800;font-size:18px;color:#0f172a">Relatório de Custos de Frete</div>'
+    +'<div style="font-size:12px;color:#64748b">'+periodoTxt+' · '+statusMarcados.map(function(s){return STATUS_LABELS[s];}).join(', ')+'</div></div>'
+    +'<div style="font-size:11px;color:#94a3b8">Gerado em '+new Date().toLocaleString('pt-BR')+'</div></div>';
+
+  html+='<div class="intel-kpi" style="margin-bottom:6px">'
+    +'<div><div class="rot">Total em frete</div><div class="val" style="color:#059669">'+rsFrete(totalFrete)+'</div></div>'
+    +'<div><div class="rot">Valor da mercadoria</div><div class="val">'+rsFrete(totalComercial)+'</div></div>'
+    +'<div><div class="rot">% médio (frete/merc.)</div><div class="val" style="color:'+(pctGeral!=null&&pctGeral>10?'#dc2626':'#f59e0b')+'">'+(pctGeral!=null?pctGeral.toFixed(1)+'%':'—')+'</div></div>'
+    +'<div><div class="rot">Peso bruto total</div><div class="val">'+kgFrete(totalPeso)+'</div></div>'
+    +'<div><div class="rot">Custo médio por kg</div><div class="val" style="color:#7c3aed">'+(rsKgGeral!=null?rsFrete(rsKgGeral):'—')+'</div></div>'
+    +'<div><div class="rot">NFs no período</div><div class="val">'+enriquecidos.length+'</div></div>'
+    +'</div>';
+
+  if(semUf>0){
+    html+='<div style="font-size:11px;color:#b45309;background:#fffbeb;border:1px solid #fcd34d;border-radius:6px;padding:7px 10px;margin-top:6px">'
+      +'⚠️ '+semUf+' frete(s) sem NF correspondente no faturamento — não entraram nas tabelas de Região/UF (mas contam nos totais e na tabela por Transportadora).</div>';
+  }
+
+  html+=tabelaAgrupada('🚚 Por Transportadora — a base da negociação',porTransp,'#1e3a5f');
+  html+=tabelaAgrupada('🗺️ Por Região',porRegiao,'#0891b2');
+  html+=tabelaAgrupada('📍 Por Estado (UF)',porUf,'#7c3aed');
+
+  html+='<div style="font-size:10px;color:#94a3b8;margin-top:16px">GEx Assist · Grow Química — dados cruzados entre o módulo de Fretes e as notas fiscais do Faturamento.</div>';
+
+  document.getElementById('relFinFreteConteudo').innerHTML=html;
+
+  await new Promise(function(r){requestAnimationFrame(function(){requestAnimationFrame(r);});});
+
+  try{
+    await html2pdf().set({
+      margin:8,
+      filename:'Relatorio_Custos_Frete_'+new Date().toISOString().slice(0,10)+'.pdf',
+      image:{type:'jpeg',quality:0.95},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
+      jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},
+      pagebreak:{mode:['css','avoid-all','legacy']}
+    }).from(ov.firstElementChild).save();
+    showT('PDF gerado ✓','verde');
+  }catch(e){
+    console.error(e);
+    showT('Erro ao gerar PDF: '+(e&&e.message?e.message:e),'erro');
+  }
+}
+
 function abrirRelatorioFretes(){
   var mo=document.getElementById('overlayRelFretes');
   if(!mo){criarModalRelFretes();}
