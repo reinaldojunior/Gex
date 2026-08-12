@@ -4947,6 +4947,91 @@ window.addEventListener('DOMContentLoaded',function(){
 /* ══════════════════════════════════════
    HOME DASHBOARD
 ══════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════
+   TROCAR SENHA — qualquer usuário logado pode mudar a própria senha.
+   ══════════════════════════════════════════════════════════════ */
+function abrirTrocarSenha(){
+  if(!_gexUser||!_gexUser.login){showT('Você precisa estar logado','erro');return;}
+  const ov=document.createElement('div');
+  ov.id='trocarSenhaOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:400px;width:100%;padding:22px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    +'<div style="font-weight:800;font-size:16px">🔑 Trocar Senha</div>'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'trocarSenhaOverlay\').remove()">✕</button></div>'
+    +'<div class="form-field" style="margin-bottom:12px"><label>Senha atual</label><input type="password" id="tsSenhaAtual" autocomplete="current-password"></div>'
+    +'<div class="form-field" style="margin-bottom:12px"><label>Nova senha</label><input type="password" id="tsSenhaNova" autocomplete="new-password"></div>'
+    +'<div class="form-field" style="margin-bottom:18px"><label>Confirmar nova senha</label><input type="password" id="tsSenhaConfirma" autocomplete="new-password"></div>'
+    +'<div id="tsAviso" style="font-size:11px;color:#dc2626;margin-bottom:10px;display:none"></div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:8px">'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'trocarSenhaOverlay\').remove()">Cancelar</button>'
+    +'<button class="btn-salvar-mod" onclick="confirmarTrocaSenha()">💾 Salvar nova senha</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+  setTimeout(function(){var el=document.getElementById('tsSenhaAtual');if(el)el.focus();},50);
+}
+
+async function confirmarTrocaSenha(){
+  const atual=(document.getElementById('tsSenhaAtual').value||'').trim();
+  const nova=(document.getElementById('tsSenhaNova').value||'').trim();
+  const confirma=(document.getElementById('tsSenhaConfirma').value||'').trim();
+  const aviso=document.getElementById('tsAviso');
+  const mostraErro=function(msg){aviso.textContent=msg;aviso.style.display='block';};
+
+  if(!atual||!nova||!confirma){mostraErro('Preencha todos os campos');return;}
+  if(nova.length<4){mostraErro('A nova senha precisa ter pelo menos 4 caracteres');return;}
+  if(nova!==confirma){mostraErro('A confirmação não bate com a nova senha');return;}
+
+  // Confirma a senha atual antes de trocar (evita alguém mudar a senha de outra sessão aberta)
+  if(_gexUser.login==='admin'){
+    if(atual!=='admin123'){mostraErro('Senha atual incorreta');return;}
+    showT('O login "admin" é fixo pelo sistema — não é possível trocar essa senha por aqui.','erro');
+    return;
+  }
+
+  const r=await sb.from('gex_usuarios').select('id').eq('login',_gexUser.login).eq('senha',atual).maybeSingle();
+  if(r.error||!r.data){mostraErro('Senha atual incorreta');return;}
+
+  const upd=await sb.from('gex_usuarios').update({senha:nova}).eq('login',_gexUser.login);
+  if(upd.error){mostraErro('Erro ao salvar: '+upd.error.message);return;}
+
+  document.getElementById('trocarSenhaOverlay').remove();
+  showT('Senha alterada com sucesso ✓','verde');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESTRIÇÃO DE FATURAMENTO NA HOME — usuários sem o módulo
+   'faturamento' liberado não veem valores de receita no painel
+   geral, mesmo tendo acesso à Home (que é liberada por padrão
+   pra todo perfil, como tela de entrada do sistema).
+   ══════════════════════════════════════════════════════════════ */
+function aplicarPermissoesHome(){
+  if(!_gexUser)return;
+  const podeVerFaturamento=gexTemAcesso('faturamento');
+  if(podeVerFaturamento)return;   // nada a esconder
+
+  // Card "Faturamento do mês" no console de KPIs
+  const kpiFat=document.getElementById('hmFatTotal');
+  if(kpiFat){
+    const card=kpiFat.closest('.metric-card');
+    if(card)card.style.display='none';
+  }
+
+  // Gráfico "Relatório de Vendas"
+  const trend=document.getElementById('homeFatTrend');
+  if(trend)trend.style.display='none';
+
+  // Os quatro blocos da coluna direita (Faturamento no Ano, Ticket Médio,
+  // Clientes Faturados, NFs no Ano) — todos levam pro módulo Faturamento
+  document.querySelectorAll('.dk-stat').forEach(function(el){
+    if((el.getAttribute('onclick')||'').indexOf("setModoApp('faturamento')")>=0){
+      el.style.display='none';
+    }
+  });
+}
+
 function renderHome(){
   var h=new Date().getHours();
   var greet=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
@@ -5142,6 +5227,7 @@ function renderHome(){
 
   renderHomeFatChart();
   if(typeof renderDashKitCards==='function'){try{renderDashKitCards();}catch(e){}}
+  aplicarPermissoesHome();   // some com os cartões de faturamento se o usuário não tiver acesso ao módulo
 }
 
 let _homeFatChartObj=null;
@@ -20327,6 +20413,7 @@ function renderDashKitCards(){
       '<span class="dk-avatar" id="dkAvatar">·</span>'+
       '<span class="dk-user-name" id="dkUserName">—</span>'+
       '<button class="tema-btn" id="gexTemaBtn" onclick="gexAlternarTema()" title="Alternar tema claro/escuro" aria-label="Alternar tema">🌙</button>'+
+      '<button class="tema-btn" onclick="abrirTrocarSenha()" title="Trocar minha senha" aria-label="Trocar senha">🔑</button>'+
       '<button id="dkBtnUsuarios" onclick="abrirModalUsuarios()" style="display:none;background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;padding:2px 5px" title="Gerenciar usuários">&#128101;</button>'+
       '<button class="dk-logout" onclick="fazerLogout()" title="Sair do sistema">SAIR</button>'+
     '</div>';
