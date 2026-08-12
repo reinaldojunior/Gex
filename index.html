@@ -337,8 +337,8 @@ td.apres-col{font-size:12px;color:var(--texto);font-weight:400}
 .fr-table td{padding:4px 7px;color:#0f1727;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:0;font-size:12px}
 .fr-table td.wrap{white-space:normal;max-width:none}
 .fr-table .fr-nf{font-weight:700;font-size:11px;color:#0f1727}
-.fr-table .fr-cli{font-weight:500;color:#0f1727;max-width:180px;font-size:12px}
-.fr-table .fr-transp{color:#475569;max-width:110px;font-size:11px}
+.fr-table .fr-cli{font-weight:500;color:#0f1727;max-width:260px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-table .fr-transp{color:#475569;max-width:110px;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fr-table .fr-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;font-size:11px}
 .fr-table .fr-pct{text-align:right;font-size:10px;font-weight:700}
 .fr-table .fr-pct.alto{color:#dc2626}.fr-table .fr-pct.medio{color:#d97706}.fr-table .fr-pct.ok{color:#16a34a}
@@ -4662,6 +4662,22 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
           <div class="form-field"><label>Data de Emissão</label><input type="date" id="ftDataEmissao"></div>
           <div class="form-field"><label>Valor Comercial (R$)</label><input type="number" id="ftValorComercial" placeholder="0,00" step="0.01"></div>
           <div class="form-field"><label>Valor do Frete (R$)</label><input type="number" id="ftValorFrete" placeholder="0,00" step="0.01"></div>
+        </div>
+        <div class="modulo-grid-3" style="margin-bottom:12px">
+          <div class="form-field"><label>UF de Destino <span style="color:#dc2626">*</span></label>
+            <select id="ftUf" required>
+              <option value="">— Selecione —</option>
+              <option value="AC">AC — Acre</option><option value="AL">AL — Alagoas</option><option value="AP">AP — Amapá</option>
+              <option value="AM">AM — Amazonas</option><option value="BA">BA — Bahia</option><option value="CE">CE — Ceará</option>
+              <option value="DF">DF — Distrito Federal</option><option value="ES">ES — Espírito Santo</option><option value="GO">GO — Goiás</option>
+              <option value="MA">MA — Maranhão</option><option value="MT">MT — Mato Grosso</option><option value="MS">MS — Mato Grosso do Sul</option>
+              <option value="MG">MG — Minas Gerais</option><option value="PA">PA — Pará</option><option value="PB">PB — Paraíba</option>
+              <option value="PR">PR — Paraná</option><option value="PE">PE — Pernambuco</option><option value="PI">PI — Piauí</option>
+              <option value="RJ">RJ — Rio de Janeiro</option><option value="RN">RN — Rio Grande do Norte</option><option value="RS">RS — Rio Grande do Sul</option>
+              <option value="RO">RO — Rondônia</option><option value="RR">RR — Roraima</option><option value="SC">SC — Santa Catarina</option>
+              <option value="SP">SP — São Paulo</option><option value="SE">SE — Sergipe</option><option value="TO">TO — Tocantins</option>
+            </select>
+          </div>
         </div>
         <div class="modulo-grid-3" style="margin-bottom:12px">
           <div class="form-field"><label>Transportadora</label>
@@ -13260,6 +13276,8 @@ function abrirFormNF(id=null){
       document.getElementById('ftDataEmissao').value=f.dataEmissao||'';
       document.getElementById('ftValorComercial').value=f.valorComercial||'';
       document.getElementById('ftValorFrete').value=f.valorFrete||'';
+      document.getElementById('ftPesoBruto').value=f.pesoBruto||'';
+      document.getElementById('ftUf').value=f.uf||'';
       document.getElementById('ftTransportadora').value=f.transportadora||'';
       document.getElementById('ftPrazoEntrega').value=f.prazoEntrega||'';
       document.getElementById('ftRastreio').value=f.rastreio||'';
@@ -13288,7 +13306,8 @@ function fecharFormNF(){
 }
 
 function limparFormNF(){
-  ['ftNF','ftCliente','ftDataEmissao','ftValorComercial','ftValorFrete','ftRastreio','ftObs','ftPrazoEntrega'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['ftNF','ftCliente','ftDataEmissao','ftValorComercial','ftValorFrete','ftPesoBruto','ftRastreio','ftObs','ftPrazoEntrega'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('ftUf').value='';
   document.getElementById('ftTransportadora').value='';
   document.getElementById('ftStatus').value='aguardando';
   document.getElementById('ftRedespacho').checked=false;
@@ -13303,14 +13322,17 @@ function toggleRedespacho(){
 function salvarNF(){
   const nf=document.getElementById('ftNF').value.trim();
   const cli=document.getElementById('ftCliente').value.trim();
+  const uf=document.getElementById('ftUf').value;
   if(!nf||!cli){showT('Informe o número da NF e o cliente','erro');return;}
+  if(!uf){showT('Selecione a UF de destino — é obrigatória para os relatórios por região/estado','erro');return;}
   const redespacho=document.getElementById('ftRedespacho').checked;
   const reg={
     id:ftEditando||Date.now(),
-    nf,cliente:cli,
+    nf,cliente:cli,uf,
     dataEmissao:document.getElementById('ftDataEmissao').value,
     valorComercial:parseFloat(document.getElementById('ftValorComercial').value)||0,
     valorFrete:parseFloat(document.getElementById('ftValorFrete').value)||0,
+    pesoBruto:parseFloat(document.getElementById('ftPesoBruto').value)||0,
     transportadora:document.getElementById('ftTransportadora').value,
     prazoEntrega:document.getElementById('ftPrazoEntrega').value.trim(),
     rastreio:document.getElementById('ftRastreio').value.trim(),
@@ -13447,8 +13469,8 @@ function renderFretes(filter='todos',q=''){
     const emissao=f.dataEmissao?f.dataEmissao.split('-').reverse().join('/'):'—';
     const prazo=f.prazoEntrega?new Date(f.prazoEntrega).toLocaleDateString('pt-BR'):'—';
     const fmtV=v=>v>0?'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2}):'—';
-    const transnome=(trans.nome||f.transportadora||'—').substring(0,18);
-    const clinome=(f.cliente||'—').substring(0,28);
+    const transnome=trans.nome||f.transportadora||'—';
+    const clinome=f.cliente||'—';
 
     // Linha principal
     var mainRow=`<tr class="fr-row ${f.status}" onclick="frToggle(${f.id})" title="${f.cliente}">
@@ -13490,17 +13512,17 @@ function renderFretes(filter='todos',q=''){
 
   el.innerHTML=`<table class="fr-table">
     <thead><tr>
-      <th style="width:80px">NF</th>
-      <th>Cliente</th>
-      <th style="width:170px">Transportadora</th>
-      <th style="width:90px">Emissão</th>
-      <th style="width:90px">Prazo</th>
-      <th class="r" style="width:70px">Atraso</th>
-      <th class="r" style="width:110px">Valor NF</th>
-      <th class="r" style="width:110px">Valor Frete</th>
-      <th class="r" style="width:90px">% Fr.</th>
-      <th style="width:130px">Status</th>
-      <th style="width:80px"></th>
+      <th style="width:85px">NF</th>
+      <th style="min-width:260px">Cliente</th>
+      <th style="width:130px">Transportadora</th>
+      <th style="width:85px">Emissão</th>
+      <th style="width:85px">Prazo</th>
+      <th class="r" style="width:50px">Dias</th>
+      <th class="r" style="width:100px">Valor NF</th>
+      <th class="r" style="width:90px">Valor Frete</th>
+      <th class="r" style="width:60px">% Fr.</th>
+      <th style="width:120px">Status</th>
+      <th style="width:60px"></th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
@@ -19201,6 +19223,7 @@ async function sbSalvarFrete(reg){
   const payload={
     nf: reg.nf,
     cliente: reg.cliente||null,
+    uf: reg.uf||null,
     data_emissao: reg.dataEmissao||null,
     valor_comercial: reg.valorComercial||0,
     valor_frete: reg.valorFrete||0,
@@ -19235,9 +19258,11 @@ async function sbCarregarFretes(){
     id:r.id,
     nf:r.nf,
     cliente:r.cliente||'',
+    uf:r.uf||'',
     dataEmissao:r.data_emissao||'',
     valorComercial:parseFloat(r.valor_comercial)||0,
     valorFrete:parseFloat(r.valor_frete)||0,
+    pesoBruto:parseFloat(r.peso_bruto)||0,
     transportadora:r.transportadora||'',
     rastreio:r.rastreio||'',
     status:r.status||'aguardando',
