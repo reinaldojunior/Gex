@@ -3636,7 +3636,15 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
     <div class="tp-acoes">
       <button class="btn-pdf" onclick="imprimirTabela()">🖨 Imprimir / PDF</button>
       <button class="btn-baixar-todas" id="btnBaixarTodas" onclick="baixarTodas()">⬇ Baixar todas as tabelas</button>
+      <button class="btn-pdf" id="btnEditarPrecos" style="background:#059669" onclick="toggleModoEdicaoPrecos()">✏️ Editar Preços</button>
       <span class="tp-info-tag" id="tpInfoTag">Selecione o tipo de cliente e o estado</span>
+    </div>
+    <div id="tpBarraSalvarPrecos" style="display:none;position:sticky;top:0;z-index:50;background:#059669;color:#fff;padding:10px 16px;border-radius:8px;margin-bottom:10px;align-items:center;justify-content:space-between;gap:10px">
+      <span id="tpContadorEditados" style="font-size:13px;font-weight:700">0 alteração(ões) pendente(s)</span>
+      <div style="display:flex;gap:8px">
+        <button onclick="cancelarEdicaoPrecos()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer">Cancelar</button>
+        <button onclick="salvarPrecosEditadosReal()" style="background:#fff;color:#059669;border:none;border-radius:6px;padding:6px 16px;font-size:12px;font-weight:700;cursor:pointer">💾 Salvar Alterações</button>
+      </div>
     </div>
     <div class="tp-linha-produtos" id="tpLinhaProdutos"><strong>LINHA PROACTION</strong></div>
     <div id="tpConteudo"></div>
@@ -6803,6 +6811,82 @@ function toggleGrupo(grupo){
 /* ══════════════════════════════════════
    CADASTROS — PRODUTOS
 ══════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════
+   EDITAR PREÇOS — tela real, ligada à aba Tabelas.
+   Reaproveita o backend que já existia (tabela `precos` no Supabase),
+   só que agora com uma tela de verdade em vez de campos inexistentes.
+   ══════════════════════════════════════════════════════════════ */
+let tpModoEdicao=false;
+let precosPendentes={};   // {codigo: novoPreco} — só o que foi mexido nesta sessão
+
+function toggleModoEdicaoPrecos(){
+  if(!tpTipo||!tpUf){showT('Selecione o tipo de cliente e o estado antes de editar','erro');return;}
+  if(tpModoEdicao&&Object.keys(precosPendentes).length){
+    if(!confirm('Você tem alterações não salvas. Sair mesmo assim?'))return;
+  }
+  tpModoEdicao=!tpModoEdicao;
+  precosPendentes={};
+  const btn=document.getElementById('btnEditarPrecos');
+  if(btn)btn.textContent=tpModoEdicao?'✕ Sair da edição':'✏️ Editar Preços';
+  atualizarBarraSalvarPrecos();
+  renderTabelaPrecos();
+}
+
+function marcarPrecoEditado(codigo,valorStr){
+  const n=parseFloat(String(valorStr).replace(/\./g,'').replace(',','.'));
+  if(isNaN(n)){delete precosPendentes[codigo];}
+  else{precosPendentes[codigo]=n;}
+  atualizarBarraSalvarPrecos();
+}
+
+function atualizarBarraSalvarPrecos(){
+  const barra=document.getElementById('tpBarraSalvarPrecos');
+  const cont=document.getElementById('tpContadorEditados');
+  const n=Object.keys(precosPendentes).length;
+  if(barra)barra.style.display=(tpModoEdicao&&n>0)?'flex':'none';
+  if(cont)cont.textContent=n+' alteração(ões) pendente(s)';
+}
+
+function cancelarEdicaoPrecos(){
+  precosPendentes={};
+  atualizarBarraSalvarPrecos();
+  renderTabelaPrecos();
+  showT('Alterações descartadas','');
+}
+
+// Salva de fato: grava no Supabase (persistente, todo mundo que abrir o GEx
+// vê o preço novo) e atualiza a tabela PRODUTOS em memória na hora.
+async function salvarPrecosEditadosReal(){
+  const codigos=Object.keys(precosPendentes);
+  if(!codigos.length)return;
+  showT('Salvando...','verde');
+
+  const rows=codigos.map(function(cod){
+    return{codigo:cod,uf:tpUf,tabela:tpTipo,preco:precosPendentes[cod],atualizado_em:new Date().toISOString()};
+  });
+  const {error}=await sb.from('precos').upsert(rows,{onConflict:'codigo,uf,tabela'});
+  if(error){
+    console.error('Erro ao salvar preços:',error);
+    showT('Erro ao salvar: '+error.message,'erro');
+    return;
+  }
+
+  // Atualiza PRODUTOS em memória — reflete na hora em Cotação, Tabelas, tudo.
+  rows.forEach(function(r){
+    const p=PRODUTOS.find(function(x){return x.codigo===r.codigo;});
+    if(!p)return;
+    if(r.tabela==='cf'){if(!p.cf)p.cf={};p.cf[r.uf]=r.preco;}
+    else if(r.tabela==='dist'){if(!p.dist)p.dist={};p.dist[r.uf]=r.preco;}
+    else if(r.tabela==='3a'){p['3a']=r.preco;}
+  });
+
+  showT(codigos.length+' preço(s) atualizado(s) ✓','verde');
+  precosPendentes={};
+  atualizarBarraSalvarPrecos();
+  renderTabelaPrecos();
+}
+
 async function sbCarregarPrecosIniciais(){
   const {data,error}=await sb.from('precos').select('codigo,uf,tabela,preco');
   if(error){console.error('SB precos load erro:',error);return;}
@@ -11835,7 +11919,10 @@ const catEmojis={'🔬 Desinfetantes de Alto Nível':'🔬','🧪 Detergentes En
       const qtd=QTD_CX[cod]||'—';
       const ncm=NCM_MAP[cod]||'—';
       const prFmt=pr>0?`R$ ${pr.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`:'—';
-      html+=`<tr><td class="tp-cod-cell">${cod}</td><td class="tp-prod-cell">${p.produto}</td><td class="tp-ncm-cell">${ncm}</td><td class="tp-apres-cell">${p.apresentacao}</td><td class="tp-qtd-cell">${qtd}</td><td class="tp-preco-cell">${prFmt}</td></tr>`;
+      const precoCell=tpModoEdicao
+        ?`<input type="text" class="tp-preco-input" data-cod="${cod}" value="${(precosPendentes[cod]!=null?precosPendentes[cod]:pr).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}" oninput="marcarPrecoEditado('${cod}',this.value)" style="width:90px;text-align:right;padding:4px 6px;border:1px solid ${precosPendentes[cod]!=null?'#059669':'#cbd5e1'};border-radius:6px;font-size:12px;background:${precosPendentes[cod]!=null?'#f0fdf4':'#fff'}">`
+        :prFmt;
+      html+=`<tr><td class="tp-cod-cell">${cod}</td><td class="tp-prod-cell">${p.produto}</td><td class="tp-ncm-cell">${ncm}</td><td class="tp-apres-cell">${p.apresentacao}</td><td class="tp-qtd-cell">${qtd}</td><td class="tp-preco-cell">${precoCell}</td></tr>`;
     });
     html+='</tbody></table></div>';
   });
@@ -13301,7 +13388,7 @@ function renderFretes(filter='todos',q=''){
       <div style="font-size:11px">T2: ${(TRANSPORTADORAS[f.t2Trans]||{nome:f.t2Trans||'—'}).nome} — ${STATUS_LABELS[f.t2Status]||'—'}</div>
     </div>`:'';
     const eventos=(f.eventos||[]).slice(-3).reverse().map(e=>`<div style="font-size:10px;color:#64748b;margin-top:2px">${e.data} — ${e.texto}</div>`).join('');
-    var detRow=`<tr class="fr-det" id="frd_${f.id}"><td colspan="9"><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;font-size:11px">
+    var detRow=`<tr class="fr-det" id="frd_${f.id}"><td colspan="9">${gerarTimelineFrete(f)}<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;font-size:11px">
       <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">RASTREIO</label><span style="font-family:monospace">${f.rastreio||'—'}</span></div>
       <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">VALOR FRETE</label>${fmtV(f.valorFrete)}</div>
       <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">PESO BRUTO</label>${f.pesoBruto>0?f.pesoBruto.toLocaleString('pt-BR',{minimumFractionDigits:3})+' kg':'—'}</div>
@@ -16284,7 +16371,13 @@ function renderMapaPregoes(){
 
 function filtrarPregoesPorEstado(uf){
   setLicitAba('pregoes');
-  showT('Mostrando pregões — filtro visual por '+uf+' em breve','');
+  renderPregoes(null,uf);
+  showT((pregoes||[]).filter(function(p){return p.estado===uf;}).length+' pregão(ões) em '+uf,'verde');
+}
+
+// Limpa o filtro de estado e volta a mostrar todos os pregões
+function limparFiltroEstadoPregoes(){
+  renderPregoes();
 }
 async function sbCarregarPregoes(){
   const {data,error}=await sb.from('pregoes').select('*').order('data_abertura',{ascending:true});
@@ -16641,10 +16734,25 @@ function renderAgendaLicit(){
     +secao('Próximos pregões','📅','#d97706','#fffbeb','organizados por data — o mais próximo primeiro',proximos);
 }
 
-function renderPregoes(q){
+function renderPregoes(q,ufFiltro){
   const el=document.getElementById('licitList');if(!el)return;
   let lst=q?pregoes.filter(function(p){return(p.numero||'').includes(q)||(p.orgao||'').toLowerCase().includes(q.toLowerCase());}):pregoes;
-  if(!lst.length){el.innerHTML='<div class="empty-mod"><div class="empty-icon">⚖️</div>Nenhum pregão cadastrado ainda.<br><span style="font-size:12px;color:var(--muted-light)">Importe uma classificação ou analise um edital para começar.</span></div>';return;}
+  if(ufFiltro)lst=lst.filter(function(p){return p.estado===ufFiltro;});
+
+  // Chip de filtro ativo, com opção de limpar
+  const chipEl=document.getElementById('licitFiltroEstadoChip');
+  const chipHtml=ufFiltro
+    ?('<div id="licitFiltroEstadoChip" style="display:flex;align-items:center;gap:8px;background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:7px 12px;margin-bottom:12px;font-size:12px;color:#1e40af">'
+      +'📍 Filtrando por <b>'+(UF_NOME[ufFiltro]||ufFiltro)+'</b>'
+      +'<button class="btn-cancel-mod" style="font-size:11px;padding:2px 9px;margin-left:auto" onclick="limparFiltroEstadoPregoes()">✕ Limpar filtro</button></div>')
+    :'';
+
+  if(!lst.length){
+    el.innerHTML=chipHtml+'<div class="empty-mod"><div class="empty-icon">⚖️</div>'
+      +(ufFiltro?('Nenhum pregão em '+(UF_NOME[ufFiltro]||ufFiltro)+'.'):'Nenhum pregão cadastrado ainda.<br><span style="font-size:12px;color:var(--muted-light)">Importe uma classificação ou analise um edital para começar.</span>')
+      +'</div>';
+    return;
+  }
 
   // Agrupar por status
   const grupos={
@@ -16692,7 +16800,7 @@ function renderPregoes(q){
     html+=g.itens.map(function(p){return cardPregao(p);}).join('');
   });
 
-  el.innerHTML=html;
+  el.innerHTML=chipHtml+html;
 }
 
 function cardPregao(p){
@@ -18908,6 +19016,7 @@ async function sbCarregarTudo(){
   await sbCarregarEstruturas();
   await sbCarregarEstoqueHist();
   await sbCarregarProdutos();
+  await sbCarregarPrecosIniciais();   // aplica por cima os preços editados por qualquer usuário
   await sbCarregarGrupos();
   await sbCarregarRepresentantes();
   await sbCarregarVendas();
@@ -22028,6 +22137,11 @@ async function gerarRelatorioFinanceiroFretes(){
     console.error(e);
     showT('Erro ao gerar PDF: '+(e&&e.message?e.message:e),'erro');
   }
+}
+
+function fecharRelatorioFretes(){
+  var mo=document.getElementById('overlayRelFretes');
+  if(mo)mo.style.display='none';
 }
 
 function abrirRelatorioFretes(){
