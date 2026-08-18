@@ -726,6 +726,11 @@ tbody tr:hover{background:#f5f3ff}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   @page{margin:8mm 10mm!important}
 
+  /* ── FIX: Chrome renderiza página em branco quando há muitos elementos
+     com backdrop-filter/filter ativos, mesmo escondidos via display:none.
+     Desligamos globalmente antes de qualquer outra regra. ── */
+  *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important;will-change:auto!important}
+
   /* ── OCULTAR TUDO QUE NÃO É CONTEÚDO ── */
   .sidebar,.page-header,#pageHeader,#configBand,.acoes,.btn-add,.btn-del,
   .btn-email,.desc-toggle-wrap,.historico-card,.overlay,.toast,.tp-acoes,
@@ -3165,6 +3170,8 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <div class="tabela-toggle">
           <button id="btnCF" class="active" onclick="setTabela('cf')">Consumidor Final</button>
           <button id="btnDist" onclick="setTabela('dist')">Distribuidor</button>
+          <button id="btnCFNovo" onclick="setTabela('cfnovo')">Cliente Final Novo</button>
+          <button id="btnDistNovo" onclick="setTabela('distnovo')">Distribuidor Novo</button>
 
         </div>
       </div>
@@ -3186,6 +3193,8 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <div class="tabela-toggle">
           <button id="tpBtnCF" class="active" onclick="setTpTipo('cf')">Cliente Final</button>
           <button id="tpBtnDist" onclick="setTpTipo('dist')">Distribuidor</button>
+          <button id="tpBtnCFNovo" onclick="setTpTipo('cfnovo')">Cliente Final Novo</button>
+          <button id="tpBtnDistNovo" onclick="setTpTipo('distnovo')">Distribuidor Novo</button>
         </div>
       </div>
       <div class="config-group">
@@ -3194,6 +3203,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
           <select class="config-select" id="tpEstadoSel" onchange="setTpEstado(this.value)">
             <option value="">— Selecione —</option>
             <option value="AC">AC</option><option value="AL">AL</option><option value="AM">AM</option><option value="AP">AP</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MG">MG</option><option value="MS">MS</option><option value="MT">MT</option><option value="PA">PA</option><option value="PB">PB</option><option value="PE">PE</option><option value="PI">PI</option><option value="PR">PR</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RO">RO</option><option value="RR">RR</option><option value="RS">RS</option><option value="SC">SC</option><option value="SE">SE</option><option value="SP">SP</option><option value="TO">TO</option>
+            <option value="PARCEIRO" id="optParceiro" style="display:none">Parceiro (SP)</option><option value="ALBE" id="optAlbe" style="display:none">Comercial 3 Albe</option>
           </select>
         </div>
       </div>
@@ -3627,16 +3637,19 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
           </div>
           <div style="text-align:right">
             <div style="font-size:11px;font-weight:700;color:#fff"><span id="tpPrintTipo"></span></div>
-            <div style="font-size:9px;color:rgba(255,255,255,.85);margin-top:2px"><span id="tpPrintEstado"></span></div>
-            <div style="font-size:8px;color:rgba(255,255,255,.65);margin-top:1px">v3 Mai/2026 · <span id="tpPrintData"></span></div>
+            <div style="font-size:8px;color:rgba(255,255,255,.65);margin-top:2px">v4 — Agosto/2026 · <span id="tpPrintData"></span></div>
+            <span id="tpPrintEstado" style="display:none"></span>
           </div>
         </div>
       </div>
     </div>
     <div class="tp-acoes">
       <button class="btn-pdf" onclick="imprimirTabela()">🖨 Imprimir / PDF</button>
+      <button class="btn-pdf" id="btnGerarPdfTabela" style="background:#2563eb" onclick="gerarPDFTabela()">📄 Gerar PDF</button>
       <button class="btn-baixar-todas" id="btnBaixarTodas" onclick="baixarTodas()">⬇ Baixar todas as tabelas</button>
+      <button class="btn-baixar-todas" id="btnGerarPdfTodas" style="background:#1e3a8a" onclick="gerarPDFTodasTabelas()">📄 Gerar PDF — Todos os Estados</button>
       <button class="btn-pdf" id="btnEditarPrecos" style="background:#059669" onclick="toggleModoEdicaoPrecos()">✏️ Editar Preços</button>
+      <button class="btn-pdf" id="btnImportarDistNovo" style="background:#dc2626;display:none" onclick="importarDistNovoCompleto()">🔧 Importar Distribuidor Novo (correção)</button>
       <span class="tp-info-tag" id="tpInfoTag">Selecione o tipo de cliente e o estado</span>
     </div>
     <div id="tpBarraSalvarPrecos" style="display:none;position:sticky;top:0;z-index:50;background:#059669;color:#fff;padding:10px 16px;border-radius:8px;margin-bottom:10px;align-items:center;justify-content:space-between;gap:10px">
@@ -4624,6 +4637,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
     <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
       <button class="btn-salvar-mod" onclick="abrirFormNF()">＋ Lançar NF Manual</button>
       <label class="btn-cancel-mod" style="cursor:pointer">📎 Importar XML <input type="file" accept=".xml" multiple style="display:none" onchange="importarXML(this)"></label>
+      <button onclick="abrirCalcVolumetria()" style="background:#7c3aed;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📐 Calcular Volumetria</button>
       <button class="btn-cancel-mod" onclick="imprimirFrete('aguardando')">🖨 Aguardando</button>
       <button class="btn-cancel-mod" onclick="imprimirFrete('entregue')">🖨 Concluídos</button>
       <button onclick="abrirRelatorioFretes()" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📊 Relatório de Desempenho</button>
@@ -4648,6 +4662,107 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
       <button class="frete-filter-btn f-ocorrencia" onclick="setFreteFilter('ocorrencia')">⚠️ Ocorrência</button>
     </div>
     <!-- Form NF (oculto por padrão) -->
+    <!-- Calculadora de Volumetria (não salva nada — só cálculo em memória) -->
+    <div class="modulo-card" id="calcVolCard" style="display:none">
+      <div class="modulo-header">
+        <div><div class="modulo-header-title">📐 Calculadora de Volumetria</div></div>
+        <button class="modal-close" onclick="fecharCalcVolumetria()">✕</button>
+      </div>
+      <div class="modulo-body">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Calcula peso e cubagem de itens avulsos usando a mesma lógica do Faturamento (caixas por tipo de embalagem + peso bruto cadastrado). Nada aqui é salvo — é só uma calculadora de apoio.</div>
+        <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap">
+          <div class="form-field" style="flex:1;min-width:260px">
+            <label>Produto</label>
+            <input type="text" id="calcVolProdutoInput" placeholder="Digite código ou nome do produto..." list="listCalcVolProdutos" autocomplete="off">
+            <datalist id="listCalcVolProdutos"></datalist>
+          </div>
+          <div class="form-field" style="width:110px">
+            <label>Quantidade</label>
+            <input type="number" id="calcVolQtdInput" min="1" step="1" value="1">
+          </div>
+          <div class="form-field" style="width:150px">
+            <label>Destino (UF)</label>
+            <select id="calcVolUfInput">
+              <option value="">— Sem destino —</option>
+              <option value="AC">AC — Acre (N)</option><option value="AL">AL — Alagoas (NE)</option><option value="AM">AM — Amazonas (N)</option><option value="AP">AP — Amapá (N)</option>
+              <option value="BA">BA — Bahia (NE)</option><option value="CE">CE — Ceará (NE)</option><option value="DF">DF — Distrito Federal (CO)</option><option value="ES">ES — Espírito Santo (SE)</option>
+              <option value="GO">GO — Goiás (CO)</option><option value="MA">MA — Maranhão (NE)</option><option value="MG">MG — Minas Gerais (SE)</option><option value="MS">MS — Mato Grosso do Sul (CO)</option>
+              <option value="MT">MT — Mato Grosso (CO)</option><option value="PA">PA — Pará (N)</option><option value="PB">PB — Paraíba (NE)</option><option value="PE">PE — Pernambuco (NE)</option>
+              <option value="PI">PI — Piauí (NE)</option><option value="PR">PR — Paraná (S)</option><option value="RJ">RJ — Rio de Janeiro (SE)</option><option value="RN">RN — Rio Grande do Norte (NE)</option>
+              <option value="RO">RO — Rondônia (N)</option><option value="RR">RR — Roraima (N)</option><option value="RS">RS — Rio Grande do Sul (S)</option><option value="SC">SC — Santa Catarina (S)</option>
+              <option value="SE">SE — Sergipe (NE)</option><option value="SP">SP — São Paulo (SE)</option><option value="TO">TO — Tocantins (N)</option>
+            </select>
+          </div>
+          <button class="btn-salvar-mod" style="height:38px" onclick="calcVolAdicionarItem()">＋ Adicionar</button>
+          <button class="btn-cancel-mod" style="height:38px" onclick="calcVolAbrirImportarFaturamento()">📥 Importar Faturamento</button>
+          <label class="btn-cancel-mod" style="height:38px;cursor:pointer;display:inline-flex;align-items:center">📂 Importar Planilha<input type="file" accept=".xlsx,.xls" style="display:none" onchange="calcVolImportarPlanilha(this)"></label>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input type="text" id="calcVolBuscaLista" placeholder="🔍 Buscar item na lista por nome ou código..." oninput="calcVolRender()" style="flex:1;padding:8px 10px;border:1px solid var(--borda);border-radius:8px;font-size:12px">
+          <select id="calcVolFiltroItem" onchange="calcVolRender()" style="width:260px;padding:8px 10px;border:1px solid var(--borda);border-radius:8px;font-size:12px">
+            <option value="">Ver todos os itens (visão geral)</option>
+          </select>
+        </div>
+        <div id="calcVolSugestoes" style="margin-bottom:10px"></div>
+        <div id="calcVolAcoesLista" style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <button id="calcVolBtnJuntar" class="btn-cancel-mod" style="display:none" onclick="calcVolJuntarSelecionados()">🔗 Juntar selecionados</button>
+          <span id="calcVolSelecaoInfo" style="font-size:11px;color:var(--muted)"></span>
+        </div>
+        <div id="calcVolLista" style="margin-bottom:14px"></div>
+        <div id="calcVolTotais" style="display:flex;gap:24px;flex-wrap:wrap;padding:14px;background:var(--fundo-suave,#f8fafc);border-radius:10px;margin-bottom:10px"></div>
+        <div id="calcVolCaixasBreak" style="margin-bottom:10px"></div>
+        <div id="calcVolRegiaoBreak" style="display:flex;gap:16px;flex-wrap:wrap"></div>
+        <div id="calcVolMesBreak" style="margin-top:10px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <div class="form-field" style="width:220px;margin:0">
+            <label>Título no Excel (opcional)</label>
+            <input type="text" id="calcVolMesInput" placeholder="Ex: Relatório Agosto/2026">
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-cancel-mod" onclick="calcVolLimparTudo()">🗑 Limpar tudo</button>
+            <button class="btn-salvar-mod" style="background:#217346" onclick="calcVolExportarExcel()">📊 Exportar Excel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de pergunta rápida (peso ou caixa faltando) — só usado nessa sessão, não salva no banco -->
+    <div id="calcVolPerguntaOverlay" style="display:none;position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99998;align-items:center;justify-content:center;padding:16px">
+      <div style="background:var(--card-bg,#fff);border-radius:14px;max-width:420px;width:100%;padding:22px">
+        <div id="calcVolPerguntaTitulo" style="font-weight:800;font-size:15px;margin-bottom:4px"></div>
+        <div id="calcVolPerguntaSub" style="font-size:12px;color:var(--muted);margin-bottom:14px"></div>
+        <div id="calcVolPerguntaCorpo"></div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+          <button class="btn-cancel-mod" onclick="_calcVolPerguntaResolver(null)">Pular (fica sem contar)</button>
+          <button class="btn-salvar-mod" onclick="_calcVolPerguntaConfirmar()">Usar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de importação de NFs já faturadas -->
+    <div id="calcVolImportarOverlay" style="display:none;position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99998;align-items:center;justify-content:center;padding:16px">
+      <div style="background:var(--card-bg,#fff);border-radius:14px;max-width:640px;width:100%;padding:22px;max-height:85vh;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="font-weight:800;font-size:15px">📥 Importar Faturamento</div>
+          <button class="modal-close" onclick="calcVolFecharImportarFaturamento()">✕</button>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Selecione as NFs já faturadas — os itens delas (código, quantidade e estado de destino) entram direto na calculadora.</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <input type="text" id="calcVolImportarBusca" placeholder="Buscar NF ou cliente..." oninput="calcVolRenderListaImportar()" style="flex:1;min-width:180px;padding:7px 10px;border:1px solid var(--borda);border-radius:8px;font-size:12px">
+          <select id="calcVolImportarMes" onchange="calcVolRenderListaImportar()" style="padding:7px 10px;border:1px solid var(--borda);border-radius:8px;font-size:12px"></select>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+          <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="calcVolImportarTodos" onchange="calcVolToggleTodosImportar(this.checked)">Selecionar todas</label>
+          <span id="calcVolImportarSelInfo" style="font-size:11px;color:var(--muted)"></span>
+        </div>
+        <div id="calcVolImportarLista" style="overflow-y:auto;flex:1;border-top:1px solid var(--borda)"></div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+          <button class="btn-cancel-mod" onclick="calcVolFecharImportarFaturamento()">Cancelar</button>
+          <button class="btn-salvar-mod" onclick="calcVolConfirmarImportar()">📥 Importar selecionadas</button>
+        </div>
+      </div>
+    </div>
+
     <div class="modulo-card" id="formNFCard" style="display:none">
       <div class="modulo-header">
         <div><div class="modulo-header-title" id="formNFTitulo"><svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-plus"></use></svg>Nova NF</div></div>
@@ -4708,11 +4823,30 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
             <input type="text" id="ftBuscaNFInput" placeholder="Digite um ou mais números de NF separados por vírgula (ex: 8231, 8244)" style="flex:1;min-width:200px;padding:6px 10px;border:1px solid #bfdbfe;border-radius:8px;font-size:12px;font-family:inherit">
             <button onclick="buscarNFsFaturamento()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">🔍 Buscar</button>
           </div>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:6px">
+            <input type="checkbox" id="ftForcarSobrescrever">
+            <label for="ftForcarSobrescrever" style="font-size:11px;color:#1e40af;font-weight:400;cursor:pointer">Sobrescrever campos já preenchidos (por padrão, só completa os vazios)</label>
+          </div>
           <div id="ftBuscaNFResult" style="margin-top:8px;font-size:11px;color:#475569"></div>
         </div>
         <div class="modulo-grid-3" style="margin-bottom:12px">
           <div class="form-field"><label>Prazo de Entrega (data)</label><input type="date" id="ftPrazoEntrega"></div>
           <div class="form-field"><label>Peso Bruto (kg)</label><input type="number" id="ftPesoBruto" placeholder="0,000" step="0.001" min="0"></div>
+          <div class="form-field"><label>Cubagem (m³)</label><input type="number" id="ftVolume" placeholder="0,000" step="0.001" min="0"></div>
+        </div>
+        <!-- Bonificação: nota extra que viaja junto, mas não está no faturamento -->
+        <div style="margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#b45309;cursor:pointer;margin-bottom:8px">
+            <input type="checkbox" id="ftTemBonificacao" onchange="toggleBonificacao()" style="accent-color:#b45309"> 🎁 Contém Nota de Bonificação (viaja junto, mas não é a nota principal)
+          </label>
+          <div id="ftBonifDiv" style="display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px">
+            <div style="font-size:11px;color:#92400e;margin-bottom:8px">Como a bonificação não está no faturamento, o sistema não consegue buscar valor/peso dela sozinho — preencha manualmente. Ela fica separada da nota principal acima, sem se misturar.</div>
+            <div class="modulo-grid-3">
+              <div class="form-field"><label>NF da Bonificação</label><input type="text" id="ftBonifNF" placeholder=""></div>
+              <div class="form-field"><label>Valor (R$)</label><input type="number" id="ftBonifValor" placeholder="0,00" step="0.01" min="0"></div>
+              <div class="form-field"><label>Peso Bruto (kg)</label><input type="number" id="ftBonifPeso" placeholder="0,000" step="0.001" min="0"></div>
+            </div>
+          </div>
         </div>
         <!-- Redespacho -->
         <div style="margin-bottom:12px">
@@ -4933,7 +5067,7 @@ const DC={"Proaction GTA 2%":"Desinfetante de alto nível para desinfecção de 
 
 const CATS=[{nome:"🔬 Desinfetantes de Alto Nível",cods:["33.0063.5000","33.0064.0050","33.0042.0230","33.0069.5000","33.0019.0040","33.0020.0032","33.0065.5000","33.0066.0030"]},{nome:"🧪 Detergentes Enzimáticos",cods:["28.0034.1000","28.0025.0005","28.0023.0001","28.0024.0005","28.0021.0750","28.0022.0001","28.0033.5000"]},{nome:"🧴 Desinfetantes de Superfícies",cods:["33.0046.0750","33.0067.1000","33.0068.5000","33.0022.0001","33.0071.5000"]},{nome:"✂️ Limpeza e Manutenção de Instrumentais",cods:["29.0012.0700","29.0013.1000","29.0006.0001","29.0003.0750","29.0009.0005","31.0003.0001","31.0004.0005"]},{nome:"📦 Outros",cods:["33.0031.0000","33.0039.0001"]}];
 
-const QTD_CX={"33.0063.5000":4,"33.0064.0050":6,"33.0042.0230":4,"33.0069.5000":4,"33.0019.0040":6,"33.0020.0032":4,"33.0065.5000":4,"33.0066.0030":6,"28.0034.1000":12,"28.0025.0005":4,"28.0023.0001":12,"28.0024.0005":4,"28.0021.0750":12,"28.0022.0001":12,"28.0033.5000":4,"33.0046.0750":12,"33.0067.1000":12,"33.0068.5000":4,"33.0022.0001":12,"33.0071.5000":4,"29.0012.0700":12,"29.0013.1000":6,"29.0006.0001":4,"29.0003.0750":12,"29.0009.0005":4,"31.0003.0001":12,"31.0004.0005":4};
+const QTD_CX={"33.0063.5000":4,"33.0064.0050":6,"33.0042.0230":4,"33.0069.5000":4,"33.0019.0040":6,"33.0020.0032":4,"33.0065.5000":4,"33.0066.0030":6,"28.0034.1000":12,"28.0025.0005":4,"28.0023.0001":12,"28.0024.0005":4,"28.0021.0750":12,"28.0022.0001":12,"28.0033.5000":4,"33.0046.0750":12,"33.0067.1000":6,"33.0068.5000":4,"33.0022.0001":6,"33.0071.5000":4,"29.0012.0700":12,"29.0013.1000":6,"29.0006.0001":4,"29.0003.0750":12,"29.0009.0005":4,"31.0003.0001":12,"31.0004.0005":4};
 
 const NCM_MAP={"33.0065.5000":"3808.94.19","33.0066.0030":"3822.19.90","33.0063.5000":"3808.94.19","33.0064.0050":"3822.19.90","33.0042.0230":"3507.90.19","33.0069.5000":"3808.94.19","33.0019.0040":"3822.19.90","33.0020.0032":"2922.49.10","33.0046.0750":"3808.94.19","33.0067.1000":"3808.94.29","33.0068.5000":"3808.94.29","33.0022.0001":"3808.94.19","33.0071.5000":"3808.94.19","28.0034.1000":"3402.50.00","28.0025.0005":"3402.50.00","28.0023.0001":"3402.50.00","28.0024.0005":"3402.50.00","28.0021.0750":"3402.50.00","28.0022.0001":"3402.50.00","28.0033.5000":"3402.50.00","31.0003.0001":"3402.50.00","31.0004.0005":"3402.50.00","29.0013.1000":"3402.50.00","29.0006.0001":"3402.50.00","29.0012.0700":"3402.50.00","29.0003.0750":"3402.50.00","29.0009.0005":"3402.50.00","33.0031.0000":"3808.94.19","33.0039.0001":"3822.19.90"};
 
@@ -4950,6 +5084,19 @@ function animarTotal(de, para){
   },dur/steps);
 }
 let tab='cf',uf='',itens=[],mSel=new Set(),modo='resumida';
+
+// Nome amigável de cada tipo de tabela — inclui as duas novas
+const TABELA_LABEL={cf:'Cliente Final',dist:'Distribuidor',cfnovo:'Cliente Final Novo',distnovo:'Distribuidor Novo','3a':'Atacado'};
+function nomeTabela(t){return TABELA_LABEL[t]||'Cliente Final';}
+// Rótulo sem "Novo" — usado só nas informações de versão/cabeçalho (os botões de seleção mantêm "Novo")
+const TABELA_LABEL_BASE={cf:'Cliente Final',dist:'Distribuidor',cfnovo:'Cliente Final',distnovo:'Distribuidor','3a':'Atacado'};
+function nomeTabelaBase(t){return TABELA_LABEL_BASE[t]||'Cliente Final';}
+// Preço do produto numa UF, para qualquer um dos 4 tipos de tabela
+function precoPorTabela(prod,tabelaTipo,ufAlvo){
+  if(!prod)return 0;
+  const campo={cf:'cf',dist:'dist',cfnovo:'cfnovo',distnovo:'distnovo'}[tabelaTipo]||'cf';
+  return (prod[campo]&&prod[campo][ufAlvo])||0;
+}
 let _ultimoTotal=0;
 let modoApp='cotacao',tpTipo='cf',tpUf='';
 
@@ -5310,7 +5457,9 @@ function setTabela(t){
   tab=t;
   document.getElementById('btnCF').classList.toggle('active',t==='cf');
   document.getElementById('btnDist').classList.toggle('active',t==='dist');
-  // Mostrar opção 3A só no Distribuidor
+  document.getElementById('btnCFNovo').classList.toggle('active',t==='cfnovo');
+  document.getElementById('btnDistNovo').classList.toggle('active',t==='distnovo');
+  // Mostrar opção 3A só no Distribuidor (o "3A" continua exclusivo da tabela antiga)
   const opt3A=document.querySelector('.opt-3a');
   if(opt3A) opt3A.style.display=t==='dist'?'':'none';
   // Se estava em 3A e mudou para CF, resetar estado
@@ -5319,7 +5468,7 @@ function setTabela(t){
 }
 function setEstado(u){uf=u;document.getElementById('btnAddItem').disabled=!u;atualizarP();}
 const TA_PRECO={"33.0065.5000": 68.25, "33.0066.0030": 57.0, "33.0031.0000": 200.34, "33.0039.0001": 98.37, "33.0069.5000": 161.93, "33.0020.0032": 14.32, "33.0019.0040": 111.22, "33.0063.5000": 61.95, "33.0042.0230": 6.88, "33.0064.0050": 91.64, "33.0046.0750": 12.6, "33.0067.1000": 40.62, "33.0068.5000": 172.33, "33.0022.0001": 33.36, "33.0071.5000": 120.31, "28.0034.1000": 29.04, "28.0025.0005": 150.81, "28.0023.0001": 62.89, "28.0024.0005": 268.44, "28.0021.0750": 24.58, "28.0022.0001": 62.79, "28.0033.5000": 298.53, "31.0003.0001": 10.63, "31.0004.0005": 49.04, "29.0013.1000": 41.97, "29.0006.0001": 278.18, "29.0012.0700": 49.99, "29.0003.0750": 24.13, "29.0009.0005": 63.53};
-function gP(p){if(!uf)return 0;if(uf==='3A')return TA_PRECO[p.codigo]||0;return(tab==='cf'?p.cf[uf]:p.dist[uf])||0;}
+function gP(p){if(!uf)return 0;if(uf==='3A')return TA_PRECO[p.codigo]||0;return precoPorTabela(p,tab,uf);}
 function atualizarP(){itens.forEach(i=>{const p=PRODUTOS.find(x=>x.codigo===i.codigo);if(p&&uf)i.preco=gP(p);});render();}
 
 function setDesc(m){modo=m;document.getElementById('btnResumida').classList.toggle('active',m==='resumida');document.getElementById('btnCompleta').classList.toggle('active',m==='completa');render();}
@@ -5682,7 +5831,7 @@ function _gerarPDFCotacaoInterno(logoData,logoRatio){
     docp.setFont('helvetica','normal');
     docp.setFontSize(7);
     docp.setTextColor(...cinzaMed);
-    const tabLabel=(tab==='cf'?'Cliente Final':tab==='dist'?'Distribuidor':'Atacado')+' - '+(uf||'');
+    const tabLabel=(nomeTabela(tab))+' - '+(uf||'');
     docp.text(numCot+'   Data: '+dataCot+'   '+tabLabel,PW-MR,HH+5.5,{align:'right'});
   }
 
@@ -5872,7 +6021,7 @@ function _gerarPDFCotacaoInterno(logoData,logoRatio){
     docp.setFont('helvetica','normal');
     docp.setFontSize(7);
     docp.setTextColor(220,245,242);
-    docp.text(numCot+'  |  '+dataCot+'  |  '+(tab==='cf'?'Cliente Final':tab==='dist'?'Distribuidor':'Atacado')+' - '+(uf||''),PW/2,7,{align:'center'});
+    docp.text(numCot+'  |  '+dataCot+'  |  '+(nomeTabela(tab))+' - '+(uf||''),PW/2,7,{align:'center'});
     docp.setTextColor(255,255,255);
     docp.setFont('helvetica','bold');
     docp.setFontSize(7);
@@ -6192,7 +6341,7 @@ function renderHistItem(x){
     <td class="cot-cli" title="${escAttr(x.cliente||'')}">${escHtml(x.cliente||'')}</td>
     <td class="cot-c">${x.data||''}</td>
     <td class="cot-c">${x.uf||''}</td>
-    <td class="cot-c">${x.tab==='cf'?'CF':'Dist.'}</td>
+    <td class="cot-c">${(x.tab||'cf').toUpperCase().slice(0,8)}</td>
     <td class="cot-val">R$ ${(x.total||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
     <td>
       <select class="cot-sel" onchange="atualizarStatusCotacao('${num}',this.value)" title="Alterar status">
@@ -6601,8 +6750,7 @@ function calcPrecoKit(kit,qtdGalaos,uf,tabela){
     var prod=PRODUTOS.find(function(p){return p.codigo===ki.cod;});
     var preco=0;
     if(prod){
-      if(tabela==='cf'&&uf&&prod.cf&&prod.cf[uf])preco=prod.cf[uf];
-      else if(tabela==='dist'&&uf&&prod.dist&&prod.dist[uf])preco=prod.dist[uf];
+      if(uf&&['cf','dist','cfnovo','distnovo'].includes(tabela))preco=precoPorTabela(prod,tabela,uf)||preco;
     }
     var total=preco*qtd;
     subtotal+=total;
@@ -6767,8 +6915,8 @@ function toggleSel(cod){
 }
 
 function gerarHTMLTabela(tipo,uf){
-  const estados={AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MG:'Minas Gerais',MS:'Mato Grosso do Sul',MT:'Mato Grosso',PA:'Pará',PB:'Paraíba',PE:'Pernambuco',PI:'Piauí',PR:'Paraná',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RO:'Rondônia',RR:'Roraima',RS:'Rio Grande do Sul',SC:'Santa Catarina',SE:'Sergipe',TO:'Tocantins'};
-  const tipoLabel=tipo==='cf'?'Cliente Final':'Distribuidor';
+  const estados={AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MG:'Minas Gerais',MS:'Mato Grosso do Sul',MT:'Mato Grosso',PA:'Pará',PB:'Paraíba',PE:'Pernambuco',PI:'Piauí',PR:'Paraná',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RO:'Rondônia',RR:'Roraima',RS:'Rio Grande do Sul',SC:'Santa Catarina',SE:'Sergipe',TO:'Tocantins',PARCEIRO:'Parceiro (SP)',ALBE:'Comercial 3 Albe'};
+  const tipoLabelBase=nomeTabelaBase(tipo);
   const nomeEstado=estados[uf]||uf;
   const hoje=new Date().toLocaleDateString('pt-BR');
   // Excluir categoria Outros
@@ -6780,7 +6928,7 @@ function gerarHTMLTabela(tipo,uf){
     let linhas='';
     cat.cods.forEach((cod,idx)=>{
       const p=PRODUTOS.find(x=>x.codigo===cod);if(!p)return;
-      const pr=tipo==='cf'?(p.cf[uf]||0):(p.dist[uf]||0);
+      const pr=precoPorTabela(p,tipo,uf);
       if(pr>0)totalCat+=pr;
       const qtd=QTD_CX[cod]||'—';
       const ncm=NCM_MAP[cod]||'—';
@@ -6842,7 +6990,7 @@ function gerarHTMLTabela(tipo,uf){
     </ul>
   </div>`:'';
   return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
-  <title>Tabela ${tipoLabel} V3 Maio-2026 ${nomeEstado}</title>
+  <title>Tabela ${tipoLabelBase} V4 Agosto-2026 ${nomeEstado}</title>
   <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#fff;font-size:12px;color:#1e293b}
   @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}@page{margin:8mm 10mm}}</style>
   </head><body style="padding:12px">
@@ -6857,10 +7005,10 @@ function gerarHTMLTabela(tipo,uf){
       </div>
       <div style="text-align:right">
         <div style="display:flex;gap:10px;font-size:9px;color:rgba(255,255,255,.9);justify-content:flex-end;flex-wrap:wrap">
-          <span><strong>Versão:</strong> v3 Mai/2026</span>
+          <span><strong>Versão:</strong> v4 — Agosto/2026</span>
           <span><strong>Data:</strong> ${hoje}</span>
-          <span><strong>Tipo:</strong> ${tipoLabel}</span>
-          <span><strong>Estado:</strong> ${uf} — ${nomeEstado}</span>
+          <span><strong>Tipo:</strong> ${tipoLabelBase}</span>
+          <span><strong>Estado:</strong> ${uf}</span>
         </div>
       </div>
     </div>
@@ -6879,7 +7027,8 @@ function gerarHTMLTabela(tipo,uf){
 function baixarTodas(){
   if(!tpTipo){showT('Selecione o tipo de cliente primeiro (CF ou Distribuidor)','erro');return;}
   const ufs=['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','TO'];
-  const tipoNome=tpTipo==='cf'?'Cliente Final':'Distribuidor';
+  if(tpTipo==='distnovo')ufs.push('PARCEIRO','ALBE');
+  const tipoNome=nomeTabelaBase(tpTipo);
   // Gerar todas as tabelas em uma única janela para evitar bloqueio de popup
   let htmlCompleto='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Tabelas '+tipoNome+' — Todos os Estados</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#fff;font-size:12px;color:#1e293b}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}@page{margin:8mm 10mm}.quebra{page-break-after:always;height:0;overflow:hidden}}</style></head><body>';
   ufs.forEach((uf,i)=>{
@@ -6900,6 +7049,252 @@ function baixarTodas(){
   w.document.write(htmlCompleto);
   w.document.close();
   showT('Todas as tabelas abertas — use Ctrl+P para imprimir','verde');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GERAR PDF DA TABELA DE PREÇOS — via jsPDF (não depende de window.print)
+   Mesma engine usada em gerarPDFCotacao, para contornar navegadores/PCs
+   onde a impressão do navegador sai em branco.
+   ══════════════════════════════════════════════════════════════ */
+function _tpFixPDF(txt){
+  if(!txt)return'';
+  return String(txt)
+    .replace(/≥/g,'>=').replace(/≤/g,'<=').replace(/→/g,'->').replace(/–/g,'-')
+    .replace(/\u2018|\u2019/g,"'").replace(/\u201c|\u201d/g,'"');
+}
+
+function _tpCarregarLogo(cb){
+  const logoUrl='https://vepikflqhwrqdfluzhyo.supabase.co/storage/v1/object/public/assets/GROW-EXEOL-BRANO-2.png';
+  const img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=function(){
+    try{
+      const maxW=400;
+      const ratio=img.naturalWidth/img.naturalHeight;
+      const w=Math.min(img.naturalWidth,maxW);
+      const h=Math.round(w/ratio);
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      cb(canvas.toDataURL('image/png',0.7),ratio);
+    }catch(e){cb(null,1);}
+  };
+  img.onerror=function(){cb(null,1);};
+  img.src=logoUrl+'?t='+Date.now();
+}
+
+// Desenha uma tabela de estado completa (categorias + kits + condições) a partir de y=30.
+// Retorna nada — usa docp.lastAutoTable para avançar y internamente.
+function _tpDesenharEstadoPDF(docp,tipo,uf,cores,dims,cabecalhoInfo){
+  const {azulEscuro,azulMed,cinzaEsc,cinzaMed}=cores;
+  const {PW,PH,ML,MR,CW}=dims;
+  const estados={AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MG:'Minas Gerais',MS:'Mato Grosso do Sul',MT:'Mato Grosso',PA:'Pará',PB:'Paraíba',PE:'Pernambuco',PI:'Piauí',PR:'Paraná',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RO:'Rondônia',RR:'Roraima',RS:'Rio Grande do Sul',SC:'Santa Catarina',SE:'Sergipe',TO:'Tocantins',PARCEIRO:'Parceiro (SP)',ALBE:'Comercial 3 Albe'};
+  const tipoLabelBase=nomeTabelaBase(tipo);
+  const ehCF=(tipo==='cf'||tipo==='cfnovo');
+  const ehDist=(tipo==='dist'||tipo==='distnovo');
+
+  function cabecalho(){
+    docp.setFillColor(...azulEscuro);
+    docp.rect(0,0,PW,17,'F');
+    if(cabecalhoInfo.logoData){
+      try{const lh=7.5,lw=lh*cabecalhoInfo.logoRatio;docp.addImage(cabecalhoInfo.logoData,'PNG',ML,(17-lh)/2,lw,lh);}catch(e){}
+    }
+    docp.setTextColor(255,255,255);docp.setFont('helvetica','bold');docp.setFontSize(11);
+    docp.text('TABELA DE PREÇOS',PW/2,10.2,{align:'center'});
+    docp.setFont('helvetica','bold');docp.setFontSize(9);
+    docp.text(tipoLabelBase+' - '+(estados[uf]||uf).toUpperCase(),PW-MR,10.2,{align:'right'});
+    docp.setFillColor(245,249,255);docp.rect(0,17.7,PW,4.7,'F');
+    docp.setFont('helvetica','normal');docp.setFontSize(7);docp.setTextColor(...cinzaMed);
+    docp.text('LINHA PROACTION - Agosto/2026',PW-MR,20.9,{align:'right'});
+  }
+  function rodape(pageNum,totalPages){
+    docp.setFillColor(245,249,255);
+    docp.rect(0,PH-7.5,PW,7.5,'F');
+    docp.setDrawColor(...azulEscuro);docp.setLineWidth(0.3);
+    docp.line(0,PH-7.5,PW,PH-7.5);
+    docp.setFont('helvetica','normal');docp.setFontSize(5.8);docp.setTextColor(...cinzaMed);
+    docp.text('Grow Química e Farmacêutica Ltda. · Av. Vitória Rossi Martini, Indaiatuba - SP, 13347-613 · comercial@growqf.com.br',PW/2,PH-3.2,{align:'center'});
+    docp.setFont('helvetica','bold');docp.setFontSize(5.8);docp.setTextColor(...azulEscuro);
+    docp.text('Pág. '+pageNum+'/'+totalPages,PW-MR,PH-3.2,{align:'right'});
+  }
+
+  cabecalho();
+  let y=24.5;
+  const CATS_IMPR=CATS.filter(c=>c.nome!=='📦 Outros');
+  CATS_IMPR.forEach(cat=>{
+    if(y>PH-25){docp.addPage();y=24.5;cabecalho();}
+    docp.setFillColor(...azulEscuro);
+    docp.rect(ML,y,CW,5,'F');
+    docp.setTextColor(255,255,255);docp.setFont('helvetica','bold');docp.setFontSize(8);
+    docp.text(_tpFixPDF(cat.nome.replace(/^\S+\s/,'')),ML+2,y+3.4);
+    y+=5.7;
+    const body=[];
+    cat.cods.forEach(cod=>{
+      const p=PRODUTOS.find(x=>x.codigo===cod);if(!p)return;
+      const pr=precoPorTabela(p,tipo,uf);
+      const qtd=QTD_CX[cod]||'—';
+      const ncm=NCM_MAP[cod]||'—';
+      const prFmt=pr>0?'R$ '+pr.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+      body.push([cod,_tpFixPDF(p.produto),ncm,_tpFixPDF(p.apresentacao),String(qtd),prFmt]);
+    });
+    docp.autoTable({
+      startY:y,
+      head:[['Código','Produto','NCM','Apresentação','Qtd/Cx','Preço Final']],
+      body:body,
+      margin:{left:ML,right:MR,top:22,bottom:9},
+      theme:'grid',
+      styles:{font:'helvetica',fontSize:7.2,cellPadding:{top:1.2,bottom:1.2,left:1.7,right:1.7},lineColor:[210,225,245],lineWidth:0.15,textColor:cinzaEsc},
+      headStyles:{fillColor:[235,243,255],textColor:azulEscuro,fontStyle:'bold',fontSize:7,halign:'center',cellPadding:{top:1.4,bottom:1.4,left:1.7,right:1.7}},
+      alternateRowStyles:{fillColor:[245,250,255]},
+      columnStyles:{
+        0:{cellWidth:22,fontSize:6.5},
+        1:{cellWidth:'auto',fontStyle:'bold'},
+        2:{cellWidth:20,halign:'center',fontSize:6.5},
+        3:{cellWidth:33},
+        4:{cellWidth:14,halign:'center'},
+        5:{cellWidth:23,halign:'center',fontStyle:'bold',fillColor:[219,234,254]}
+      },
+      didDrawPage:function(){cabecalho();}
+    });
+    y=docp.lastAutoTable.finalY+2;
+  });
+
+  // Kits Especiais — Cliente Final e Cliente Final Novo
+  if(ehCF){
+    if(y>PH-25){docp.addPage();y=24.5;cabecalho();}
+    docp.setFillColor(...azulEscuro);
+    docp.rect(ML,y,CW,5,'F');
+    docp.setTextColor(255,255,255);docp.setFont('helvetica','bold');docp.setFontSize(8);
+    docp.text('KITS ESPECIAIS',ML+2,y+3.4);
+    y+=5.7;
+    const bodyKits=KITS_CF.map(function(kit){
+      const calc=calcPrecoKit(kit,4,uf,tipo);
+      const precoPor1=calc.total>0?(calc.total/4):0;
+      const prFmt=precoPor1>0?'R$ '+precoPor1.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+      return[kit.ref,_tpFixPDF(kit.produto)+' — '+_tpFixPDF(kit.descricao),'4 galões',prFmt];
+    });
+    docp.autoTable({
+      startY:y,
+      head:[['Referência','Descrição','Qtd Mín.','Preço (1 galão)']],
+      body:bodyKits,
+      margin:{left:ML,right:MR,top:22,bottom:9},
+      theme:'grid',
+      styles:{font:'helvetica',fontSize:7,cellPadding:{top:1.4,bottom:1.4,left:1.7,right:1.7},lineColor:[210,225,245],lineWidth:0.15,textColor:cinzaEsc},
+      headStyles:{fillColor:[235,243,255],textColor:azulEscuro,fontStyle:'bold',fontSize:7,halign:'center',cellPadding:{top:1.4,bottom:1.4,left:1.7,right:1.7}},
+      columnStyles:{
+        0:{cellWidth:24,fontStyle:'bold',textColor:[180,83,9]},
+        1:{cellWidth:'auto'},
+        2:{cellWidth:22,halign:'center'},
+        3:{cellWidth:27,halign:'center',fontStyle:'bold',textColor:[180,83,9]}
+      },
+      didDrawPage:function(){cabecalho();}
+    });
+    y=docp.lastAutoTable.finalY+3;
+  }
+
+  // Condições Comerciais
+  if(y>PH-25){docp.addPage();y=24.5;cabecalho();}
+  docp.setDrawColor(...azulMed);docp.setLineWidth(0.4);
+  docp.setFont('helvetica','bold');docp.setFontSize(7.3);docp.setTextColor(...azulEscuro);
+  if(ehCF){
+    docp.text('CONDIÇÕES COMERCIAIS — TABELA CLIENTE FINAL',ML,y+2.8);y+=5;
+    docp.setFont('helvetica','normal');docp.setFontSize(7);docp.setTextColor(...cinzaEsc);
+    docp.text('Pedido mínimo: R$ 1.000,00     Frete: CIF',ML,y);y+=4;
+    docp.setFont('helvetica','bold');docp.text('Prazo de Pagamento',ML,y);y+=3.4;
+    docp.setFont('helvetica','normal');docp.setFontSize(6.7);
+    ['Até R$ 1.000,00 — 30 ddl','De R$ 1.001,00 a R$ 8.000,00 — 30/45 ddl','Acima de R$ 8.001,00 — 30/60 ddl'].forEach(function(l){
+      docp.text('• '+l,ML+2,y);y+=3.3;
+    });
+  }else if(ehDist){
+    docp.text('CONDIÇÕES COMERCIAIS E BONIFICAÇÕES — TABELA DISTRIBUIDOR',ML,y+2.8);y+=5;
+    docp.setFont('helvetica','normal');docp.setFontSize(7);docp.setTextColor(...cinzaEsc);
+    docp.text('Pedido mínimo: R$ 1.000,00     Frete: CIF     Prazo de pagamento: 30 dias',ML,y);y+=4;
+    docp.setFont('helvetica','bold');docp.setFontSize(6.7);
+    docp.text('Bonificações (válido quando o valor do item ultrapassar R$ 10.000,00 no pedido)',ML,y);y+=3.4;
+    docp.setFont('helvetica','normal');
+    ['Proaction GTA 2% -> a cada 4 galões: 1 pote de tiras + 4 inativadores',
+     'Proaction OPA -> a cada 4 galões: 1 pote de tiras + 4 inativadores',
+     'Proaction Peracetic 0,2% -> a cada 4 galões: 2 potes de tiras'].forEach(function(l){
+      docp.text('• '+_tpFixPDF(l),ML+2,y);y+=3.3;
+    });
+  }
+
+  const totalPages=docp.internal.getNumberOfPages();
+  for(let i=1;i<=totalPages;i++){docp.setPage(i);rodape(i,totalPages);}
+}
+
+function gerarPDFTabela(){
+  if(!tpTipo||!tpUf){showT('Selecione o tipo de cliente e o estado primeiro','erro');return;}
+  showT('Gerando PDF...','');
+  _tpCarregarLogo(function(logoData,logoRatio){
+    const { jsPDF }=window.jspdf;
+    const docp=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const PW=docp.internal.pageSize.getWidth(),PH=docp.internal.pageSize.getHeight();
+    const ML=12,MR=12,CW=PW-ML-MR;
+    const cores={azulEscuro:[30,58,138],azulMed:[37,99,235],cinzaEsc:[30,41,59],cinzaMed:[71,85,105]};
+    const hoje=new Date().toLocaleDateString('pt-BR');
+    _tpDesenharEstadoPDF(docp,tpTipo,tpUf,cores,{PW,PH,ML,MR,CW},{logoData,logoRatio,hoje});
+    docp.save('Tabela_'+nomeTabelaBase(tpTipo).replace(/\s+/g,'_')+'_'+tpUf+'_v4_Agosto2026.pdf');
+    showT('PDF gerado ✓','verde');
+  });
+}
+
+function gerarPDFTodasTabelas(){
+  if(!tpTipo){showT('Selecione o tipo de cliente primeiro (CF ou Distribuidor)','erro');return;}
+  showT('Gerando PDF de todos os estados... isso pode levar alguns segundos','');
+  _tpCarregarLogo(function(logoData,logoRatio){
+    const ufs=['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','TO'];
+    if(tpTipo==='distnovo')ufs.push('PARCEIRO','ALBE');
+    const { jsPDF }=window.jspdf;
+    const docp=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const PW=docp.internal.pageSize.getWidth(),PH=docp.internal.pageSize.getHeight();
+    const ML=12,MR=12,CW=PW-ML-MR;
+    const cores={azulEscuro:[30,58,138],azulMed:[37,99,235],cinzaEsc:[30,41,59],cinzaMed:[71,85,105]};
+    const hoje=new Date().toLocaleDateString('pt-BR');
+    ufs.forEach(function(uf,i){
+      if(i>0)docp.addPage();
+      _tpDesenharEstadoPDF(docp,tpTipo,uf,cores,{PW,PH,ML,MR,CW},{logoData,logoRatio,hoje});
+    });
+    docp.save('Tabelas_'+nomeTabelaBase(tpTipo).replace(/\s+/g,'_')+'_Todos_Estados_v4_Agosto2026.pdf');
+    showT('PDF gerado ✓','verde');
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   IMPORTAÇÃO DIRETA — Distribuidor Novo (correção do import via SQL manual)
+   Roda direto pelo navegador, em lotes, sem depender de colar SQL.
+   ══════════════════════════════════════════════════════════════ */
+const _DISTNOVO_DADOS=[{"codigo": "33.0063.5000", "uf": "AC", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "AL", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "AM", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "AP", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "BA", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "CE", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "DF", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "ES", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "GO", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "MA", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "MS", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "MT", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "PA", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "PB", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "PE", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "PI", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "RN", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "RO", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "RR", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "SE", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "TO", "tabela": "distnovo", "preco": 67.86}, {"codigo": "33.0063.5000", "uf": "MG", "tabela": "distnovo", "preco": 71.72}, {"codigo": "33.0063.5000", "uf": "PR", "tabela": "distnovo", "preco": 71.72}, {"codigo": "33.0063.5000", "uf": "RJ", "tabela": "distnovo", "preco": 71.72}, {"codigo": "33.0063.5000", "uf": "RS", "tabela": "distnovo", "preco": 71.72}, {"codigo": "33.0063.5000", "uf": "SC", "tabela": "distnovo", "preco": 71.72}, {"codigo": "33.0063.5000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 68.32}, {"codigo": "33.0063.5000", "uf": "ALBE", "tabela": "distnovo", "preco": 60.81}, {"codigo": "33.0064.0050", "uf": "AC", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "AL", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "AM", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "AP", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "BA", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "CE", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "DF", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "ES", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "GO", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "MA", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "MS", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "MT", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "PA", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "PB", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "PE", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "PI", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "RN", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "RO", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "RR", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "SE", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "TO", "tabela": "distnovo", "preco": 75.79}, {"codigo": "33.0064.0050", "uf": "MG", "tabela": "distnovo", "preco": 80.1}, {"codigo": "33.0064.0050", "uf": "PR", "tabela": "distnovo", "preco": 80.1}, {"codigo": "33.0064.0050", "uf": "RJ", "tabela": "distnovo", "preco": 80.1}, {"codigo": "33.0064.0050", "uf": "RS", "tabela": "distnovo", "preco": 80.1}, {"codigo": "33.0064.0050", "uf": "SC", "tabela": "distnovo", "preco": 80.1}, {"codigo": "33.0064.0050", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 86.92}, {"codigo": "33.0064.0050", "uf": "ALBE", "tabela": "distnovo", "preco": 77.36}, {"codigo": "33.0042.0230", "uf": "AC", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "AL", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "AM", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "AP", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "BA", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "CE", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "DF", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "ES", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "GO", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "MA", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "MS", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "MT", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "PA", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "PB", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "PE", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "PI", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "RN", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "RO", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "RR", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "SE", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "TO", "tabela": "distnovo", "preco": 4.97}, {"codigo": "33.0042.0230", "uf": "MG", "tabela": "distnovo", "preco": 5.27}, {"codigo": "33.0042.0230", "uf": "PR", "tabela": "distnovo", "preco": 5.27}, {"codigo": "33.0042.0230", "uf": "RJ", "tabela": "distnovo", "preco": 5.27}, {"codigo": "33.0042.0230", "uf": "RS", "tabela": "distnovo", "preco": 5.27}, {"codigo": "33.0042.0230", "uf": "SC", "tabela": "distnovo", "preco": 5.27}, {"codigo": "33.0042.0230", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 5.01}, {"codigo": "33.0042.0230", "uf": "ALBE", "tabela": "distnovo", "preco": 4.46}, {"codigo": "33.0069.5000", "uf": "AC", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "AL", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "AM", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "AP", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "BA", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "CE", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "DF", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "ES", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "GO", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "MA", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "MS", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "MT", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "PA", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "PB", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "PE", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "PI", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "RN", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "RO", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "RR", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "SE", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "TO", "tabela": "distnovo", "preco": 122.57}, {"codigo": "33.0069.5000", "uf": "MG", "tabela": "distnovo", "preco": 129.54}, {"codigo": "33.0069.5000", "uf": "PR", "tabela": "distnovo", "preco": 129.54}, {"codigo": "33.0069.5000", "uf": "RJ", "tabela": "distnovo", "preco": 129.54}, {"codigo": "33.0069.5000", "uf": "RS", "tabela": "distnovo", "preco": 129.54}, {"codigo": "33.0069.5000", "uf": "SC", "tabela": "distnovo", "preco": 129.54}, {"codigo": "33.0069.5000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 123.39}, {"codigo": "33.0069.5000", "uf": "ALBE", "tabela": "distnovo", "preco": 109.82}, {"codigo": "33.0019.0040", "uf": "AC", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "AL", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "AM", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "AP", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "BA", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "CE", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "DF", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "ES", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "GO", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "MA", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "MS", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "MT", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "PA", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "PB", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "PE", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "PI", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "RN", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "RO", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "RR", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "SE", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "TO", "tabela": "distnovo", "preco": 86.14}, {"codigo": "33.0019.0040", "uf": "MG", "tabela": "distnovo", "preco": 91.03}, {"codigo": "33.0019.0040", "uf": "PR", "tabela": "distnovo", "preco": 91.03}, {"codigo": "33.0019.0040", "uf": "RJ", "tabela": "distnovo", "preco": 91.03}, {"codigo": "33.0019.0040", "uf": "RS", "tabela": "distnovo", "preco": 91.03}, {"codigo": "33.0019.0040", "uf": "SC", "tabela": "distnovo", "preco": 91.03}, {"codigo": "33.0019.0040", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 98.8}, {"codigo": "33.0019.0040", "uf": "ALBE", "tabela": "distnovo", "preco": 87.93}, {"codigo": "33.0020.0032", "uf": "AC", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "AL", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "AM", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "AP", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "BA", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "CE", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "DF", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "ES", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "GO", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "MA", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "MS", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "MT", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "PA", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "PB", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "PE", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "PI", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "RN", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "RO", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "RR", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "SE", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "TO", "tabela": "distnovo", "preco": 6.05}, {"codigo": "33.0020.0032", "uf": "MG", "tabela": "distnovo", "preco": 6.39}, {"codigo": "33.0020.0032", "uf": "PR", "tabela": "distnovo", "preco": 6.39}, {"codigo": "33.0020.0032", "uf": "RJ", "tabela": "distnovo", "preco": 6.39}, {"codigo": "33.0020.0032", "uf": "RS", "tabela": "distnovo", "preco": 6.39}, {"codigo": "33.0020.0032", "uf": "SC", "tabela": "distnovo", "preco": 6.39}, {"codigo": "33.0020.0032", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 6.09}, {"codigo": "33.0020.0032", "uf": "ALBE", "tabela": "distnovo", "preco": 5.42}, {"codigo": "33.0065.5000", "uf": "AC", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "AL", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "AM", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "AP", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "BA", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "CE", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "DF", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "ES", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "GO", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "MA", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "MS", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "MT", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "PA", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "PB", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "PE", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "PI", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "RN", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "RO", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "RR", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "SE", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "TO", "tabela": "distnovo", "preco": 60.73}, {"codigo": "33.0065.5000", "uf": "MG", "tabela": "distnovo", "preco": 64.18}, {"codigo": "33.0065.5000", "uf": "PR", "tabela": "distnovo", "preco": 64.18}, {"codigo": "33.0065.5000", "uf": "RJ", "tabela": "distnovo", "preco": 64.18}, {"codigo": "33.0065.5000", "uf": "RS", "tabela": "distnovo", "preco": 64.18}, {"codigo": "33.0065.5000", "uf": "SC", "tabela": "distnovo", "preco": 64.18}, {"codigo": "33.0065.5000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 61.14}, {"codigo": "33.0065.5000", "uf": "ALBE", "tabela": "distnovo", "preco": 54.41}, {"codigo": "33.0066.0030", "uf": "AC", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "AL", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "AM", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "AP", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "BA", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "CE", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "DF", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "ES", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "GO", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "MA", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "MS", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "MT", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "PA", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "PB", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "PE", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "PI", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "RN", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "RO", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "RR", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "SE", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "TO", "tabela": "distnovo", "preco": 35.08}, {"codigo": "33.0066.0030", "uf": "MG", "tabela": "distnovo", "preco": 37.07}, {"codigo": "33.0066.0030", "uf": "PR", "tabela": "distnovo", "preco": 37.07}, {"codigo": "33.0066.0030", "uf": "RJ", "tabela": "distnovo", "preco": 37.07}, {"codigo": "33.0066.0030", "uf": "RS", "tabela": "distnovo", "preco": 37.07}, {"codigo": "33.0066.0030", "uf": "SC", "tabela": "distnovo", "preco": 37.07}, {"codigo": "33.0066.0030", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 40.22}, {"codigo": "33.0066.0030", "uf": "ALBE", "tabela": "distnovo", "preco": 35.8}, {"codigo": "28.0034.1000", "uf": "AC", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "AL", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "AM", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "AP", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "BA", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "CE", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "DF", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "ES", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "GO", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "MA", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "MS", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "MT", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "PA", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "PB", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "PE", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "PI", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "RN", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "RO", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "RR", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "SE", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "TO", "tabela": "distnovo", "preco": 32.1}, {"codigo": "28.0034.1000", "uf": "MG", "tabela": "distnovo", "preco": 33.92}, {"codigo": "28.0034.1000", "uf": "PR", "tabela": "distnovo", "preco": 33.92}, {"codigo": "28.0034.1000", "uf": "RJ", "tabela": "distnovo", "preco": 33.92}, {"codigo": "28.0034.1000", "uf": "RS", "tabela": "distnovo", "preco": 33.92}, {"codigo": "28.0034.1000", "uf": "SC", "tabela": "distnovo", "preco": 33.92}, {"codigo": "28.0034.1000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 32.31}, {"codigo": "28.0034.1000", "uf": "ALBE", "tabela": "distnovo", "preco": 28.76}, {"codigo": "28.0025.0005", "uf": "AC", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "AL", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "AM", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "AP", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "BA", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "CE", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "DF", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "ES", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "GO", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "MA", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "MS", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "MT", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "PA", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "PB", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "PE", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "PI", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "RN", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "RO", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "RR", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "SE", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "TO", "tabela": "distnovo", "preco": 132.23}, {"codigo": "28.0025.0005", "uf": "MG", "tabela": "distnovo", "preco": 139.74}, {"codigo": "28.0025.0005", "uf": "PR", "tabela": "distnovo", "preco": 139.74}, {"codigo": "28.0025.0005", "uf": "RJ", "tabela": "distnovo", "preco": 139.74}, {"codigo": "28.0025.0005", "uf": "RS", "tabela": "distnovo", "preco": 139.74}, {"codigo": "28.0025.0005", "uf": "SC", "tabela": "distnovo", "preco": 139.74}, {"codigo": "28.0025.0005", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 133.11}, {"codigo": "28.0025.0005", "uf": "ALBE", "tabela": "distnovo", "preco": 118.47}, {"codigo": "28.0023.0001", "uf": "AC", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "AL", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "AM", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "AP", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "BA", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "CE", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "DF", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "ES", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "GO", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "MA", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "MS", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "MT", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "PA", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "PB", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "PE", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "PI", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "RN", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "RO", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "RR", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "SE", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "TO", "tabela": "distnovo", "preco": 51.9}, {"codigo": "28.0023.0001", "uf": "MG", "tabela": "distnovo", "preco": 54.85}, {"codigo": "28.0023.0001", "uf": "PR", "tabela": "distnovo", "preco": 54.85}, {"codigo": "28.0023.0001", "uf": "RJ", "tabela": "distnovo", "preco": 54.85}, {"codigo": "28.0023.0001", "uf": "RS", "tabela": "distnovo", "preco": 54.85}, {"codigo": "28.0023.0001", "uf": "SC", "tabela": "distnovo", "preco": 54.85}, {"codigo": "28.0023.0001", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 52.25}, {"codigo": "28.0023.0001", "uf": "ALBE", "tabela": "distnovo", "preco": 46.5}, {"codigo": "28.0024.0005", "uf": "AC", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "AL", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "AM", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "AP", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "BA", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "CE", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "DF", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "ES", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "GO", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "MA", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "MS", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "MT", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "PA", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "PB", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "PE", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "PI", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "RN", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "RO", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "RR", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "SE", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "TO", "tabela": "distnovo", "preco": 231.29}, {"codigo": "28.0024.0005", "uf": "MG", "tabela": "distnovo", "preco": 244.44}, {"codigo": "28.0024.0005", "uf": "PR", "tabela": "distnovo", "preco": 244.44}, {"codigo": "28.0024.0005", "uf": "RJ", "tabela": "distnovo", "preco": 244.44}, {"codigo": "28.0024.0005", "uf": "RS", "tabela": "distnovo", "preco": 244.44}, {"codigo": "28.0024.0005", "uf": "SC", "tabela": "distnovo", "preco": 244.44}, {"codigo": "28.0024.0005", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 232.85}, {"codigo": "28.0024.0005", "uf": "ALBE", "tabela": "distnovo", "preco": 207.23}, {"codigo": "28.0021.0750", "uf": "AC", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "AL", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "AM", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "AP", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "BA", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "CE", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "DF", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "ES", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "GO", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "MA", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "MS", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "MT", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "PA", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "PB", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "PE", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "PI", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "RN", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "RO", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "RR", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "SE", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "TO", "tabela": "distnovo", "preco": 14.4}, {"codigo": "28.0021.0750", "uf": "MG", "tabela": "distnovo", "preco": 15.23}, {"codigo": "28.0021.0750", "uf": "PR", "tabela": "distnovo", "preco": 15.23}, {"codigo": "28.0021.0750", "uf": "RJ", "tabela": "distnovo", "preco": 15.23}, {"codigo": "28.0021.0750", "uf": "RS", "tabela": "distnovo", "preco": 15.23}, {"codigo": "28.0021.0750", "uf": "SC", "tabela": "distnovo", "preco": 15.23}, {"codigo": "28.0021.0750", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 14.5}, {"codigo": "28.0021.0750", "uf": "ALBE", "tabela": "distnovo", "preco": 12.91}, {"codigo": "28.0022.0001", "uf": "AC", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "AL", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "AM", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "AP", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "BA", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "CE", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "DF", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "ES", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "GO", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "MA", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "MS", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "MT", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "PA", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "PB", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "PE", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "PI", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "RN", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "RO", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "RR", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "SE", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "TO", "tabela": "distnovo", "preco": 57.02}, {"codigo": "28.0022.0001", "uf": "MG", "tabela": "distnovo", "preco": 60.26}, {"codigo": "28.0022.0001", "uf": "PR", "tabela": "distnovo", "preco": 60.26}, {"codigo": "28.0022.0001", "uf": "RJ", "tabela": "distnovo", "preco": 60.26}, {"codigo": "28.0022.0001", "uf": "RS", "tabela": "distnovo", "preco": 60.26}, {"codigo": "28.0022.0001", "uf": "SC", "tabela": "distnovo", "preco": 60.26}, {"codigo": "28.0022.0001", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 57.4}, {"codigo": "28.0022.0001", "uf": "ALBE", "tabela": "distnovo", "preco": 51.09}, {"codigo": "28.0033.5000", "uf": "AC", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "AL", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "AM", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "AP", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "BA", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "CE", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "DF", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "ES", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "GO", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "MA", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "MS", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "MT", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "PA", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "PB", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "PE", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "PI", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "RN", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "RO", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "RR", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "SE", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "TO", "tabela": "distnovo", "preco": 256.9}, {"codigo": "28.0033.5000", "uf": "MG", "tabela": "distnovo", "preco": 271.5}, {"codigo": "28.0033.5000", "uf": "PR", "tabela": "distnovo", "preco": 271.5}, {"codigo": "28.0033.5000", "uf": "RJ", "tabela": "distnovo", "preco": 271.5}, {"codigo": "28.0033.5000", "uf": "RS", "tabela": "distnovo", "preco": 271.5}, {"codigo": "28.0033.5000", "uf": "SC", "tabela": "distnovo", "preco": 271.5}, {"codigo": "28.0033.5000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 258.62}, {"codigo": "28.0033.5000", "uf": "ALBE", "tabela": "distnovo", "preco": 230.18}, {"codigo": "33.0046.0750", "uf": "AC", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "AL", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "AM", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "AP", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "BA", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "CE", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "DF", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "ES", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "GO", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "MA", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "MS", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "MT", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "PA", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "PB", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "PE", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "PI", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "RN", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "RO", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "RR", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "SE", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "TO", "tabela": "distnovo", "preco": 10.71}, {"codigo": "33.0046.0750", "uf": "MG", "tabela": "distnovo", "preco": 11.32}, {"codigo": "33.0046.0750", "uf": "PR", "tabela": "distnovo", "preco": 11.32}, {"codigo": "33.0046.0750", "uf": "RJ", "tabela": "distnovo", "preco": 11.32}, {"codigo": "33.0046.0750", "uf": "RS", "tabela": "distnovo", "preco": 11.32}, {"codigo": "33.0046.0750", "uf": "SC", "tabela": "distnovo", "preco": 11.32}, {"codigo": "33.0046.0750", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 10.78}, {"codigo": "33.0046.0750", "uf": "ALBE", "tabela": "distnovo", "preco": 9.6}, {"codigo": "33.0067.1000", "uf": "AC", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "AL", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "AM", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "AP", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "BA", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "CE", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "DF", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "ES", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "GO", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "MA", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "MS", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "MT", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "PA", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "PB", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "PE", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "PI", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "RN", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "RO", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "RR", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "SE", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "TO", "tabela": "distnovo", "preco": 50.71}, {"codigo": "33.0067.1000", "uf": "MG", "tabela": "distnovo", "preco": 53.59}, {"codigo": "33.0067.1000", "uf": "PR", "tabela": "distnovo", "preco": 53.59}, {"codigo": "33.0067.1000", "uf": "RJ", "tabela": "distnovo", "preco": 53.59}, {"codigo": "33.0067.1000", "uf": "RS", "tabela": "distnovo", "preco": 53.59}, {"codigo": "33.0067.1000", "uf": "SC", "tabela": "distnovo", "preco": 53.59}, {"codigo": "33.0067.1000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 51.04}, {"codigo": "33.0067.1000", "uf": "ALBE", "tabela": "distnovo", "preco": 45.43}, {"codigo": "33.0068.5000", "uf": "AC", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "AL", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "AM", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "AP", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "BA", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "CE", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "DF", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "ES", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "GO", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "MA", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "MS", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "MT", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "PA", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "PB", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "PE", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "PI", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "RN", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "RO", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "RR", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "SE", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "TO", "tabela": "distnovo", "preco": 202.61}, {"codigo": "33.0068.5000", "uf": "MG", "tabela": "distnovo", "preco": 214.11}, {"codigo": "33.0068.5000", "uf": "PR", "tabela": "distnovo", "preco": 214.11}, {"codigo": "33.0068.5000", "uf": "RJ", "tabela": "distnovo", "preco": 214.11}, {"codigo": "33.0068.5000", "uf": "RS", "tabela": "distnovo", "preco": 214.11}, {"codigo": "33.0068.5000", "uf": "SC", "tabela": "distnovo", "preco": 214.11}, {"codigo": "33.0068.5000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 203.96}, {"codigo": "33.0068.5000", "uf": "ALBE", "tabela": "distnovo", "preco": 181.52}, {"codigo": "33.0022.0001", "uf": "AC", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "AL", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "AM", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "AP", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "BA", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "CE", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "DF", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "ES", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "GO", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "MA", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "MS", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "MT", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "PA", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "PB", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "PE", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "PI", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "RN", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "RO", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "RR", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "SE", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "TO", "tabela": "distnovo", "preco": 36.32}, {"codigo": "33.0022.0001", "uf": "MG", "tabela": "distnovo", "preco": 38.4}, {"codigo": "33.0022.0001", "uf": "PR", "tabela": "distnovo", "preco": 38.4}, {"codigo": "33.0022.0001", "uf": "RJ", "tabela": "distnovo", "preco": 38.4}, {"codigo": "33.0022.0001", "uf": "RS", "tabela": "distnovo", "preco": 38.4}, {"codigo": "33.0022.0001", "uf": "SC", "tabela": "distnovo", "preco": 38.4}, {"codigo": "33.0022.0001", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 36.57}, {"codigo": "33.0022.0001", "uf": "ALBE", "tabela": "distnovo", "preco": 32.55}, {"codigo": "33.0071.5000", "uf": "AC", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "AL", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "AM", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "AP", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "BA", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "CE", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "DF", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "ES", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "GO", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "MA", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "MS", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "MT", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "PA", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "PB", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "PE", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "PI", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "RN", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "RO", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "RR", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "SE", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "TO", "tabela": "distnovo", "preco": 134.77}, {"codigo": "33.0071.5000", "uf": "MG", "tabela": "distnovo", "preco": 142.43}, {"codigo": "33.0071.5000", "uf": "PR", "tabela": "distnovo", "preco": 142.43}, {"codigo": "33.0071.5000", "uf": "RJ", "tabela": "distnovo", "preco": 142.43}, {"codigo": "33.0071.5000", "uf": "RS", "tabela": "distnovo", "preco": 142.43}, {"codigo": "33.0071.5000", "uf": "SC", "tabela": "distnovo", "preco": 142.43}, {"codigo": "33.0071.5000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 135.67}, {"codigo": "33.0071.5000", "uf": "ALBE", "tabela": "distnovo", "preco": 120.75}, {"codigo": "29.0012.0700", "uf": "AC", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "AL", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "AM", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "AP", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "BA", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "CE", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "DF", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "ES", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "GO", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "MA", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "MS", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "MT", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "PA", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "PB", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "PE", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "PI", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "RN", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "RO", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "RR", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "SE", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "TO", "tabela": "distnovo", "preco": 29.96}, {"codigo": "29.0012.0700", "uf": "MG", "tabela": "distnovo", "preco": 31.67}, {"codigo": "29.0012.0700", "uf": "PR", "tabela": "distnovo", "preco": 31.67}, {"codigo": "29.0012.0700", "uf": "RJ", "tabela": "distnovo", "preco": 31.67}, {"codigo": "29.0012.0700", "uf": "RS", "tabela": "distnovo", "preco": 31.67}, {"codigo": "29.0012.0700", "uf": "SC", "tabela": "distnovo", "preco": 31.67}, {"codigo": "29.0012.0700", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 30.16}, {"codigo": "29.0012.0700", "uf": "ALBE", "tabela": "distnovo", "preco": 26.85}, {"codigo": "29.0013.1000", "uf": "AC", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "AL", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "AM", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "AP", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "BA", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "CE", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "DF", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "ES", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "GO", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "MA", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "MS", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "MT", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "PA", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "PB", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "PE", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "PI", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "RN", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "RO", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "RR", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "SE", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "TO", "tabela": "distnovo", "preco": 45.84}, {"codigo": "29.0013.1000", "uf": "MG", "tabela": "distnovo", "preco": 48.45}, {"codigo": "29.0013.1000", "uf": "PR", "tabela": "distnovo", "preco": 48.45}, {"codigo": "29.0013.1000", "uf": "RJ", "tabela": "distnovo", "preco": 48.45}, {"codigo": "29.0013.1000", "uf": "RS", "tabela": "distnovo", "preco": 48.45}, {"codigo": "29.0013.1000", "uf": "SC", "tabela": "distnovo", "preco": 48.45}, {"codigo": "29.0013.1000", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 46.15}, {"codigo": "29.0013.1000", "uf": "ALBE", "tabela": "distnovo", "preco": 41.07}, {"codigo": "29.0006.0001", "uf": "AC", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "AL", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "AM", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "AP", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "BA", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "CE", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "DF", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "ES", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "GO", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "MA", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "MS", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "MT", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "PA", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "PB", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "PE", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "PI", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "RN", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "RO", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "RR", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "SE", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "TO", "tabela": "distnovo", "preco": 149.36}, {"codigo": "29.0006.0001", "uf": "MG", "tabela": "distnovo", "preco": 153.03}, {"codigo": "29.0006.0001", "uf": "PR", "tabela": "distnovo", "preco": 153.03}, {"codigo": "29.0006.0001", "uf": "RJ", "tabela": "distnovo", "preco": 153.03}, {"codigo": "29.0006.0001", "uf": "RS", "tabela": "distnovo", "preco": 153.03}, {"codigo": "29.0006.0001", "uf": "SC", "tabela": "distnovo", "preco": 153.03}, {"codigo": "29.0006.0001", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 150.36}, {"codigo": "29.0006.0001", "uf": "ALBE", "tabela": "distnovo", "preco": 219.65}, {"codigo": "29.0003.0750", "uf": "AC", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "AL", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "AM", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "AP", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "BA", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "CE", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "DF", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "ES", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "GO", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "MA", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "MS", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "MT", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "PA", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "PB", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "PE", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "PI", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "RN", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "RO", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "RR", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "SE", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "TO", "tabela": "distnovo", "preco": 18.85}, {"codigo": "29.0003.0750", "uf": "MG", "tabela": "distnovo", "preco": 19.92}, {"codigo": "29.0003.0750", "uf": "PR", "tabela": "distnovo", "preco": 19.92}, {"codigo": "29.0003.0750", "uf": "RJ", "tabela": "distnovo", "preco": 19.92}, {"codigo": "29.0003.0750", "uf": "RS", "tabela": "distnovo", "preco": 19.92}, {"codigo": "29.0003.0750", "uf": "SC", "tabela": "distnovo", "preco": 19.92}, {"codigo": "29.0003.0750", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 18.98}, {"codigo": "29.0003.0750", "uf": "ALBE", "tabela": "distnovo", "preco": 16.89}, {"codigo": "29.0009.0005", "uf": "AC", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "AL", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "AM", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "AP", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "BA", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "CE", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "DF", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "ES", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "GO", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "MA", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "MS", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "MT", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "PA", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "PB", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "PE", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "PI", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "RN", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "RO", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "RR", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "SE", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "TO", "tabela": "distnovo", "preco": 67.01}, {"codigo": "29.0009.0005", "uf": "MG", "tabela": "distnovo", "preco": 70.82}, {"codigo": "29.0009.0005", "uf": "PR", "tabela": "distnovo", "preco": 70.82}, {"codigo": "29.0009.0005", "uf": "RJ", "tabela": "distnovo", "preco": 70.82}, {"codigo": "29.0009.0005", "uf": "RS", "tabela": "distnovo", "preco": 70.82}, {"codigo": "29.0009.0005", "uf": "SC", "tabela": "distnovo", "preco": 70.82}, {"codigo": "29.0009.0005", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 67.46}, {"codigo": "29.0009.0005", "uf": "ALBE", "tabela": "distnovo", "preco": 60.04}, {"codigo": "31.0003.0001", "uf": "AC", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "AL", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "AM", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "AP", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "BA", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "CE", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "DF", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "ES", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "GO", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "MA", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "MS", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "MT", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "PA", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "PB", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "PE", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "PI", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "RN", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "RO", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "RR", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "SE", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "TO", "tabela": "distnovo", "preco": 15.46}, {"codigo": "31.0003.0001", "uf": "MG", "tabela": "distnovo", "preco": 16.35}, {"codigo": "31.0003.0001", "uf": "PR", "tabela": "distnovo", "preco": 16.35}, {"codigo": "31.0003.0001", "uf": "RJ", "tabela": "distnovo", "preco": 16.35}, {"codigo": "31.0003.0001", "uf": "RS", "tabela": "distnovo", "preco": 16.35}, {"codigo": "31.0003.0001", "uf": "SC", "tabela": "distnovo", "preco": 16.35}, {"codigo": "31.0003.0001", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 15.57}, {"codigo": "31.0003.0001", "uf": "ALBE", "tabela": "distnovo", "preco": 13.86}, {"codigo": "31.0004.0005", "uf": "AC", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "AL", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "AM", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "AP", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "BA", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "CE", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "DF", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "ES", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "GO", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "MA", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "MS", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "MT", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "PA", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "PB", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "PE", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "PI", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "RN", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "RO", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "RR", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "SE", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "TO", "tabela": "distnovo", "preco": 40.06}, {"codigo": "31.0004.0005", "uf": "MG", "tabela": "distnovo", "preco": 42.33}, {"codigo": "31.0004.0005", "uf": "PR", "tabela": "distnovo", "preco": 42.33}, {"codigo": "31.0004.0005", "uf": "RJ", "tabela": "distnovo", "preco": 42.33}, {"codigo": "31.0004.0005", "uf": "RS", "tabela": "distnovo", "preco": 42.33}, {"codigo": "31.0004.0005", "uf": "SC", "tabela": "distnovo", "preco": 42.33}, {"codigo": "31.0004.0005", "uf": "PARCEIRO", "tabela": "distnovo", "preco": 40.33}, {"codigo": "31.0004.0005", "uf": "ALBE", "tabela": "distnovo", "preco": 35.89}]
+;
+
+async function importarDistNovoCompleto(){
+  if(!confirm('Isso vai gravar '+_DISTNOVO_DADOS.length+' preços do Distribuidor Novo no banco (sobrescrevendo os que já existem). Continuar?'))return;
+  const btn=document.getElementById('btnImportarDistNovo');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Importando...';}
+  const tamanhoLote=100;
+  let importados=0;
+  try{
+    for(let i=0;i<_DISTNOVO_DADOS.length;i+=tamanhoLote){
+      const lote=_DISTNOVO_DADOS.slice(i,i+tamanhoLote);
+      const {error}=await sb.from('precos').upsert(lote,{onConflict:'codigo,uf,tabela'});
+      if(error){
+        console.error('Erro no lote',i,error);
+        showT('Erro no lote '+(i/tamanhoLote+1)+': '+error.message,'erro');
+        if(btn){btn.disabled=false;btn.textContent='🔧 Importar Distribuidor Novo (correção)';}
+        return;
+      }
+      importados+=lote.length;
+      if(btn)btn.textContent='⏳ Importando... '+importados+'/'+_DISTNOVO_DADOS.length;
+    }
+    showT('✓ '+importados+' preços do Distribuidor Novo importados com sucesso!','verde');
+    // Recarregar preços em memória
+    await sbCarregarPrecosIniciais();
+    if(typeof renderTabelaPrecos==='function')renderTabelaPrecos();
+  }catch(e){
+    console.error(e);
+    showT('Erro inesperado na importação: '+e.message,'erro');
+  }
+  if(btn){btn.disabled=false;btn.textContent='🔧 Importar Distribuidor Novo (correção)';}
 }
 
 function toggleGrupo(grupo){
@@ -6980,6 +7375,8 @@ async function salvarPrecosEditadosReal(){
     if(!p)return;
     if(r.tabela==='cf'){if(!p.cf)p.cf={};p.cf[r.uf]=r.preco;}
     else if(r.tabela==='dist'){if(!p.dist)p.dist={};p.dist[r.uf]=r.preco;}
+    else if(r.tabela==='cfnovo'){if(!p.cfnovo)p.cfnovo={};p.cfnovo[r.uf]=r.preco;}
+    else if(r.tabela==='distnovo'){if(!p.distnovo)p.distnovo={};p.distnovo[r.uf]=r.preco;}
     else if(r.tabela==='3a'){p['3a']=r.preco;}
   });
 
@@ -6990,16 +7387,29 @@ async function salvarPrecosEditadosReal(){
 }
 
 async function sbCarregarPrecosIniciais(){
-  const {data,error}=await sb.from('precos').select('codigo,uf,tabela,preco');
-  if(error){console.error('SB precos load erro:',error);return;}
-  (data||[]).forEach(function(r){
+  // Paginado — o Supabase limita ~1000 linhas por consulta por padrão.
+  // Com cf+dist+cfnovo+distnovo somados, o total passa disso facilmente.
+  let todos=[];
+  let de=0;
+  const tamanhoPagina=1000;
+  while(true){
+    const {data,error}=await sb.from('precos').select('codigo,uf,tabela,preco').range(de,de+tamanhoPagina-1);
+    if(error){console.error('SB precos load erro:',error);break;}
+    if(!data||!data.length)break;
+    todos=todos.concat(data);
+    if(data.length<tamanhoPagina)break; // última página
+    de+=tamanhoPagina;
+  }
+  todos.forEach(function(r){
     const prod=PRODUTOS.find(function(p){return p.codigo===r.codigo;});
     if(!prod)return;
     if(r.tabela==='cf'){if(!prod.cf)prod.cf={};prod.cf[r.uf]=parseFloat(r.preco);}
     else if(r.tabela==='dist'){if(!prod.dist)prod.dist={};prod.dist[r.uf]=parseFloat(r.preco);}
+    else if(r.tabela==='cfnovo'){if(!prod.cfnovo)prod.cfnovo={};prod.cfnovo[r.uf]=parseFloat(r.preco);}
+    else if(r.tabela==='distnovo'){if(!prod.distnovo)prod.distnovo={};prod.distnovo[r.uf]=parseFloat(r.preco);}
     else if(r.tabela==='3a')prod['3a']=parseFloat(r.preco);
   });
-  console.log('Precos carregados do Supabase:',data?.length);
+  console.log('Precos carregados do Supabase:',todos.length);
 }
 
 function setCadTab(tab){
@@ -7086,6 +7496,8 @@ async function salvarTodosPrecos(uf,tab){
     if(prod){
       if(tab==='cf'){if(!prod.cf)prod.cf={};prod.cf[uf]=r.preco;}
       else if(tab==='dist'){if(!prod.dist)prod.dist={};prod.dist[uf]=r.preco;}
+      else if(tab==='cfnovo'){if(!prod.cfnovo)prod.cfnovo={};prod.cfnovo[uf]=r.preco;}
+      else if(tab==='distnovo'){if(!prod.distnovo)prod.distnovo={};prod.distnovo[uf]=r.preco;}
       else if(tab==='3a')prod['3a']=r.preco;
     }
     // Marcar como salvo
@@ -8733,6 +9145,765 @@ async function gerarPdfComissaoSelecionada(){
   }finally{
     ov.remove();
   }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   PESO BRUTO FALTANTE — depois de importar uma planilha de
+   faturamento, confere se todo item vendido já tem peso bruto
+   cadastrado. Se faltar, pede pra preencher ali mesmo.
+   ══════════════════════════════════════════════════════════════ */
+// ── CUBAGEM: caixas de embarque e cálculo de volume ──────────────
+// Dimensões em cm, capacidade em unidades por caixa. Baseado no que a Grow usa hoje.
+const TIPOS_CAIXA={
+  cx5lt:      {nome:'CX 5 LT',          C:26,  L:29, A:37,   cap:4},
+  cxFitaTest: {nome:'CX FITA TEST',     C:9,   L:9,  A:16,   cap:6},
+  cxInativador:{nome:'CX INATIVADOR',   C:15.5,L:11, A:12.5, cap:4},
+  cx750ml:    {nome:'CX 750 ML',        C:27,  L:28, A:32,   cap:12},
+  cx1ltPadrao:{nome:'CX 1 LT (padrão)', C:28,  L:30, A:37,   cap:12},
+  cx1ltPesado:{nome:'CX 1 LT (AS500/Germi Ultra/Oxi Ultra)',C:28,L:30,A:37,cap:6},
+};
+function volumeCaixaM3(tipo){
+  const t=TIPOS_CAIXA[tipo];
+  return (t.C*t.L*t.A)/1000000;   // cm³ → m³
+}
+
+// Descobre qual caixa um item usa, a partir do nome/descrição (mesma lógica do 750ml:
+// é o TAMANHO da embalagem que define a caixa, não o produto específico).
+function caixaDoItem(nomeItem){
+  const n=normalizarTexto(nomeItem||'');
+  if(/test\s*strip|fitas?\b/.test(n))return 'cxFitaTest';
+  if(/inativador/.test(n))return 'cxInativador';
+  if(/\b5\s*l(t|itros?)?\b/.test(n))return 'cx5lt';
+  if(/750\s*ml/.test(n))return 'cx750ml';
+  if(/\b1\s*l(t|itro)?\b/.test(n)){
+    const pesado=/\bas\s*500\b|germi\s*ultra|oxi\s*ultra/.test(n);
+    return pesado?'cx1ltPesado':'cx1ltPadrao';
+  }
+  return null;   // embalagem não reconhecida (ex: 50ml, sucata) — fica fora do volume
+}
+
+// Volume total (m³) de X unidades de um item — sem separação por lote,
+// então é só arredondar pra cima a quantidade de caixas necessárias.
+function volumeDoItem(nomeItem,quantidade){
+  const tipo=caixaDoItem(nomeItem);
+  if(!tipo)return{volume:0,caixas:0,tipo:null};
+  const cap=TIPOS_CAIXA[tipo].cap;
+  const caixas=Math.ceil((parseFloat(quantidade)||0)/cap);
+  return{volume:caixas*volumeCaixaM3(tipo),caixas:caixas,tipo:tipo};
+}
+
+// Cache próprio do faturamento — independente do catálogo de produtos (CATMAT/preço).// Cache próprio do faturamento — independente do catálogo de produtos (CATMAT/preço).
+// Cobre também códigos que não são produtos cadastrados no GEx (ex: MANUAL, METAL, PAPEL).
+let _pesosFaturamento=null;
+
+async function carregarPesosFaturamento(){
+  if(_pesosFaturamento)return;
+  _pesosFaturamento={};
+  try{
+    const {data}=await sb.from('faturamento_item_peso').select('codigo,peso_bruto');
+    (data||[]).forEach(function(r){_pesosFaturamento[r.codigo]=parseFloat(r.peso_bruto)||0;});
+  }catch(e){console.warn('Pesos de faturamento indisponíveis',e);}
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CALCULADORA DE VOLUMETRIA — tela de Frete
+   Usa a MESMA lógica de peso/cubagem do Faturamento (volumeDoItem,
+   _pesosFaturamento, TIPOS_CAIXA), mas totalmente em memória — nada
+   é gravado em faturamento nem em nenhuma tabela do banco.
+   Peso/caixa perguntados quando faltam valem só pra essa sessão.
+   ══════════════════════════════════════════════════════════════ */
+let _calcVolItens=[];
+let _calcVolSelecionados=new Set();
+let _calcVolUidSeq=1;
+let _calcVolPesosSessao={};   // codigo -> peso unitário (kg), só nessa sessão
+let _calcVolCaixasSessao={};  // codigo -> chave de TIPOS_CAIXA, só nessa sessão
+let _calcVolPesoPerguntado=new Set();   // códigos já perguntados nessa sessão (respondidos ou pulados) — não pergunta de novo
+let _calcVolCaixaPerguntado=new Set();
+const CALC_VOL_CORES=['#fee2e2','#ffedd5','#fef9c3','#dcfce7','#dbeafe','#ede9fe','#fce7f3','#e2e8f0'];
+const UF_REGIAO={AC:'Norte',AP:'Norte',AM:'Norte',PA:'Norte',RO:'Norte',RR:'Norte',TO:'Norte',
+  AL:'Nordeste',BA:'Nordeste',CE:'Nordeste',MA:'Nordeste',PB:'Nordeste',PE:'Nordeste',PI:'Nordeste',RN:'Nordeste',SE:'Nordeste',
+  DF:'Centro-Oeste',GO:'Centro-Oeste',MT:'Centro-Oeste',MS:'Centro-Oeste',
+  ES:'Sudeste',MG:'Sudeste',RJ:'Sudeste',SP:'Sudeste',
+  PR:'Sul',RS:'Sul',SC:'Sul'};
+const ORDEM_REGIOES=['Norte','Nordeste','Centro-Oeste','Sudeste','Sul'];
+
+async function abrirCalcVolumetria(){
+  await carregarPesosFaturamento();
+  const dl=document.getElementById('listCalcVolProdutos');
+  if(dl&&!dl.dataset.preenchido){
+    dl.innerHTML=PRODUTOS.map(function(p){return '<option value="'+p.codigo+' — '+p.produto+'">';}).join('');
+    dl.dataset.preenchido='1';
+  }
+  document.getElementById('calcVolCard').style.display='';
+  document.getElementById('formNFCard').style.display='none';
+  calcVolRender();
+  document.getElementById('calcVolProdutoInput').focus();
+}
+function fecharCalcVolumetria(){
+  document.getElementById('calcVolCard').style.display='none';
+}
+function calcVolLimparTudo(){
+  if(_calcVolItens.length&&!confirm('Limpar todos os itens da calculadora?'))return;
+  _calcVolItens=[];
+  _calcVolSelecionados.clear();
+  calcVolRender();
+}
+
+/* ── Modal genérico de pergunta (peso ou caixa), baseado em Promise ── */
+let _calcVolPerguntaResolve=null;
+function _calcVolPerguntaResolver(valor){
+  document.getElementById('calcVolPerguntaOverlay').style.display='none';
+  if(_calcVolPerguntaResolve){const r=_calcVolPerguntaResolve;_calcVolPerguntaResolve=null;r(valor);}
+}
+function _calcVolPerguntaConfirmar(){
+  const corpo=document.getElementById('calcVolPerguntaCorpo');
+  const inpPeso=corpo.querySelector('#calcVolPerguntaPeso');
+  if(inpPeso){
+    const v=parseFloat(inpPeso.value);
+    if(!(v>0)){showT('Informe um peso maior que zero, ou clique em Pular','erro');return;}
+    _calcVolPerguntaResolver(v);
+    return;
+  }
+  const radioMarcado=corpo.querySelector('input[name="calcVolPerguntaCaixa"]:checked');
+  if(!radioMarcado){showT('Escolha uma caixa, ou clique em Pular','erro');return;}
+  _calcVolPerguntaResolver(radioMarcado.value);
+}
+function _calcVolPerguntarPeso(nome){
+  return new Promise(function(resolve){
+    _calcVolPerguntaResolve=resolve;
+    document.getElementById('calcVolPerguntaTitulo').textContent='⚖️ Peso não cadastrado';
+    document.getElementById('calcVolPerguntaSub').textContent='"'+nome+'" ainda não tem peso bruto cadastrado. Informe o peso de 1 unidade (kg) — vale só pra esse cálculo, não vai ser salvo.';
+    document.getElementById('calcVolPerguntaCorpo').innerHTML='<div class="form-field"><label>Peso de 1 unidade (kg)</label><input type="number" id="calcVolPerguntaPeso" step="0.001" min="0" placeholder="Ex: 5.2" style="width:100%"></div>';
+    document.getElementById('calcVolPerguntaOverlay').style.display='flex';
+    setTimeout(function(){var el=document.getElementById('calcVolPerguntaPeso');if(el)el.focus();},50);
+  });
+}
+function _calcVolPerguntarCaixa(nome){
+  return new Promise(function(resolve){
+    _calcVolPerguntaResolve=resolve;
+    document.getElementById('calcVolPerguntaTitulo').textContent='📦 Embalagem não reconhecida';
+    document.getElementById('calcVolPerguntaSub').textContent='Não consegui identificar automaticamente a caixa de "'+nome+'". Escolha qual caixa vincular — vale só pra esse cálculo, não vai ser salvo.';
+    document.getElementById('calcVolPerguntaCorpo').innerHTML=Object.keys(TIPOS_CAIXA).map(function(k,i){
+      const t=TIPOS_CAIXA[k];
+      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:12px">'
+        +'<input type="radio" name="calcVolPerguntaCaixa" value="'+k+'"'+(i===0?' checked':'')+'>'
+        +t.nome+' <span style="color:var(--muted);font-size:11px">('+t.C+'×'+t.L+'×'+t.A+'cm, cap. '+t.cap+')</span>'
+        +'</label>';
+    }).join('');
+    document.getElementById('calcVolPerguntaOverlay').style.display='flex';
+  });
+}
+
+// Calcula peso/volume/caixas de um item, perguntando na hora se faltar peso ou caixa
+// (só uma vez por código — respostas ficam em cache pra o resto da sessão).
+async function _calcVolComputar(codigo,nome,quantidade){
+  let pesoUnit=_calcVolPesosSessao[codigo]!=null?_calcVolPesosSessao[codigo]:(_pesosFaturamento[codigo]||0);
+  if(!pesoUnit&&!_calcVolPesoPerguntado.has(codigo)){
+    _calcVolPesoPerguntado.add(codigo);
+    const resp=await _calcVolPerguntarPeso(nome);
+    if(resp){pesoUnit=resp;_calcVolPesosSessao[codigo]=resp;}
+  }
+  let tipo=_calcVolCaixasSessao[codigo]||caixaDoItem(nome);
+  if(!tipo&&!_calcVolCaixaPerguntado.has(codigo)){
+    _calcVolCaixaPerguntado.add(codigo);
+    const resp=await _calcVolPerguntarCaixa(nome);
+    if(resp){tipo=resp;_calcVolCaixasSessao[codigo]=resp;}
+  }
+  const caixasPorTipo={};
+  let volumeTotal=0,caixasTotal=0;
+  if(tipo){
+    const cap=TIPOS_CAIXA[tipo].cap;
+    const caixas=Math.ceil(quantidade/cap);
+    caixasPorTipo[tipo]=caixas;
+    volumeTotal=caixas*volumeCaixaM3(tipo);
+    caixasTotal=caixas;
+  }
+  return{pesoTotal:pesoUnit*quantidade,volumeTotal:volumeTotal,caixasTotal:caixasTotal,caixasPorTipo:caixasPorTipo,tipoCaixa:tipo||null,temPeso:pesoUnit>0};
+}
+
+// Insere um item novo ou soma na linha existente (mesmo código + mesmo destino).
+// Usado tanto pelo "＋ Adicionar" manual quanto pela importação de faturamento.
+async function _calcVolInserirOuSomar(codigo,nome,quantidade,uf,mes){
+  mes=mes||'';
+  const existente=_calcVolItens.find(function(it){return it.codigos.length===1&&it.codigos[0]===codigo&&it.uf===uf&&it.mes===mes;});
+  const novaQtd=(existente?existente.quantidade:0)+quantidade;
+  const calc=await _calcVolComputar(codigo,nome,novaQtd);
+  if(existente){
+    existente.quantidade=novaQtd;
+    Object.assign(existente,calc);
+  }else{
+    _calcVolItens.push(Object.assign({uid:_calcVolUidSeq++,codigos:[codigo],nome:nome,quantidade:novaQtd,uf:uf,mes:mes,cor:null},calc));
+  }
+}
+
+async function calcVolAdicionarItem(){
+  const inp=document.getElementById('calcVolProdutoInput');
+  const qtdInp=document.getElementById('calcVolQtdInput');
+  const ufInp=document.getElementById('calcVolUfInput');
+  const texto=(inp.value||'').trim();
+  const qtd=parseInt(qtdInp.value)||0;
+  const uf=ufInp.value||'';
+  if(!texto){showT('Digite ou selecione um produto','erro');return;}
+  if(qtd<=0){showT('Quantidade precisa ser maior que zero','erro');return;}
+  let prod=null;
+  const partes=texto.split(' — ');
+  if(partes.length>1)prod=PRODUTOS.find(function(p){return p.codigo===partes[0];});
+  if(!prod){
+    const n=normalizarTexto(texto);
+    prod=PRODUTOS.find(function(p){return p.codigo===texto||normalizarTexto(p.produto).includes(n);});
+  }
+  if(!prod){showT('Produto não encontrado — escolha um item da lista','erro');return;}
+  await _calcVolInserirOuSomar(prod.codigo,prod.produto,qtd,uf);
+  inp.value='';qtdInp.value='1';
+  calcVolRender();
+  inp.focus();
+}
+
+/* ── Importar Faturamento — puxa itens de NFs já lançadas (fatDados / tabela vendas) ── */
+let _calcVolNFsSelecionadas=new Set();
+function _calcVolNFsUnicas(){
+  const map={};
+  (fatDados||[]).forEach(function(r){
+    if(r.excluida||!r.nf)return;
+    if(!map[r.nf])map[r.nf]={nf:r.nf,cliente:r.cliente||'',estado:(r.estado||r.uf||'').toString().trim().toUpperCase().slice(0,2),dt:r.dt_emissao,mes:mesAnoDeData(r.dt_emissao),itens:0};
+    map[r.nf].itens++;
+  });
+  return Object.values(map).sort(function(a,b){return (b.dt||'').localeCompare(a.dt||'');});
+}
+async function calcVolAbrirImportarFaturamento(){
+  if(!fatDados||!fatDados.length){
+    showT('Carregando faturamento...','');
+    if(typeof sbCarregarVendas==='function')await sbCarregarVendas();
+  }
+  _calcVolNFsSelecionadas.clear();
+  const meses=[...new Set(_calcVolNFsUnicas().map(function(n){return n.mes;}))].filter(Boolean).sort().reverse();
+  const selMes=document.getElementById('calcVolImportarMes');
+  selMes.innerHTML='<option value="">Todos os meses</option>'+meses.map(function(m){return '<option value="'+m+'">'+rotuloMesAno(m)+'</option>';}).join('');
+  document.getElementById('calcVolImportarBusca').value='';
+  document.getElementById('calcVolImportarTodos').checked=false;
+  document.getElementById('calcVolImportarOverlay').style.display='flex';
+  calcVolRenderListaImportar();
+}
+function calcVolFecharImportarFaturamento(){
+  document.getElementById('calcVolImportarOverlay').style.display='none';
+}
+function calcVolRenderListaImportar(){
+  const busca=normalizarTexto(document.getElementById('calcVolImportarBusca').value||'');
+  const mes=document.getElementById('calcVolImportarMes').value;
+  const lista=_calcVolNFsUnicas().filter(function(n){
+    if(mes&&n.mes!==mes)return false;
+    if(busca&&!normalizarTexto(n.nf+' '+n.cliente).includes(busca))return false;
+    return true;
+  });
+  const el=document.getElementById('calcVolImportarLista');
+  if(!lista.length){
+    el.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">Nenhuma NF encontrada.</div>';
+  }else{
+    el.innerHTML=lista.map(function(n){
+      const dtFmt=n.dt?String(n.dt).slice(0,10).split('-').reverse().join('/'):'—';
+      return '<label style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--borda);cursor:pointer;font-size:12px">'
+        +'<input type="checkbox" '+(_calcVolNFsSelecionadas.has(n.nf)?'checked':'')+' onchange="calcVolToggleNFSelecionada(\''+n.nf+'\')">'
+        +'<div style="flex:1;min-width:0"><div style="font-weight:700">NF '+n.nf+' <span style="font-weight:400;color:var(--muted)">— '+(n.cliente||'—')+'</span></div>'
+        +'<div style="font-size:10px;color:var(--muted)">'+dtFmt+' · '+(n.estado||'—')+' · '+n.itens+' item(ns)</div></div>'
+        +'</label>';
+    }).join('');
+  }
+  document.getElementById('calcVolImportarSelInfo').textContent=_calcVolNFsSelecionadas.size>0?_calcVolNFsSelecionadas.size+' NF(s) selecionada(s)':'';
+}
+function calcVolToggleNFSelecionada(nf){
+  if(_calcVolNFsSelecionadas.has(nf))_calcVolNFsSelecionadas.delete(nf);
+  else _calcVolNFsSelecionadas.add(nf);
+  calcVolRenderListaImportar();
+}
+function calcVolToggleTodosImportar(marcar){
+  const busca=normalizarTexto(document.getElementById('calcVolImportarBusca').value||'');
+  const mes=document.getElementById('calcVolImportarMes').value;
+  const lista=_calcVolNFsUnicas().filter(function(n){
+    if(mes&&n.mes!==mes)return false;
+    if(busca&&!normalizarTexto(n.nf+' '+n.cliente).includes(busca))return false;
+    return true;
+  });
+  lista.forEach(function(n){
+    if(marcar)_calcVolNFsSelecionadas.add(n.nf);
+    else _calcVolNFsSelecionadas.delete(n.nf);
+  });
+  calcVolRenderListaImportar();
+}
+async function calcVolConfirmarImportar(){
+  if(!_calcVolNFsSelecionadas.size){showT('Selecione pelo menos uma NF','erro');return;}
+  const linhas=(fatDados||[]).filter(function(r){return !r.excluida&&_calcVolNFsSelecionadas.has(r.nf);});
+  if(!linhas.length){showT('Nenhum item encontrado nessas NFs','erro');return;}
+  calcVolFecharImportarFaturamento();
+  showT('Importando '+linhas.length+' item(ns)...','');
+  for(const r of linhas){
+    const codigo=r.cod_item||r.produto||r.item;
+    const nome=r.item||r.produto||r.descricao||('Item '+codigo);
+    const qtd=parseFloat(r.quantidade)||0;
+    const uf=(r.estado||r.uf||'').toString().trim().toUpperCase().slice(0,2);
+    const mes=mesAnoDeData(r.dt_emissao)||mesAnoDeData(r.mes_ano&&(String(r.mes_ano).split('/').reverse().join('-')));
+    if(!codigo||qtd<=0)continue;
+    await _calcVolInserirOuSomar(codigo,nome,qtd,uf,mes);
+  }
+  calcVolRender();
+  showT(_calcVolNFsSelecionadas.size+' NF(s) importada(s) ✓','verde');
+  _calcVolNFsSelecionadas.clear();
+}
+
+// Importa planilha Excel no mesmo molde da importação de Faturamento (mesmas colunas:
+// "Cód. Item", "Item", "Quantidade", "Estado" etc.) — mas só calcula na hora, nada é
+// gravado na tabela vendas nem em nenhum outro lugar do banco.
+function calcVolImportarPlanilha(input){
+  const file=input.files[0];
+  if(!file)return;
+  showT('Lendo planilha...','');
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    try{
+      const XLSX=window.XLSX;
+      if(!XLSX){showT('Biblioteca XLSX não carregada','erro');return;}
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+
+      const registros=rows.filter(function(r){
+        return r['Cód. Item']&&r['Quantidade'];
+      }).map(function(r){
+        let dtEmissao=null;
+        if(r['Dt. Emissão']){
+          const parts=String(r['Dt. Emissão']).split('/');
+          if(parts.length===3)dtEmissao=parts[2]+'-'+parts[1]+'-'+parts[0];
+        }
+        return{
+          codigo:String(r['Cód. Item']||''),
+          nome:String(r['Item']||'')||('Item '+r['Cód. Item']),
+          quantidade:parseFloat(r['Quantidade'])||0,
+          uf:String(r['Estado']||r['UF']||'').trim().toUpperCase().slice(0,2),
+          mes:mesAnoDeData(dtEmissao)||mesAnoDeData(r['Mês/Ano']&&(String(r['Mês/Ano']).split('/').reverse().join('-')))
+        };
+      });
+
+      if(!registros.length){
+        showT('Nenhum registro válido — confira se a planilha tem as colunas "Cód. Item", "Item", "Quantidade" e "Estado"','erro');
+        input.value='';
+        return;
+      }
+
+      showT('Calculando '+registros.length+' item(ns)...','');
+      for(const r of registros){
+        if(!r.codigo||r.quantidade<=0)continue;
+        await _calcVolInserirOuSomar(r.codigo,r.nome,r.quantidade,r.uf,r.mes);
+      }
+      calcVolRender();
+      showT(registros.length+' item(ns) da planilha calculado(s) ✓','verde');
+    }catch(err){
+      console.error('Erro ao importar planilha na calculadora:',err);
+      showT('Erro ao ler planilha: '+err.message,'erro');
+    }
+    input.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+function calcVolRemoverItem(uid){
+  _calcVolItens=_calcVolItens.filter(function(it){return it.uid!==uid;});
+  _calcVolSelecionados.delete(uid);
+  calcVolRender();
+}
+function calcVolToggleSelecao(uid){
+  if(_calcVolSelecionados.has(uid))_calcVolSelecionados.delete(uid);
+  else _calcVolSelecionados.add(uid);
+  calcVolRender();
+}
+function calcVolJuntarSelecionados(){
+  if(_calcVolSelecionados.size<2){showT('Selecione pelo menos 2 itens pra juntar','erro');return;}
+  const selecionados=_calcVolItens.filter(function(it){return _calcVolSelecionados.has(it.uid);});
+  const codigos=[].concat.apply([],selecionados.map(function(it){return it.codigos;}));
+  const nome=selecionados.map(function(it){return it.nome;}).join(' + ');
+  const quantidade=selecionados.reduce(function(s,it){return s+it.quantidade;},0);
+  const pesoTotal=selecionados.reduce(function(s,it){return s+it.pesoTotal;},0);
+  const volumeTotal=selecionados.reduce(function(s,it){return s+it.volumeTotal;},0);
+  const caixasTotal=selecionados.reduce(function(s,it){return s+it.caixasTotal;},0);
+  const caixasPorTipo={};
+  selecionados.forEach(function(it){
+    Object.keys(it.caixasPorTipo||{}).forEach(function(k){caixasPorTipo[k]=(caixasPorTipo[k]||0)+it.caixasPorTipo[k];});
+  });
+  const temPeso=selecionados.every(function(it){return it.temPeso;});
+  const tipoCaixa=selecionados.every(function(it){return it.tipoCaixa;})?'misto':null;
+  const cor=selecionados.find(function(it){return it.cor;})?.cor||null;
+  // Destino: se todos forem do mesmo UF, mantém; senão, marca como "vários"
+  const ufs=Array.from(new Set(selecionados.map(function(it){return it.uf||'';})));
+  const uf=ufs.length===1?ufs[0]:'VARIOS';
+  const meses=Array.from(new Set(selecionados.map(function(it){return it.mes||'';})));
+  const mes=meses.length===1?meses[0]:'VARIOS';
+  const novo={uid:_calcVolUidSeq++,codigos:codigos,nome:nome,quantidade:quantidade,uf:uf,mes:mes,pesoTotal:pesoTotal,volumeTotal:volumeTotal,caixasTotal:caixasTotal,caixasPorTipo:caixasPorTipo,temPeso:temPeso,tipoCaixa:tipoCaixa,cor:cor,juntado:true};
+  _calcVolItens=_calcVolItens.filter(function(it){return !_calcVolSelecionados.has(it.uid);});
+  _calcVolItens.push(novo);
+  _calcVolSelecionados.clear();
+  calcVolRender();
+  showT('Itens juntados em 1 linha ✓','verde');
+}
+function calcVolSetCor(uid,cor){
+  const it=_calcVolItens.find(function(x){return x.uid===uid;});
+  if(it)it.cor=cor;
+  calcVolRender();
+}
+
+let _calcVolExpandido=new Set(); // chaves de nome que estão expandidas (mostrando estados)
+
+// Chave normalizada de nome pra detectar itens "parecidos" (mesmo produto, código diferente)
+function _calcVolNomeChave(nome){
+  return normalizarTexto(nome||'').replace(/[^\w\s]/g,' ').replace(/\s+/g,' ').trim();
+}
+
+// Detecta grupos de itens com nomes praticamente iguais mas códigos diferentes
+function calcVolSugestoesAgrupamento(){
+  const porChave={};
+  _calcVolItens.forEach(function(it){
+    const chave=_calcVolNomeChave(it.nome);
+    if(!porChave[chave])porChave[chave]=[];
+    porChave[chave].push(it);
+  });
+  return Object.keys(porChave).map(function(chave){return porChave[chave];}).filter(function(grupo){
+    const codigosUnicos=new Set([].concat.apply([],grupo.map(function(it){return it.codigos;})));
+    return codigosUnicos.size>1; // só sugere se houver mais de 1 código distinto envolvido
+  });
+}
+function calcVolJuntarGrupo(uidsStr){
+  const uids=uidsStr.split(',').map(Number);
+  _calcVolSelecionados=new Set(uids);
+  calcVolJuntarSelecionados();
+}
+
+function calcVolRender(){
+  const lista=document.getElementById('calcVolLista');
+  const totaisEl=document.getElementById('calcVolTotais');
+  const caixasBreakEl=document.getElementById('calcVolCaixasBreak');
+  const regiaoBreakEl=document.getElementById('calcVolRegiaoBreak');
+  const sugestoesEl=document.getElementById('calcVolSugestoes');
+  const btnJuntar=document.getElementById('calcVolBtnJuntar');
+  const selInfo=document.getElementById('calcVolSelecaoInfo');
+  btnJuntar.style.display=_calcVolSelecionados.size>=2?'':'none';
+  selInfo.textContent=_calcVolSelecionados.size>0?_calcVolSelecionados.size+' selecionado(s)':'';
+
+  // Sugestões de agrupamento (itens parecidos, códigos diferentes)
+  const sugestoes=calcVolSugestoesAgrupamento();
+  sugestoesEl.innerHTML=!sugestoes.length?'':
+    '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px">'
+    +'<div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:6px">💡 Parecem ser o mesmo item (código diferente) — juntar?</div>'
+    +sugestoes.map(function(grupo){
+      const uids=grupo.map(function(it){return it.uid;}).join(',');
+      const nomes=grupo.map(function(it){return it.nome+' <span style="color:#92400e;font-weight:600">('+it.codigos.join('+')+')</span>';}).join(' <span style="color:#b45309">+</span> ');
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;font-size:11px;color:#78350f">'
+        +'<span>'+nomes+'</span>'
+        +'<button onclick="calcVolJuntarGrupo(\''+uids+'\')" style="background:#f59e0b;color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">🔗 Juntar</button>'
+        +'</div>';
+    }).join('')
+    +'</div>';
+
+  // Popular o filtro de item (preserva a seleção atual se ainda existir)
+  const filtroSel=document.getElementById('calcVolFiltroItem');
+  const nomesUnicos=[...new Set(_calcVolItens.map(function(it){return it.nome;}))].sort();
+  const valorFiltroAtual=filtroSel.value;
+  filtroSel.innerHTML='<option value="">Ver todos os itens (visão geral)</option>'+nomesUnicos.map(function(n){return '<option value="'+n.replace(/"/g,'&quot;')+'">'+n+'</option>';}).join('');
+  if(nomesUnicos.includes(valorFiltroAtual))filtroSel.value=valorFiltroAtual;
+  const filtroItem=filtroSel.value;
+
+  if(!_calcVolItens.length){
+    lista.innerHTML='<div style="font-size:12px;color:var(--muted);padding:16px;text-align:center">Nenhum item adicionado ainda.</div>';
+    totaisEl.innerHTML='';caixasBreakEl.innerHTML='';regiaoBreakEl.innerHTML='';document.getElementById('calcVolMesBreak').innerHTML='';
+    return;
+  }
+
+  // Base pra todos os cálculos (totais, breakdowns) — respeita o filtro de item, se houver
+  const itensBase=filtroItem?_calcVolItens.filter(function(it){return it.nome===filtroItem;}):_calcVolItens;
+
+  let pesoTotal=0,volumeTotal=0,caixasTotal=0,semPeso=0,semCaixa=0;
+  const caixasPorTipoGeral={};
+  const porUf={},porRegiao={},porMes={};
+  itensBase.forEach(function(it){
+    pesoTotal+=it.pesoTotal;volumeTotal+=it.volumeTotal;caixasTotal+=it.caixasTotal;
+    if(!it.temPeso)semPeso++;
+    if(!it.tipoCaixa)semCaixa++;
+    Object.keys(it.caixasPorTipo||{}).forEach(function(k){caixasPorTipoGeral[k]=(caixasPorTipoGeral[k]||0)+it.caixasPorTipo[k];});
+    const ufKey=it.uf||'—';
+    if(!porUf[ufKey])porUf[ufKey]={peso:0,volume:0,caixas:0};
+    porUf[ufKey].peso+=it.pesoTotal;porUf[ufKey].volume+=it.volumeTotal;porUf[ufKey].caixas+=it.caixasTotal;
+    const regiaoKey=UF_REGIAO[it.uf]||'Sem destino';
+    if(!porRegiao[regiaoKey])porRegiao[regiaoKey]={peso:0,volume:0,caixas:0};
+    porRegiao[regiaoKey].peso+=it.pesoTotal;porRegiao[regiaoKey].volume+=it.volumeTotal;porRegiao[regiaoKey].caixas+=it.caixasTotal;
+    const mesKey=it.mes||'Sem data';
+    if(!porMes[mesKey])porMes[mesKey]={peso:0,volume:0,caixas:0};
+    porMes[mesKey].peso+=it.pesoTotal;porMes[mesKey].volume+=it.volumeTotal;porMes[mesKey].caixas+=it.caixasTotal;
+  });
+
+  // ── Agrupar por produto (nome) — cada grupo mostra o total e expande pra ver por estado ──
+  const busca=normalizarTexto(document.getElementById('calcVolBuscaLista')?.value||'');
+  const porNome={};
+  itensBase.forEach(function(it){
+    if(busca){
+      const alvo=normalizarTexto(it.nome+' '+it.codigos.join(' '));
+      if(!alvo.includes(busca))return;
+    }
+    if(!porNome[it.nome])porNome[it.nome]=[];
+    porNome[it.nome].push(it);
+  });
+  const gruposNome=Object.keys(porNome);
+
+  if(!gruposNome.length){
+    lista.innerHTML='<div style="font-size:12px;color:var(--muted);padding:16px;text-align:center">Nenhum item encontrado pra "'+document.getElementById('calcVolBuscaLista').value+'".</div>';
+  }else{
+    lista.innerHTML=gruposNome.map(function(nome){
+      const itens=porNome[nome];
+      const gPeso=itens.reduce(function(s,it){return s+it.pesoTotal;},0);
+      const gVolume=itens.reduce(function(s,it){return s+it.volumeTotal;},0);
+      const gQtd=itens.reduce(function(s,it){return s+it.quantidade;},0);
+      const gCodigos=[...new Set([].concat.apply([],itens.map(function(it){return it.codigos;})))];
+      const semPesoG=itens.some(function(it){return !it.temPeso;});
+      const semCaixaG=itens.some(function(it){return !it.tipoCaixa;});
+      const chaveExp='n:'+nome;
+      const expandido=itens.length>1?_calcVolExpandido.has(chaveExp):true; // item com 1 só estado já mostra direto
+      const temVarios=itens.length>1;
+
+      const linhaCabecalho='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;'+(temVarios?'cursor:pointer':'')+'" '+(temVarios?'onclick="calcVolToggleExpandido(\''+chaveExp.replace(/'/g,"\\'")+'\')"':'')+'>'
+        +(temVarios?'<span style="font-size:10px;color:var(--muted);width:12px">'+(expandido?'▾':'▸'):'<span style="width:12px">')+'</span>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="font-size:11px;color:var(--muted)">'+gCodigos.join(' + ')+(temVarios?' · 📍 '+itens.length+' estado(s)':(itens[0].uf?' · 📍'+itens[0].uf:''))+(semPesoG?' <span style="color:#b45309">⚠ sem peso</span>':'')+(semCaixaG?' <span style="color:#b45309">⚠ sem caixa</span>':'')+'</div>'
+        +'<div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</div>'
+        +'</div>'
+        +'<div style="font-size:12px;color:var(--muted);min-width:60px;text-align:right">'+gQtd+' un</div>'
+        +'<div style="font-size:12px;font-weight:700;min-width:70px;text-align:right">'+(gPeso>0?gPeso.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' kg':'—')+'</div>'
+        +'<div style="font-size:12px;font-weight:700;min-width:90px;text-align:right">'+(gVolume>0?gVolume.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³':'—')+'</div>'
+        +'<span style="width:20px"></span>'
+        +'</div>';
+
+      const linhasDetalhe=!expandido?'':itens.map(function(it){
+        const paletaSwatches=CALC_VOL_CORES.map(function(c){
+          return '<span onclick="event.stopPropagation();calcVolSetCor('+it.uid+',\''+c+'\')" style="width:12px;height:12px;border-radius:3px;background:'+c+';display:inline-block;cursor:pointer;border:1px solid rgba(0,0,0,.15);margin-right:3px"></span>';
+        }).join('')+'<span onclick="event.stopPropagation();calcVolSetCor('+it.uid+',null)" style="width:12px;height:12px;border-radius:3px;background:#fff;display:inline-block;cursor:pointer;border:1px solid #cbd5e1;font-size:8px;text-align:center;line-height:11px;color:#94a3b8">✕</span>';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0 5px 22px;border-top:1px solid var(--borda);'+(it.cor?'background:'+it.cor+';border-radius:6px':'')+'">'
+          +'<input type="checkbox" '+(_calcVolSelecionados.has(it.uid)?'checked':'')+' onclick="event.stopPropagation()" onchange="calcVolToggleSelecao('+it.uid+')">'
+          +'<div style="flex:1;min-width:0;font-size:11px;color:var(--muted)">📍 '+(it.uf||'sem destino')+(it.mes&&it.mes!=='VARIOS'?' · 🗓 '+rotuloMesAno(it.mes):(it.mes==='VARIOS'?' · 🗓 vários meses':''))+(it.juntado?' <span style="font-size:9px;color:#7c3aed;font-weight:700">JUNTADO</span>':'')+' '+paletaSwatches+'</div>'
+          +'<div style="font-size:11px;color:var(--muted);min-width:60px;text-align:right">'+it.quantidade+' un</div>'
+          +'<div style="font-size:11px;font-weight:600;min-width:70px;text-align:right">'+(it.pesoTotal>0?it.pesoTotal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' kg':'—')+'</div>'
+          +'<div style="font-size:11px;font-weight:600;min-width:90px;text-align:right">'+(it.volumeTotal>0?it.volumeTotal.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³':'—')+'</div>'
+          +'<button onclick="event.stopPropagation();calcVolRemoverItem('+it.uid+')" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:13px;padding:4px">✕</button>'
+          +'</div>';
+      }).join('');
+
+      return '<div style="border-bottom:1px solid var(--borda)">'+linhaCabecalho+linhasDetalhe+'</div>';
+    }).join('');
+  }
+
+  totaisEl.innerHTML=
+    '<div><div style="font-size:9px;font-weight:700;color:#94a3b8">PESO BRUTO TOTAL</div><div style="font-size:20px;font-weight:700;color:var(--texto)">'+pesoTotal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' kg</div></div>'
+    +'<div><div style="font-size:9px;font-weight:700;color:#94a3b8">VOLUME TOTAL</div><div style="font-size:20px;font-weight:700;color:var(--texto)">'+volumeTotal.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³</div></div>'
+    +'<div><div style="font-size:9px;font-weight:700;color:#94a3b8">CAIXAS</div><div style="font-size:20px;font-weight:700;color:var(--texto)">'+caixasTotal+'</div></div>'
+    +(semPeso||semCaixa?'<div style="flex-basis:100%;font-size:11px;color:#b45309;margin-top:4px">⚠ '+(semPeso?semPeso+' item(ns) sem peso':'')+(semPeso&&semCaixa?' · ':'')+(semCaixa?semCaixa+' item(ns) sem caixa':'')+' — total pode estar subestimado</div>':'');
+
+  // Breakdown por tipo de caixa
+  const chavesCaixa=Object.keys(caixasPorTipoGeral);
+  caixasBreakEl.innerHTML=!chavesCaixa.length?'':
+    '<div style="font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px">CAIXAS POR TAMANHO</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+    +chavesCaixa.map(function(k){
+      return '<div style="padding:8px 12px;background:var(--fundo-suave,#f8fafc);border-radius:8px;border:1px solid var(--borda)">'
+        +'<div style="font-size:11px;font-weight:600">'+TIPOS_CAIXA[k].nome+'</div>'
+        +'<div style="font-size:16px;font-weight:700;color:var(--texto)">'+caixasPorTipoGeral[k]+'×</div>'
+        +'</div>';
+    }).join('')
+    +'</div>';
+
+  // Breakdown por UF e por região
+  function tabelaBreak(titulo,mapa,ordem){
+    const chaves=ordem?ordem.filter(function(k){return mapa[k];}).concat(Object.keys(mapa).filter(function(k){return ordem.indexOf(k)===-1;})):Object.keys(mapa);
+    if(!chaves.length)return '';
+    return '<div style="flex:1;min-width:220px">'
+      +'<div style="font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px">'+titulo+'</div>'
+      +'<table style="width:100%;font-size:11px;border-collapse:collapse">'
+      +chaves.map(function(k){
+        const v=mapa[k];
+        return '<tr style="border-bottom:1px solid var(--borda)"><td style="padding:4px 0;font-weight:600">'+k+'</td>'
+          +'<td style="padding:4px 0;text-align:right">'+v.peso.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' kg</td>'
+          +'<td style="padding:4px 0 4px 10px;text-align:right">'+v.volume.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³</td>'
+          +'<td style="padding:4px 0 4px 10px;text-align:right;color:var(--muted)">'+v.caixas+' cx</td></tr>';
+      }).join('')
+      +'</table></div>';
+  }
+  regiaoBreakEl.innerHTML=tabelaBreak('POR ESTADO',porUf,null)+tabelaBreak('POR REGIÃO',porRegiao,ORDEM_REGIOES);
+
+  // Breakdown por mês — detectado automaticamente a partir das datas das NFs/planilhas importadas
+  const mesesEl=document.getElementById('calcVolMesBreak');
+  const chavesMes=Object.keys(porMes).filter(function(k){return k!=='Sem data';}).sort();
+  if(porMes['Sem data'])chavesMes.push('Sem data');
+  if(chavesMes.length<=1&&!porMes['Sem data']){
+    mesesEl.innerHTML=''; // só 1 mês (ou nenhum) — não vale a pena mostrar quebra
+  }else{
+    mesesEl.innerHTML='<div style="font-size:10px;font-weight:700;color:#94a3b8;margin-bottom:6px">TOTAL POR MÊS <span style="font-weight:400;text-transform:none">(detectado automaticamente pelas datas importadas)</span></div>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+      +chavesMes.map(function(k){
+        const v=porMes[k];
+        const label=k==='Sem data'?'Sem data':rotuloMesAno(k);
+        return '<div style="padding:8px 12px;background:var(--fundo-suave,#f8fafc);border-radius:8px;border:1px solid var(--borda);min-width:140px">'
+          +'<div style="font-size:11px;font-weight:700">'+label+'</div>'
+          +'<div style="font-size:12px;color:var(--texto);margin-top:2px">'+v.peso.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' kg</div>'
+          +'<div style="font-size:11px;color:var(--muted)">'+v.volume.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³ · '+v.caixas+' cx</div>'
+          +'</div>';
+      }).join('')
+      +'</div>';
+  }
+}
+function calcVolToggleExpandido(chave){
+  if(_calcVolExpandido.has(chave))_calcVolExpandido.delete(chave);
+  else _calcVolExpandido.add(chave);
+  calcVolRender();
+}
+
+
+function calcVolExportarExcel(){
+  if(!_calcVolItens.length){showT('Adicione pelo menos um item antes de exportar','erro');return;}
+  const titulo=(document.getElementById('calcVolMesInput').value||'').trim();
+  const filtroItem=document.getElementById('calcVolFiltroItem').value;
+  const itensExport=filtroItem?_calcVolItens.filter(function(it){return it.nome===filtroItem;}):_calcVolItens;
+  const linhas=[];
+  linhas.push(['CALCULADORA DE VOLUMETRIA'+(filtroItem?' — '+filtroItem:'')]);
+  if(titulo)linhas.push(['Título',titulo]);
+  linhas.push(['Gerado em',new Date().toLocaleDateString('pt-BR')]);
+  linhas.push([]);
+  linhas.push(['Código(s)','Item','UF','Região','Mês','Quantidade','Peso Bruto (kg)','Volume (m³)']);
+  const corPorLinha={};
+  const porUf={},porRegiao={},porMes={},caixasPorTipoGeral={};
+  itensExport.forEach(function(it){
+    corPorLinha[linhas.length]=it.cor;
+    const regiao=UF_REGIAO[it.uf]||'Sem destino';
+    const mesLabel=it.mes==='VARIOS'?'Vários meses':(it.mes?rotuloMesAno(it.mes):'Sem data');
+    linhas.push([it.codigos.join(' + '),it.nome,it.uf||'—',regiao,mesLabel,it.quantidade,Number(it.pesoTotal.toFixed(3)),Number(it.volumeTotal.toFixed(4))]);
+    const ufKey=it.uf||'—';
+    if(!porUf[ufKey])porUf[ufKey]={peso:0,volume:0,caixas:0};
+    porUf[ufKey].peso+=it.pesoTotal;porUf[ufKey].volume+=it.volumeTotal;porUf[ufKey].caixas+=it.caixasTotal;
+    if(!porRegiao[regiao])porRegiao[regiao]={peso:0,volume:0,caixas:0};
+    porRegiao[regiao].peso+=it.pesoTotal;porRegiao[regiao].volume+=it.volumeTotal;porRegiao[regiao].caixas+=it.caixasTotal;
+    const mesKey=it.mes||'Sem data';
+    if(!porMes[mesKey])porMes[mesKey]={peso:0,volume:0,caixas:0};
+    porMes[mesKey].peso+=it.pesoTotal;porMes[mesKey].volume+=it.volumeTotal;porMes[mesKey].caixas+=it.caixasTotal;
+    Object.keys(it.caixasPorTipo||{}).forEach(function(k){caixasPorTipoGeral[k]=(caixasPorTipoGeral[k]||0)+it.caixasPorTipo[k];});
+  });
+  const totalPeso=itensExport.reduce(function(s,it){return s+it.pesoTotal;},0);
+  const totalVolume=itensExport.reduce(function(s,it){return s+it.volumeTotal;},0);
+  const totalCaixas=itensExport.reduce(function(s,it){return s+it.caixasTotal;},0);
+  linhas.push(['','TOTAL','','','',itensExport.reduce(function(s,it){return s+it.quantidade;},0),Number(totalPeso.toFixed(3)),Number(totalVolume.toFixed(4))]);
+  linhas.push([]);
+
+  linhas.push(['TOTAL POR ESTADO']);
+  linhas.push(['UF','Peso (kg)','Volume (m³)','Caixas']);
+  Object.keys(porUf).forEach(function(k){
+    linhas.push([k,Number(porUf[k].peso.toFixed(3)),Number(porUf[k].volume.toFixed(4)),porUf[k].caixas]);
+  });
+  linhas.push([]);
+
+  linhas.push(['TOTAL POR REGIÃO']);
+  linhas.push(['Região','Peso (kg)','Volume (m³)','Caixas']);
+  ORDEM_REGIOES.concat(['Sem destino']).forEach(function(k){
+    if(porRegiao[k])linhas.push([k,Number(porRegiao[k].peso.toFixed(3)),Number(porRegiao[k].volume.toFixed(4)),porRegiao[k].caixas]);
+  });
+  linhas.push([]);
+
+  linhas.push(['TOTAL POR MÊS (detectado automaticamente pelas datas importadas)']);
+  linhas.push(['Mês','Peso (kg)','Volume (m³)','Caixas']);
+  Object.keys(porMes).sort().forEach(function(k){
+    const label=k==='Sem data'?'Sem data':(k==='VARIOS'?'Vários meses':rotuloMesAno(k));
+    linhas.push([label,Number(porMes[k].peso.toFixed(3)),Number(porMes[k].volume.toFixed(4)),porMes[k].caixas]);
+  });
+  linhas.push([]);
+
+  linhas.push(['CAIXAS POR TAMANHO']);
+  linhas.push(['Tipo de caixa','Quantidade']);
+  Object.keys(caixasPorTipoGeral).forEach(function(k){
+    linhas.push([TIPOS_CAIXA[k].nome,caixasPorTipoGeral[k]]);
+  });
+  linhas.push(['TOTAL DE CAIXAS',totalCaixas]);
+
+  const ws=XLSX.utils.aoa_to_sheet(linhas);
+  ws['!cols']=[{wch:22},{wch:34},{wch:8},{wch:14},{wch:14},{wch:12},{wch:16},{wch:14}];
+  Object.keys(corPorLinha).forEach(function(rowIdx){
+    const cor=corPorLinha[rowIdx];
+    if(!cor)return;
+    const ref=XLSX.utils.encode_cell({r:Number(rowIdx),c:1});
+    if(ws[ref]){
+      ws[ref].s={fill:{patternType:'solid',fgColor:{rgb:cor.replace('#','')},bgColor:{rgb:cor.replace('#','')}}};
+    }
+  });
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Volumetria');
+  const nomeArquivo='Volumetria'+(filtroItem?'_'+filtroItem.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30):'')+(titulo?'_'+titulo.replace(/[^a-zA-Z0-9]/g,'_'):'')+'.xlsx';
+  XLSX.writeFile(wb,nomeArquivo,{cellStyles:true});
+  showT('Excel exportado ✓ (cor de fundo pode não aparecer dependendo do Excel/versão da biblioteca)','verde');
+}
+
+async function conferirPesoBrutoFaltante(registros){
+  if(!registros||!registros.length)return;
+  await carregarPesosFaturamento();
+
+  // Itens únicos vendidos nesta importação (qualquer código que aparece na NF,
+  // esteja ele cadastrado como produto no GEx ou não)
+  const vistos={};
+  const itensSemPeso=[];
+  registros.forEach(function(r){
+    const cod=r.cod_item;
+    if(!cod||vistos[cod])return;
+    vistos[cod]=true;
+    const temPeso=_pesosFaturamento[cod]>0;
+    if(!temPeso)itensSemPeso.push({codigo:cod,nome:r.item||cod});
+  });
+
+  if(!itensSemPeso.length)return;   // tudo certo, nada a fazer
+
+  const ov=document.createElement('div');
+  ov.id='pesoFaltanteOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99997;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
+  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
+    +'<div style="font-weight:800;font-size:16px;margin-bottom:4px">⚖️ Peso bruto faltando</div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:16px">'+itensSemPeso.length+' produto(s) desta importação ainda não têm peso bruto cadastrado. Preencha para manter o cálculo de peso das notas sempre completo — ou pule e complete depois.</div>'
+    +'<div id="pesoFaltanteLista" style="max-height:50vh;overflow-y:auto;margin-bottom:16px"></div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:8px">'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'pesoFaltanteOverlay\').remove()">Pular por agora</button>'
+    +'<button class="btn-salvar-mod" onclick="salvarPesosFaltantes()">💾 Salvar pesos</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+
+  const lista=document.getElementById('pesoFaltanteLista');
+  lista.innerHTML=itensSemPeso.map(function(it,i){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--borda)">'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:11px;color:var(--muted)">'+it.codigo+'</div>'
+      +'<div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+it.nome+'</div>'
+      +'</div>'
+      +'<input type="number" step="0.001" min="0" placeholder="kg" data-cod="'+it.codigo+'" data-nome="'+it.nome.replace(/"/g,'&quot;')+'" class="peso-falt-input" style="width:90px;padding:6px;border:1px solid var(--borda);border-radius:6px;text-align:right">'
+      +'</div>';
+  }).join('');
+}
+
+async function salvarPesosFaltantes(){
+  const inputs=Array.from(document.querySelectorAll('.peso-falt-input'));
+  const preenchidos=inputs.filter(function(inp){return parseFloat(inp.value)>0;});
+  if(!preenchidos.length){showT('Preencha ao menos um peso, ou clique em "Pular por agora"','erro');return;}
+
+  const rows=preenchidos.map(function(inp){
+    return{codigo:inp.dataset.cod,nome:inp.dataset.nome,peso_bruto:parseFloat(inp.value)};
+  });
+  const {error}=await sb.from('faturamento_item_peso').upsert(rows,{onConflict:'codigo'});
+  if(error){showT('Erro ao salvar: '+error.message,'erro');return;}
+
+  // Atualiza a memória local pra já valer sem precisar recarregar a página
+  rows.forEach(function(r){
+    if(!_pesosFaturamento)_pesosFaturamento={};
+    _pesosFaturamento[r.codigo]=r.peso_bruto;
+  });
+
+  document.getElementById('pesoFaltanteOverlay').remove();
+  showT(preenchidos.length+' peso(s) salvo(s) ✓','verde');
+
+  const faltouAlgum=inputs.length>preenchidos.length;
+  if(faltouAlgum)showT((inputs.length-preenchidos.length)+' item(ns) ainda sem peso — importe de novo ou edite o produto depois','');
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -10495,19 +11666,36 @@ function filtrarPorGrupo(g){
 }
 
 // Detalhe do cliente
-function abrirClienteDetalhe(cod){
+async function abrirClienteDetalhe(cod){
   const dados=getDadosFiltrados().filter(function(r){return r.cod_cliente===cod&&!r.excluida;});
   if(!dados.length)return;
   const cliente=dados[0];
   const grupo=GRUPOS[fatGrupos[cod]||'venda_direta'];
   const fmt=function(v){return'R$ '+(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2});};
+  await carregarPesosFaturamento();
 
-  // Agrupar por NF
+  // Agrupar por NF (peso bruto: quantidade × peso do produto · volume: caixas × dimensão)
   const porNF={};
+  let algumSemPeso=false, algumSemCaixa=false;
   dados.forEach(function(r){
     if(!r.nf)return;
-    if(!porNF[r.nf])porNF[r.nf]={nf:r.nf,dt:r.dt_emissao,total:0,itens:[],transp:r.transportadora,cond:r.cond_pagamento};
+    if(!porNF[r.nf])porNF[r.nf]={nf:r.nf,dt:r.dt_emissao,total:0,peso:0,semPeso:false,volume:0,caixas:0,semCaixa:false,itens:[],transp:r.transportadora,cond:r.cond_pagamento};
     porNF[r.nf].total+=parseFloat(r.v_total||0);
+    const pesoUnit=_pesosFaturamento[r.cod_item];
+    if(pesoUnit>0){
+      porNF[r.nf].peso+=parseFloat(r.quantidade||0)*pesoUnit;
+    }else{
+      porNF[r.nf].semPeso=true;
+      algumSemPeso=true;
+    }
+    const vol=volumeDoItem(r.item,r.quantidade);
+    if(vol.tipo){
+      porNF[r.nf].volume+=vol.volume;
+      porNF[r.nf].caixas+=vol.caixas;
+    }else{
+      porNF[r.nf].semCaixa=true;
+      algumSemCaixa=true;
+    }
     porNF[r.nf].itens.push(r);
   });
 
@@ -10524,6 +11712,11 @@ function abrirClienteDetalhe(cod){
   const totalCliente=dados.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
   const nfs=Object.values(porNF).sort(function(a,b){return b.nf.localeCompare(a.nf);});
   const prods=Object.values(porProd).sort(function(a,b){return b.total-a.total;});
+  const pesoTotalCliente=nfs.reduce(function(s,nf){return s+nf.peso;},0);
+  const volumeTotalCliente=nfs.reduce(function(s,nf){return s+nf.volume;},0);
+  const caixasTotalCliente=nfs.reduce(function(s,nf){return s+nf.caixas;},0);
+  const fmtKg=function(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:v<10?3:1,maximumFractionDigits:v<10?3:1})+' kg';};
+  const fmtM3=function(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:3,maximumFractionDigits:3})+' m³';};
 
   document.getElementById('detalheClienteTitle').innerHTML=
     '<span style="color:'+grupo.cor+'">'+grupo.label+'</span> · '+cliente.cliente+
@@ -10543,6 +11736,16 @@ function abrirClienteDetalhe(cod){
       '<div style="background:#f8fafc;border-radius:10px;padding:12px 16px;flex:1;min-width:120px">'+
         '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:600">Produtos</div>'+
         '<div style="font-size:20px;font-weight:700;color:var(--texto)">'+prods.length+'</div>'+
+      '</div>'+
+      '<div style="background:#f8fafc;border-radius:10px;padding:12px 16px;flex:1;min-width:120px">'+
+        '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:600">⚖️ Peso Bruto</div>'+
+        '<div style="font-size:20px;font-weight:700;color:var(--texto)">'+fmtKg(pesoTotalCliente)+'</div>'+
+        (algumSemPeso?'<div style="font-size:9px;color:#b45309;margin-top:2px">parcial — falta peso de algum item</div>':'')+
+      '</div>'+
+      '<div style="background:#f8fafc;border-radius:10px;padding:12px 16px;flex:1;min-width:120px">'+
+        '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:600">📦 Volume</div>'+
+        '<div style="font-size:20px;font-weight:700;color:var(--texto)">'+fmtM3(volumeTotalCliente)+'</div>'+
+        '<div style="font-size:9px;color:var(--muted-light);margin-top:2px">'+caixasTotalCliente+' caixa(s)'+(algumSemCaixa?' · parcial':'')+'</div>'+
       '</div>'+
     '</div>'+
 
@@ -10569,6 +11772,8 @@ function abrirClienteDetalhe(cod){
             '<div style="font-size:13px;font-weight:700;color:var(--texto)">NF '+nf.nf+'</div>'+
             '<div style="font-size:11px;color:var(--muted);flex:1">'+nf.dt+'</div>'+
             '<div style="font-size:11px;color:var(--muted)">'+nf.transp+'</div>'+
+            '<div style="font-size:11px;color:var(--muted);min-width:60px;text-align:right">'+(nf.peso>0?('⚖️ '+fmtKg(nf.peso)):'')+(nf.semPeso?' <span style="color:#b45309" title="algum item sem peso cadastrado">⚠</span>':'')+'</div>'+
+            '<div style="font-size:11px;color:var(--muted);min-width:95px;text-align:right">'+(nf.volume>0?('📦 '+fmtM3(nf.volume)+' <span style="color:var(--muted-light)">('+nf.caixas+' cx)</span>'):'')+(nf.semCaixa?' <span style="color:#b45309" title="algum item sem caixa reconhecida">⚠</span>':'')+'</div>'+
             '<div style="font-size:13px;font-weight:700;color:'+grupo.cor+'">'+fmt(nf.total)+'</div>'+
             '<button onclick="event.stopPropagation();editarVendaNF(\''+nf.nf+'\')" style="background:#e0f2fe;color:#0369a1;border:1px solid #7dd3fc;border-radius:4px;padding:2px 8px;font-size:10px">✏️ Editar</button>'+
             '<button onclick="event.stopPropagation();excluirVendaNF(\''+nf.nf+'\')" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:4px;padding:2px 8px;font-size:10px">🗑️ Excluir</button>'+
@@ -10752,9 +11957,13 @@ async function importarFaturamento(input){
       if(duplicadas)msgImport+=' — '+duplicadas+' ignorado(s)';
       showT(msgImport,'verde');
       if(duplicadas)mostrarIgnoradosFaturamento();
+
+      // Confere se a coluna de peso veio preenchida — se vier tudo zerado,
+      // é sinal de que o nome da coluna na planilha não bate com "P.bruto".
       await sbCarregarGrupos();
       await sbCarregarRepresentantes();
       await sbCarregarVendas();
+      await conferirPesoBrutoFaltante(registrosNovos);
     }catch(err){
       console.error('Erro importação:',err);
       showT('Erro ao ler planilha: '+err.message,'erro');
@@ -11975,6 +13184,17 @@ function setTpTipo(t){
   tpTipo=t;
   document.getElementById('tpBtnCF').classList.toggle('active',t==='cf');
   document.getElementById('tpBtnDist').classList.toggle('active',t==='dist');
+  document.getElementById('tpBtnCFNovo').classList.toggle('active',t==='cfnovo');
+  document.getElementById('tpBtnDistNovo').classList.toggle('active',t==='distnovo');
+  const optP=document.getElementById('optParceiro'),optA=document.getElementById('optAlbe');
+  if(optP)optP.style.display=t==='distnovo'?'':'none';
+  if(optA)optA.style.display=t==='distnovo'?'':'none';
+  const btnImp=document.getElementById('btnImportarDistNovo');
+  if(btnImp)btnImp.style.display=t==='distnovo'?'':'none';
+  if(t!=='distnovo'&&(tpUf==='PARCEIRO'||tpUf==='ALBE')){
+    tpUf='';
+    const sel=document.getElementById('tpEstadoSel');if(sel)sel.value='';
+  }
   renderTabelaPrecos();
 }
 
@@ -11991,22 +13211,26 @@ function renderTabelaPrecos(){
     tag.textContent='Selecione o tipo de cliente e o estado';
     return;
   }
-  const tipoLabel=tpTipo==='cf'?'Cliente Final':'Distribuidor';
+  const tipoLabel=nomeTabela(tpTipo);
+  // "Novo" segue o mesmo comportamento visual da tabela original correspondente
+  const ehDistribuidor=(tpTipo==='dist'||tpTipo==='distnovo');
+  const ehClienteFinal=(tpTipo==='cf'||tpTipo==='cfnovo');
   const condEl=document.getElementById('tpCondDist');
   if(condEl){
-    condEl.style.display=tpTipo==='dist'?'flex':'none';
-    condEl.classList.toggle('tp-cond-visible', tpTipo==='dist');
+    condEl.style.display=ehDistribuidor?'flex':'none';
+    condEl.classList.toggle('tp-cond-visible', ehDistribuidor);
   }
   var cfEl=document.getElementById('tpCondCF');
-  if(cfEl)cfEl.style.display=tpTipo==='cf'?'flex':'none';
-  const estados={AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MG:'Minas Gerais',MS:'Mato Grosso do Sul',MT:'Mato Grosso',PA:'Pará',PB:'Paraíba',PE:'Pernambuco',PI:'Piauí',PR:'Paraná',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RO:'Rondônia',RR:'Roraima',RS:'Rio Grande do Sul',SC:'Santa Catarina',SE:'Sergipe',TO:'Tocantins'};
+  if(cfEl)cfEl.style.display=ehClienteFinal?'flex':'none';
+  const estados={AC:'Acre',AL:'Alagoas',AM:'Amazonas',AP:'Amapá',BA:'Bahia',CE:'Ceará',DF:'Distrito Federal',ES:'Espírito Santo',GO:'Goiás',MA:'Maranhão',MG:'Minas Gerais',MS:'Mato Grosso do Sul',MT:'Mato Grosso',PA:'Pará',PB:'Paraíba',PE:'Pernambuco',PI:'Piauí',PR:'Paraná',RJ:'Rio de Janeiro',RN:'Rio Grande do Norte',RO:'Rondônia',RR:'Roraima',RS:'Rio Grande do Sul',SC:'Santa Catarina',SE:'Sergipe',TO:'Tocantins',PARCEIRO:'Parceiro (SP)',ALBE:'Comercial 3 Albe'};
+  const tipoLabelBase=nomeTabelaBase(tpTipo);
   const nomeEstado=estados[tpUf]||tpUf;
-  tag.textContent=`${tipoLabel} · ${tpUf} — ${nomeEstado} · v3 — Maio/2026`;
+  tag.textContent=`${tipoLabelBase} ${tpUf} · v4 — Agosto/2026`;
   // Preencher cabeçalho de impressão
   const hoje=new Date().toLocaleDateString('pt-BR');
   const el2=document.getElementById('tpPrintData');if(el2)el2.textContent=hoje;
-  const el3=document.getElementById('tpPrintTipo');if(el3)el3.textContent=tipoLabel;
-  const el4=document.getElementById('tpPrintEstado');if(el4)el4.textContent=`${tpUf} — ${nomeEstado}`;
+  const el3=document.getElementById('tpPrintTipo');if(el3)el3.textContent=`${tipoLabelBase} ${tpUf}`;
+  const el4=document.getElementById('tpPrintEstado');if(el4)el4.textContent='';
   const CATS_TABELA_EXCLUIR=["📦 Outros"];
 const catEmojis={'🔬 Desinfetantes de Alto Nível':'🔬','🧪 Detergentes Enzimáticos':'🧪','🧴 Desinfetantes de Superfícies':'🧴','✂️ Limpeza e Manutenção de Instrumentais':'✂️'};
   let html='';
@@ -12017,7 +13241,7 @@ const catEmojis={'🔬 Desinfetantes de Alto Nível':'🔬','🧪 Detergentes En
     cat.cods.forEach(cod=>{
       const p=PRODUTOS.find(x=>x.codigo===cod);
       if(!p)return;
-      const pr=tpTipo==='cf'?(p.cf[tpUf]||0):(p.dist[tpUf]||0);
+      const pr=precoPorTabela(p,tpTipo,tpUf);
       const qtd=QTD_CX[cod]||'—';
       const ncm=NCM_MAP[cod]||'—';
       const prFmt=pr>0?`R$ ${pr.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`:'—';
@@ -12028,11 +13252,11 @@ const catEmojis={'🔬 Desinfetantes de Alto Nível':'🔬','🧪 Detergentes En
     });
     html+='</tbody></table></div>';
   });
-  // Kits especiais — só para Cliente Final
-  if(tpTipo==='cf'){
+  // Kits especiais — Cliente Final e Cliente Final Novo
+  if(tpTipo==='cf'||tpTipo==='cfnovo'){
     html+=`<div class="tp-card"><div class="tp-cat-header" data-emoji="📦">📦 Kits Especiais</div><table class="tp-table"><colgroup><col style="width:120px"><col><col style="width:100px"><col style="width:130px"></colgroup><thead><tr><th>Referência</th><th>Descrição</th><th class="c">Qtd Mín.</th><th class="c">Preço (1 galão)</th></tr></thead><tbody>`;
     KITS_CF.forEach(function(kit){
-      var calc=calcPrecoKit(kit,4,tpUf,'cf');
+      var calc=calcPrecoKit(kit,4,tpUf,tpTipo);
       var precoPor1=calc.total>0?(calc.total/4):0;
       var prFmt=precoPor1>0?'R$ '+precoPor1.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
       html+='<tr>'+
@@ -13266,6 +14490,7 @@ function salvarFretesLS(){
 }
 
 function abrirFormNF(id=null){
+  const cv=document.getElementById('calcVolCard');if(cv)cv.style.display='none';
   ftEditando=id;
   document.getElementById('formNFTitulo').innerHTML=(id?'<svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-edit"></use></svg>Editar NF':'<svg class="mh-ico" data-ico viewBox="0 0 24 24"><use href="#i-plus"></use></svg>Nova NF');
   if(id){
@@ -13277,6 +14502,12 @@ function abrirFormNF(id=null){
       document.getElementById('ftValorComercial').value=f.valorComercial||'';
       document.getElementById('ftValorFrete').value=f.valorFrete||'';
       document.getElementById('ftPesoBruto').value=f.pesoBruto||'';
+      document.getElementById('ftVolume').value=f.volume||'';
+      document.getElementById('ftTemBonificacao').checked=!!f.bonificacao;
+      document.getElementById('ftBonifDiv').style.display=f.bonificacao?'block':'none';
+      document.getElementById('ftBonifNF').value=(f.bonificacao&&f.bonificacao.nf)||'';
+      document.getElementById('ftBonifValor').value=(f.bonificacao&&f.bonificacao.valor)||'';
+      document.getElementById('ftBonifPeso').value=(f.bonificacao&&f.bonificacao.peso)||'';
       document.getElementById('ftUf').value=f.uf||'';
       document.getElementById('ftTransportadora').value=f.transportadora||'';
       document.getElementById('ftPrazoEntrega').value=f.prazoEntrega||'';
@@ -13306,7 +14537,9 @@ function fecharFormNF(){
 }
 
 function limparFormNF(){
-  ['ftNF','ftCliente','ftDataEmissao','ftValorComercial','ftValorFrete','ftPesoBruto','ftRastreio','ftObs','ftPrazoEntrega'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['ftNF','ftCliente','ftDataEmissao','ftValorComercial','ftValorFrete','ftPesoBruto','ftVolume','ftRastreio','ftObs','ftPrazoEntrega','ftBonifNF','ftBonifValor','ftBonifPeso'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('ftTemBonificacao').checked=false;
+  document.getElementById('ftBonifDiv').style.display='none';
   document.getElementById('ftUf').value='';
   document.getElementById('ftTransportadora').value='';
   document.getElementById('ftStatus').value='aguardando';
@@ -13317,6 +14550,11 @@ function limparFormNF(){
 function toggleRedespacho(){
   const on=document.getElementById('ftRedespacho').checked;
   document.getElementById('ftRedespDiv').style.display=on?'block':'none';
+}
+
+function toggleBonificacao(){
+  const on=document.getElementById('ftTemBonificacao').checked;
+  document.getElementById('ftBonifDiv').style.display=on?'block':'none';
 }
 
 function salvarNF(){
@@ -13333,6 +14571,12 @@ function salvarNF(){
     valorComercial:parseFloat(document.getElementById('ftValorComercial').value)||0,
     valorFrete:parseFloat(document.getElementById('ftValorFrete').value)||0,
     pesoBruto:parseFloat(document.getElementById('ftPesoBruto').value)||0,
+    volume:parseFloat(document.getElementById('ftVolume').value)||0,
+    bonificacao:document.getElementById('ftTemBonificacao').checked?{
+      nf:document.getElementById('ftBonifNF').value.trim(),
+      valor:parseFloat(document.getElementById('ftBonifValor').value)||0,
+      peso:parseFloat(document.getElementById('ftBonifPeso').value)||0
+    }:null,
     transportadora:document.getElementById('ftTransportadora').value,
     prazoEntrega:document.getElementById('ftPrazoEntrega').value.trim(),
     rastreio:document.getElementById('ftRastreio').value.trim(),
@@ -13476,6 +14720,7 @@ function renderFretes(filter='todos',q=''){
     var mainRow=`<tr class="fr-row ${f.status}" onclick="frToggle(${f.id})" title="${f.cliente}">
       <td class="fr-nf">NF ${f.nf}</td>
       <td class="fr-cli">${clinome}</td>
+      <td class="c" style="font-size:11px;font-weight:700;color:#475569">${f.uf||'—'}</td>
       <td class="fr-transp">${transnome}</td>
       <td>${emissao}</td>
       <td>${prazo}</td>
@@ -13496,12 +14741,16 @@ function renderFretes(filter='todos',q=''){
       <div style="font-size:11px">T2: ${(TRANSPORTADORAS[f.t2Trans]||{nome:f.t2Trans||'—'}).nome} — ${STATUS_LABELS[f.t2Status]||'—'}</div>
     </div>`:'';
     const eventos=(f.eventos||[]).slice(-3).reverse().map(e=>`<div style="font-size:10px;color:#64748b;margin-top:2px">${e.data} — ${e.texto}</div>`).join('');
-    var detRow=`<tr class="fr-det" id="frd_${f.id}"><td colspan="9">${gerarTimelineFrete(f)}<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;font-size:11px">
+    var detRow=`<tr class="fr-det" id="frd_${f.id}"><td colspan="9">${gerarTimelineFrete(f)}<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:12px;font-size:11px">
       <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">RASTREIO</label><span style="font-family:monospace">${f.rastreio||'—'}</span></div>
       <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">VALOR FRETE</label>${fmtV(f.valorFrete)}</div>
       <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">PESO BRUTO</label>${f.pesoBruto>0?f.pesoBruto.toLocaleString('pt-BR',{minimumFractionDigits:3})+' kg':'—'}</div>
+      <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">CUBAGEM</label>${f.volume>0?f.volume.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³':'—'}</div>
       <div><label style="font-size:9px;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px">OBSERVAÇÃO</label>${f.obs||'—'}</div>
     </div>
+    ${f.bonificacao?`<div style="margin-top:8px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 10px;font-size:11px;color:#92400e">
+      🎁 <b>Bonificação junto:</b> NF ${f.bonificacao.nf||'—'} · R$ ${(f.bonificacao.valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${(f.bonificacao.peso||0).toLocaleString('pt-BR',{minimumFractionDigits:3})} kg
+    </div>`:''}
     ${redesp}
     ${eventos?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9"><div style="font-size:9px;font-weight:700;color:#94a3b8;margin-bottom:4px">HISTÓRICO</div>${eventos}</div>`:''}
     ${trans.url?`<div style="margin-top:8px"><button class="btn-nf rastrear" onclick="abrirRastreio(${f.id})" style="font-size:11px">🔍 Rastrear</button></div>`:''}
@@ -13514,6 +14763,7 @@ function renderFretes(filter='todos',q=''){
     <thead><tr>
       <th style="width:85px">NF</th>
       <th style="min-width:260px">Cliente</th>
+      <th class="c" style="width:30px">UF</th>
       <th style="width:130px">Transportadora</th>
       <th style="width:85px">Emissão</th>
       <th style="width:85px">Prazo</th>
@@ -19231,6 +20481,8 @@ async function sbSalvarFrete(reg){
     rastreio: reg.rastreio||null,
     status: reg.status||'aguardando',
     peso_bruto: reg.pesoBruto||0,
+    volume: reg.volume||0,
+    bonificacao: reg.bonificacao||null,
     prazo_entrega: reg.prazoEntrega||null,
     obs: reg.obs||null,
     redespacho: reg.redespacho||false,
@@ -19263,6 +20515,8 @@ async function sbCarregarFretes(){
     valorComercial:parseFloat(r.valor_comercial)||0,
     valorFrete:parseFloat(r.valor_frete)||0,
     pesoBruto:parseFloat(r.peso_bruto)||0,
+    volume:parseFloat(r.volume)||0,
+    bonificacao:r.bonificacao||null,
     transportadora:r.transportadora||'',
     rastreio:r.rastreio||'',
     status:r.status||'aguardando',
@@ -21897,13 +23151,21 @@ window.setModoApp=function(m){fabFechar();if(_setModoOrig)_setModoOrig(m);};
 /* ════ FRETES — Busca NFs do faturamento + Relatório ════ */
 
 /* ── Busca múltiplas NFs no faturamento ── */
-function buscarNFsFaturamento(){
+// Compara números de NF ignorando zeros à esquerda, pontos e espaços —
+// "017166", "17166" e "000.017.166" são todos a mesma nota.
+function normalizarNF(v){
+  var d=String(v||'').replace(/\D/g,'').replace(/^0+/,'');
+  return d||'0';
+}
+
+async function buscarNFsFaturamento(){
   var input=document.getElementById('ftBuscaNFInput').value.trim();
   if(!input)return;
   var nums=input.split(/[,;\s]+/).map(function(n){return n.trim();}).filter(Boolean);
   var fat=typeof fatDados!=='undefined'?fatDados:[];
   var result=document.getElementById('ftBuscaNFResult');
   if(!fat.length){result.innerHTML='<span style="color:#dc2626">Faturamento não carregado. Faça o upload da planilha de faturamento primeiro.</span>';return;}
+  await carregarPesosFaturamento();
 
   var encontradas=[];
   var jaExistem=[];
@@ -21911,30 +23173,53 @@ function buscarNFsFaturamento(){
 
   nums.forEach(function(num){
     // Verificar duplicata
-    if(fretes.find(function(fr){return fr.nf===num;})){
+    // Ignora a checagem de duplicidade se o "duplicado" for o próprio frete
+    // que está sendo editado agora — nesse caso é só buscar peso/cubagem mesmo.
+    var duplicado=fretes.find(function(fr){return normalizarNF(fr.nf)===normalizarNF(num);});
+    if(duplicado&&duplicado.id!==ftEditando){
       jaExistem.push(num);
       return;
     }
-    // Buscar no faturamento
-    var linhas=fat.filter(function(r){return r.nf===num&&!r.excluida;});
+    // Buscar no faturamento (comparação tolerante a zero à esquerda/pontuação)
+    var linhas=fat.filter(function(r){return normalizarNF(r.nf)===normalizarNF(num)&&!r.excluida;});
     if(!linhas.length){naoEncontradas.push(num);return;}
     var total=linhas.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
     var cliente=linhas[0].cliente||'';
     var transp=linhas[0].transportadora||'';
     var emissao=linhas[0].dt_emissao||linhas[0].data||'';
     var estado=linhas[0].estado||'';
-    encontradas.push({nf:num,cliente:cliente,valor:total,transportadora:transp,emissao:emissao,estado:estado});
+    var pesoNF=0,semPesoNF=false,volumeNF=0,caixasNF=0,semCaixaNF=false;
+    linhas.forEach(function(r){
+      var pu=_pesosFaturamento[r.cod_item];
+      if(pu>0)pesoNF+=(parseFloat(r.quantidade)||0)*pu; else semPesoNF=true;
+      var vol=volumeDoItem(r.item,r.quantidade);
+      if(vol.tipo){volumeNF+=vol.volume;caixasNF+=vol.caixas;} else semCaixaNF=true;
+    });
+    encontradas.push({nf:num,cliente:cliente,valor:total,transportadora:transp,emissao:emissao,estado:estado,peso:pesoNF,semPeso:semPesoNF,volume:volumeNF,caixas:caixasNF,semCaixa:semCaixaNF});
   });
 
   // Preencher formulário se for busca de 1 NF
   if(encontradas.length===1&&nums.length===1){
     var e=encontradas[0];
-    document.getElementById('ftNF').value=e.nf;
-    document.getElementById('ftCliente').value=e.cliente;
-    document.getElementById('ftValorComercial').value=e.valor.toFixed(2);
-    if(e.transportadora)document.getElementById('ftTransportadora').value=e.transportadora;
-    if(e.emissao)document.getElementById('ftDataEmissao').value=e.emissao.substring?e.emissao.substring(0,10):e.emissao;
-    result.innerHTML='<span style="color:#16a34a;font-weight:600">✓ NF '+e.nf+' encontrada — campos preenchidos automaticamente</span>';
+    var forcar=document.getElementById('ftForcarSobrescrever').checked;
+    // Só escreve no campo se ele estiver vazio — a menos que "sobrescrever" esteja marcado.
+    var preencher=function(id,valor){
+      if(valor==null||valor==='')return;
+      var campo=document.getElementById(id);
+      if(!campo)return;
+      if(forcar||!campo.value)campo.value=valor;
+    };
+    preencher('ftNF',e.nf);
+    preencher('ftCliente',e.cliente);
+    preencher('ftValorComercial',e.valor.toFixed(2));
+    preencher('ftTransportadora',e.transportadora);
+    preencher('ftDataEmissao',e.emissao?(e.emissao.substring?e.emissao.substring(0,10):e.emissao):'');
+    preencher('ftUf',e.estado);
+    preencher('ftPesoBruto',e.peso>0?e.peso.toFixed(3):'');
+    preencher('ftVolume',e.volume>0?e.volume.toFixed(3):'');
+    result.innerHTML='<span style="color:#16a34a;font-weight:600">✓ NF '+e.nf+' encontrada — campos '+(forcar?'atualizados':'completados')+'</span>'
+      +(e.semPeso?'<br><span style="color:#b45309;font-size:11px">⚠ Peso parcial — algum item desta NF ainda não tem peso bruto cadastrado</span>':'')
+      +(e.semCaixa?'<br><span style="color:#b45309;font-size:11px">⚠ Cubagem parcial — algum item não tem tipo de caixa reconhecido</span>':'');
     return;
   }
 
@@ -21950,11 +23235,57 @@ function buscarNFsFaturamento(){
         +'</div>';
     });
     html+='</div>';
-    html+='<button onclick="importarNFsFaturamento('+JSON.stringify(encontradas).replace(/"/g,"'")+')" style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:6px">📥 Importar todas como fretes</button> ';
+    html+='<button onclick="importarNFsFaturamento('+JSON.stringify(encontradas).replace(/"/g,"'")+')" style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:6px">📥 Importar todas como fretes separados</button> ';
+    if(encontradas.length>1){
+      html+='<button onclick="somarNFsComoUma('+JSON.stringify(encontradas).replace(/"/g,"'")+')" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:6px">➕ Somar em um frete só (mesma entrega)</button>';
+    }
   }
   if(jaExistem.length)html+='<div style="color:#d97706;font-size:11px;margin-bottom:3px">⚠ Já cadastradas (ignoradas): '+jaExistem.join(', ')+'</div>';
   if(naoEncontradas.length)html+='<div style="color:#dc2626;font-size:11px">✗ Não encontradas no faturamento: '+naoEncontradas.join(', ')+'</div>';
   result.innerHTML=html;
+}
+
+// Junta várias NFs de venda normal num único frete — valor, peso e cubagem
+// somados entram na base de cálculo do frete (diferente da bonificação, que fica separada).
+async function somarNFsComoUma(lista){
+  if(!lista||!lista.length)return;
+  await carregarPesosFaturamento();
+
+  var totalValor=0,totalPeso=0,totalVolume=0,semPesoAlgum=false,semCaixaAlgum=false;
+  var nfsTexto=lista.map(function(e){return e.nf;}).join(', ');
+  var clienteRef=lista[0].cliente||'';
+  var transpRef=lista[0].transportadora||'';
+  var emissaoRef=lista[0].emissao||'';
+  var estadoRef=lista[0].estado||'';
+
+  lista.forEach(function(e){
+    totalValor+=e.valor||0;
+    totalPeso+=e.peso||0;
+    totalVolume+=e.volume||0;
+    if(e.semPeso)semPesoAlgum=true;
+    if(e.semCaixa)semCaixaAlgum=true;
+  });
+
+  var forcar=document.getElementById('ftForcarSobrescrever').checked;
+  var preencher=function(id,valor){
+    if(valor==null||valor==='')return;
+    var campo=document.getElementById(id);
+    if(!campo)return;
+    if(forcar||!campo.value)campo.value=valor;
+  };
+  preencher('ftNF',nfsTexto);
+  preencher('ftCliente',clienteRef);
+  preencher('ftValorComercial',totalValor.toFixed(2));
+  preencher('ftTransportadora',transpRef);
+  preencher('ftDataEmissao',emissaoRef?(emissaoRef.substring?emissaoRef.substring(0,10):emissaoRef):'');
+  preencher('ftUf',estadoRef);
+  preencher('ftPesoBruto',totalPeso>0?totalPeso.toFixed(3):'');
+  preencher('ftVolume',totalVolume>0?totalVolume.toFixed(3):'');
+
+  var result=document.getElementById('ftBuscaNFResult');
+  result.innerHTML='<span style="color:#16a34a;font-weight:600">✓ '+lista.length+' NF(s) somadas em um único frete — NF: '+nfsTexto+'</span>'
+    +(semPesoAlgum?'<br><span style="color:#b45309;font-size:11px">⚠ Peso parcial — alguma NF tem item sem peso cadastrado</span>':'')
+    +(semCaixaAlgum?'<br><span style="color:#b45309;font-size:11px">⚠ Cubagem parcial — alguma NF tem item sem caixa reconhecida</span>':'');
 }
 
 function importarNFsFaturamento(lista){
@@ -21963,9 +23294,9 @@ function importarNFsFaturamento(lista){
     if(fretes.find(function(fr){return fr.nf===e.nf;}))return;
     var reg={
       id:Date.now()+Math.random(),
-      nf:e.nf,cliente:e.cliente,
+      nf:e.nf,cliente:e.cliente,uf:e.estado||'',
       dataEmissao:e.emissao?e.emissao.substring(0,10):'',
-      valorComercial:e.valor,valorFrete:0,pesoBruto:0,
+      valorComercial:e.valor,valorFrete:0,pesoBruto:e.peso||0,volume:e.volume||0,
       transportadora:e.transportadora||'',
       rastreio:'',status:'aguardando',obs:'Importado do faturamento',
       redespacho:false,t1Trans:'',t1Status:'aguardando',t2Trans:'',t2Status:'aguardando',
