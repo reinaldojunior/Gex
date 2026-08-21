@@ -4879,9 +4879,14 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
             <input type="checkbox" id="ftTemBonificacao" onchange="toggleBonificacao()" style="accent-color:#b45309"> 🎁 Contém Nota de Bonificação (viaja junto, mas não é a nota principal)
           </label>
           <div id="ftBonifDiv" style="display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px">
-            <div style="font-size:11px;color:#92400e;margin-bottom:8px">Como a bonificação não está no faturamento, o sistema não consegue buscar valor/peso dela sozinho — preencha manualmente. Ela fica separada da nota principal acima, sem se misturar.</div>
+            <div style="font-size:11px;color:#92400e;margin-bottom:8px">Preenche o número da NF de bonificação e clica em Buscar — se ela já estiver importada na aba Bonificação (Faturamento), valor e peso vêm automáticos.</div>
             <div class="modulo-grid-3">
-              <div class="form-field"><label>NF da Bonificação</label><input type="text" id="ftBonifNF" placeholder=""></div>
+              <div class="form-field"><label>NF da Bonificação</label>
+                <div style="display:flex;gap:6px">
+                  <input type="text" id="ftBonifNF" placeholder="" style="flex:1">
+                  <button type="button" onclick="ftBuscarBonificacao()" style="background:#b45309;color:#fff;border:none;border-radius:6px;padding:0 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">🔍 Buscar</button>
+                </div>
+              </div>
               <div class="form-field"><label>Valor (R$)</label><input type="number" id="ftBonifValor" placeholder="0,00" step="0.01" min="0"></div>
               <div class="form-field"><label>Peso Bruto (kg)</label><input type="number" id="ftBonifPeso" placeholder="0,000" step="0.001" min="0"></div>
             </div>
@@ -4986,6 +4991,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <button class="frete-filter-btn" id="cteRelTab-mes" onclick="setCteRelatorioTab('mes')">Por Mês</button>
         <button class="frete-filter-btn" id="cteRelTab-estado" onclick="setCteRelatorioTab('estado')">Por Estado Destino</button>
         <button class="frete-filter-btn" id="cteRelTab-ranking" onclick="setCteRelatorioTab('ranking')">Ranking % mais alto</button>
+        <button class="frete-filter-btn" id="cteRelTab-lista" onclick="setCteRelatorioTab('lista')">📋 Lista Completa</button>
       </div>
       <div style="overflow-y:auto;flex:1">
         <div id="cteRelChartWrap" style="background:#fafbfd;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin-bottom:18px">
@@ -15218,6 +15224,21 @@ async function ftBuscarValorFreteCte(){
   showT('Valor do frete (R$ '+(cteEncontrado.valor_frete||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+') puxado do CT-e '+cteEncontrado.numero+' ✓','verde');
 }
 
+// Busca valor e peso da NF de bonificação no módulo Bonificação (Faturamento › Bonificação)
+async function ftBuscarBonificacao(){
+  const nf=document.getElementById('ftBonifNF').value;
+  if(!nf){showT('Informe o número da NF de bonificação primeiro','erro');return;}
+  showT('Buscando na Bonificação...','');
+  await carregarPesosFaturamento();
+  if(!_caixaOverrideCarregado)await carregarCaixaOverride();
+  if(!bonCarregado)await carregarBonificacoes();
+  const res=_cteCruzarNFEmLista(nf,bonDados||[]);
+  if(!res){showT('NF '+nf+' não encontrada na aba Bonificação — preencha manualmente ou importe a planilha lá primeiro','erro');return;}
+  document.getElementById('ftBonifValor').value=res.valor.toFixed(2);
+  document.getElementById('ftBonifPeso').value=res.peso.toFixed(3);
+  showT('Dados da bonificação preenchidos ✓ ('+res.itens+' item(ns), '+res.cliente+')','verde');
+}
+
 function abrirFormNF(id=null){
   const cv=document.getElementById('calcVolCard');if(cv)cv.style.display='none';
   ftEditando=id;
@@ -16004,7 +16025,7 @@ function renderCtes(query){
       const icone=n.status==='vinculado'?(viaBon?'🎁 ':'✓ '):n.status==='nao_localizado'?'✕ ':'';
       return '<span style="'+cores+';font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-right:3px;white-space:nowrap">'+icone+'NF '+n.numero+'</span>';
     }).join('');
-    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
+    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' -> '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
     return '<div onclick="abrirModalCte(\''+c.chave+'\')" style="cursor:pointer;background:'+(c.cancelado?'#fef2f2':'#fff')+';border:1px solid '+(c.cancelado?'#fecaca':'var(--borda)')+';border-radius:9px;padding:9px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;font-size:12.5px;white-space:nowrap;overflow:hidden;opacity:'+(c.cancelado?'.75':'1')+'">'
       +'<div style="width:64px;flex-shrink:0"><div style="font-weight:800;'+(c.cancelado?'text-decoration:line-through;color:#991b1b':'')+'">'+c.numero+'</div><div style="font-size:9.5px;color:var(--muted)">'+dataFmt+'</div>'+(c.cancelado?'<div style="font-size:8.5px;font-weight:800;color:#991b1b">❌ CANCELADO</div>':'')+'</div>'
       +'<div style="width:190px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis" title="'+rota+'">'+rota+'</div>'
@@ -16282,7 +16303,7 @@ function _cteRelRankingHtml(){
   if(!comPct.length)return '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">Sem dados.</div>';
   const linhas=comPct.map(function(c){
     const pctCor=c.pct>15?'#dc2626':c.pct>8?'#d97706':'#16a34a';
-    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
+    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' -> '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
     return '<tr style="cursor:pointer" onclick="fecharRelatoriosCte();abrirModalCte(\''+c.chave+'\')">'
       +'<td>'+c.numero+'</td>'
       +'<td style="font-weight:400;font-family:\'Inter\',sans-serif">'+(c.transportadora_nome||'—')+'</td>'
@@ -16298,6 +16319,55 @@ function _cteRelRankingHtml(){
     +'<th>CT-e</th><th>Transportadora</th><th>Rota</th><th class="r">Carga</th><th class="r">Frete</th><th class="r">% F/C</th>'
     +'</tr></thead><tbody>'+linhas+'</tbody></table>'
     +'<div style="font-size:11px;color:#94a3b8;margin-top:10px">Mostrando os 30 CT-es com maior percentual de frete sobre o valor da carga.</div>';
+}
+
+// Lista completa — as mesmas colunas exibidas na tela de CT-e (Data, CT-e, Rota, Destinatário,
+// Transportadora, NFs vinculadas com indicação de venda/bonificação, Frete, Carga, % F/C).
+function _cteRelListaCompletaHtml(){
+  const mesSel=document.getElementById('cteMesSel');
+  const mesFiltro=mesSel?mesSel.value:'';
+  let lista=_ctesAtivos().filter(function(c){
+    if(mesFiltro&&(!c.data_emissao||mesAnoDeData(c.data_emissao)!==mesFiltro))return false;
+    return true;
+  }).sort(function(a,b){return (b.data_emissao||'').localeCompare(a.data_emissao||'');});
+  if(!lista.length)return '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">Sem dados.</div>';
+  const linhas=lista.map(function(c){
+    const pct=_ctePercentual(c);
+    const pctFmt=pct==null?'—':pct.toFixed(1)+'%';
+    const pctCor=pct==null?'#94a3b8':(pct>15?'#dc2626':pct>8?'#d97706':'#16a34a');
+    const dataFmt=c.data_emissao?new Date(c.data_emissao).toLocaleDateString('pt-BR'):'—';
+    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' -> '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
+    const nfsHtml=(c.nfs||[]).map(function(n){
+      const viaBon=n.status==='vinculado'&&n.origem==='bonificacao';
+      const cores=n.status==='vinculado'?(viaBon?'background:#fef3c7;color:#92400e':'background:#dcfce7;color:#166534'):n.status==='nao_localizado'?'background:#fee2e2;color:#991b1b':'background:#eef2ff;color:#3730a3';
+      const icone=n.status==='vinculado'?(viaBon?'🎁':'✓'):n.status==='nao_localizado'?'✕':'○';
+      return '<span style="'+cores+';font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:9px;margin-right:2px;white-space:nowrap;display:inline-block">'+icone+' '+n.numero+'</span>';
+    }).join('')||'<span style="color:#94a3b8">—</span>';
+    return '<tr style="cursor:pointer" onclick="fecharRelatoriosCte();abrirModalCte(\''+c.chave+'\')">'
+      +'<td style="font-family:\'Inter\',sans-serif;font-weight:400;white-space:nowrap">'+dataFmt+'</td>'
+      +'<td>'+c.numero+'</td>'
+      +'<td style="font-weight:400;font-family:\'Inter\',sans-serif;color:#64748b;white-space:nowrap">'+rota+'</td>'
+      +'<td style="font-weight:400;font-family:\'Inter\',sans-serif">'+(c.destinatario_nome||'—')+'</td>'
+      +'<td style="font-weight:400;font-family:\'Inter\',sans-serif;color:#64748b">'+(c.transportadora_nome||'—')+'</td>'
+      +'<td>'+nfsHtml+'</td>'
+      +'<td class="r" style="font-weight:700">R$ '+(c.valor_frete||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+      +'<td class="r">R$ '+(c.valor_carga||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+      +'<td class="r" style="font-weight:800;color:'+pctCor+'">'+pctFmt+'</td>'
+      +'</tr>';
+  }).join('');
+  const legenda='<div style="font-size:10.5px;color:#64748b;margin-bottom:8px">'
+    +'<span style="background:#dcfce7;color:#166534;padding:1px 6px;border-radius:9px;font-weight:700">✓</span> vinculado no Faturamento &nbsp;'
+    +'<span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:9px;font-weight:700">🎁</span> vinculado na Bonificação &nbsp;'
+    +'<span style="background:#fee2e2;color:#991b1b;padding:1px 6px;border-radius:9px;font-weight:700">✕</span> não localizado &nbsp;'
+    +'<span style="background:#eef2ff;color:#3730a3;padding:1px 6px;border-radius:9px;font-weight:700">○</span> ainda não verificado'
+    +'</div>';
+  return '<div class="cte-rel-secao-title">Lista Completa — '+lista.length+' CT-e(s)'+(mesSel&&mesSel.value?' — '+rotuloMesAno(mesSel.value):'')+'</div>'
+    +legenda
+    +'<div style="overflow-x:auto"><table class="cte-rel-tabela" style="min-width:900px">'
+    +'<thead><tr>'
+    +'<th>Data</th><th>CT-e</th><th>Rota</th><th>Destinatário</th><th>Transportadora</th><th>NFs Vinculadas</th>'
+    +'<th class="r">Frete</th><th class="r">Carga</th><th class="r">% F/C</th>'
+    +'</tr></thead><tbody>'+linhas+'</tbody></table></div>';
 }
 
 let _cteRelChartObj=null;
@@ -16334,7 +16404,7 @@ function _cteRelRenderChart(tab,grupos){
   const wrap=document.getElementById('cteRelChartWrap');
   const canvas=document.getElementById('cteRelChart');
   if(_cteRelChartObj){_cteRelChartObj.destroy();_cteRelChartObj=null;}
-  if(tab==='ranking'){wrap.style.display='none';return;}
+  if(tab==='ranking'||tab==='lista'){wrap.style.display='none';return;}
   wrap.style.display='';
   const top=grupos.slice(0,10);
   const isMes=tab==='mes';
@@ -16363,7 +16433,7 @@ function _cteRelRenderChart(tab,grupos){
 function _cteRelDados(tab){
   const ativos=_ctesAtivos();
   if(tab==='transportadora')return _cteRelAgrupar(ativos,c=>c.transportadora_nome||'—');
-  if(tab==='rota')return _cteRelAgrupar(ativos,c=>(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?'));
+  if(tab==='rota')return _cteRelAgrupar(ativos,c=>(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' -> '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?'));
   if(tab==='mes')return _cteRelAgrupar(ativos,c=>c.data_emissao?rotuloMesAno(mesAnoDeData(c.data_emissao)):'Sem data').sort(function(a,b){return a.chave.localeCompare(b.chave);});
   if(tab==='estado')return _cteRelAgrupar(ativos,c=>c.uf_destino||'—');
   return [];
@@ -16371,7 +16441,7 @@ function _cteRelDados(tab){
 
 function setCteRelatorioTab(tab){
   cteRelatorioTabAtual=tab;
-  ['transportadora','rota','mes','estado','ranking'].forEach(function(t){
+  ['transportadora','rota','mes','estado','ranking','lista'].forEach(function(t){
     document.getElementById('cteRelTab-'+t).classList.toggle('active',t===tab);
   });
   _cteRelRenderKpis();
@@ -16379,6 +16449,11 @@ function setCteRelatorioTab(tab){
   if(tab==='ranking'){
     _cteRelRenderChart(tab,[]);
     corpo.innerHTML=_cteRelRankingHtml();
+    return;
+  }
+  if(tab==='lista'){
+    _cteRelRenderChart(tab,[]);
+    corpo.innerHTML=_cteRelListaCompletaHtml();
     return;
   }
   const rotulos={transportadora:'Transportadora',rota:'Rota',mes:'Mês',estado:'Estado Destino'};
@@ -16423,12 +16498,29 @@ function exportarRelatoriosCteExcel(){
   const ranking=_ctesAtivos().filter(c=>c.valor_carga>0).map(c=>Object.assign({},c,{pct:(c.valor_frete/c.valor_carga)*100})).sort((a,b)=>b.pct-a.pct);
   const linhasRank=[['CT-e','Data','Transportadora','Rota','Valor Carga','Valor Frete','% F/C']];
   ranking.forEach(function(c){
-    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
+    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' -> '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
     linhasRank.push([c.numero,c.data_emissao?new Date(c.data_emissao).toLocaleDateString('pt-BR'):'',c.transportadora_nome||'',rota,Number((c.valor_carga||0).toFixed(2)),Number((c.valor_frete||0).toFixed(2)),Number(c.pct.toFixed(2))]);
   });
   const wsRank=XLSX.utils.aoa_to_sheet(linhasRank);
   wsRank['!cols']=[{wch:10},{wch:12},{wch:26},{wch:26},{wch:14},{wch:14},{wch:9}];
   XLSX.utils.book_append_sheet(wb,wsRank,'Ranking %');
+
+  // Lista completa — mesmas colunas da tela
+  const listaCompleta=_ctesAtivos().slice().sort(function(a,b){return (b.data_emissao||'').localeCompare(a.data_emissao||'');});
+  const linhasLista=[['Data','CT-e','Rota','Destinatário','Transportadora','NFs Vinculadas','Frete','Carga','% F/C']];
+  listaCompleta.forEach(function(c){
+    const pct=_ctePercentual(c);
+    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' -> '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
+    const nfsTexto=(c.nfs||[]).map(function(n){
+      const viaBon=n.status==='vinculado'&&n.origem==='bonificacao';
+      const rotulo=n.status==='vinculado'?(viaBon?'bonificação':'vinculado'):n.status==='nao_localizado'?'não localizado':'não verificado';
+      return n.numero+' ('+rotulo+')';
+    }).join('; ');
+    linhasLista.push([c.data_emissao?new Date(c.data_emissao).toLocaleDateString('pt-BR'):'',c.numero,rota,c.destinatario_nome||'',c.transportadora_nome||'',nfsTexto,Number((c.valor_frete||0).toFixed(2)),Number((c.valor_carga||0).toFixed(2)),pct==null?'':Number(pct.toFixed(2))]);
+  });
+  const wsLista=XLSX.utils.aoa_to_sheet(linhasLista);
+  wsLista['!cols']=[{wch:11},{wch:10},{wch:26},{wch:26},{wch:24},{wch:36},{wch:12},{wch:12},{wch:9}];
+  XLSX.utils.book_append_sheet(wb,wsLista,'Lista Completa');
 
   XLSX.writeFile(wb,'Relatorios_CTe_'+new Date().toISOString().slice(0,10)+'.xlsx');
   showT('Excel exportado ✓','verde');
@@ -16479,14 +16571,28 @@ function gerarRelatorioPdfCte(){
   const azul=[30,58,138],cinza=[71,85,105],cinzaEsc=[30,41,59],vermelho=[185,28,28];
 
   function cabecalho(){
+    const pagAtual=doc.internal.getCurrentPageInfo().pageNumber;
+    const alturaFaixa=pagAtual===1?20:10;
     doc.setFillColor(...azul);
-    doc.rect(0,0,PW,20,'F');
+    doc.rect(0,0,PW,alturaFaixa,'F');
     doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','bold');doc.setFontSize(14);
-    doc.text('RELATÓRIO DE FRETE — CT-e',ML,12);
-    doc.setFont('helvetica','normal');doc.setFontSize(8);
-    doc.setTextColor(220,230,245);
-    doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR'),PW-MR,12,{align:'right'});
+    if(pagAtual===1){
+      doc.setFont('helvetica','bold');doc.setFontSize(14);
+      doc.text('RELATÓRIO DE FRETE — CT-e',ML,12);
+      doc.setFont('helvetica','normal');doc.setFontSize(8);
+      doc.setTextColor(220,230,245);
+      doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR'),PW-MR,12,{align:'right'});
+    }else{
+      doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+      doc.setTextColor(200,215,240);
+      doc.text('Relatório de Frete — CT-e',ML,6.5);
+      doc.setFontSize(6.3);
+      doc.text('Gerado em '+new Date().toLocaleDateString('pt-BR')+' · pág. '+pagAtual,PW-MR,6.5,{align:'right'});
+    }
+  }
+  // Posição Y onde o conteúdo deve começar depois do cabeçalho — varia com a altura da faixa
+  function yInicial(){
+    return doc.internal.getCurrentPageInfo().pageNumber===1?28:16;
   }
 
   let y=28;
@@ -16520,7 +16626,7 @@ function gerarRelatorioPdfCte(){
   y+=Math.ceil(kpis.length/3)*17+8;
 
   function secao(titulo,tab,rotuloColuna,corHead){
-    if(y>PH-80){doc.addPage();cabecalho();y=28;}
+    if(y>PH-80){doc.addPage();cabecalho();y=yInicial();}
     doc.setFillColor(...(corHead||[21,74,125]));
     doc.rect(ML,y-3.2,1.3,4.2,'F');
     doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...cinzaEsc);
@@ -16529,7 +16635,7 @@ function gerarRelatorioPdfCte(){
     if(dados.length){
       const img=_cteRelChartImagem(tab,dados);
       const imgW=PW-ML-MR,imgH=imgW*(400/900);
-      if(y+imgH>PH-20){doc.addPage();cabecalho();y=28;}
+      if(y+imgH>PH-20){doc.addPage();cabecalho();y=yInicial();}
       doc.addImage(img,'PNG',ML,y,imgW,imgH);
       y+=imgH+6;
     }
@@ -16551,7 +16657,7 @@ function gerarRelatorioPdfCte(){
   secao('EVOLUÇÃO MENSAL','mes','Mês');
   secao('POR ESTADO DE DESTINO','estado','UF');
 
-  if(y>PH-70){doc.addPage();cabecalho();y=28;}
+  if(y>PH-70){doc.addPage();cabecalho();y=yInicial();}
   doc.setFillColor(...vermelho);
   doc.rect(ML,y-3.2,1.3,4.2,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...cinzaEsc);
@@ -16567,6 +16673,84 @@ function gerarRelatorioPdfCte(){
     alternateRowStyles:{fillColor:[254,242,242]},
     didDrawPage:function(){cabecalho();}
   });
+  y=doc.lastAutoTable.finalY+10; // corrige sobreposição com a seção seguinte
+
+  // LISTA COMPLETA — mesmas colunas da tela, um CT-e por linha (sem quebrar texto)
+  if(y>PH-70){doc.addPage();cabecalho();y=yInicial();}
+  const roxo=[91,33,182];
+  doc.setFillColor(...roxo);
+  doc.rect(ML,y-3.2,1.3,4.2,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...cinzaEsc);
+  doc.text('LISTA COMPLETA',ML+4,y);y+=6;
+
+  const CORES_NF={vinculado_venda:[22,163,74],vinculado_bonificacao:[217,119,6],nao_localizado:[220,38,38],pendente:[100,116,139]};
+  // Legenda logo abaixo do título, antes da tabela
+  doc.setFontSize(6.5);doc.setFont('helvetica','normal');
+  let lx=ML;
+  [['Vinculado (Faturamento)',CORES_NF.vinculado_venda],['Vinculado (Bonificação)',CORES_NF.vinculado_bonificacao],['Não localizado',CORES_NF.nao_localizado],['Pendente',CORES_NF.pendente]].forEach(function(item){
+    doc.setFillColor(...item[1]);
+    doc.circle(lx+0.8,y-1,0.8,'F');
+    doc.setTextColor(80,80,80);
+    doc.text(item[0],lx+2.5,y);
+    lx+=doc.getTextWidth(item[0])+12;
+  });
+  y+=6;
+
+  const listaCompletaPdf=_ctesAtivos().slice().sort(function(a,b){return (b.data_emissao||'').localeCompare(a.data_emissao||'');});
+  const bodyLista=listaCompletaPdf.map(function(c){
+    const pct=_ctePercentual(c);
+    const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' -> '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
+    return[
+      c.data_emissao?new Date(c.data_emissao).toLocaleDateString('pt-BR'):'—',
+      c.numero,
+      rota,
+      c.destinatario_nome||'—',
+      c.transportadora_nome||'—',
+      '', // NFs — desenhadas manualmente em didDrawCell (bolinhas coloridas + número)
+      'R$ '+(c.valor_frete||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),
+      'R$ '+(c.valor_carga||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),
+      pct==null?'—':pct.toFixed(1)+'%'
+    ];
+  });
+  doc.autoTable({
+    startY:y,head:[['Data','CT-e','Rota','Destinatário','Transportadora','NFs Vinculadas','Frete','Carga','%F/C']],body:bodyLista,
+    margin:{left:ML,right:MR},theme:'grid',
+    styles:{fontSize:5.8,cellPadding:1.3,lineColor:[226,232,240],lineWidth:.2,overflow:'ellipsize',minCellHeight:0},
+    headStyles:{fillColor:roxo,textColor:255,fontStyle:'bold',fontSize:6.5},
+    alternateRowStyles:{fillColor:[248,250,252]},
+    columnStyles:{
+      0:{cellWidth:15},1:{cellWidth:13},2:{cellWidth:35},3:{cellWidth:22},4:{cellWidth:22},
+      5:{cellWidth:33},6:{cellWidth:15,halign:'right'},7:{cellWidth:15,halign:'right'},8:{cellWidth:9,halign:'right'}
+    },
+    didDrawCell:function(data){
+      if(data.section!=='body'||data.column.index!==5)return;
+      const c=listaCompletaPdf[data.row.index];
+      if(!c)return;
+      const nfsLimitadas=(c.nfs||[]).slice(0,5);
+      let x=data.cell.x+1.2;
+      const yMid=data.cell.y+data.cell.height/2;
+      doc.setFontSize(5.8);
+      doc.setFont('helvetica','normal');
+      nfsLimitadas.forEach(function(n){
+        const viaBon=n.status==='vinculado'&&n.origem==='bonificacao';
+        const cor=n.status==='vinculado'?(viaBon?CORES_NF.vinculado_bonificacao:CORES_NF.vinculado_venda):n.status==='nao_localizado'?CORES_NF.nao_localizado:CORES_NF.pendente;
+        if(x>data.cell.x+data.cell.width-4)return; // não estoura a célula
+        doc.setFillColor(...cor);
+        doc.circle(x+0.6,yMid-0.4,0.7,'F');
+        x+=2;
+        doc.setTextColor(50,50,50);
+        const txt=String(n.numero);
+        doc.text(txt,x,yMid+0.5);
+        x+=doc.getTextWidth(txt)+2.5;
+      });
+      if((c.nfs||[]).length>5){
+        doc.setTextColor(150,150,150);
+        doc.text('+'+((c.nfs||[]).length-5),x,yMid+0.5);
+      }
+    },
+    didDrawPage:function(){cabecalho();}
+  });
+  y=doc.lastAutoTable.finalY+6;
 
   doc.save('Relatorio_Frete_CTe_'+new Date().toISOString().slice(0,10)+'.pdf');
   showT('Relatório PDF gerado ✓','verde');
