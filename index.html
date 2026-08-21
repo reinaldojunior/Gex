@@ -1946,6 +1946,30 @@ svg[data-ico]{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:roun
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='.7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m20 20-4.2-4.2'/%3E%3C/svg%3E") !important;
   background-repeat:no-repeat !important;background-position:10px 50% !important;background-size:15px !important;
   padding-left:32px !important}
+
+/* ── Relatório de Frete (CT-e) — estilo relatório empresarial, cores da dashboard ── */
+.cte-rel-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:14px;border-bottom:2px solid #0d2c4d}
+.cte-rel-header h1{font-size:17px;font-weight:800;color:#0d2c4d;letter-spacing:-.3px;font-family:'Space Grotesk',sans-serif}
+.cte-rel-header p{font-size:11px;color:#64748b;margin-top:3px}
+.cte-rel-header .total-box{text-align:right}
+.cte-rel-header .total-box span{font-size:9.5px;display:block;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.cte-rel-header .total-box strong{font-size:24px;color:#f2a53b;font-weight:800;letter-spacing:-.5px;font-family:'JetBrains Mono',monospace}
+.cte-rel-kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:#e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:18px}
+.cte-rel-kpi{background:#fff;padding:11px 13px}
+.cte-rel-kpi .lbl{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.4px}
+.cte-rel-kpi .val{font-size:17px;font-weight:800;color:#0d2c4d;font-family:'JetBrains Mono',monospace;margin-top:2px}
+.cte-rel-secao-title{font-size:12px;font-weight:800;color:#0d2c4d;letter-spacing:.4px;text-transform:uppercase;padding:2px 0 5px 10px;border-left:4px solid #154a7d;margin-bottom:10px}
+.cte-rel-secao-title.ranking{border-left-color:#dc2626}
+table.cte-rel-tabela{width:100%;border-collapse:collapse;font-size:12px}
+table.cte-rel-tabela thead th{padding:6px 8px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#64748b;border-bottom:1.5px solid #cbd5e1;text-align:left;font-family:'Inter',sans-serif}
+table.cte-rel-tabela thead th.r{text-align:right}
+table.cte-rel-tabela tbody td{padding:6px 8px;font-size:12px;color:#1e293b;border-bottom:1px solid #f1f5f9;font-family:'JetBrains Mono',monospace}
+table.cte-rel-tabela tbody td:first-child{font-family:'Inter',sans-serif;font-weight:600}
+table.cte-rel-tabela tbody td.r{text-align:right}
+table.cte-rel-tabela tfoot td{padding:8px;font-size:12px;font-weight:800;color:#0d2c4d;border-top:2px solid #0d2c4d;background:#f0f5fb;font-family:'JetBrains Mono',monospace}
+table.cte-rel-tabela tfoot td:first-child{font-family:'Inter',sans-serif}
+table.cte-rel-tabela tfoot td.r{text-align:right}
+table.cte-rel-tabela tbody tr:hover{background:#f8fafc}
 </style>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1220'/%3E%3Ctext x='32' y='42' font-family='Inter,Arial,sans-serif' font-size='28' font-weight='800' fill='%23ffffff' text-anchor='middle'%3EG%3C/text%3E%3Ccircle cx='46' cy='20' r='5' fill='%232563eb'/%3E%3C/svg%3E">
 <style id="pro-skin-v35">
@@ -2306,7 +2330,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
 
 </style>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style id="gex-neon-skin">
 @media screen{
 :root,html[data-tema="escuro"]{
@@ -4292,6 +4316,12 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
 
   <!-- SEÇÃO FATURAMENTO -->
   <div id="secaoFaturamento" style="display:none">
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button id="fatSubBtnFaturamento" class="frete-filter-btn active" onclick="setFatSubView('faturamento')">📄 Faturamento</button>
+      <button id="fatSubBtnBonificacao" class="frete-filter-btn" onclick="setFatSubView('bonificacao')">🎁 Bonificação</button>
+    </div>
+
+    <div id="fatViewFaturamento">
     <div class="content-body">
 
       <!-- Cards de métricas -->
@@ -4460,6 +4490,20 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
       </div>
 
     </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         BONIFICAÇÃO — lista independente, não entra no Faturamento
+         ══════════════════════════════════════════════════════════ -->
+    <div id="fatViewBonificacao" style="display:none">
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+        <label class="btn-salvar-mod" style="cursor:pointer">📂 Importar Planilha (Bonificação)<input type="file" accept=".xlsx,.xls" style="display:none" onchange="importarBonificacao(this)"></label>
+        <input type="text" class="busca-mod" style="max-width:240px;margin:0" placeholder="Buscar por NF ou cliente..." oninput="renderBonificacao(this.value)" id="bonBusca">
+      </div>
+      <div class="frete-stats" id="bonStats"></div>
+      <div id="bonLista" style="margin-top:14px"></div>
+    </div>
+
   </div>
 
   <!-- SEÇÃO ESTOQUE (placeholder) -->
@@ -4734,20 +4778,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
       </div>
     </div>
 
-    <!-- Modal de pergunta rápida (peso ou caixa faltando) — só usado nessa sessão, não salva no banco -->
-    <div id="calcVolPerguntaOverlay" style="display:none;position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99998;align-items:center;justify-content:center;padding:16px">
-      <div style="background:var(--card-bg,#fff);border-radius:14px;max-width:420px;width:100%;padding:22px">
-        <div id="calcVolPerguntaTitulo" style="font-weight:800;font-size:15px;margin-bottom:4px"></div>
-        <div id="calcVolPerguntaSub" style="font-size:12px;color:var(--muted);margin-bottom:14px"></div>
-        <div id="calcVolPerguntaCorpo"></div>
-        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-          <button class="btn-cancel-mod" onclick="_calcVolPerguntaResolver(null)">Pular (fica sem contar)</button>
-          <button class="btn-salvar-mod" onclick="_calcVolPerguntaConfirmar()">Usar</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Modal de importação de NFs já faturadas -->
     <div id="calcVolImportarOverlay" style="display:none;position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99998;align-items:center;justify-content:center;padding:16px">
       <div style="background:var(--card-bg,#fff);border-radius:14px;max-width:640px;width:100%;padding:22px;max-height:85vh;display:flex;flex-direction:column">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
@@ -4784,7 +4815,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <div class="modulo-grid-3" style="margin-bottom:12px">
           <div class="form-field"><label>Data de Emissão</label><input type="date" id="ftDataEmissao"></div>
           <div class="form-field"><label>Valor Comercial (R$)</label><input type="number" id="ftValorComercial" placeholder="0,00" step="0.01"></div>
-          <div class="form-field"><label>Valor do Frete (R$)</label><input type="number" id="ftValorFrete" placeholder="0,00" step="0.01"></div>
+          <div class="form-field"><label>Valor do Frete (R$) <button type="button" onclick="ftBuscarValorFreteCte()" style="background:#1e3a8a;color:#fff;border:none;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer;margin-left:6px;vertical-align:middle">🔍 Buscar no CT-e</button></label><input type="number" id="ftValorFrete" placeholder="0,00" step="0.01"></div>
         </div>
         <div class="modulo-grid-3" style="margin-bottom:12px">
           <div class="form-field"><label>UF de Destino <span style="color:#dc2626">*</span></label>
@@ -4901,6 +4932,9 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <button onclick="abrirRelatoriosCte()" style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">📊 Relatórios</button>
         <button onclick="cteVincularTodosAutomatico()" style="background:#16a34a;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">🔁 Vincular todos automaticamente</button>
         <input type="text" class="busca-mod" style="max-width:240px;margin:0" placeholder="Buscar por nº CT-e, NF, transportadora..." oninput="renderCtes(this.value)" id="cteBusca">
+        <select id="cteMesSel" onchange="renderCtes(document.getElementById('cteBusca').value)" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:10px;border:1px solid var(--borda);background:#fff;color:var(--texto);cursor:pointer">
+          <option value="">Todos os meses (total)</option>
+        </select>
         <select id="cteSortSel" onchange="renderCtes(document.getElementById('cteBusca').value)" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:10px;border:1px solid var(--borda);background:#fff;color:var(--texto);cursor:pointer">
           <option value="recente">↓ Mais recente</option>
           <option value="antigo">↑ Mais antigo</option>
@@ -4944,7 +4978,8 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
           <button class="modal-close" onclick="fecharRelatoriosCte()">✕</button>
         </div>
       </div>
-      <div id="cteRelKpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--borda);border-radius:10px;overflow:hidden;margin-bottom:16px"></div>
+      <div class="cte-rel-header" id="cteRelHeader"></div>
+      <div id="cteRelKpis" class="cte-rel-kpi-strip"></div>
       <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
         <button class="frete-filter-btn active" id="cteRelTab-transportadora" onclick="setCteRelatorioTab('transportadora')">Por Transportadora</button>
         <button class="frete-filter-btn" id="cteRelTab-rota" onclick="setCteRelatorioTab('rota')">Por Rota</button>
@@ -4953,7 +4988,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
         <button class="frete-filter-btn" id="cteRelTab-ranking" onclick="setCteRelatorioTab('ranking')">Ranking % mais alto</button>
       </div>
       <div style="overflow-y:auto;flex:1">
-        <div id="cteRelChartWrap" style="background:var(--fundo-suave,#f8fafc);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div id="cteRelChartWrap" style="background:#fafbfd;border:1px solid #e2e8f0;border-radius:12px;padding:18px;margin-bottom:18px">
           <canvas id="cteRelChart" height="90"></canvas>
         </div>
         <div id="cteRelatorioCorpo"></div>
@@ -9394,6 +9429,76 @@ function _calcVolPerguntarCaixa(nome){
 
 // Calcula peso/volume/caixas de um item, perguntando na hora se faltar peso ou caixa
 // (só uma vez por código — respostas ficam em cache pra o resto da sessão).
+// ── Versões que SALVAM PERMANENTEMENTE a resposta (usadas por Bonificação/Faturamento) ──
+// Reaproveita o mesmo modal da Calculadora de Volumetria, só troca o texto e o destino do salvamento.
+let _caixaOverride={};
+let _caixaOverrideCarregado=false;
+async function carregarCaixaOverride(){
+  if(_caixaOverrideCarregado)return;
+  _caixaOverride={};
+  try{
+    let todos=[],de=0;
+    while(true){
+      const {data,error}=await sb.from('item_caixa_override').select('cod_item,tipo_caixa').range(de,de+999);
+      if(error){console.warn('item_caixa_override indisponível',error);break;}
+      if(!data||!data.length)break;
+      todos=todos.concat(data);
+      if(data.length<1000)break;
+      de+=1000;
+    }
+    todos.forEach(function(r){_caixaOverride[r.cod_item]=r.tipo_caixa;});
+  }catch(e){console.warn('Erro ao carregar override de caixa',e);}
+  _caixaOverrideCarregado=true;
+}
+function _bonCaixaDoItem(codigo,nome){
+  return _caixaOverride[codigo]||caixaDoItem(nome);
+}
+function _bonPerguntarPeso(nome){
+  return new Promise(function(resolve){
+    _calcVolPerguntaResolve=resolve;
+    document.getElementById('calcVolPerguntaTitulo').textContent='⚖️ Peso não cadastrado';
+    document.getElementById('calcVolPerguntaSub').textContent='"'+nome+'" ainda não tem peso bruto cadastrado. Informe o peso de 1 unidade (kg) — fica salvo permanentemente no cadastro do produto.';
+    document.getElementById('calcVolPerguntaCorpo').innerHTML='<div class="form-field"><label>Peso de 1 unidade (kg)</label><input type="number" id="calcVolPerguntaPeso" step="0.001" min="0" placeholder="Ex: 5.2" style="width:100%"></div>';
+    document.getElementById('calcVolPerguntaOverlay').style.display='flex';
+    setTimeout(function(){var el=document.getElementById('calcVolPerguntaPeso');if(el)el.focus();},50);
+  });
+}
+function _bonPerguntarCaixa(nome){
+  return new Promise(function(resolve){
+    _calcVolPerguntaResolve=resolve;
+    document.getElementById('calcVolPerguntaTitulo').textContent='📦 Embalagem não reconhecida';
+    document.getElementById('calcVolPerguntaSub').textContent='Não consegui identificar automaticamente a caixa de "'+nome+'". Escolha qual caixa vincular — fica salvo permanentemente pra esse código.';
+    document.getElementById('calcVolPerguntaCorpo').innerHTML=Object.keys(TIPOS_CAIXA).map(function(k,i){
+      const t=TIPOS_CAIXA[k];
+      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;font-size:12px">'
+        +'<input type="radio" name="calcVolPerguntaCaixa" value="'+k+'"'+(i===0?' checked':'')+'>'
+        +t.nome+' <span style="color:var(--muted);font-size:11px">('+t.C+'×'+t.L+'×'+t.A+'cm, cap. '+t.cap+')</span>'
+        +'</label>';
+    }).join('');
+    document.getElementById('calcVolPerguntaOverlay').style.display='flex';
+  });
+}
+async function _bonSalvarPeso(codigo,valor){
+  await sb.from('faturamento_item_peso').upsert({codigo:codigo,peso_bruto:valor},{onConflict:'codigo'});
+  if(_pesosFaturamento)_pesosFaturamento[codigo]=valor;
+}
+async function _bonSalvarCaixa(codigo,tipo){
+  await sb.from('item_caixa_override').upsert({cod_item:codigo,tipo_caixa:tipo},{onConflict:'cod_item'});
+  _caixaOverride[codigo]=tipo;
+}
+// Pergunta peso e/ou caixa pra UM código específico (usado pelo botão "🔄 Perguntar novamente")
+async function bonPerguntarNovamente(codigo,nome){
+  if(!_pesosFaturamento[codigo]){
+    const resp=await _bonPerguntarPeso(nome);
+    if(resp)await _bonSalvarPeso(codigo,resp);
+  }
+  if(!_bonCaixaDoItem(codigo,nome)){
+    const resp=await _bonPerguntarCaixa(nome);
+    if(resp)await _bonSalvarCaixa(codigo,resp);
+  }
+  renderBonificacao();
+}
+
 async function _calcVolComputar(codigo,nome,quantidade){
   let pesoUnit=_calcVolPesosSessao[codigo]!=null?_calcVolPesosSessao[codigo]:(_pesosFaturamento[codigo]||0);
   if(!pesoUnit&&!_calcVolPesoPerguntado.has(codigo)){
@@ -12126,6 +12231,252 @@ async function importarFaturamento(input){
   input.value='';
 }
 
+/* ══════════════════════════════════════════════════════════════
+   BONIFICAÇÃO — funciona como o Faturamento (mesmo formato de planilha,
+   mesmo cálculo de peso/cubagem), mas gravado numa tabela separada
+   ('bonificacoes') pra NÃO entrar nos relatórios/dashboard de Faturamento.
+   ══════════════════════════════════════════════════════════════ */
+let bonDados=[];
+let bonCarregado=false;
+let fatSubViewAtual='faturamento';
+
+function setFatSubView(view){
+  fatSubViewAtual=view;
+  document.getElementById('fatViewFaturamento').style.display=view==='faturamento'?'':'none';
+  document.getElementById('fatViewBonificacao').style.display=view==='bonificacao'?'':'none';
+  document.getElementById('fatSubBtnFaturamento').classList.toggle('active',view==='faturamento');
+  document.getElementById('fatSubBtnBonificacao').classList.toggle('active',view==='bonificacao');
+  if(view==='bonificacao'&&!bonCarregado)carregarBonificacoes();
+}
+
+async function carregarBonificacoes(){
+  let todos=[];
+  let de=0;
+  const tamanhoPagina=1000;
+  while(true){
+    const {data,error}=await sb.from('bonificacoes').select('*').range(de,de+tamanhoPagina-1);
+    if(error){console.error('Erro ao carregar bonificações:',error);showT('Erro ao carregar bonificações: '+error.message,'erro');break;}
+    if(!data||!data.length)break;
+    todos=todos.concat(data);
+    if(data.length<tamanhoPagina)break;
+    de+=tamanhoPagina;
+  }
+  bonDados=todos;
+  bonCarregado=true;
+  renderBonificacao();
+}
+
+function importarBonificacao(input){
+  const file=input.files[0];
+  if(!file)return;
+  showT('Importando planilha de bonificação...','');
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    try{
+      const XLSX=window.XLSX;
+      if(!XLSX){showT('Biblioteca XLSX não carregada','erro');return;}
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+
+      const registros=rows.filter(function(r){
+        return r['Nro. N. Fiscal']&&r['Cód. Item']&&r['V. Total'];
+      }).map(function(r){
+        let dtEmissao=null;
+        if(r['Dt. Emissão']){
+          const parts=String(r['Dt. Emissão']).split('/');
+          if(parts.length===3)dtEmissao=parts[2]+'-'+parts[1]+'-'+parts[0];
+        }
+        return{
+          nf:String(r['Nro. N. Fiscal']||''),
+          cod_cliente:String(r['Cód. Cliente']||''),
+          cliente:String(r['Razão Social do Cliente']||''),
+          cidade:String(r['Cidade']||''),
+          estado:String(r['Estado']||''),
+          dt_emissao:dtEmissao,
+          mes_ano:String(r['Mês/Ano']||''),
+          cod_item:String(r['Cód. Item']||''),
+          item:String(r['Item']||''),
+          quantidade:parseFloat(r['Quantidade'])||0,
+          v_unitario:parseFloat(r['V. Unitário'])||(parseFloat(r['Quantidade'])>0?(parseFloat(r['V. Total'])||0)/(parseFloat(r['Quantidade'])||1):0),
+          v_mercadoria:parseFloat(r['V. Mercadoria'])||0,
+          v_total:parseFloat(r['V. Total'])||0,
+          transportadora:String(r['Razão Transportadora']||''),
+          cond_pagamento:String(r['Condição de Pagamento']||''),
+          representante:String(r['Razão Social do Representante']||''),
+          tipo_frete:String(r['Tipo de Frete']||''),
+        };
+      });
+
+      if(!registros.length){showT('Nenhum registro válido na planilha','erro');input.value='';return;}
+
+      const chaveReg=function(r){return r.nf+'|'+r.cod_item+'|'+(parseFloat(r.v_total)||0).toFixed(2);};
+      const existentes=new Set((bonDados||[]).map(chaveReg));
+      let duplicadas=0;
+      const registrosNovos=registros.filter(function(r){
+        if(existentes.has(chaveReg(r))){duplicadas++;return false;}
+        return true;
+      });
+
+      if(!registrosNovos.length){
+        showT('Nenhum registro novo — '+duplicadas+' já estavam lançados','erro');
+        input.value='';
+        return;
+      }
+
+      const {error}=await sb.from('bonificacoes').insert(registrosNovos);
+      if(error){console.error('import bonificação erro:',error);showT('Erro ao importar: '+error.message,'erro');input.value='';return;}
+
+      let msg=registrosNovos.length+' registro(s) de bonificação importado(s) ✓';
+      if(duplicadas)msg+=' — '+duplicadas+' ignorado(s) (já lançado anteriormente)';
+      showT(msg,'verde');
+
+      await carregarPesosFaturamento();
+      await carregarCaixaOverride();
+
+      // Perguntar peso/caixa dos itens novos que ainda não têm essa informação (uma vez por código)
+      const codigosVistos=new Set();
+      const itensParaPerguntar=[];
+      registrosNovos.forEach(function(r){
+        if(codigosVistos.has(r.cod_item))return;
+        codigosVistos.add(r.cod_item);
+        const faltaPeso=!_pesosFaturamento[r.cod_item];
+        const faltaCaixa=!_bonCaixaDoItem(r.cod_item,r.item);
+        if(faltaPeso||faltaCaixa)itensParaPerguntar.push({codigo:r.cod_item,nome:r.item,faltaPeso:faltaPeso,faltaCaixa:faltaCaixa});
+      });
+      if(itensParaPerguntar.length){
+        showT(itensParaPerguntar.length+' item(ns) novo(s) sem peso/caixa cadastrado — confirme um por um','');
+        for(const it of itensParaPerguntar){
+          if(it.faltaPeso){
+            const resp=await _bonPerguntarPeso(it.nome);
+            if(resp)await _bonSalvarPeso(it.codigo,resp);
+          }
+          if(it.faltaCaixa&&!_bonCaixaDoItem(it.codigo,it.nome)){
+            const resp=await _bonPerguntarCaixa(it.nome);
+            if(resp)await _bonSalvarCaixa(it.codigo,resp);
+          }
+        }
+        showT('Cadastro de peso/caixa concluído ✓','verde');
+      }
+
+      await carregarBonificacoes();
+    }catch(err){
+      console.error('Erro importação bonificação:',err);
+      showT('Erro ao ler planilha: '+err.message,'erro');
+    }
+    input.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// Agrupa os itens de bonificação por NF, calculando peso e volume igual à Calculadora de Volumetria
+function _bonAgruparPorNF(lista){
+  const porNF={};
+  lista.forEach(function(r){
+    if(r.excluida)return;
+    if(!porNF[r.nf])porNF[r.nf]={nf:r.nf,cliente:r.cliente,estado:r.estado,transportadora:r.transportadora,dtEmissao:r.dt_emissao,valor:0,itens:[],peso:0,volume:0,semPeso:false,semCaixa:false};
+    const g=porNF[r.nf];
+    g.valor+=(parseFloat(r.v_total)||0);
+    g.itens.push(r);
+    const qtd=parseFloat(r.quantidade)||0;
+    const pesoUnit=_pesosFaturamento?(_pesosFaturamento[r.cod_item]||0):0;
+    if(!pesoUnit)g.semPeso=true;
+    g.peso+=pesoUnit*qtd;
+    const tipo=_bonCaixaDoItem(r.cod_item,r.item);
+    if(!tipo){g.semCaixa=true;return;}
+    const caixas=Math.ceil(qtd/TIPOS_CAIXA[tipo].cap);
+    g.volume+=caixas*volumeCaixaM3(tipo);
+  });
+  return Object.values(porNF).sort(function(a,b){return (b.dtEmissao||'').localeCompare(a.dtEmissao||'');});
+}
+
+async function renderBonificacao(query){
+  query=(query!==undefined?query:document.getElementById('bonBusca')?.value)||'';
+  if(!_pesosFaturamento)await carregarPesosFaturamento();
+  if(!_caixaOverrideCarregado)await carregarCaixaOverride();
+  const q=normalizarTexto(query);
+  const grupos=_bonAgruparPorNF(bonDados).filter(function(g){
+    if(!q)return true;
+    return normalizarTexto(g.nf+' '+(g.cliente||'')).includes(q);
+  });
+
+  const totalValor=grupos.reduce((s,g)=>s+g.valor,0);
+  const totalPeso=grupos.reduce((s,g)=>s+g.peso,0);
+  const totalVolume=grupos.reduce((s,g)=>s+g.volume,0);
+  document.getElementById('bonStats').innerHTML=
+    '<div class="crm-stat"><div class="crm-stat-num">'+grupos.length+'</div><div class="crm-stat-label">NFs</div></div>'
+    +'<div class="crm-stat"><div class="crm-stat-num">R$ '+totalValor.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="crm-stat-label">Valor Total</div></div>'
+    +'<div class="crm-stat"><div class="crm-stat-num">'+totalPeso.toLocaleString('pt-BR',{maximumFractionDigits:0})+' kg</div><div class="crm-stat-label">Peso Total</div></div>'
+    +'<div class="crm-stat"><div class="crm-stat-num">'+totalVolume.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³</div><div class="crm-stat-label">Volume Total</div></div>';
+
+  const el=document.getElementById('bonLista');
+  if(!grupos.length){
+    el.innerHTML='<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">Nenhuma bonificação importada ainda. Use "📂 Importar Planilha (Bonificação)" acima.</div>';
+    return;
+  }
+  const fmt=function(v){return 'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  el.innerHTML=grupos.map(function(g){
+    const dtFmt=g.dtEmissao?new Date(g.dtEmissao).toLocaleDateString('pt-BR'):'—';
+    const idDet='bon-nf-'+g.nf;
+    return '<div style="border:1px solid var(--borda);border-radius:8px;margin-bottom:8px;overflow:hidden">'
+      +'<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:#f8fafc;cursor:pointer" onclick="toggleNFDetalhe(\''+idDet+'\')">'
+        +'<div style="font-size:13px;font-weight:700;color:var(--texto);min-width:64px">NF '+g.nf+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(g.cliente||'')+'">'+(g.cliente||'—')+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);min-width:36px">'+(g.estado||'—')+'</div>'
+        +'<div style="font-size:11px;color:var(--muted)">'+dtFmt+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);min-width:60px;text-align:right">'+(g.peso>0?('⚖️ '+g.peso.toLocaleString('pt-BR',{maximumFractionDigits:1})+' kg'):'')+(g.semPeso?' <span style="color:#b45309" title="algum item sem peso cadastrado">⚠</span>':'')+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);min-width:95px;text-align:right">'+(g.volume>0?('📦 '+g.volume.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³'):'')+(g.semCaixa?' <span style="color:#b45309" title="algum item com embalagem não reconhecida">⚠</span>':'')+'</div>'
+        +'<div style="font-size:13px;font-weight:700;color:#7c3aed;min-width:90px;text-align:right">'+fmt(g.valor)+'</div>'
+        +'<button onclick="event.stopPropagation();excluirBonificacaoNF(\''+g.nf+'\')" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer">🗑️ Excluir</button>'
+      +'</div>'
+      +'<div id="'+idDet+'" style="display:none;border-top:1px solid var(--borda)">'
+        +g.itens.map(function(it,i){
+          const faltaPeso=!_pesosFaturamento[it.cod_item];
+          const faltaCaixa=!_bonCaixaDoItem(it.cod_item,it.item);
+          const aviso=(faltaPeso||faltaCaixa)
+            ?'<span style="color:#d97706;font-size:10px;margin-left:6px">⚠ '+(faltaPeso&&faltaCaixa?'sem peso e caixa':faltaPeso?'sem peso':'sem caixa')+'</span>'
+              +'<button onclick="event.stopPropagation();bonPerguntarNovamente(\''+it.cod_item+'\',\''+it.item.replace(/'/g,"\\'")+'\')" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:6px;padding:1px 8px;font-size:10px;font-weight:700;cursor:pointer;margin-left:6px">🔄 Perguntar novamente</button>'
+            :'';
+          return '<div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:'+(i%2===0?'#fff':'#f8fafc')+';font-size:11px">'
+            +'<div style="flex:1;color:var(--texto)">'+it.item+aviso+'</div>'
+            +'<div style="color:var(--muted);min-width:50px;text-align:right">'+parseFloat(it.quantidade||0).toLocaleString('pt-BR')+' un</div>'
+            +'<div style="color:var(--muted);min-width:80px;text-align:right">'+fmt(it.v_unitario)+'/un</div>'
+            +'<div style="font-weight:600;color:#7c3aed;min-width:90px;text-align:right">'+fmt(it.v_total)+'</div>'
+          +'</div>';
+        }).join('')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+// Exclui (soft-delete) todos os itens de uma NF de bonificação
+async function excluirBonificacaoNF(nf){
+  const justificativa=prompt('Justificativa para excluir a NF '+nf+' da bonificação:');
+  if(justificativa===null)return;
+  if(!justificativa.trim()){showT('Informe a justificativa','erro');return;}
+
+  const {error}=await sb.from('bonificacoes')
+    .update({excluida:true,justificativa_exclusao:justificativa.trim()})
+    .eq('nf',nf);
+
+  if(error){
+    console.error('Erro excluir NF bonificação:',error);
+    showT('Erro ao excluir: '+error.message,'erro');
+    return;
+  }
+
+  bonDados.forEach(function(r){
+    if(r.nf===nf){
+      r.excluida=true;
+      r.justificativa_exclusao=justificativa.trim();
+    }
+  });
+
+  renderBonificacao();
+  showT('NF '+nf+' removida da bonificação ✓','verde');
+}
+
+
 // Classificação drag & drop
 function abrirClassificacao(){
   const dados=getDadosFiltrados();
@@ -12449,6 +12800,130 @@ function fecharRelatorio(){
   document.getElementById('overlayRelatorio').style.display='none';
 }
 
+// Exporta o relatório "Estado › Produtos x Mês" formatado (cores, borda, negrito) igual ao
+// padrão que o usuário já vinha montando manualmente no Excel. A biblioteca XLSX gratuita
+// usada no app não grava estilo de célula — por isso aqui a gente gera um HTML que o
+// próprio Excel abre nativamente como planilha (técnica clássica .xls via HTML), preservando
+// cor, negrito e borda de verdade.
+function exportarExcelEstadoMesFormatado(){
+  const grupo=document.getElementById('relProdutoEstadoGrupo').value;
+  const ufsFiltro=(document.getElementById('relProdutoEstadoFiltro').value||'').split(',').map(function(s){return s.trim().toUpperCase();}).filter(Boolean);
+  const allDados=getDadosFiltrados();
+  let d=grupo?allDados.filter(function(r){return(fatGrupos[r.cod_cliente]||'venda_direta')===grupo;}):allDados;
+  if(ufsFiltro.length)d=d.filter(function(r){return ufsFiltro.includes((r.estado||'').toUpperCase());});
+
+  if(!d.length){showT('Nenhum dado encontrado para exportar','erro');return;}
+
+  const MES_ABREV=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  function labelMes(mesAno){ // "04/2026" -> "abr-26"
+    const p=mesAno.split('/');
+    return MES_ABREV[parseInt(p[0],10)-1]+'-'+p[1].slice(2);
+  }
+
+  const meses=[...new Set(d.map(function(r){return r.mes_ano;}).filter(Boolean))].sort(function(a,b){
+    const pa=a.split('/'),pb=b.split('/');
+    return (pa[1]+pa[0].padStart(2,'0')).localeCompare(pb[1]+pb[0].padStart(2,'0'));
+  });
+  const estados=[...new Set(d.map(function(r){return r.estado||'N/D';}))].sort();
+
+  const fArial='font-family:Arial;font-size:8pt;';
+  const bd='border:1px solid #94a3b8;';
+  const stTitulo=fArial+bd+'font-weight:bold;color:#0F6E5F;background:#ffffff;padding:3px 6px;';
+  const stHead=fArial+bd+'font-weight:bold;color:#475569;background:#ffffff;padding:3px 6px;text-align:right;';
+  const stHeadL=fArial+bd+'font-weight:bold;color:#475569;background:#ffffff;padding:3px 6px;text-align:left;';
+  const stSub=fArial+bd+'color:#475569;background:#ffffff;padding:3px 6px;text-align:right;';
+  const stProd=fArial+bd+'color:#1E293B;background:#ffffff;padding:3px 6px;text-align:left;';
+  const stVal=fArial+bd+'color:#0F172A;background:#ffffff;padding:3px 6px;text-align:right;';
+  const stTot=fArial+bd+'font-weight:bold;color:#1E293B;background:#ffffff;padding:3px 6px;';
+  const stTotVal=fArial+bd+'font-weight:bold;color:#0F172A;background:#ffffff;padding:3px 6px;text-align:right;';
+
+  const fmtV=function(v){return v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';};
+  const fmtQ=function(v){return v?v.toLocaleString('pt-BR'):'—';};
+
+  let html='<table cellspacing="0" cellpadding="0" style="border-collapse:collapse">';
+  html+='<colgroup><col style="width:330px">';
+  meses.forEach(function(){html+='<col style="width:34px"><col style="width:100px">';});
+  html+='<col style="width:46px"><col style="width:110px"></colgroup>';
+
+  estados.forEach(function(uf){
+    const dEstado=d.filter(function(r){return(r.estado||'N/D')===uf;});
+    const matriz={};
+    dEstado.forEach(function(r){
+      const p=r.item||'N/D';
+      const m=r.mes_ano;
+      if(!m||!meses.includes(m))return;
+      if(!matriz[p])matriz[p]={};
+      if(!matriz[p][m])matriz[p][m]={qtd:0,valor:0};
+      matriz[p][m].qtd+=parseFloat(r.quantidade||0);
+      matriz[p][m].valor+=parseFloat(r.v_total||0);
+    });
+    const produtos=Object.keys(matriz).sort(function(a,b){
+      const totA=Object.values(matriz[a]).reduce(function(s,v){return s+v.valor;},0);
+      const totB=Object.values(matriz[b]).reduce(function(s,v){return s+v.valor;},0);
+      return totB-totA;
+    });
+
+    // Linha título do estado
+    html+='<tr><td style="'+stTitulo+'">📍 '+uf+'</td>';
+    for(let i=0;i<meses.length*2+1;i++)html+='<td style="'+stTitulo+'"></td>';
+    html+='</tr>';
+
+    // Cabeçalho: Produto | Mês1 (colspan 2) | Mês2 ... | Total (colspan 2)
+    html+='<tr><td style="'+stHeadL+'">Produto</td>';
+    meses.forEach(function(m){html+='<td colspan="2" style="'+stHead+'">'+labelMes(m)+'</td>';});
+    html+='<td colspan="2" style="'+stHead+'">Total</td></tr>';
+
+    // Sub-cabeçalho Qtd/Valor
+    html+='<tr><td style="'+stHeadL+'"></td>';
+    meses.forEach(function(){html+='<td style="'+stSub+'">Qtd</td><td style="'+stSub+'">Valor</td>';});
+    html+='<td style="'+stHead+'">Qtd</td><td style="'+stHead+'">Valor</td></tr>';
+
+    // Linhas de produto
+    produtos.forEach(function(p){
+      const linha=matriz[p];
+      let totQtd=0,totValor=0;
+      html+='<tr><td style="'+stProd+'">'+p+'</td>';
+      meses.forEach(function(m){
+        const c=linha[m];
+        totQtd+=(c?c.qtd:0);totValor+=(c?c.valor:0);
+        html+='<td style="'+stVal+'">'+(c&&c.qtd?fmtQ(c.qtd):'—')+'</td><td style="'+stVal+'">'+(c&&c.valor?fmtV(c.valor):'—')+'</td>';
+      });
+      html+='<td style="'+stVal+';font-weight:bold">'+fmtQ(totQtd)+'</td><td style="'+stVal+';font-weight:bold">'+fmtV(totValor)+'</td></tr>';
+    });
+
+    // Linha TOTAL
+    html+='<tr><td style="'+stTot+'">TOTAL</td>';
+    let granQtd=0,granValor=0;
+    meses.forEach(function(m){
+      let mQtd=0,mValor=0;
+      produtos.forEach(function(p){const c=matriz[p][m];if(c){mQtd+=c.qtd;mValor+=c.valor;}});
+      granQtd+=mQtd;granValor+=mValor;
+      html+='<td style="'+stTotVal+'">'+fmtQ(mQtd)+'</td><td style="'+stTotVal+'">'+fmtV(mValor)+'</td>';
+    });
+    html+='<td style="'+stTotVal+'">'+fmtQ(granQtd)+'</td><td style="'+stTotVal+'">'+fmtV(granValor)+'</td></tr>';
+  });
+
+  html+='</table>';
+
+  const full='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">'
+    +'<head><meta charset="UTF-8">'
+    +'<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'
+    +'<x:Name>Estado x Mes</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>'
+    +'</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'
+    +'</head><body>'+html+'</body></html>';
+
+  const blob=new Blob(['\ufeff'+full],{type:'application/vnd.ms-excel'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='Estado_x_Mes_'+new Date().toISOString().slice(0,10)+'.xls';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showT('Excel formatado gerado ✓','verde');
+}
+
 function gerarRelatorioFaturamento(modo){
   modo=modo||'imprimir';
   fecharRelatorio();
@@ -12475,6 +12950,9 @@ function gerarRelatorioFaturamento(modo){
     produtoMesGrupo:document.getElementById('relProdutoMesGrupo').value,
     produtoMesPorEstado:document.getElementById('relProdutoMesPorEstado').checked,
     produtoMesEstadoFiltro:document.getElementById('relProdutoMesEstadoFiltro').value,
+    produtoEstado:document.getElementById('relProdutoEstado').checked,
+    produtoEstadoGrupo:document.getElementById('relProdutoEstadoGrupo').value,
+    produtoEstadoFiltro:document.getElementById('relProdutoEstadoFiltro').value,
   };
   const allDados=getDadosFiltrados();
   const filtrar=function(g){return g?allDados.filter(function(r){return(fatGrupos[r.cod_cliente]||'venda_direta')===g;}):allDados;};
@@ -12744,6 +13222,83 @@ function gerarRelatorioFaturamento(modo){
     }
     body+='</div>';
   }
+
+  if(opts.produtoEstado){
+    let d=filtrar(opts.produtoEstadoGrupo);
+    const ufsFiltroPE=(opts.produtoEstadoFiltro||'').split(',').map(function(s){return s.trim().toUpperCase();}).filter(Boolean);
+    if(ufsFiltroPE.length)d=d.filter(function(r){return ufsFiltroPE.includes((r.estado||'').toUpperCase());});
+    const labelBasePE='Estado \u203a Produtos x M\u00eas'+(opts.produtoEstadoGrupo?' \u2014 '+GRUPOS[opts.produtoEstadoGrupo]?.label:'');
+
+    // Meses calculados uma vez com base em todo o per\u00edodo filtrado \u2014 garante colunas
+    // id\u00eanticas em todas as tabelas (mesma ordem de m\u00eas em todo estado).
+    const mesesPE=[...new Set(d.map(function(r){return r.mes_ano;}).filter(Boolean))].sort(function(a,b){
+      const pa=a.split('/'),pb=b.split('/');
+      return (pa[1]+pa[0].padStart(2,'0')).localeCompare(pb[1]+pb[0].padStart(2,'0'));
+    });
+    const estadosPE=[...new Set(d.map(function(r){return r.estado||'N/D';}))].sort();
+
+    // Tabela: Produto (linha) x M\u00eas (coluna, com sub-colunas Qtd e Valor) + Total Qtd/Valor
+    function tabelaEstadoMesDetalhe(dadosEstado,meses){
+      const matriz={};
+      dadosEstado.forEach(function(r){
+        const p=r.item||'N/D';
+        const m=r.mes_ano;
+        if(!m||!meses.includes(m))return;
+        if(!matriz[p])matriz[p]={};
+        if(!matriz[p][m])matriz[p][m]={qtd:0,valor:0};
+        matriz[p][m].qtd+=parseFloat(r.quantidade||0);
+        matriz[p][m].valor+=parseFloat(r.v_total||0);
+      });
+      const produtos=Object.keys(matriz).sort(function(a,b){
+        const totA=Object.values(matriz[a]).reduce(function(s,v){return s+v.valor;},0);
+        const totB=Object.values(matriz[b]).reduce(function(s,v){return s+v.valor;},0);
+        return totB-totA;
+      });
+      if(!produtos.length||!meses.length){
+        return '<p style="font-size:11px;color:#94a3b8;padding:8px 0">Nenhum dado encontrado neste per\u00edodo.</p>';
+      }
+      let html='<table class="sec-table" style="table-layout:fixed;font-size:10px"><thead><tr><th rowspan="2" style="width:20%;vertical-align:bottom">Produto</th>';
+      meses.forEach(function(m){html+='<th colspan="2" class="r">'+m+'</th>';});
+      html+='<th colspan="2" class="r" style="font-weight:800">Total</th></tr><tr>';
+      meses.forEach(function(){html+='<th class="r" style="font-weight:600">Qtd</th><th class="r" style="font-weight:600">Valor</th>';});
+      html+='<th class="r" style="font-weight:800">Qtd</th><th class="r" style="font-weight:800">Valor</th></tr></thead><tbody>';
+      produtos.forEach(function(p){
+        const linha=matriz[p];
+        let totQtd=0,totValor=0;
+        html+='<tr><td>'+p+'</td>';
+        meses.forEach(function(m){
+          const c=linha[m];
+          totQtd+=(c?c.qtd:0);totValor+=(c?c.valor:0);
+          html+='<td class="r">'+(c&&c.qtd?fmtN(c.qtd):'\u2014')+'</td><td class="r">'+(c&&c.valor?fmt(c.valor):'\u2014')+'</td>';
+        });
+        html+='<td class="r" style="font-weight:700">'+fmtN(totQtd)+'</td><td class="r" style="font-weight:700">'+fmt(totValor)+'</td></tr>';
+      });
+      html+='<tr style="border-top:2px solid #cbd5e1;font-weight:800"><td>TOTAL</td>';
+      let granQtd=0,granValor=0;
+      meses.forEach(function(m){
+        let mQtd=0,mValor=0;
+        produtos.forEach(function(p){const c=matriz[p][m];if(c){mQtd+=c.qtd;mValor+=c.valor;}});
+        granQtd+=mQtd;granValor+=mValor;
+        html+='<td class="r">'+fmtN(mQtd)+'</td><td class="r">'+fmt(mValor)+'</td>';
+      });
+      html+='<td class="r">'+fmtN(granQtd)+'</td><td class="r">'+fmt(granValor)+'</td></tr>';
+      html+='</tbody></table>';
+      return html;
+    }
+
+    body+='<div class="secao"><div class="secao-title">'+labelBasePE+(ufsFiltroPE.length?' \u2014 '+ufsFiltroPE.join(', '):'')+'</div>';
+    if(!d.length){
+      body+='<p style="font-size:11px;color:#94a3b8;padding:8px 0">Nenhum dado encontrado'+(ufsFiltroPE.length?' para os estados selecionados neste per\u00edodo.':' neste per\u00edodo.')+'</p>';
+    }else{
+      estadosPE.forEach(function(uf){
+        const dEstado=d.filter(function(r){return(r.estado||'N/D')===uf;});
+        body+='<div style="font-size:13px;font-weight:800;color:#0f6e5f;margin:18px 0 6px;padding-top:10px;border-top:2px solid #e2e8f0">\ud83d\udccd '+uf+'</div>';
+        body+=tabelaEstadoMesDetalhe(dEstado,mesesPE);
+      });
+    }
+    body+='</div>';
+  }
+
 
   const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relat\u00f3rio '+periodo+'</title><style>'+css+'</style></head><body><div class="header"><div><h1>Relat\u00f3rio de Faturamento</h1><p>'+periodo+' \u00b7 Gerado em '+new Date().toLocaleString('pt-BR')+'</p></div><div class="total-box"><span>Total do Per\u00edodo</span><strong>'+fmt(totalGeral)+'</strong></div></div>'+body+'</body></html>';
 
@@ -14642,6 +15197,27 @@ function salvarFretesLS(){
   localStorage.setItem('proaction_fretes',JSON.stringify(fretes));
 }
 
+// Busca o valor do frete (e transportadora) no módulo CT-e a partir do número da NF
+// preenchido no formulário — pesquisa em todos os CT-es importados.
+async function ftBuscarValorFreteCte(){
+  const nfInput=document.getElementById('ftNF').value;
+  const nfNum=parseInt(String(nfInput).replace(/\D/g,''),10);
+  if(!nfNum){showT('Informe o número da NF primeiro','erro');return;}
+  showT('Buscando no CT-e...','');
+  if(!_ctesCarregados)await carregarCtes();
+  let cteEncontrado=null;
+  for(const c of _ctes){
+    const achou=(c.nfs||[]).some(function(n){return parseInt(String(n.numero).replace(/\D/g,''),10)===nfNum;});
+    if(achou){cteEncontrado=c;break;}
+  }
+  if(!cteEncontrado){showT('Nenhum CT-e encontrado com a NF '+nfNum,'erro');return;}
+  if(cteEncontrado.cancelado){showT('Atenção: o CT-e '+cteEncontrado.numero+' que tem essa NF está marcado como CANCELADO','erro');}
+  document.getElementById('ftValorFrete').value=(cteEncontrado.valor_frete||0).toFixed(2);
+  const transpInput=document.getElementById('ftTransportadora');
+  if(transpInput&&!transpInput.value)transpInput.value=cteEncontrado.transportadora_nome||'';
+  showT('Valor do frete (R$ '+(cteEncontrado.valor_frete||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+') puxado do CT-e '+cteEncontrado.numero+' ✓','verde');
+}
+
 function abrirFormNF(id=null){
   const cv=document.getElementById('calcVolCard');if(cv)cv.style.display='none';
   ftEditando=id;
@@ -15070,6 +15646,26 @@ function _cteNumeroNFDaChave(chave){
   return String(parseInt(chave.substring(25,34),10));
 }
 
+// Detecta se o XML é um EVENTO de cancelamento (não um CT-e de autorização normal).
+// Retorna {chCTe, dhEvento, motivo} se for cancelamento, ou null se não for.
+function _parseCteEventoCancelamento(xmlText){
+  const parser=new DOMParser();
+  const xml=parser.parseFromString(xmlText,'text/xml');
+  const ns='http://www.portalfiscal.inf.br/cte';
+  const get=(tag,ctx)=>{
+    const c=ctx||xml;
+    return c.getElementsByTagNameNS(ns,tag)[0]?.textContent||c.getElementsByTagName(tag)[0]?.textContent||'';
+  };
+  const tpEvento=get('tpEvento');
+  const chCTe=get('chCTe');
+  if(!chCTe||tpEvento!=='110111')return null; // 110111 = código oficial de Cancelamento
+  return{
+    chCTe:chCTe,
+    dhEvento:get('dhEvento')||null,
+    motivo:get('xJust')||'Cancelado'
+  };
+}
+
 function _parseCteXmlString(xmlText){
   const parser=new DOMParser();
   const xml=parser.parseFromString(xmlText,'text/xml');
@@ -15089,14 +15685,16 @@ function _parseCteXmlString(xmlText){
   const vCarga=parseFloat(get('vCarga'))||0;
   const dhEmi=get('dhEmi');
 
-  // Peso e cubagem — vêm em infQ (cUnid/tpMed/qCarga), tpMed identifica o tipo de medida
-  let pesoReal=0, cubagemM3=0;
+  // Peso e cubagem — vêm em infQ (cUnid/tpMed/qCarga), tpMed identifica o tipo de medida.
+  // Nem todo CT-e preenche isso (é opcional no schema) — null = "não informado", diferente de 0.
+  let pesoReal=null, cubagemM3=null;
   Array.from(xml.getElementsByTagNameNS(ns,'infQ')).concat(Array.from(xml.getElementsByTagName('infQ'))).forEach(function(infQ){
     const tpMed=(get('tpMed',infQ)||'').toUpperCase();
-    const qCarga=parseFloat(get('qCarga',infQ))||0;
+    const qCarga=parseFloat(get('qCarga',infQ));
+    if(isNaN(qCarga))return;
     if(tpMed.includes('PESO REAL'))pesoReal=qCarga;
-    else if(!pesoReal&&tpMed.includes('PESO BRUTO'))pesoReal=qCarga;
-    else if(!pesoReal&&tpMed.includes('PESO BASE'))pesoReal=qCarga;
+    else if(pesoReal==null&&tpMed.includes('PESO BRUTO'))pesoReal=qCarga;
+    else if(pesoReal==null&&tpMed.includes('PESO BASE'))pesoReal=qCarga;
     if(tpMed==='M3'||tpMed.includes('CUBAGEM'))cubagemM3=qCarga;
   });
   const produtoPredominante=get('proPred');
@@ -15145,12 +15743,19 @@ function importarCteXML(input){
   if(!files.length)return;
   let erros=0;
   const linhasParaSalvar=[];
+  const cancelamentos=[];
 
   function processarArquivo(file){
     return new Promise(function(resolve){
       const reader=new FileReader();
       reader.onload=function(e){
         try{
+          const canc=_parseCteEventoCancelamento(e.target.result);
+          if(canc){
+            cancelamentos.push(canc);
+            resolve();
+            return;
+          }
           const dados=_parseCteXmlString(e.target.result);
           if(!dados.chave){erros++;resolve();return;}
           linhasParaSalvar.push(dados);
@@ -15164,40 +15769,51 @@ function importarCteXML(input){
 
   showT('Lendo '+files.length+' arquivo(s)...','');
   Promise.all(files.map(processarArquivo)).then(async function(){
-    if(!linhasParaSalvar.length){
-      showT(erros?'Nenhum CT-e válido encontrado ('+erros+' erro(s))':'Nenhum arquivo processado','erro');
+    if(!linhasParaSalvar.length&&!cancelamentos.length){
+      showT(erros?'Nenhum arquivo válido encontrado ('+erros+' erro(s))':'Nenhum arquivo processado','erro');
       input.value='';
       return;
     }
-    showT('Salvando '+linhasParaSalvar.length+' CT-e(s)...','');
-    const {error}=await sb.from('ctes').upsert(linhasParaSalvar,{onConflict:'chave'});
-    if(error){
-      console.error(error);
-      showT('Erro ao salvar: '+error.message,'erro');
-    }else{
-      showT(linhasParaSalvar.length+' CT-e(s) importado(s) ✓'+(erros?' · '+erros+' erro(s)':''),'verde');
+    let msgs=[];
+    if(linhasParaSalvar.length){
+      showT('Salvando '+linhasParaSalvar.length+' CT-e(s)...','');
+      const {error}=await sb.from('ctes').upsert(linhasParaSalvar,{onConflict:'chave'});
+      if(error){console.error(error);showT('Erro ao salvar: '+error.message,'erro');input.value='';return;}
+      msgs.push(linhasParaSalvar.length+' CT-e(s) importado(s)');
+    }
+    if(cancelamentos.length){
+      showT('Processando '+cancelamentos.length+' cancelamento(s)...','');
+      let marcados=0,naoAchados=0;
+      for(const canc of cancelamentos){
+        const {data,error}=await sb.from('ctes').update({cancelado:true,data_cancelamento:canc.dhEvento,motivo_cancelamento:canc.motivo}).eq('chave',canc.chCTe).select();
+        if(error){console.error(error);continue;}
+        if(data&&data.length)marcados++;else naoAchados++;
+      }
+      msgs.push(marcados+' CT-e(s) marcado(s) como cancelado(s)'+(naoAchados?' · '+naoAchados+' não encontrado(s) na base (importe o CT-e original primeiro)':''));
       await carregarCtes();
     }
+    showT(msgs.join(' · ')+(erros?' · '+erros+' erro(s)':'')+' ✓','verde');
+    if(linhasParaSalvar.length)await carregarCtes();
     input.value='';
   });
 }
 
 // Cruza um número de NF com o Faturamento (best effort — não bloqueia nada se não achar)
-async function _cteCruzarNF(numeroNF){
-  if(!fatDados||!fatDados.length||!numeroNF)return null;
+// Núcleo do cruzamento — procura a NF numa lista de registros (Faturamento OU Bonificação)
+// e calcula peso/volume igual à Calculadora de Volumetria.
+function _cteCruzarNFEmLista(numeroNF,lista){
+  if(!lista||!lista.length||!numeroNF)return null;
   const alvo=parseInt(String(numeroNF).replace(/\D/g,''),10);
   if(!alvo)return null;
-  const linhas=fatDados.filter(function(r){
+  const linhas=lista.filter(function(r){
     if(r.excluida)return false;
     const rNum=parseInt(String(r.nf||'').replace(/\D/g,''),10);
     return rNum===alvo;
   });
   if(!linhas.length)return null;
-  await carregarPesosFaturamento();
   const valorTotal=linhas.reduce(function(s,r){return s+(parseFloat(r.v_total)||0);},0);
   const uf=(linhas[0].estado||'').toString().trim().toUpperCase().slice(0,2);
 
-  // Agrupa por item (mesma lógica da Calculadora de Volumetria) pra calcular peso e cubagem
   const porItem={};
   linhas.forEach(function(r){
     if(!porItem[r.cod_item])porItem[r.cod_item]={nome:r.item,qtd:0};
@@ -15209,13 +15825,27 @@ async function _cteCruzarNF(numeroNF){
     const pesoUnit=_pesosFaturamento[cod]||0;
     if(!pesoUnit)semPeso=true;
     pesoTotal+=pesoUnit*it.qtd;
-    const tipo=caixaDoItem(it.nome);
+    const tipo=_bonCaixaDoItem(cod,it.nome);
     if(!tipo){semCaixa=true;return;}
     const caixas=Math.ceil(it.qtd/TIPOS_CAIXA[tipo].cap);
     volumeTotal+=caixas*volumeCaixaM3(tipo);
   });
 
   return{cliente:linhas[0].cliente,valor:valorTotal,itens:linhas.length,uf:uf,dtEmissao:linhas[0].dt_emissao,peso:pesoTotal,volume:volumeTotal,semPeso:semPeso,semCaixa:semCaixa};
+}
+
+// Procura primeiro no Faturamento normal; se não achar, procura em Bonificação
+// (registra de onde veio pra mostrar diferente no card da NF).
+async function _cteCruzarNF(numeroNF){
+  if(!numeroNF)return null;
+  await carregarPesosFaturamento();
+  if(!_caixaOverrideCarregado)await carregarCaixaOverride();
+  let res=_cteCruzarNFEmLista(numeroNF,fatDados||[]);
+  if(res)return Object.assign({},res,{origem:'faturamento'});
+  if(!bonCarregado)await carregarBonificacoes();
+  res=_cteCruzarNFEmLista(numeroNF,bonDados||[]);
+  if(res)return Object.assign({},res,{origem:'bonificacao'});
+  return null;
 }
 
 // Monta o HTML da lista de NFs do modal, com botão individual "Verificar vínculo"
@@ -15231,13 +15861,13 @@ function _cteRenderNfsRows(c){
       const pesoFmt=n.peso?n.peso.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' kg':(n.semPeso?'peso não cadastrado':'—');
       const volFmt=n.volume?n.volume.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³':(n.semCaixa?'embalagem não reconhecida':'—');
       corpo='<div style="flex:1;font-size:12px">'
-        +'<span style="color:#16a34a;font-weight:700">✓ Vinculado</span> — '+(n.cliente||'—')+' · R$ '+(n.valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+(dtFmt?' · '+dtFmt:'')
+        +'<span style="color:#16a34a;font-weight:700">✓ Vinculado</span>'+(n.origem==='bonificacao'?' <span style="background:#fef3c7;color:#92400e;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:8px">🎁 BONIFICAÇÃO</span>':'')+' — '+(n.cliente||'—')+' · R$ '+(n.valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+(dtFmt?' · '+dtFmt:'')
         +'<div style="color:var(--muted);margin-top:2px">⚖ '+pesoFmt+' · 📦 '+volFmt+'</div>'
         +(ufDivergente?'<div style="color:#d97706;font-weight:600;margin-top:2px">⚠ NF emitida pra '+n.uf+', CT-e destino é '+c.uf_destino+' — confira</div>':'')
         +'</div>'
         +'<button onclick="cteVerificarVinculo(\''+c.chave+'\','+idx+')" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline">verificar de novo</button>';
-    }else if(n.status==='bonificacao'){
-      corpo='<div style="flex:1;font-size:12px"><span style="color:#d97706;font-weight:700">🎁 Nota de bonificação</span> — não encontrada no Faturamento</div>'
+    }else if(n.status==='nao_localizado'){
+      corpo='<div style="flex:1;font-size:12px"><span style="color:#d97706;font-weight:700">🎁 Não localizada em nenhum lugar</span> — nem no Faturamento, nem na aba Bonificação</div>'
         +'<button onclick="cteVerificarVinculo(\''+c.chave+'\','+idx+')" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline">verificar de novo</button>';
     }else{
       corpo='<div style="flex:1;font-size:12px;color:var(--muted)">Vínculo não verificado</div>'
@@ -15260,9 +15890,9 @@ async function _cteProcessarVinculo(chave,idx){
   if(!n)return false;
   const cruz=await _cteCruzarNF(n.numero);
   if(cruz){
-    nfs[idx]=Object.assign({},n,{status:'vinculado',cliente:cruz.cliente,valor:cruz.valor,itens:cruz.itens,uf:cruz.uf,dtEmissao:cruz.dtEmissao,peso:cruz.peso,volume:cruz.volume,semPeso:cruz.semPeso,semCaixa:cruz.semCaixa});
+    nfs[idx]=Object.assign({},n,{status:'vinculado',origem:cruz.origem,cliente:cruz.cliente,valor:cruz.valor,itens:cruz.itens,uf:cruz.uf,dtEmissao:cruz.dtEmissao,peso:cruz.peso,volume:cruz.volume,semPeso:cruz.semPeso,semCaixa:cruz.semCaixa});
   }else{
-    nfs[idx]=Object.assign({},n,{status:'bonificacao'},{cliente:null,valor:null,peso:null,volume:null});
+    nfs[idx]=Object.assign({},n,{status:'nao_localizado'},{cliente:null,valor:null,peso:null,volume:null});
   }
   const {error}=await sb.from('ctes').update({nfs:nfs,atualizado_em:new Date().toISOString()}).eq('chave',chave);
   if(error){console.error('Erro ao salvar vínculo:',error);return false;}
@@ -15301,16 +15931,16 @@ async function cteVincularTodosAutomatico(){
   }
   await carregarPesosFaturamento();
 
-  let feitos=0,vinculadas=0,bonificacoes=0,erros=0;
+  let feitos=0,vinculadas=0,naoLocalizadas=0,erros=0;
   for(const p of pendentes){
     const status=await _cteProcessarVinculo(p.chave,p.idx);
     if(!status)erros++;
     else if(status==='vinculado')vinculadas++;
-    else if(status==='bonificacao')bonificacoes++;
+    else if(status==='nao_localizado')naoLocalizadas++;
     feitos++;
     if(feitos%5===0||feitos===pendentes.length)showT('Vinculando '+feitos+'/'+pendentes.length+'...','');
   }
-  showT(feitos+' NF(s) processada(s) — '+vinculadas+' vinculada(s), '+bonificacoes+' bonificação(ões)'+(erros?' · '+erros+' erro(s)':'')+' ✓','verde');
+  showT(feitos+' NF(s) processada(s) — '+vinculadas+' vinculada(s), '+naoLocalizadas+' não localizada(s)'+(erros?' · '+erros+' erro(s)':'')+' ✓','verde');
   renderCtes(document.getElementById('cteBusca')?document.getElementById('cteBusca').value:'');
 }
 
@@ -15323,7 +15953,19 @@ function renderCtes(query){
   query=(query!==undefined?query:document.getElementById('cteBusca')?.value)||'';
   const q=normalizarTexto(query);
   const sortSel=document.getElementById('cteSortSel')?.value||'recente';
+
+  // Popular o seletor de mês com os meses que existem nos CT-es carregados (preserva seleção atual)
+  const mesSel=document.getElementById('cteMesSel');
+  if(mesSel){
+    const mesesDisp=[...new Set(_ctes.map(function(c){return c.data_emissao?mesAnoDeData(c.data_emissao):'';}).filter(Boolean))].sort().reverse();
+    const valorAtual=mesSel.value;
+    mesSel.innerHTML='<option value="">Todos os meses (total)</option>'+mesesDisp.map(function(m){return '<option value="'+m+'">'+rotuloMesAno(m)+'</option>';}).join('');
+    if(mesesDisp.includes(valorAtual))mesSel.value=valorAtual;
+  }
+  const mesFiltro=mesSel?mesSel.value:'';
+
   let lista=_ctes.filter(function(c){
+    if(mesFiltro&&(!c.data_emissao||mesAnoDeData(c.data_emissao)!==mesFiltro))return false;
     if(!q)return true;
     const alvo=normalizarTexto([c.numero,c.transportadora_nome,c.remetente_nome,c.destinatario_nome,c.produto_predominante,(c.nfs||[]).map(n=>n.numero).join(' ')].join(' '));
     return alvo.includes(q);
@@ -15341,7 +15983,7 @@ function renderCtes(query){
   const totalCarga=lista.reduce(function(s,c){return s+(c.valor_carga||0);},0);
   const pctMedio=totalCarga?(totalFrete/totalCarga*100):0;
   document.getElementById('cteStats').innerHTML=
-    '<div class="crm-stat"><div class="crm-stat-num">'+lista.length+'</div><div class="crm-stat-label">CT-es</div></div>'
+    '<div class="crm-stat"><div class="crm-stat-num">'+lista.length+'</div><div class="crm-stat-label">CT-es'+(mesFiltro?' — '+rotuloMesAno(mesFiltro):' (total)')+'</div></div>'
     +'<div class="crm-stat"><div class="crm-stat-num">R$ '+totalFrete.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="crm-stat-label">Total Frete</div></div>'
     +'<div class="crm-stat"><div class="crm-stat-num">R$ '+totalCarga.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="crm-stat-label">Total Carga</div></div>'
     +'<div class="crm-stat"><div class="crm-stat-num" style="color:'+(pctMedio>15?'#dc2626':'#16a34a')+'">'+pctMedio.toFixed(1)+'%</div><div class="crm-stat-label">% Frete/Carga (médio)</div></div>';
@@ -15357,13 +15999,14 @@ function renderCtes(query){
     const pctCor=pct==null?'var(--muted)':(pct>15?'#dc2626':pct>8?'#d97706':'#16a34a');
     const dataFmt=c.data_emissao?new Date(c.data_emissao).toLocaleDateString('pt-BR'):'—';
     const nfsHtml=(c.nfs||[]).map(function(n){
-      const cores=n.status==='vinculado'?'background:#dcfce7;color:#166534':n.status==='bonificacao'?'background:#fef3c7;color:#92400e':'background:#eef2ff;color:#3730a3';
-      const icone=n.status==='vinculado'?'✓ ':n.status==='bonificacao'?'🎁 ':'';
+      const viaBon=n.status==='vinculado'&&n.origem==='bonificacao';
+      const cores=n.status==='vinculado'?(viaBon?'background:#fef3c7;color:#92400e':'background:#dcfce7;color:#166534'):n.status==='nao_localizado'?'background:#fee2e2;color:#991b1b':'background:#eef2ff;color:#3730a3';
+      const icone=n.status==='vinculado'?(viaBon?'🎁 ':'✓ '):n.status==='nao_localizado'?'✕ ':'';
       return '<span style="'+cores+';font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-right:3px;white-space:nowrap">'+icone+'NF '+n.numero+'</span>';
     }).join('');
     const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
-    return '<div onclick="abrirModalCte(\''+c.chave+'\')" style="cursor:pointer;background:#fff;border:1px solid var(--borda);border-radius:9px;padding:9px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;font-size:12.5px;white-space:nowrap;overflow:hidden">'
-      +'<div style="width:64px;flex-shrink:0"><div style="font-weight:800">'+c.numero+'</div><div style="font-size:9.5px;color:var(--muted)">'+dataFmt+'</div></div>'
+    return '<div onclick="abrirModalCte(\''+c.chave+'\')" style="cursor:pointer;background:'+(c.cancelado?'#fef2f2':'#fff')+';border:1px solid '+(c.cancelado?'#fecaca':'var(--borda)')+';border-radius:9px;padding:9px 14px;margin-bottom:6px;display:flex;align-items:center;gap:14px;font-size:12.5px;white-space:nowrap;overflow:hidden;opacity:'+(c.cancelado?'.75':'1')+'">'
+      +'<div style="width:64px;flex-shrink:0"><div style="font-weight:800;'+(c.cancelado?'text-decoration:line-through;color:#991b1b':'')+'">'+c.numero+'</div><div style="font-size:9.5px;color:var(--muted)">'+dataFmt+'</div>'+(c.cancelado?'<div style="font-size:8.5px;font-weight:800;color:#991b1b">❌ CANCELADO</div>':'')+'</div>'
       +'<div style="width:190px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis" title="'+rota+'">'+rota+'</div>'
       +'<div style="width:150px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis" title="'+(c.destinatario_nome||'')+'">'+(c.destinatario_nome||'—')+'</div>'
       +'<div style="width:150px;flex-shrink:0;overflow:hidden">'
@@ -15402,8 +16045,18 @@ async function abrirModalCte(chave){
   const pct=_ctePercentual(c);
   const nfsRows=_cteRenderNfsRows(c);
 
+  const faixaCancelado=c.cancelado
+    ?'<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;margin-bottom:16px">'
+      +'<div style="font-size:12px;color:#991b1b"><strong>❌ CT-e CANCELADO</strong>'+(c.data_cancelamento?' em '+new Date(c.data_cancelamento).toLocaleDateString('pt-BR'):'')+(c.motivo_cancelamento?' — '+c.motivo_cancelamento:'')+'</div>'
+      +'<button onclick="cteToggleCancelado(\''+c.chave+'\',false)" style="background:#fff;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Desmarcar</button>'
+      +'</div>'
+    :'<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:10px">'
+      +'<button onclick="cteToggleCancelado(\''+c.chave+'\',true)" style="background:none;border:none;color:#94a3b8;font-size:11px;cursor:pointer;text-decoration:underline">Confirmei no portal SEFAZ que foi cancelado — marcar aqui</button>'
+      +'</div>';
+
   document.getElementById('cteModalCorpo').innerHTML=
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'
+    faixaCancelado
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'
     +campoCte('Nº CT-e','cteNumero',c.numero)
     +campoCte('Série','cteSerie',c.serie)
     +campoCte('Transportadora','cteTransp',c.transportadora_nome)
@@ -15413,10 +16066,11 @@ async function abrirModalCte(chave){
     +campoCte('Destino','cteDestino',(c.municipio_destino||'')+'/'+(c.uf_destino||''))
     +campoCte('Valor do Frete (R$)','cteValorFrete',c.valor_frete,'number')
     +campoCte('Valor da Carga (R$)','cteValorCarga',c.valor_carga,'number')
-    +campoCte('Peso Real (kg)','ctePeso',c.peso_real,'number')
-    +campoCte('Cubagem (m³)','cteCubagem',c.cubagem_m3,'number')
+    +campoCte('Peso (CT-e XML)','ctePeso',c.peso_real,'number')
+    +campoCte('Cubagem (CT-e XML, m³)','cteCubagem',c.cubagem_m3,'number')
     +campoCte('Produto Predominante','cteProdutoPred',c.produto_predominante)
     +'</div>'
+    +_cteRenderComparativoPeso(c)
     +'<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--fundo-suave,#f8fafc);border-radius:10px;margin-bottom:16px">'
     +'<div style="flex:1;min-width:0"><div style="font-size:9.5px;font-weight:700;color:var(--muted)">CHAVE DE ACESSO DO CT-e</div><div style="font-family:monospace;font-size:11.5px;overflow:hidden;text-overflow:ellipsis">'+c.chave+'</div></div>'
     +'<button onclick="cteConsultarStatusOficial(\''+c.chave+'\')" style="background:#1e3a8a;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">🔎 Consultar status (SEFAZ)</button>'
@@ -15452,6 +16106,46 @@ function fecharConsultaCteOficial(){
   document.getElementById('cteConsultaIframe').src='';
 }
 
+async function cteToggleCancelado(chave,cancelado){
+  if(cancelado&&!confirm('Marcar esse CT-e como cancelado? Ele vai sair dos totais dos relatórios.'))return;
+  const upd=cancelado
+    ?{cancelado:true,data_cancelamento:new Date().toISOString(),motivo_cancelamento:'Confirmado manualmente via portal SEFAZ'}
+    :{cancelado:false,data_cancelamento:null,motivo_cancelamento:null};
+  const {error}=await sb.from('ctes').update(upd).eq('chave',chave);
+  if(error){showT('Erro ao atualizar: '+error.message,'erro');return;}
+  const c=_ctes.find(function(x){return x.chave===chave;});
+  if(c)Object.assign(c,upd);
+  showT(cancelado?'Marcado como cancelado':'Desmarcado','verde');
+  abrirModalCte(chave);
+  renderCtes(document.getElementById('cteBusca')?document.getElementById('cteBusca').value:'');
+}
+
+// Mostra lado a lado o peso/cubagem que veio no XML do CT-e (referência) e o que foi
+// calculado a partir das NFs vinculadas no Faturamento (o que realmente entra nos relatórios).
+function _cteRenderComparativoPeso(c){
+  const pv=_cteFaturamentoPesoVolume(c);
+  const pesoXml=c.peso_real!=null?c.peso_real.toLocaleString('pt-BR',{maximumFractionDigits:1})+' kg':'não informado';
+  const volXml=c.cubagem_m3!=null?c.cubagem_m3.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³':'não informado';
+  const pesoFat=pv.peso!=null?pv.peso.toLocaleString('pt-BR',{maximumFractionDigits:1})+' kg':'—';
+  const volFat=pv.volume!=null?pv.volume.toLocaleString('pt-BR',{minimumFractionDigits:3})+' m³':'—';
+  const statusFat=pv.totalNfs===0
+    ?'Sem NF vinculada'
+    :pv.completo
+      ?'✓ Todas as '+pv.totalNfs+' NF(s) vinculadas'
+      :pv.vinculadas+' de '+pv.totalNfs+' NF(s) vinculadas — total ainda incompleto';
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">'
+    +'<div style="padding:10px 12px;background:#f8fafc;border:1px solid var(--borda);border-radius:10px">'
+      +'<div style="font-size:9.5px;font-weight:700;color:var(--muted)">PESO/VOLUME NO XML DO CT-e <span style="font-weight:400">(referência)</span></div>'
+      +'<div style="font-size:14px;font-weight:700;margin-top:3px">'+pesoXml+' · '+volXml+'</div>'
+    +'</div>'
+    +'<div style="padding:10px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px">'
+      +'<div style="font-size:9.5px;font-weight:700;color:#1e40af">PESO/VOLUME DO FATURAMENTO <span style="font-weight:400">(usado nos relatórios)</span></div>'
+      +'<div style="font-size:14px;font-weight:800;color:#1e3a8a;margin-top:3px">'+pesoFat+' · '+volFat+'</div>'
+      +'<div style="font-size:10px;color:'+(pv.completo?'#16a34a':'#d97706')+';margin-top:2px">'+statusFat+'</div>'
+    +'</div>'
+    +'</div>';
+}
+
 function campoCte(label,id,valor,tipo){
   return '<div class="form-field"><label>'+label+'</label><input type="'+(tipo||'text')+'" id="'+id+'" value="'+(valor!=null?String(valor).replace(/"/g,'&quot;'):'')+'" '+(tipo==='number'?'step="0.01"':'')+'></div>';
 }
@@ -15469,8 +16163,8 @@ async function salvarEdicaoCte(){
     destinatario_nome:document.getElementById('cteDest').value,
     valor_frete:parseFloat(document.getElementById('cteValorFrete').value)||0,
     valor_carga:parseFloat(document.getElementById('cteValorCarga').value)||0,
-    peso_real:parseFloat(document.getElementById('ctePeso').value)||0,
-    cubagem_m3:parseFloat(document.getElementById('cteCubagem').value)||0,
+    peso_real:document.getElementById('ctePeso').value===''?null:parseFloat(document.getElementById('ctePeso').value),
+    cubagem_m3:document.getElementById('cteCubagem').value===''?null:parseFloat(document.getElementById('cteCubagem').value),
     produto_predominante:document.getElementById('cteProdutoPred').value,
     observacoes:document.getElementById('cteObs').value,
     atualizado_em:new Date().toISOString(),
@@ -15502,16 +16196,39 @@ async function excluirCte(){
    ══════════════════════════════════════════════════════════════ */
 let cteRelatorioTabAtual='transportadora';
 
+// CT-es cancelados não entram nos totais/relatórios (mas continuam visíveis na lista, marcados)
+function _ctesAtivos(){
+  return _ctes.filter(function(c){return !c.cancelado;});
+}
+
+// Peso e volume "reais" pra relatório — somados a partir das NFs já vinculadas no Faturamento
+// (usa a mesma lógica de cálculo da Calculadora de Volumetria), NÃO o que veio no XML do CT-e
+// (que é opcional e nem sempre confiável). NFs de bonificação ou ainda não verificadas não entram.
+function _cteFaturamentoPesoVolume(c){
+  const nfs=c.nfs||[];
+  const vinculadas=nfs.filter(function(n){return n.status==='vinculado';});
+  const peso=vinculadas.reduce(function(s,n){return s+(n.peso||0);},0);
+  const volume=vinculadas.reduce(function(s,n){return s+(n.volume||0);},0);
+  return{
+    peso:vinculadas.length?peso:null,
+    volume:vinculadas.length?volume:null,
+    totalNfs:nfs.length,
+    vinculadas:vinculadas.length,
+    completo:nfs.length>0&&vinculadas.length===nfs.length
+  };
+}
+
 function _cteRelAgrupar(lista,chaveFn){
   const mapa={};
   lista.forEach(function(c){
     const k=chaveFn(c);
-    if(!mapa[k])mapa[k]={chave:k,qtd:0,frete:0,carga:0,peso:0,volume:0};
+    if(!mapa[k])mapa[k]={chave:k,qtd:0,frete:0,carga:0,peso:0,volume:0,semPeso:0,semVolume:0};
     mapa[k].qtd++;
     mapa[k].frete+=(c.valor_frete||0);
     mapa[k].carga+=(c.valor_carga||0);
-    mapa[k].peso+=(c.peso_real||0);
-    mapa[k].volume+=(c.cubagem_m3||0);
+    const pv=_cteFaturamentoPesoVolume(c);
+    if(pv.peso!=null)mapa[k].peso+=pv.peso;else mapa[k].semPeso++;
+    if(pv.volume!=null)mapa[k].volume+=pv.volume;else mapa[k].semVolume++;
   });
   return Object.values(mapa).map(function(g){
     g.pct=g.carga?(g.frete/g.carga*100):null;
@@ -15519,91 +16236,97 @@ function _cteRelAgrupar(lista,chaveFn){
   }).sort(function(a,b){return b.frete-a.frete;});
 }
 
-function _cteRelTabelaHtml(grupos,rotuloColuna){
+function _cteRelTabelaHtml(grupos,rotuloColuna,tituloSecao){
   if(!grupos.length)return '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">Sem dados.</div>';
   const totFrete=grupos.reduce((s,g)=>s+g.frete,0);
   const totCarga=grupos.reduce((s,g)=>s+g.carga,0);
   const totPeso=grupos.reduce((s,g)=>s+g.peso,0);
   const totVolume=grupos.reduce((s,g)=>s+g.volume,0);
+  const totSemPeso=grupos.reduce((s,g)=>s+g.semPeso,0);
+  const totSemVolume=grupos.reduce((s,g)=>s+g.semVolume,0);
   const totPct=totCarga?(totFrete/totCarga*100):0;
   const linhas=grupos.map(function(g){
-    const pctCor=g.pct==null?'var(--muted)':(g.pct>15?'#dc2626':g.pct>8?'#d97706':'#16a34a');
-    return '<tr style="border-bottom:1px solid var(--borda)">'
-      +'<td style="padding:7px 8px;font-weight:600">'+g.chave+'</td>'
-      +'<td style="padding:7px 8px;text-align:right">'+g.qtd+'</td>'
-      +'<td style="padding:7px 8px;text-align:right">R$ '+g.carga.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
-      +'<td style="padding:7px 8px;text-align:right;font-weight:700">R$ '+g.frete.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
-      +'<td style="padding:7px 8px;text-align:right;font-weight:800;color:'+pctCor+'">'+(g.pct==null?'—':g.pct.toFixed(1)+'%')+'</td>'
-      +'<td style="padding:7px 8px;text-align:right;color:var(--muted)">'+(g.peso?g.peso.toLocaleString('pt-BR',{maximumFractionDigits:0})+' kg':'—')+'</td>'
-      +'<td style="padding:7px 8px;text-align:right;color:var(--muted)">'+(g.volume?g.volume.toLocaleString('pt-BR',{minimumFractionDigits:2})+' m³':'—')+'</td>'
+    const pctCor=g.pct==null?'#94a3b8':(g.pct>15?'#dc2626':g.pct>8?'#d97706':'#16a34a');
+    return '<tr>'
+      +'<td>'+g.chave+'</td>'
+      +'<td class="r">'+g.qtd+'</td>'
+      +'<td class="r">R$ '+g.carga.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+      +'<td class="r" style="font-weight:700">R$ '+g.frete.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+      +'<td class="r" style="font-weight:800;color:'+pctCor+'">'+(g.pct==null?'—':g.pct.toFixed(1)+'%')+'</td>'
+      +'<td class="r" style="color:#64748b">'+(g.peso?g.peso.toLocaleString('pt-BR',{maximumFractionDigits:0})+' kg':'—')+(g.semPeso?' <span title="'+g.semPeso+' CT-e(s) sem peso informado no XML" style="color:#d97706">*</span>':'')+'</td>'
+      +'<td class="r" style="color:#64748b">'+(g.volume?g.volume.toLocaleString('pt-BR',{minimumFractionDigits:2})+' m³':'—')+(g.semVolume?' <span title="'+g.semVolume+' CT-e(s) sem cubagem informada no XML" style="color:#d97706">*</span>':'')+'</td>'
       +'</tr>';
   }).join('');
-  return '<table style="width:100%;border-collapse:collapse;font-size:12.5px">'
-    +'<thead><tr style="border-bottom:2px solid var(--texto)">'
-    +'<th style="padding:7px 8px;text-align:left">'+rotuloColuna+'</th>'
-    +'<th style="padding:7px 8px;text-align:right">CT-es</th>'
-    +'<th style="padding:7px 8px;text-align:right">Valor Carga</th>'
-    +'<th style="padding:7px 8px;text-align:right">Valor Frete</th>'
-    +'<th style="padding:7px 8px;text-align:right">% F/C</th>'
-    +'<th style="padding:7px 8px;text-align:right">Peso</th>'
-    +'<th style="padding:7px 8px;text-align:right">Volume</th>'
+  return (tituloSecao?'<div class="cte-rel-secao-title">'+tituloSecao+'</div>':'')
+    +'<table class="cte-rel-tabela">'
+    +'<thead><tr>'
+    +'<th>'+rotuloColuna+'</th><th class="r">CT-es</th><th class="r">Valor Carga</th><th class="r">Valor Frete</th>'
+    +'<th class="r">% F/C</th><th class="r">Peso</th><th class="r">Volume</th>'
     +'</tr></thead><tbody>'+linhas+'</tbody>'
-    +'<tfoot><tr style="border-top:2px solid var(--texto);font-weight:800">'
-    +'<td style="padding:8px">TOTAL</td>'
-    +'<td style="padding:8px;text-align:right">'+grupos.reduce((s,g)=>s+g.qtd,0)+'</td>'
-    +'<td style="padding:8px;text-align:right">R$ '+totCarga.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
-    +'<td style="padding:8px;text-align:right">R$ '+totFrete.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
-    +'<td style="padding:8px;text-align:right">'+totPct.toFixed(1)+'%</td>'
-    +'<td style="padding:8px;text-align:right">'+totPeso.toLocaleString('pt-BR',{maximumFractionDigits:0})+' kg</td>'
-    +'<td style="padding:8px;text-align:right">'+totVolume.toLocaleString('pt-BR',{minimumFractionDigits:2})+' m³</td>'
-    +'</tr></tfoot></table>';
+    +'<tfoot><tr>'
+    +'<td>TOTAL</td>'
+    +'<td class="r">'+grupos.reduce((s,g)=>s+g.qtd,0)+'</td>'
+    +'<td class="r">R$ '+totCarga.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+    +'<td class="r">R$ '+totFrete.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+    +'<td class="r">'+totPct.toFixed(1)+'%</td>'
+    +'<td class="r">'+totPeso.toLocaleString('pt-BR',{maximumFractionDigits:0})+' kg</td>'
+    +'<td class="r">'+totVolume.toLocaleString('pt-BR',{minimumFractionDigits:2})+' m³</td>'
+    +'</tr></tfoot></table>'
+    +((totSemPeso||totSemVolume)?'<div style="font-size:10.5px;color:#d97706;margin-top:8px">* '+(totSemPeso?totSemPeso+' CT-e(s) sem peso informado':'')+(totSemPeso&&totSemVolume?' · ':'')+(totSemVolume?totSemVolume+' CT-e(s) sem cubagem informada':'')+' no XML original — não entram na soma (não é que pesem/ocupem zero, é que a transportadora não preencheu esse campo)</div>':'');
 }
 
 function _cteRelRankingHtml(){
-  const comPct=_ctes.filter(c=>c.valor_carga>0).map(function(c){
+  const comPct=_ctesAtivos().filter(c=>c.valor_carga>0).map(function(c){
     return Object.assign({},c,{pct:(c.valor_frete/c.valor_carga)*100});
   }).sort((a,b)=>b.pct-a.pct).slice(0,30);
   if(!comPct.length)return '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">Sem dados.</div>';
   const linhas=comPct.map(function(c){
     const pctCor=c.pct>15?'#dc2626':c.pct>8?'#d97706':'#16a34a';
     const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
-    return '<tr style="border-bottom:1px solid var(--borda);cursor:pointer" onclick="fecharRelatoriosCte();abrirModalCte(\''+c.chave+'\')">'
-      +'<td style="padding:7px 8px;font-weight:700">'+c.numero+'</td>'
-      +'<td style="padding:7px 8px">'+(c.transportadora_nome||'—')+'</td>'
-      +'<td style="padding:7px 8px;color:var(--muted)">'+rota+'</td>'
-      +'<td style="padding:7px 8px;text-align:right">R$ '+(c.valor_carga||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
-      +'<td style="padding:7px 8px;text-align:right;font-weight:700">R$ '+(c.valor_frete||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
-      +'<td style="padding:7px 8px;text-align:right;font-weight:800;color:'+pctCor+'">'+c.pct.toFixed(1)+'%</td>'
+    return '<tr style="cursor:pointer" onclick="fecharRelatoriosCte();abrirModalCte(\''+c.chave+'\')">'
+      +'<td>'+c.numero+'</td>'
+      +'<td style="font-weight:400;font-family:\'Inter\',sans-serif">'+(c.transportadora_nome||'—')+'</td>'
+      +'<td style="font-weight:400;font-family:\'Inter\',sans-serif;color:#64748b">'+rota+'</td>'
+      +'<td class="r">R$ '+(c.valor_carga||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+      +'<td class="r" style="font-weight:700">R$ '+(c.valor_frete||0).toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+      +'<td class="r" style="font-weight:800;color:'+pctCor+'">'+c.pct.toFixed(1)+'%</td>'
       +'</tr>';
   }).join('');
-  return '<table style="width:100%;border-collapse:collapse;font-size:12.5px">'
-    +'<thead><tr style="border-bottom:2px solid var(--texto)">'
-    +'<th style="padding:7px 8px;text-align:left">CT-e</th><th style="padding:7px 8px;text-align:left">Transportadora</th>'
-    +'<th style="padding:7px 8px;text-align:left">Rota</th><th style="padding:7px 8px;text-align:right">Carga</th>'
-    +'<th style="padding:7px 8px;text-align:right">Frete</th><th style="padding:7px 8px;text-align:right">% F/C</th>'
+  return '<div class="cte-rel-secao-title ranking">Ranking — Maior % Frete sobre Carga</div>'
+    +'<table class="cte-rel-tabela">'
+    +'<thead><tr>'
+    +'<th>CT-e</th><th>Transportadora</th><th>Rota</th><th class="r">Carga</th><th class="r">Frete</th><th class="r">% F/C</th>'
     +'</tr></thead><tbody>'+linhas+'</tbody></table>'
-    +'<div style="font-size:11px;color:var(--muted);margin-top:10px">Mostrando os 30 CT-es com maior percentual de frete sobre o valor da carga.</div>';
+    +'<div style="font-size:11px;color:#94a3b8;margin-top:10px">Mostrando os 30 CT-es com maior percentual de frete sobre o valor da carga.</div>';
 }
 
 let _cteRelChartObj=null;
-const CTE_REL_CORES=['#1e3a8a','#2563eb','#5b8def','#7fa8e8','#a9c4f0','#0d2c4d','#154a7d'];
+const CTE_REL_CORES=['#0d2c4d','#154a7d','#1f5f9c','#5fa8cc','#a9d6ea','#f2a53b'];
 
 function _cteRelRenderKpis(){
-  const totFrete=_ctes.reduce((s,c)=>s+(c.valor_frete||0),0);
-  const totCarga=_ctes.reduce((s,c)=>s+(c.valor_carga||0),0);
-  const totPeso=_ctes.reduce((s,c)=>s+(c.peso_real||0),0);
-  const totVolume=_ctes.reduce((s,c)=>s+(c.cubagem_m3||0),0);
+  const ativos=_ctesAtivos();
+  const totFrete=ativos.reduce((s,c)=>s+(c.valor_frete||0),0);
+  const totCarga=ativos.reduce((s,c)=>s+(c.valor_carga||0),0);
+  const pvTodos=ativos.map(_cteFaturamentoPesoVolume);
+  const totPeso=pvTodos.reduce((s,pv)=>s+(pv.peso||0),0);
+  const totVolume=pvTodos.reduce((s,pv)=>s+(pv.volume||0),0);
+  const qtdSemPeso=pvTodos.filter(pv=>pv.peso==null).length;
+  const qtdSemVolume=pvTodos.filter(pv=>pv.volume==null).length;
   const pct=totCarga?(totFrete/totCarga*100):0;
+
+  document.getElementById('cteRelHeader').innerHTML=
+    '<div><h1>Relatório de Frete — CT-e</h1><p>'+ativos.length+' conhecimento(s) de transporte · Gerado em '+new Date().toLocaleDateString('pt-BR')+'</p></div>'
+    +'<div class="total-box"><span>% Frete sobre Carga</span><strong style="color:'+(pct>15?'#dc2626':pct>8?'#d97706':'#16a34a')+'">'+pct.toFixed(1)+'%</strong></div>';
+
   const kpis=[
-    {lbl:'CT-es',val:_ctes.length},
+    {lbl:'CT-es',val:String(ativos.length)},
     {lbl:'Valor Frete',val:'R$ '+totFrete.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0})},
     {lbl:'Valor Carga',val:'R$ '+totCarga.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0})},
-    {lbl:'% Frete/Carga',val:pct.toFixed(1)+'%',cor:pct>15?'#dc2626':pct>8?'#d97706':'#16a34a'},
-    {lbl:'Peso Total',val:totPeso.toLocaleString('pt-BR',{maximumFractionDigits:0})+' kg'},
-    {lbl:'Volume Total',val:totVolume.toLocaleString('pt-BR',{minimumFractionDigits:2})+' m³'},
+    {lbl:'Peso Total',val:totPeso.toLocaleString('pt-BR',{maximumFractionDigits:0})+' kg',sub:qtdSemPeso?qtdSemPeso+' sem info':null},
+    {lbl:'Volume Total',val:totVolume.toLocaleString('pt-BR',{minimumFractionDigits:2})+' m³',sub:qtdSemVolume?qtdSemVolume+' sem info':null},
   ];
   document.getElementById('cteRelKpis').innerHTML=kpis.map(function(k){
-    return '<div style="background:#fff;padding:12px 14px"><div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase">'+k.lbl+'</div><div style="font-size:17px;font-weight:800;color:'+(k.cor||'var(--texto)')+'">'+k.val+'</div></div>';
+    return '<div class="cte-rel-kpi"><div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'</div>'+(k.sub?'<div style="font-size:9px;color:#d97706;font-weight:600;margin-top:1px">⚠ '+k.sub+'</div>':'')+'</div>';
   }).join('');
 }
 
@@ -15620,28 +16343,29 @@ function _cteRelRenderChart(tab,grupos){
     data:{
       labels:top.map(g=>g.chave),
       datasets:[
-        {label:'Valor Frete (R$)',data:top.map(g=>g.frete),backgroundColor:'#1e3a8a',borderRadius:4,order:2},
-        {label:'Valor Carga (R$)',data:top.map(g=>g.carga),backgroundColor:'#a9c4f0',borderRadius:4,order:3,hidden:true},
-        {label:'% Frete/Carga',data:top.map(g=>g.pct),type:'line',borderColor:'#dc2626',backgroundColor:'#dc2626',yAxisID:'y1',tension:.3,pointRadius:4,order:1}
+        {label:'Valor Frete (R$)',data:top.map(g=>g.frete),backgroundColor:'#154a7d',borderRadius:4,order:2},
+        {label:'Valor Carga (R$)',data:top.map(g=>g.carga),backgroundColor:'#a9d6ea',borderRadius:4,order:3,hidden:true},
+        {label:'% Frete/Carga',data:top.map(g=>g.pct),type:'line',borderColor:'#f2a53b',backgroundColor:'#f2a53b',yAxisID:'y1',tension:.3,pointRadius:4,order:1}
       ]
     },
     options:{
       responsive:true,
-      plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+      plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:11},color:'#334155'}}},
       scales:{
-        y:{title:{display:true,text:'R$'},grid:{color:'#e2e8f0'}},
-        y1:{position:'right',title:{display:true,text:'%'},grid:{display:false}},
-        x:{grid:{display:false},ticks:{maxRotation:isMes?0:35,minRotation:isMes?0:35,font:{size:10}}}
+        y:{title:{display:true,text:'R$',font:{family:'JetBrains Mono',size:10}},grid:{color:'#eef2f6'},ticks:{font:{family:'JetBrains Mono',size:9}}},
+        y1:{position:'right',title:{display:true,text:'%',font:{family:'JetBrains Mono',size:10}},grid:{display:false},ticks:{font:{family:'JetBrains Mono',size:9}}},
+        x:{grid:{display:false},ticks:{maxRotation:isMes?0:35,minRotation:isMes?0:35,font:{family:'Inter',size:10}}}
       }
     }
   });
 }
 
 function _cteRelDados(tab){
-  if(tab==='transportadora')return _cteRelAgrupar(_ctes,c=>c.transportadora_nome||'—');
-  if(tab==='rota')return _cteRelAgrupar(_ctes,c=>(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?'));
-  if(tab==='mes')return _cteRelAgrupar(_ctes,c=>c.data_emissao?rotuloMesAno(mesAnoDeData(c.data_emissao)):'Sem data').sort(function(a,b){return a.chave.localeCompare(b.chave);});
-  if(tab==='estado')return _cteRelAgrupar(_ctes,c=>c.uf_destino||'—');
+  const ativos=_ctesAtivos();
+  if(tab==='transportadora')return _cteRelAgrupar(ativos,c=>c.transportadora_nome||'—');
+  if(tab==='rota')return _cteRelAgrupar(ativos,c=>(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?'));
+  if(tab==='mes')return _cteRelAgrupar(ativos,c=>c.data_emissao?rotuloMesAno(mesAnoDeData(c.data_emissao)):'Sem data').sort(function(a,b){return a.chave.localeCompare(b.chave);});
+  if(tab==='estado')return _cteRelAgrupar(ativos,c=>c.uf_destino||'—');
   return [];
 }
 
@@ -15658,9 +16382,10 @@ function setCteRelatorioTab(tab){
     return;
   }
   const rotulos={transportadora:'Transportadora',rota:'Rota',mes:'Mês',estado:'Estado Destino'};
+  const titulos={transportadora:'Por Transportadora',rota:'Por Rota',mes:'Evolução Mensal',estado:'Por Estado de Destino'};
   const dados=_cteRelDados(tab);
   _cteRelRenderChart(tab,dados);
-  corpo.innerHTML=_cteRelTabelaHtml(dados,rotulos[tab]);
+  corpo.innerHTML=_cteRelTabelaHtml(dados,rotulos[tab],titulos[tab]);
 }
 
 async function abrirRelatoriosCte(){
@@ -15695,7 +16420,7 @@ function exportarRelatoriosCteExcel(){
   addSheet('Por Mês',_cteRelDados('mes'),'Mês');
   addSheet('Por Estado Destino',_cteRelDados('estado'),'UF Destino');
 
-  const ranking=_ctes.filter(c=>c.valor_carga>0).map(c=>Object.assign({},c,{pct:(c.valor_frete/c.valor_carga)*100})).sort((a,b)=>b.pct-a.pct);
+  const ranking=_ctesAtivos().filter(c=>c.valor_carga>0).map(c=>Object.assign({},c,{pct:(c.valor_frete/c.valor_carga)*100})).sort((a,b)=>b.pct-a.pct);
   const linhasRank=[['CT-e','Data','Transportadora','Rota','Valor Carga','Valor Frete','% F/C']];
   ranking.forEach(function(c){
     const rota=(c.municipio_origem||'?')+'/'+(c.uf_origem||'?')+' → '+(c.municipio_destino||'?')+'/'+(c.uf_destino||'?');
@@ -15724,8 +16449,8 @@ function _cteRelChartImagem(tab,grupos){
     data:{
       labels:top.map(g=>g.chave),
       datasets:[
-        {label:'Valor Frete (R$)',data:top.map(g=>g.frete),backgroundColor:'#1e3a8a',borderRadius:4,order:2},
-        {label:'% Frete/Carga',data:top.map(g=>g.pct),type:'line',borderColor:'#dc2626',backgroundColor:'#dc2626',yAxisID:'y1',tension:.3,pointRadius:4,order:1}
+        {label:'Valor Frete (R$)',data:top.map(g=>g.frete),backgroundColor:'#154a7d',borderRadius:4,order:2},
+        {label:'% Frete/Carga',data:top.map(g=>g.pct),type:'line',borderColor:'#f2a53b',backgroundColor:'#f2a53b',yAxisID:'y1',tension:.3,pointRadius:4,order:1}
       ]
     },
     options:{
@@ -15767,16 +16492,18 @@ function gerarRelatorioPdfCte(){
   let y=28;
   cabecalho();
 
-  const totFrete=_ctes.reduce((s,c)=>s+(c.valor_frete||0),0);
-  const totCarga=_ctes.reduce((s,c)=>s+(c.valor_carga||0),0);
+  const ativosPdf=_ctesAtivos();
+  const totFrete=ativosPdf.reduce((s,c)=>s+(c.valor_frete||0),0);
+  const totCarga=ativosPdf.reduce((s,c)=>s+(c.valor_carga||0),0);
   const pctGeral=totCarga?(totFrete/totCarga*100):0;
-  const totPeso=_ctes.reduce((s,c)=>s+(c.peso_real||0),0);
-  const totVolume=_ctes.reduce((s,c)=>s+(c.cubagem_m3||0),0);
+  const pvPdf=ativosPdf.map(_cteFaturamentoPesoVolume);
+  const totPeso=pvPdf.reduce((s,pv)=>s+(pv.peso||0),0);
+  const totVolume=pvPdf.reduce((s,pv)=>s+(pv.volume||0),0);
 
   doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...cinzaEsc);
   doc.text('RESUMO GERAL',ML,y);y+=6;
 
-  const kpis=[['CT-es',String(_ctes.length)],['Valor Frete','R$ '+totFrete.toLocaleString('pt-BR',{minimumFractionDigits:2})],
+  const kpis=[['CT-es',String(ativosPdf.length)],['Valor Frete','R$ '+totFrete.toLocaleString('pt-BR',{minimumFractionDigits:2})],
     ['Valor Carga','R$ '+totCarga.toLocaleString('pt-BR',{minimumFractionDigits:2})],['% Frete/Carga',pctGeral.toFixed(2)+'%'],
     ['Peso Total',totPeso.toLocaleString('pt-BR',{maximumFractionDigits:0})+' kg'],['Volume Total',totVolume.toLocaleString('pt-BR',{minimumFractionDigits:2})+' m³']];
   const kpiW=(PW-ML-MR)/3;
@@ -15794,8 +16521,10 @@ function gerarRelatorioPdfCte(){
 
   function secao(titulo,tab,rotuloColuna,corHead){
     if(y>PH-80){doc.addPage();cabecalho();y=28;}
+    doc.setFillColor(...(corHead||[21,74,125]));
+    doc.rect(ML,y-3.2,1.3,4.2,'F');
     doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...cinzaEsc);
-    doc.text(titulo,ML,y);y+=5;
+    doc.text(titulo.toUpperCase(),ML+4,y);y+=6;
     const dados=_cteRelDados(tab);
     if(dados.length){
       const img=_cteRelChartImagem(tab,dados);
@@ -15809,8 +16538,9 @@ function gerarRelatorioPdfCte(){
     });
     doc.autoTable({
       startY:y,head:[[rotuloColuna,'CT-es','Valor Carga','Valor Frete','% F/C']],body:body,
-      margin:{left:ML,right:MR},theme:'grid',styles:{fontSize:8,cellPadding:2.2},
-      headStyles:{fillColor:corHead||azul,textColor:255,fontStyle:'bold'},
+      margin:{left:ML,right:MR},theme:'grid',styles:{fontSize:8,cellPadding:2.2,lineColor:[226,232,240],lineWidth:.2},
+      headStyles:{fillColor:corHead||[13,44,77],textColor:255,fontStyle:'bold',fontSize:7.5},
+      alternateRowStyles:{fillColor:[248,250,252]},
       didDrawPage:function(){cabecalho();}
     });
     y=doc.lastAutoTable.finalY+10;
@@ -15822,16 +16552,19 @@ function gerarRelatorioPdfCte(){
   secao('POR ESTADO DE DESTINO','estado','UF');
 
   if(y>PH-70){doc.addPage();cabecalho();y=28;}
+  doc.setFillColor(...vermelho);
+  doc.rect(ML,y-3.2,1.3,4.2,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...cinzaEsc);
-  doc.text('RANKING — MAIOR % FRETE SOBRE CARGA',ML,y);y+=5;
-  const ranking=_ctes.filter(c=>c.valor_carga>0).map(function(c){return Object.assign({},c,{pct:(c.valor_frete/c.valor_carga)*100});}).sort((a,b)=>b.pct-a.pct).slice(0,15);
+  doc.text('RANKING — MAIOR % FRETE SOBRE CARGA',ML+4,y);y+=6;
+  const ranking=_ctesAtivos().filter(c=>c.valor_carga>0).map(function(c){return Object.assign({},c,{pct:(c.valor_frete/c.valor_carga)*100});}).sort((a,b)=>b.pct-a.pct).slice(0,15);
   const bodyRank=ranking.map(function(c){
     return[c.numero,(c.transportadora_nome||'—').slice(0,30),'R$ '+(c.valor_carga||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),'R$ '+(c.valor_frete||0).toLocaleString('pt-BR',{minimumFractionDigits:2}),c.pct.toFixed(1)+'%'];
   });
   doc.autoTable({
     startY:y,head:[['CT-e','Transportadora','Valor Carga','Valor Frete','% F/C']],body:bodyRank,
-    margin:{left:ML,right:MR},theme:'grid',styles:{fontSize:8,cellPadding:2.2},
-    headStyles:{fillColor:vermelho,textColor:255,fontStyle:'bold'},
+    margin:{left:ML,right:MR},theme:'grid',styles:{fontSize:8,cellPadding:2.2,lineColor:[226,232,240],lineWidth:.2},
+    headStyles:{fillColor:vermelho,textColor:255,fontStyle:'bold',fontSize:7.5},
+    alternateRowStyles:{fillColor:[254,242,242]},
     didDrawPage:function(){cabecalho();}
   });
 
@@ -21803,6 +22536,7 @@ async function sbCarregarAgenda(){
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px;flex-wrap:wrap"><input type="checkbox" id="relPorEstado" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relPorEstado" style="font-size:12px;flex:1;cursor:pointer">📍 Produtos por Estado</label><label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" id="relPorEstadoMesAMes" style="width:13px;height:13px;accent-color:#0f6e5f">📅 Mês a mês</label><input type="text" id="relPorEstadoFiltro" placeholder="Todos os estados (ex: RJ,RS,PR,MG,SC)" title="Deixe em branco para mostrar todos os estados" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc;width:190px"><select id="relPorEstadoGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px"><input type="checkbox" id="relPorRepresentante" checked style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relPorRepresentante" style="font-size:12px;flex:1;cursor:pointer">🧑‍💼 Produtos por Representante</label><select id="relPorRepresentanteGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
         <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px;flex-wrap:wrap"><input type="checkbox" id="relProdutoMes" style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relProdutoMes" style="font-size:12px;flex:1;cursor:pointer">📊 Produtos x Mês (tabela)</label><label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" id="relProdutoMesPorEstado" style="width:13px;height:13px;accent-color:#0f6e5f">📍 Separar por estado</label><input type="text" id="relProdutoMesEstadoFiltro" placeholder="Todos os estados (ex: RJ,RS,PR)" title="Deixe em branco para mostrar todos os estados" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc;width:170px"><select id="relProdutoMesTipo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="quantidade">Quantidade</option><option value="valor">Valor</option></select><select id="relProdutoMesGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--borda);border-radius:8px;flex-wrap:wrap"><input type="checkbox" id="relProdutoEstado" style="width:15px;height:15px;accent-color:#0f6e5f;flex-shrink:0"><label for="relProdutoEstado" style="font-size:12px;flex:1;cursor:pointer">📊 Estado › Produtos x Mês (Qtd + Valor)</label><input type="text" id="relProdutoEstadoFiltro" placeholder="Todos os estados (ex: RJ,RS,PR)" title="Deixe em branco para mostrar todos os estados" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc;width:170px"><select id="relProdutoEstadoGrupo" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--borda);background:#f8fafc"><option value="">Geral</option><option value="3a">3A</option><option value="parceiros">Parceiros</option><option value="venda_direta">Venda Direta</option><option value="exportacao">Exportação</option></select><button onclick="exportarExcelEstadoMesFormatado()" style="background:#217346;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">📥 Exportar Excel (formatado)</button></div>
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Filtrar por grupo</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
@@ -25723,7 +26457,20 @@ document.addEventListener('keydown', function(e){
 })();
 </script>
 
-
+<!-- Modal de pergunta rápida (peso ou caixa faltando) — GLOBAL, funciona em qualquer tela
+     (Volumetria em Frete, Bonificação em Faturamento, etc). Não pode ficar dentro de
+     nenhuma seção com display:none, senão fica escondido mesmo mandando aparecer. -->
+<div id="calcVolPerguntaOverlay" style="display:none;position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99998;align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--card-bg,#fff);border-radius:14px;max-width:420px;width:100%;padding:22px">
+    <div id="calcVolPerguntaTitulo" style="font-weight:800;font-size:15px;margin-bottom:4px"></div>
+    <div id="calcVolPerguntaSub" style="font-size:12px;color:var(--muted);margin-bottom:14px"></div>
+    <div id="calcVolPerguntaCorpo"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn-cancel-mod" onclick="_calcVolPerguntaResolver(null)">Pular (fica sem contar)</button>
+      <button class="btn-salvar-mod" onclick="_calcVolPerguntaConfirmar()">Usar</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
