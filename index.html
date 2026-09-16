@@ -2326,7 +2326,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
 
 /* ════ TV SKIN · Painel TV redesenhado ════ */
 #painelTV{background:radial-gradient(ellipse 70% 55% at 80% 0%,rgba(37,99,235,.10) 0%,transparent 55%),linear-gradient(180deg,#070d18 0%,#0a1322 100%) !important}
-.tv-head{display:flex;align-items:center;justify-content:space-between;padding:1.8vh 2.4vw 1.2vh;flex-shrink:0;border-bottom:1px solid rgba(148,163,184,.14)}
+.tv-head{display:flex;align-items:center;justify-content:space-between;padding:1.8vh 2.4vw 4.6vh;flex-shrink:0;border-bottom:1px solid rgba(148,163,184,.14)}
 .tv-brand{display:flex;align-items:center;gap:1.1vw}
 .tv-brand img{height:5vh;width:auto}
 .tv-brand-title{font-size:2.5vh;font-weight:800;letter-spacing:-.3px;color:#fff}
@@ -3821,6 +3821,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
       <div class="licit-tabs-grupo">
         <span class="licit-tabs-label">Resultados</span>
         <button id="licitAbaPlacar" onclick="setLicitAba('placar')" class="licit-tab">📊 Placar</button>
+        <button id="licitAbaConsultar" onclick="setLicitAba('consultar')" class="licit-tab destaque">🔍 Consultar Resultado</button>
         <button id="licitAbaUpload" onclick="setLicitAba('upload')" class="licit-tab">📤 Importar HTML</button>
       </div>
       <div class="licit-tabs-grupo">
@@ -4092,6 +4093,70 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
 
           <div id="datasusStatus" style="font-size:12px;margin-bottom:10px"></div>
           <div id="datasusResultados" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA CONSULTAR RESULTADO -->
+    <div id="licitPainelConsultar" style="display:none">
+      <div class="modulo-card">
+        <div class="modulo-header"><div class="modulo-header-title">🔍 Consultar Resultado de um Pregão</div></div>
+        <div style="font-size:11.5px;color:var(--muted);margin:-4px 0 14px;line-height:1.5">
+          Cole o <b>Número de Controle PNCP</b> desse pregão (formato tipo <code>00394460000141-1-000123/2026</code> — aparece na página do edital no PNCP) e o GEx busca automaticamente quem venceu cada item, por qual valor, e compara com o que você teria ofertado.
+          <br><span style="color:#b45309">⚠ Isso mostra o vencedor de cada item, não a fila completa de todos os concorrentes (isso só na ata do portal de disputa).</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
+          <div style="flex:1;min-width:260px">
+            <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px">Nº de Controle PNCP</label>
+            <input type="text" id="consultarPncpId" placeholder="00394460000141-1-000123/2026" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--borda);font-size:13px">
+          </div>
+          <button class="btn-salvar-mod" style="padding:10px 18px" onclick="consultarResultadoPregao()">🔍 Buscar Resultado</button>
+        </div>
+        <div style="font-size:10.5px;color:var(--muted);margin-bottom:10px">
+          Não sabe o número de controle? Se o pregão já está na sua <a href="#" onclick="setLicitAba('agenda');return false" style="color:#0284c7;font-weight:600">📅 Agenda</a>, abra ele lá e clique em "🔍 Consultar Resultado" direto no card — preenche sozinho.
+        </div>
+        <div id="consultarResultadoOut"></div>
+      </div>
+
+      <!-- ═══════════ COLAR CLASSIFICAÇÃO COMPLETA ═══════════ -->
+      <div class="modulo-card" style="margin-top:16px">
+        <div class="modulo-header"><div class="modulo-header-title">📋 Colar Classificação Completa (compras.gov.br)</div></div>
+        <div style="font-size:11.5px;color:var(--muted);margin:-4px 0 14px;line-height:1.5">
+          Na tela de <b>"Acompanhamento da Compra"</b> do compras.gov.br (a que mostra a fila de propostas de um item), selecione a página toda (<code>Ctrl+A</code>) e copie (<code>Ctrl+C</code>) — pode colar bagunçado, com menu e tudo junto, que eu filtro. Isso traz a <b>colocação de todos os concorrentes</b>, não só o vencedor.
+          <br><span style="color:#7c3aed">💡 Quer capturar também <b>Marca/Fabricante</b> e <b>Modelo/Versão</b> de cada concorrente? Clique na setinha (▼) de cada proposta pra expandir <u>antes</u> de selecionar/copiar a página — daí o detalhe entra junto.</span>
+          <br><span style="color:#0284c7">📦 <b>Pregão com mais de um item?</b> Cole um item de cada vez (mude o item na URL do compras.gov.br, tipo <code>...item/1</code>, <code>...item/2</code>...) — preencha o "Número do Pregão" abaixo uma vez, ele fica salvo entre as colagens e agrupa tudo na lista de baixo.</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px">Número do Pregão (opcional — agrupa os itens)</label>
+            <input type="text" id="colarClassifNumPregao" placeholder="Ex: 90055/2026" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--borda);font-size:12px">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px">Link ou Nº PNCP (opcional — puxa data e objeto)</label>
+            <input type="text" id="colarClassifPncpLink" placeholder="https://pncp.gov.br/app/editais/... ou CNPJ-1-SEQ/ANO" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--borda);font-size:12px">
+          </div>
+        </div>
+        <textarea id="colarClassifTexto" placeholder="Cole aqui o texto da página (Ctrl+A, Ctrl+C na tela de propostas do item)..." style="width:100%;min-height:140px;padding:10px 12px;border-radius:8px;border:1px solid var(--borda);font-size:12px;font-family:monospace;resize:vertical"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn-salvar-mod" onclick="processarColagemClassificacao()">✓ Processar e Salvar</button>
+          <button class="btn-cancel-mod" onclick="document.getElementById('colarClassifTexto').value=''">Limpar Texto</button>
+        </div>
+        <div id="colarClassifPreview" style="margin-top:14px"></div>
+      </div>
+
+      <!-- ═══════════ LISTA INTERATIVA DE TUDO JÁ COLADO ═══════════ -->
+      <div class="modulo-card" style="margin-top:16px">
+        <div class="modulo-header">
+          <div class="modulo-header-title">📚 Meus Pregões — Classificações Salvas</div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <input type="text" id="filtroClassifSalvas" placeholder="Buscar por órgão, item..." oninput="renderClassificacoesSalvas()" style="font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid var(--borda);width:200px">
+            <button class="btn-cancel-mod" style="font-size:11px;padding:5px 10px;background:#7c3aed;color:#fff;border-color:#7c3aed" onclick="abrirRelatoriosLicitacao()">📊 Relatórios</button>
+            <button class="btn-cancel-mod" style="font-size:11px;padding:5px 10px;background:#217346;color:#fff;border-color:#217346" onclick="exportarExcelClassificacoes()">📥 Excel</button>
+            <button class="btn-cancel-mod" style="font-size:11px;padding:5px 10px" onclick="exportarPdfClassificacoes()">📄 PDF</button>
+          </div>
+        </div>
+        <div id="listaClassificacoesSalvas">
+          <div class="empty-mod"><div class="empty-icon">📚</div>Carregando...</div>
         </div>
       </div>
     </div>
@@ -18881,7 +18946,7 @@ function mostrarEventosDia(dataStr){
 
 function setLicitAba(aba){
   licitAbaAtual=aba;
-  ['agenda','pregoes','buscar','inteligencia','placar','chat','upload','edital','mapa','datasus'].forEach(function(a){
+  ['agenda','pregoes','buscar','inteligencia','placar','consultar','chat','upload','edital','mapa','datasus'].forEach(function(a){
     const key=a.charAt(0).toUpperCase()+a.slice(1);
     const btn=document.getElementById('licitAba'+key);
     const painel=document.getElementById('licitPainel'+key);
@@ -18896,6 +18961,7 @@ function setLicitAba(aba){
   if(aba==='chat')renderChatMonitorados();
   if(aba==='placar')atualizarStatsLicit();
   if(aba==='datasus')initDatasus();
+  if(aba==='consultar')carregarClassificacoesSalvas();
 }
 
 
@@ -20651,70 +20717,198 @@ const _STOP_PROD=['proaction','de','da','do','com','para','e','a','o','ultra','p
 
 let _catmatDoItem=null;   // código CATMAT do item que está sendo avaliado
 
+/* ══════════════════════════════════════════════════════════════════════
+   PERFIL QUÍMICO/FUNCIONAL DOS PRODUTOS
+   O match antigo comparava só palavras soltas, o que fazia "NEUTRALIZADOR
+   de clorexidina para tecido" casar com "GTA Inativador" (98%) só porque
+   as duas continham "neutraliza". Agora cada produto declara:
+     - ativo:   princípio ativo (glutaraldeido, opa, peracetico, enzimatico...)
+     - funcao:  o que ele É (desinfetante, detergente, inativador, tira-teste...)
+     - aplic:   onde se usa (instrumental, superficie, autoclave...)
+   Se o edital indica um ativo/função diferente, o produto é DESCARTADO,
+   não importa quantas palavras genéricas coincidam.
+   ══════════════════════════════════════════════════════════════════════ */
+const PERFIL_PRODUTO={
+  '33.0063.5000':{ativo:'glutaraldeido',funcao:'desinfetante',aplic:'instrumental'},
+  '33.0064.0050':{ativo:'glutaraldeido',funcao:'tira_teste',aplic:'instrumental'},
+  '33.0042.0230':{ativo:'glutaraldeido',funcao:'inativador',aplic:'instrumental'},
+  '33.0069.5000':{ativo:'opa',funcao:'desinfetante',aplic:'instrumental'},
+  '33.0019.0040':{ativo:'opa',funcao:'tira_teste',aplic:'instrumental'},
+  '33.0020.0032':{ativo:'opa',funcao:'inativador',aplic:'instrumental'},
+  '33.0065.5000':{ativo:'peracetico',funcao:'desinfetante',aplic:'instrumental'},
+  '33.0066.0030':{ativo:'peracetico',funcao:'tira_teste',aplic:'instrumental'},
+  '33.0031.0000':{ativo:'peracetico',funcao:'desinfetante',aplic:'instrumental'},
+  '33.0039.0001':{ativo:'peracetico',funcao:'tira_teste',aplic:'instrumental'},
+  '28.0034.1000':{ativo:'enzimatico',funcao:'detergente',aplic:'instrumental',enzimas:4},
+  '28.0025.0005':{ativo:'enzimatico',funcao:'detergente',aplic:'instrumental',enzimas:4},
+  '28.0023.0001':{ativo:'enzimatico',funcao:'detergente',aplic:'instrumental',enzimas:4},
+  '28.0024.0005':{ativo:'enzimatico',funcao:'detergente',aplic:'instrumental',enzimas:4},
+  '28.0021.0750':{ativo:'enzimatico',funcao:'detergente',aplic:'instrumental',enzimas:4,espuma:true},
+  '28.0022.0001':{ativo:'enzimatico',funcao:'detergente',aplic:'instrumental',enzimas:7},
+  '28.0033.5000':{ativo:'enzimatico',funcao:'detergente',aplic:'instrumental',enzimas:7},
+  '33.0046.0750':{ativo:'quaternario',funcao:'desinfetante',aplic:'superficie'},
+  '33.0067.1000':{ativo:'quaternario',funcao:'desinfetante',aplic:'superficie'},
+  '33.0068.5000':{ativo:'quaternario',funcao:'desinfetante',aplic:'superficie'},
+  '33.0022.0001':{ativo:'peroxido',funcao:'desinfetante',aplic:'superficie'},
+  '33.0071.5000':{ativo:'peroxido',funcao:'desinfetante',aplic:'superficie'},
+  '29.0012.0700':{ativo:'neutro',funcao:'detergente',aplic:'autoclave'},
+  '29.0013.1000':{ativo:'neutro',funcao:'detergente',aplic:'instrumental'},
+  '29.0006.0001':{ativo:'neutro',funcao:'detergente',aplic:'instrumental'},
+  '29.0003.0750':{ativo:'lubrificante',funcao:'lubrificante',aplic:'instrumental'},
+  '29.0009.0005':{ativo:'neutro',funcao:'detergente',aplic:'instrumental'},
+  '31.0003.0001':{ativo:'neutro',funcao:'detergente',aplic:'instrumental'},
+  '31.0004.0005':{ativo:'neutro',funcao:'detergente',aplic:'instrumental'},
+};
+
+// Termos que identificam o PRINCÍPIO ATIVO pedido no edital
+const SINAIS_ATIVO={
+  glutaraldeido:/glutaralde|\bgta\b|glutaraldeid/,
+  opa:/\bopa\b|ortoftalalde|orto-ftalalde|ftalalde/,
+  peracetico:/peracetic|per-acetic|acido peracetico|\bpaa\b/,
+  enzimatico:/enzimat|\benzima|proteas|amilas|lipas|multienzim|tri-?enzim|quadri-?enzim/,
+  quaternario:/quaternario|amonio quaternario|\bqac\b|biguanid|polihexanid/,
+  peroxido:/peroxido|perox|\bh2o2\b|agua oxigenada/,
+  neutro:/detergente neutro|\bph neutro\b|detergente enzimatico neutro/,
+  lubrificante:/lubrific|\bsilicone\b/,
+};
+
+// Termos que identificam a FUNÇÃO do que o edital quer
+const SINAIS_FUNCAO={
+  tira_teste:/tira reagente|tiras? de teste|fita reagente|fitas?\b|test ?strip|indicador quimico|monitor(?:amento)? de concentracao/,
+  inativador:/inativador|glicina|neutralizante de glutaralde|inativacao/,
+  detergente:/detergente|limpeza|limpador|sabao/,
+  desinfetante:/desinfetante|desinfeccao|esterilizante|esterilizacao|germicida|sanitizante/,
+  lubrificante:/lubrific/,
+};
+
+// Contextos de aplicação que NÃO são nosso mercado — se o edital é claramente
+// disso, nenhum produto do catálogo deve ser sugerido.
+const CONTEXTO_FORA_ESCOPO=/(lavanderia|alvejante|roupa|tecido|enxoval|manchas?\b|amaciante|branqueador)|(piso|vidro|banheiro|limpeza predial|domissanitario)|(alimento|hortifruti|vegetais)|(mao|antissepsia das maos|degermante|clorexidina degerman)/;
+
+function _detectar(desc,mapa){
+  const achados=[];
+  Object.keys(mapa).forEach(function(k){
+    if(mapa[k].test(desc))achados.push(k);
+  });
+  return achados;
+}
+
+/* Novo motor de sugestão: decide por compatibilidade real, não por
+   coincidência de palavras. Retorna no máximo 3 candidatos com
+   confiança calibrada (e nada, quando não há compatibilidade). */
 function sugerirProdutos(descricaoItem,catmatItem){
   _catmatDoItem=catmatItem||null;
   const desc=normalizarTexto(descricaoItem);
   if(!desc)return[];
+
+  // 0) Contexto claramente fora do nosso mercado → não sugere nada
+  if(CONTEXTO_FORA_ESCOPO.test(desc))return[];
+
+  const ativosPedidos=_detectar(desc,SINAIS_ATIVO);
+  const funcoesPedidas=_detectar(desc,SINAIS_FUNCAO);
+
+  // "tira de teste" e "inativador" são funções muito específicas: quando
+  // aparecem, mandam mais do que o resto da frase.
+  const pedeTira=funcoesPedidas.indexOf('tira_teste')>=0;
+  const pedeInativador=funcoesPedidas.indexOf('inativador')>=0;
+
   const cands=[];
   (PRODUTOS||[]).forEach(function(prod){
+    const perfil=PERFIL_PRODUTO[prod.codigo];
+    if(!perfil)return; // produto sem perfil declarado não entra no match automático
     const meta=(_prodMeta&&_prodMeta[prod.codigo])||{};
-    const palavras=(meta.palavras_edital||[]).map(normalizarTexto).filter(Boolean);
-    let pontos=0,acertos=[],max=0;
 
-    // 0) código CATMAT bate = identificação praticamente certa
+    let pontos=0,max=0,acertos=[];
+
+    // ── 1) CATMAT bate: identificação praticamente certa ──
     const cats=(meta.catmat||[]).map(function(c){return String(c&&c.codigo!=null?c.codigo:c);}).filter(Boolean);
     if(cats.length&&_catmatDoItem&&cats.indexOf(String(_catmatDoItem))>=0){
-      pontos+=40;acertos.push('CATMAT '+_catmatDoItem);
+      return cands.push({codigo:prod.codigo,
+        nome:(prod.produto||'')+(prod.apresentacao?(' \u2014 '+prod.apresentacao):''),
+        pontos:100,max:100,acertos:['CATMAT '+_catmatDoItem]});
     }
-    max+=cats.length?40:0;
 
-    // 1) palavras cadastradas pelo usuário (peso alto)
-    palavras.forEach(function(pl){
-      max+=10;
-      if(pl&&desc.indexOf(pl)>=0){pontos+=10;acertos.push(pl);}
-    });
-
-    // 2) palavras significativas do próprio nome do produto (peso médio)
-    const tokens=normalizarTexto(prod.produto||'').split(/[^a-z0-9]+/)
-      .filter(function(t){return t.length>3&&_STOP_PROD.indexOf(t)<0;});
-    tokens.forEach(function(t){
-      max+=6;
-      if(desc.indexOf(t)>=0){pontos+=6;acertos.push(t);}
-    });
-
-    // 3) pistas de formato: tira/fita/indicador ↔ test strips; inativador/glicina ↔ inativador
-    const nomeN=normalizarTexto(prod.produto||'');
-    const ehTira=/strip/.test(nomeN);
-    const pedeTira=/(tira|fita|indicador quimico|test strip)/.test(desc);
-    if(ehTira&&pedeTira){pontos+=14;acertos.push('tira/indicador');}
-    if(ehTira&&!pedeTira)pontos-=10;
-    if(!ehTira&&pedeTira)pontos-=10;
-
-    const ehInativ=/inativador|glicina/.test(nomeN);
-    const pedeInativ=/(inativador|glicina|neutraliza)/.test(desc);
-    if(ehInativ&&pedeInativ){pontos+=14;acertos.push('inativador');}
-    if(ehInativ&&!pedeInativ)pontos-=10;
-    if(!ehInativ&&pedeInativ)pontos-=10;
-
-    // 4) casamento de embalagem citada no item (frasco 1 litro, galão 5...)
-    const emb=embalagemDaApresentacao(prod.apresentacao);
-    if(emb){
-      const m=desc.match(/([0-9]+[.,]?[0-9]*)\s*(litro|l|ml)\b/);
-      if(m){
-        let v=parseFloat(String(m[1]).replace(',','.'));
-        if(/ml/.test(m[2]))v=v/1000;
-        if(Math.abs(v-emb.vol)<0.01){pontos+=8;acertos.push('embalagem '+m[1]+m[2]);}
+    // ── 2) PRINCÍPIO ATIVO — critério eliminatório ──
+    max+=50;
+    if(ativosPedidos.length){
+      if(ativosPedidos.indexOf(perfil.ativo)>=0){
+        pontos+=50;acertos.push('ativo: '+perfil.ativo);
+      }else{
+        return; // edital pede outro princípio ativo → descarta este produto
       }
     }
 
-    if(pontos>0)cands.push({codigo:prod.codigo,
+    // ── 3) FUNÇÃO — também eliminatória quando é específica ──
+    max+=30;
+    if(pedeTira){
+      if(perfil.funcao!=='tira_teste')return;  // quer tira, produto não é tira
+      pontos+=30;acertos.push('tira de teste');
+    }else if(perfil.funcao==='tira_teste'){
+      return; // produto é tira, mas o edital não pediu tira
+    }else if(pedeInativador){
+      if(perfil.funcao!=='inativador')return;
+      pontos+=30;acertos.push('inativador');
+    }else if(perfil.funcao==='inativador'){
+      return; // produto é inativador, mas o edital não pediu inativador
+    }else if(funcoesPedidas.length){
+      if(funcoesPedidas.indexOf(perfil.funcao)>=0){
+        pontos+=30;acertos.push('função: '+perfil.funcao);
+      }else{
+        pontos+=5; // função diferente mas não conflitante (ex.: "esterilizante" x "desinfetante")
+      }
+    }
+
+    // Sem ativo nem função reconhecidos, não há base pra sugerir
+    if(!ativosPedidos.length&&!funcoesPedidas.length)return;
+
+    // ── 4) Nº de enzimas (4E x 7E), quando o edital especifica ──
+    if(perfil.enzimas){
+      max+=10;
+      const mEnz=desc.match(/(\d+)\s*enzima/);
+      if(mEnz){
+        if(parseInt(mEnz[1],10)===perfil.enzimas){pontos+=10;acertos.push(perfil.enzimas+' enzimas');}
+        else pontos-=5; // pede 4, produto tem 7 (ou vice-versa)
+      }
+    }
+
+    // ── 5) Espuma, quando pedida explicitamente ──
+    max+=5;
+    const pedeEspuma=/espuma|foam/.test(desc);
+    if(pedeEspuma&&perfil.espuma){pontos+=5;acertos.push('espuma');}
+    else if(pedeEspuma&&!perfil.espuma)pontos-=3;
+
+    // ── 6) Palavras cadastradas manualmente (reforço, peso menor) ──
+    const palavras=(meta.palavras_edital||[]).map(normalizarTexto).filter(Boolean);
+    palavras.forEach(function(pl){
+      max+=5;
+      if(pl&&desc.indexOf(pl)>=0){pontos+=5;acertos.push(pl);}
+    });
+
+    // ── 7) Embalagem citada (desempate entre 1L e 5L do mesmo produto) ──
+    max+=10;
+    const emb=embalagemDaApresentacao(prod.apresentacao);
+    if(emb){
+      const m=desc.match(/([0-9]+[.,]?[0-9]*)\s*(litro|lt|l|ml)\b/);
+      if(m){
+        let v=parseFloat(String(m[1]).replace(',','.'));
+        if(/ml/.test(m[2]))v=v/1000;
+        if(Math.abs(v-emb.vol)<0.01){pontos+=10;acertos.push('embalagem '+m[1]+m[2]);}
+      }
+    }
+
+    if(pontos<=0)return;
+    cands.push({codigo:prod.codigo,
       nome:(prod.produto||'')+(prod.apresentacao?(' \u2014 '+prod.apresentacao):''),
-      pontos:pontos,acertos:acertos,max:Math.max(max,10)});
+      pontos:pontos,max:Math.max(max,1),acertos:acertos});
   });
-  cands.sort(function(a,b){return b.pontos-a.pontos;});
+
+  cands.sort(function(a,b){return (b.pontos/b.max)-(a.pontos/a.max);});
   return cands.slice(0,3).map(function(c){
+    // Agora a conta nunca estoura: todo bônus tem seu peso somado no max.
     c.confianca=Math.max(5,Math.min(99,Math.round((c.pontos/c.max)*100)));
     return c;
+  }).filter(function(c){
+    return c.confianca>=35; // abaixo disso é chute — melhor não sugerir nada
   });
 }
 
@@ -21148,6 +21342,1016 @@ async function salvarVinculoProduto(idxRes,idxItem){
   if(el&&el.style.display==='block'){el.style.display='none';await toggleItensResultado(idxRes);}
 }
 
+// ══════════════════════════════════════════════════════════════
+// COLAR CLASSIFICAÇÃO COMPLETA — o usuário cola o texto (Ctrl+A/Ctrl+C)
+// da tela "Acompanhamento da Compra" do compras.gov.br, que mostra a
+// fila INTEIRA de propostas de um item (não só o vencedor, como a API
+// pública do PNCP dá). O parser é tolerante a bagunça/menu no meio.
+// ══════════════════════════════════════════════════════════════
+const UFS_VALIDAS=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+const CNPJ_GROW='10842256000108';
+
+function _parseValorBR(s){
+  if(!s)return null;
+  const limpo=String(s).replace(/[^\d.,]/g,'');
+  if(!limpo)return null;
+  const semMilhar=limpo.replace(/\.(?=\d{3}(?:\D|$))/g,'');
+  const normal=semMilhar.replace(',','.');
+  const v=parseFloat(normal);
+  return isNaN(v)?null:v;
+}
+
+function _parseClassificacaoTexto(textoOriginal){
+  const texto=String(textoOriginal||'').replace(/\r/g,'');
+  const linhas=texto.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  const full=linhas.join('\n');
+
+  // Cabeçalho: UASG + órgão
+  let uasg=null,orgao=null;
+  const mUasg=full.match(/UASG\s+(\d+)\s*-\s*([^\n]+)/i);
+  if(mUasg){uasg=mUasg[1];orgao=mUasg[2].trim().replace(/\s*[❓?]\s*$/,'');}
+
+  // Item: procura uma linha "Nº  DESCRIÇÃO" perto de "Qtde solicitada"
+  let itemNum=null,itemDescricao=null;
+  const idxQtd=linhas.findIndex(function(l){return /Qtde solicitada/i.test(l);});
+  if(idxQtd>0){
+    for(let i=idxQtd-1;i>=Math.max(0,idxQtd-6);i--){
+      const m=linhas[i].match(/^(\d{1,4})\s+([A-ZÀ-Úa-zà-ú].{2,120})$/);
+      if(m){itemNum=m[1];itemDescricao=m[2].trim();break;}
+    }
+  }
+
+  // Qtde/Valor estimado — o compras.gov.br usa DOIS formatos diferentes pro mesmo dado:
+  //  (a) rótulo e valor juntos: "Qtde solicitada: 300"
+  //  (b) rótulos empilhados primeiro, valores empilhados logo depois, na MESMA ordem:
+  //      "Qtde solicitada:\nValor estimado (unitário)\n50000\nSigiloso"
+  // "Sigiloso" é um valor VÁLIDO (preço em sigilo) — não é erro, só não tem número.
+  const CAMPOS_CABECALHO=[
+    {chave:'qtdSolicitada',reSolta:/^Qtde solicitada:?$/i,reInline:/Qtde solicitada:[ \t]*([\d.,]+)/i},
+    {chave:'qtdAceita',reSolta:/^Qtde aceita:?$/i,reInline:/Qtde aceita:[ \t]*([\d.,]+)/i},
+    {chave:'valorEstimado',reSolta:/^Valor estimado\s*\(unit[aá]rio\)$/i,reInline:/Valor estimado\s*\(unit[aá]rio\)[ \t]*R?\$?[ \t]*([\d.,]+)/i}
+  ];
+  const cabecalho={};
+  CAMPOS_CABECALHO.forEach(function(c){
+    const m=full.match(c.reInline);
+    if(m)cabecalho[c.chave]=m[1];
+  });
+  // Fallback pro formato empilhado, só pros campos que o inline não resolveu
+  const rotulosSoltos=[];
+  linhas.forEach(function(linha,i){
+    CAMPOS_CABECALHO.forEach(function(c){
+      if(cabecalho[c.chave]==null&&c.reSolta.test(linha))rotulosSoltos.push({chave:c.chave,linha:i});
+    });
+  });
+  if(rotulosSoltos.length){
+    rotulosSoltos.sort(function(a,b){return a.linha-b.linha;});
+    const inicioBusca=Math.max.apply(null,rotulosSoltos.map(function(r){return r.linha;}))+1;
+    const candidatos=[];
+    for(let i=inicioBusca;i<linhas.length&&candidatos.length<rotulosSoltos.length;i++){
+      const l=linhas[i];
+      if(/^(R\$\s*)?[\d.,]+$/.test(l)||/^sigiloso$/i.test(l)||l==='-'){
+        candidatos.push(l);
+      }else if(candidatos.length>0){
+        break; // já achou valor(es) e veio algo que não é valor -> para de procurar
+      }
+    }
+    rotulosSoltos.forEach(function(r,idx){
+      const v=candidatos[idx];
+      if(v!=null&&!/sigiloso/i.test(v)&&v!=='-')cabecalho[r.chave]=v;
+      else if(v!=null&&/sigiloso/i.test(v)&&r.chave==='valorEstimado')cabecalho.valorEstimadoSigiloso=true;
+      // "Sigiloso"/"-" fica sem valor mesmo — informação confidencial, não é falha do parser
+    });
+  }
+  const mQtdSol=cabecalho.qtdSolicitada?[null,cabecalho.qtdSolicitada]:null;
+  const mQtdAceita=cabecalho.qtdAceita?[null,cabecalho.qtdAceita]:null;
+  const mValorEst=cabecalho.valorEstimado?[null,cabecalho.valorEstimado]:null;
+
+  // Propostas: acha todos os CNPJs e usa o texto ATÉ o próximo CNPJ como "bloco" daquele fornecedor
+  const posicoesCnpj=[];
+  const reCnpj=/(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})/g;
+  let m;
+  while((m=reCnpj.exec(full))!==null){
+    posicoesCnpj.push({cnpj:m[1],pos:m.index});
+  }
+
+  const IGNORAR=/^(ME\/EPP|Equidade de g[êe]nero.*|Programa de integridade|Adjudicada|Desclassificada|Inabilitada|Habilitada|Homologad[ao]|Fracassad[ao]|Deserto|Valor ofertado.*|Valor negociado.*|Propostas|Hist[óo]rico de recursos|Hist[óo]rico de remanescentes|-)$/i;
+
+  const propostas=posicoesCnpj.map(function(p,i){
+    const fim=i+1<posicoesCnpj.length?posicoesCnpj[i+1].pos:full.length;
+    const bloco=full.slice(p.pos,fim);
+    const linhasBloco=bloco.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+
+    let empresa=null;
+    for(const l of linhasBloco){
+      if(l===p.cnpj)continue;
+      if(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(l))continue;
+      if(UFS_VALIDAS.indexOf(l)>=0)continue;
+      if(IGNORAR.test(l))continue;
+      if(/^R\$/.test(l))continue;
+      if(l.length<4)continue;
+      empresa=l;break;
+    }
+
+    let uf=null;
+    for(const l of linhasBloco){if(UFS_VALIDAS.indexOf(l)>=0){uf=l;break;}}
+
+    const mOf=bloco.match(/Valor ofertado[^\d]*(R?\$?\s*[\d.,]+)/i);
+    const mNeg=bloco.match(/Valor negociado[^\d]*(R?\$?\s*[\d.,]+|-)/i);
+    const status=/Adjudicada/i.test(bloco)?'Adjudicada':(/Desclassificada/i.test(bloco)?'Desclassificada':(/Inabilitada/i.test(bloco)?'Inabilitada':''));
+
+    // "Marca/Fabricante" e "Modelo/Versão" são campos ÚNICOS (com barra no nome mesmo),
+    // não dois campos separados — só aparecem quando a proposta foi "expandida" antes
+    // de copiar a página (senão fica null, não é obrigatório pra salvar).
+    const mMarcaFab=bloco.match(/Marca\/Fabricante:?\s*([^\n]{2,80})/i);
+    const mModeloVersao=bloco.match(/Modelo\/Vers[ãa]o:?\s*([^\n]{2,80})/i);
+    const limparCampo=function(v){
+      if(!v)return null;
+      const limpo=v.trim().replace(/\s{2,}/g,' ');
+      return(!limpo||limpo==='-')?null:limpo;
+    };
+
+    return{
+      cnpj:p.cnpj,
+      empresa:empresa||'(não identificado)',
+      uf:uf,
+      valorOfertado:_parseValorBR(mOf&&mOf[1]),
+      valorNegociado:mNeg&&!/^-$/.test(mNeg[1].trim())?_parseValorBR(mNeg[1]):null,
+      status:status,
+      marca:limparCampo(mMarcaFab&&mMarcaFab[1]),
+      modelo:limparCampo(mModeloVersao&&mModeloVersao[1]),
+      somosNos:p.cnpj.replace(/\D/g,'')===CNPJ_GROW
+    };
+  }).filter(function(p){return p.valorOfertado!=null;}); // descarta blocos sem valor (provável ruído)
+
+  // Ordena por valor ofertado (menor preço primeiro) e atribui a posição BRUTA (por preço)
+  propostas.sort(function(a,b){return a.valorOfertado-b.valorOfertado;});
+  propostas.forEach(function(p,i){p.posicao=i+1;});
+
+  // Posição EFETIVA: ignora quem foi desclassificado/inabilitado — se o 1º colocado
+  // (por preço) foi desclassificado, quem vem depois passa a ser efetivamente o 1º.
+  const DESQUALIFICA=/^(Desclassificada|Inabilitada)$/i;
+  let contadorEfetivo=0;
+  propostas.forEach(function(p){
+    if(DESQUALIFICA.test(p.status)){p.posicaoEfetiva=null;}
+    else{contadorEfetivo++;p.posicaoEfetiva=contadorEfetivo;}
+  });
+
+  const vencedor=propostas.find(function(p){return p.status==='Adjudicada';})
+    ||propostas.find(function(p){return p.posicaoEfetiva===1;})
+    ||propostas[0]||null;
+  const nossa=propostas.find(function(p){return p.somosNos;})||null;
+
+  const qtdSolicitada=mQtdSol?_parseValorBR(mQtdSol[1]):null;
+  const valorEstimadoUnit=mValorEst?_parseValorBR(mValorEst[1]):null;
+
+  return{
+    uasg:uasg,orgao:orgao,itemNum:itemNum,itemDescricao:itemDescricao,
+    qtdSolicitada:qtdSolicitada,
+    qtdAceita:mQtdAceita?_parseValorBR(mQtdAceita[1]):null,
+    valorEstimado:valorEstimadoUnit,
+    valorTotalEstimado:(qtdSolicitada!=null&&valorEstimadoUnit!=null)?(qtdSolicitada*valorEstimadoUnit):null,
+    valorEstimadoSigiloso:!!cabecalho.valorEstimadoSigiloso,
+    propostas:propostas,
+    vencedor:vencedor,
+    // Usa a posição EFETIVA (já descontando desclassificados) pra saber se "ganhamos" de verdade
+    nossaColocacao:nossa?(nossa.posicaoEfetiva!=null?nossa.posicaoEfetiva:nossa.posicao):null,
+    nossoValor:nossa?nossa.valorOfertado:null
+  };
+}
+
+let _ultimaClassificacaoParseada=null;
+
+function _atualizarValorTotalManual(){
+  const r=_ultimaClassificacaoParseada;
+  const input=document.getElementById('qtdManualInput');
+  const txt=document.getElementById('valorTotalEstimadoTxt');
+  if(!r||!input||!txt)return;
+  const qtd=parseFloat(input.value);
+  if(!qtd||qtd<=0){txt.textContent='Total estimado: —';r.qtdSolicitada=null;r.valorTotalEstimado=null;return;}
+  r.qtdSolicitada=qtd;
+  r.valorTotalEstimado=(r.valorEstimado!=null)?(qtd*r.valorEstimado):null;
+  txt.textContent='Total estimado: '+(r.valorTotalEstimado!=null?('R$ '+r.valorTotalEstimado.toLocaleString('pt-BR',{minimumFractionDigits:2})):'—');
+}
+
+async function processarColagemClassificacao(){
+  const texto=document.getElementById('colarClassifTexto').value;
+  if(!texto||texto.trim().length<20){showT('Cole o texto da página primeiro','erro');return;}
+
+  const r=_parseClassificacaoTexto(texto);
+  r.numPregao=(document.getElementById('colarClassifNumPregao').value||'').trim()||null;
+
+  // Se um link/nº PNCP foi informado, busca data e objeto oficiais pra enriquecer o registro
+  const pncpRaw=(document.getElementById('colarClassifPncpLink').value||'').trim();
+  if(pncpRaw){
+    const ids=_parsePncpIdOuLink(pncpRaw);
+    if(!ids){
+      showT('Não reconheci o link/número do PNCP — salvando sem essa parte','erro');
+    }else{
+      showT('Buscando data e objeto no PNCP...','');
+      try{
+        const det=await fetchPncpDetalheContratacao(ids.cnpj,ids.ano,ids.seq);
+        if(det){
+          r.dataPregao=det.dataAberturaProposta||det.dataPublicacaoPncp||null;
+          r.objetoPncp=det.objetoCompra||null;
+          r.pncpId=det.numeroControlePNCP||(ids.cnpj+'-1-'+ids.seq+'/'+ids.ano);
+          if(!r.orgao&&det.orgaoEntidade)r.orgao=det.orgaoEntidade.razaoSocial||det.orgaoEntidade.razaosocial;
+        }
+      }catch(e){
+        console.warn('PNCP indisponível ao enriquecer classificação — seguindo sem data/objeto:',e);
+      }
+    }
+  }
+
+  _ultimaClassificacaoParseada=r;
+  const preview=document.getElementById('colarClassifPreview');
+
+  if(!r.propostas.length){
+    preview.innerHTML='<div style="padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#991b1b">⚠ Não consegui reconhecer nenhuma proposta nesse texto. Confira se colou o trecho certo (precisa ter CNPJs no formato XX.XXX.XXX/XXXX-XX e "Valor ofertado" visível).</div>';
+    return;
+  }
+
+  const linhasHtml=r.propostas.map(function(p){
+    const corLinha=p.somosNos?'background:#f0fdf4':'';
+    const desqualificado=/^(Desclassificada|Inabilitada)$/i.test(p.status);
+    const medalha=desqualificado?'❌':(p.posicaoEfetiva===1?'🥇':(p.posicaoEfetiva===2?'🥈':(p.posicaoEfetiva===3?'🥉':(p.posicaoEfetiva||'—')+'º')));
+    const posBrutaHtml=(desqualificado||p.posicaoEfetiva!==p.posicao)?('<span style="font-size:8.5px;color:var(--muted-light)"> (preço: '+p.posicao+'º)</span>'):'';
+    const marcaHtml=(p.marca||p.modelo)?('<div style="font-size:9.5px;color:#7c3aed;margin-top:1px">'+(p.marca?('Marca/Fabricante: '+p.marca):'')+(p.marca&&p.modelo?' · ':'')+(p.modelo?('Modelo/Versão: '+p.modelo):'')+'</div>'):'';
+    const corStatus=desqualificado?'#991b1b':'#166534';
+    const bgStatus=desqualificado?'#fee2e2':'#dcfce7';
+    return '<tr style="'+corLinha+(desqualificado?';opacity:.65':'')+'">'
+      +'<td style="padding:5px 8px;text-align:center;font-weight:700">'+medalha+posBrutaHtml+'</td>'
+      +'<td style="padding:5px 8px'+(desqualificado?';text-decoration:line-through':'')+'">'+p.empresa+(p.somosNos?' <b style="color:#166534">(nós)</b>':'')+'<div style="font-size:9.5px;color:var(--muted)">'+p.cnpj+' · '+(p.uf||'—')+'</div>'+marcaHtml+'</td>'
+      +'<td style="padding:5px 8px;text-align:right;font-weight:700">R$ '+p.valorOfertado.toLocaleString('pt-BR',{minimumFractionDigits:2})+'</td>'
+      +'<td style="padding:5px 8px;text-align:center">'+(p.status?('<span style="font-size:9.5px;font-weight:700;color:'+corStatus+';background:'+bgStatus+';padding:2px 8px;border-radius:6px">'+p.status+'</span>'):'')+'</td>'
+      +'</tr>';
+  }).join('');
+
+  preview.innerHTML='<div style="border:1px solid var(--borda);border-radius:10px;padding:14px;background:#fafbfc">'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:2px">'+(r.orgao||'Órgão não identificado')+(r.uasg?(' <span style="font-weight:400;color:var(--muted);font-size:11px">UASG '+r.uasg+'</span>'):'')+'</div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:4px">'+(r.itemNum?('Item '+r.itemNum+' — '):'')+(r.itemDescricao||'')+'</div>'
+    +((r.numPregao||r.dataPregao)?('<div style="font-size:10.5px;color:#0284c7;margin-bottom:6px">'+(r.numPregao?('Pregão nº '+r.numPregao):'')+(r.numPregao&&r.dataPregao?' · ':'')+(r.dataPregao?('Data: '+new Date(r.dataPregao).toLocaleDateString('pt-BR')):'')+'</div>'):'')
+    +'<div id="blocoQtdValor" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:8px 10px;background:#fff;border:1px solid var(--borda);border-radius:8px">'
+    +(r.qtdSolicitada!=null
+      ?('<span style="font-size:11.5px"><b>Qtd. solicitada:</b> '+r.qtdSolicitada+'</span>')
+      :('<span style="font-size:11px;color:#b45309">⚠ Não consegui identificar a quantidade —</span>'
+        +'<input type="number" id="qtdManualInput" placeholder="Digite a qtd." style="width:100px;padding:4px 8px;border-radius:6px;border:1px solid #fde68a;font-size:11.5px" oninput="_atualizarValorTotalManual()">'))
+    +'<span style="font-size:11.5px"><b>Valor unit. estimado:</b> '+(r.valorEstimado!=null?('R$ '+r.valorEstimado.toLocaleString('pt-BR',{minimumFractionDigits:2})):(r.valorEstimadoSigiloso?'🔒 Sigiloso':'—'))+'</span>'
+    +'<span id="valorTotalEstimadoTxt" style="font-size:12px;font-weight:700;color:#0f6e5f">Total estimado: '+(r.valorTotalEstimado!=null?('R$ '+r.valorTotalEstimado.toLocaleString('pt-BR',{minimumFractionDigits:2})):(r.valorEstimadoSigiloso?'— (preço em sigilo)':'—'))+'</span>'
+    +'</div>'
+    +(r.nossaColocacao?('<div style="font-size:12px;font-weight:700;color:'+(r.nossaColocacao===1?'#166534':'#b45309')+';margin-bottom:10px">'+(r.nossaColocacao===1?'🏆 Ficamos em 1º lugar!':'📍 Ficamos em '+r.nossaColocacao+'º lugar')+'</div>')
+      :'<div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:10px">Não identifiquei a Grow entre as propostas desse item.</div>')
+    +'<table style="width:100%;font-size:11.5px;border-collapse:collapse">'
+    +'<thead><tr style="border-bottom:1px solid var(--borda);text-align:left"><th style="padding:5px 8px">#</th><th style="padding:5px 8px">Empresa</th><th style="padding:5px 8px;text-align:right">Valor</th><th style="padding:5px 8px;text-align:center">Status</th></tr></thead>'
+    +'<tbody>'+linhasHtml+'</tbody></table>'
+    +'<div style="display:flex;gap:8px;margin-top:14px">'
+    +'<button class="btn-salvar-mod" onclick="salvarClassificacaoConfirmada()">✓ Confirmar e Salvar</button>'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'colarClassifPreview\').innerHTML=\'\'">Descartar</button>'
+    +'</div></div>';
+}
+
+async function salvarClassificacaoConfirmada(){
+  const r=_ultimaClassificacaoParseada;
+  if(!r){showT('Nada pra salvar','erro');return;}
+  const nossaProposta=r.propostas.find(function(p){return p.somosNos;});
+
+  const {data,error}=await sb.from('licit_classificacoes').insert({
+    uasg:r.uasg,orgao:r.orgao,item_num:r.itemNum,item_descricao:r.itemDescricao,
+    num_pregao:r.numPregao||null,data_pregao:r.dataPregao||null,objeto_pncp:r.objetoPncp||null,pncp_id:r.pncpId||null,
+    qtd_solicitada:r.qtdSolicitada,qtd_aceita:r.qtdAceita,valor_estimado_unit:r.valorEstimado,
+    nossa_colocacao:r.nossaColocacao,nosso_valor:r.nossoValor,
+    nossa_marca:nossaProposta?nossaProposta.marca:null,
+    nosso_modelo:nossaProposta?nossaProposta.modelo:null,
+    vencedor_nome:r.vencedor?r.vencedor.empresa:null,
+    vencedor_cnpj:r.vencedor?r.vencedor.cnpj:null,
+    vencedor_valor:r.vencedor?r.vencedor.valorOfertado:null,
+    vencedor_marca:r.vencedor?r.vencedor.marca:null,
+    vencedor_modelo:r.vencedor?r.vencedor.modelo:null,
+    total_propostas:r.propostas.length,
+    texto_bruto:document.getElementById('colarClassifTexto').value.slice(0,20000)
+  }).select().single();
+
+  if(error){showT('Erro ao salvar: '+error.message,'erro');return;}
+
+  const linhasProp=r.propostas.map(function(p){
+    return{
+      classificacao_id:data.id,posicao:p.posicao,cnpj:p.cnpj,empresa:p.empresa,uf:p.uf,
+      valor_ofertado:p.valorOfertado,valor_negociado:p.valorNegociado,status:p.status,
+      marca:p.marca,modelo:p.modelo,somos_nos:p.somosNos
+    };
+  });
+  const {error:e2}=await sb.from('licit_classificacao_propostas').insert(linhasProp);
+  if(e2)console.warn('Erro ao salvar propostas:',e2.message);
+
+  showT('Classificação salva ✓','verde');
+  document.getElementById('colarClassifTexto').value='';
+  document.getElementById('colarClassifPreview').innerHTML='';
+  _ultimaClassificacaoParseada=null;
+  renderClassificacoesSalvas();
+}
+
+let _classificacoesSalvasCache=[];
+async function carregarClassificacoesSalvas(){
+  const {data,error}=await sb.from('licit_classificacoes').select('*').order('criado_em',{ascending:false});
+  if(error){console.warn('Erro ao carregar classificações:',error.message);return;}
+  _classificacoesSalvasCache=data||[];
+  renderClassificacoesSalvas();
+}
+
+function renderClassificacoesSalvas(){
+  const el=document.getElementById('listaClassificacoesSalvas');
+  if(!el)return;
+  const filtro=normalizarTexto(document.getElementById('filtroClassifSalvas')?document.getElementById('filtroClassifSalvas').value:'');
+  let lista=_classificacoesSalvasCache;
+  if(filtro){
+    lista=lista.filter(function(c){
+      return normalizarTexto((c.orgao||'')+' '+(c.item_descricao||'')+' '+(c.uasg||'')+' '+(c.num_pregao||'')).indexOf(filtro)>=0;
+    });
+  }
+  if(!lista.length){
+    el.innerHTML='<div class="empty-mod"><div class="empty-icon">📚</div>Nenhuma classificação colada ainda. Use o painel acima pra colar a primeira.</div>';
+    return;
+  }
+
+  // Agrupa por Número do Pregão (quando informado); senão, por UASG+Órgão; senão, cada item fica sozinho.
+  const grupos={};
+  const ordemGrupos=[];
+  lista.forEach(function(c){
+    const chave=c.num_pregao?('P:'+c.num_pregao):(c.uasg?('U:'+c.uasg+'|'+(c.orgao||'')):('S:'+c.id));
+    if(!grupos[chave]){grupos[chave]=[];ordemGrupos.push(chave);}
+    grupos[chave].push(c);
+  });
+
+  // Ordena os grupos por data (mais recente primeiro) — usa data_pregao quando tem,
+  // senão cai pra data de quando foi colado (criado_em).
+  const dataDoGrupo=function(chave){
+    const itens=grupos[chave];
+    const datas=itens.map(function(c){return c.data_pregao||c.criado_em;}).filter(Boolean).map(function(d){return new Date(d).getTime();});
+    return datas.length?Math.max.apply(null,datas):0;
+  };
+  ordemGrupos.sort(function(a,b){return dataDoGrupo(b)-dataDoGrupo(a);});
+
+  // Dashboard rápido: ganhos x perdidos, considerando o resultado final manual quando existir
+  const itensComResultado=lista.filter(function(c){return c.resultado_final||c.nossa_colocacao!=null;});
+  const totalGanhosDash=itensComResultado.filter(function(c){return c.resultado_final?c.resultado_final==='ganhamos':c.nossa_colocacao===1;}).length;
+  const totalPerdidosDash=itensComResultado.length-totalGanhosDash;
+  const taxaVitoria=itensComResultado.length?Math.round(totalGanhosDash/itensComResultado.length*100):0;
+  const dashboardHtml='<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<div style="flex:1;min-width:90px;background:#f0fdf4;border-radius:8px;padding:8px 12px;text-align:center"><div style="font-size:18px;font-weight:800;color:#166534">'+totalGanhosDash+'</div><div style="font-size:9.5px;color:#166534;font-weight:700">GANHOS</div></div>'
+    +'<div style="flex:1;min-width:90px;background:#fef2f2;border-radius:8px;padding:8px 12px;text-align:center"><div style="font-size:18px;font-weight:800;color:#991b1b">'+totalPerdidosDash+'</div><div style="font-size:9.5px;color:#991b1b;font-weight:700">PERDIDOS</div></div>'
+    +'<div style="flex:1;min-width:90px;background:#eff6ff;border-radius:8px;padding:8px 12px;text-align:center"><div style="font-size:18px;font-weight:800;color:#1d4ed8">'+taxaVitoria+'%</div><div style="font-size:9.5px;color:#1d4ed8;font-weight:700">TAXA DE VITÓRIA</div></div>'
+    +'<div style="flex:1;min-width:90px;background:#f8fafc;border-radius:8px;padding:8px 12px;text-align:center"><div style="font-size:18px;font-weight:800;color:#475569">'+ordemGrupos.length+'</div><div style="font-size:9.5px;color:#475569;font-weight:700">PREGÕES</div></div>'
+    +'</div>';
+
+  function itemRowHtml(c){
+    const ganhamos=c.resultado_final?(c.resultado_final==='ganhamos'):(c.nossa_colocacao===1);
+    const participamos=c.nossa_colocacao!=null;
+    const corBadge=ganhamos?'#166534':(participamos?'#b45309':'#64748b');
+    const bgBadge=ganhamos?'#dcfce7':(participamos?'#fef3c7':'#f1f5f9');
+    const txtBadge=ganhamos?(c.resultado_final==='ganhamos'&&c.nossa_colocacao!==1?'🏆 Ganho*':'🏆 1º'):(participamos?c.nossa_colocacao+'º':'—');
+    const rotulo=(c.item_num?('Item '+c.item_num):'')+(c.item_descricao?((c.item_num?' — ':'')+c.item_descricao):(c.orgao||'—'));
+    const tituloCompleto=String(rotulo).replace(/"/g,'&quot;')+(c.resultado_final==='ganhamos'&&c.nossa_colocacao!==1?' — Ganhamos depois, mesmo não sendo 1º na classificação':'');
+
+    const truncar=function(s,n){return s&&s.length>n?s.slice(0,n-1)+'…':s;};
+    const marcaModelo=function(marca,modelo){
+      return (marca||modelo)?(' · '+truncar([marca,modelo].filter(Boolean).join(' / '),24)):'';
+    };
+    // Quando dá pra calcular (tem quantidade), mostra o valor TOTAL (unit. x qtd);
+    // senão cai pro valor unitário mesmo, pra não ficar sem nada.
+    const temQtd=c.qtd_solicitada!=null;
+    const valorFmt=function(unit){
+      const v=temQtd?(Number(unit||0)*Number(c.qtd_solicitada)):Number(unit||0);
+      return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2})+(temQtd?'':' /un');
+    };
+    // Se a Grow venceu, "vencedor" e "Grow" são a mesma coisa — mostra uma vez só.
+    // Se não venceu (ou não participou), mostra os dois concatenados na mesma linha pra comparar.
+    let infoComparativo;
+    if(ganhamos){
+      infoComparativo='🏆 <b style="color:#166534">Grow</b>'+marcaModelo(c.nossa_marca,c.nosso_modelo)+' — '+valorFmt(c.nosso_valor);
+    }else{
+      const partes=[];
+      if(c.vencedor_nome)partes.push('🏅 '+truncar(c.vencedor_nome,22)+marcaModelo(c.vencedor_marca,c.vencedor_modelo)+' — '+valorFmt(c.vencedor_valor));
+      if(participamos)partes.push('📍 <b style="color:#b45309">Grow</b>'+marcaModelo(c.nossa_marca,c.nosso_modelo)+' — '+valorFmt(c.nosso_valor));
+      infoComparativo=partes.join('&nbsp;&nbsp;|&nbsp;&nbsp;');
+    }
+
+    return '<div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-left:3px solid '+corBadge+';border-bottom:1px solid #f1f5f9;cursor:pointer" onclick="toggleDetalheClassificacao('+c.id+')" title="'+tituloCompleto+'">'
+      +'<span style="font-size:9.5px;font-weight:700;color:'+corBadge+';background:'+bgBadge+';padding:2px 7px;border-radius:8px;flex-shrink:0;white-space:nowrap">'+txtBadge+'</span>'
+      +'<span style="font-size:11px;color:var(--muted);width:150px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+rotulo+'</span>'
+      +'<span style="flex:1;min-width:0;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+infoComparativo+'</span>'
+      +(c.qtd_solicitada!=null?('<span style="font-size:9.5px;color:var(--muted-light);flex-shrink:0;white-space:nowrap" title="Quantidade solicitada">📦 '+Number(c.qtd_solicitada).toLocaleString('pt-BR')+(c.unidade?(' '+c.unidade):'')+'</span>'):'')
+      +'<span style="font-size:9.5px;color:var(--muted-light);flex-shrink:0;white-space:nowrap">('+(c.total_propostas||0)+' concorrentes)</span>'
+      +(c.observacao?('<span style="font-size:11px;flex-shrink:0;cursor:help" title="'+String(c.observacao).replace(/"/g,'&quot;')+'">📝</span>'):'')
+      +'<button class="reg-btn del" onclick="event.stopPropagation();excluirClassificacao('+c.id+')" title="Excluir" style="flex-shrink:0">✕</button>'
+      +'</div>'
+      +'<div id="detalheClassif'+c.id+'" style="display:none;margin:4px 0 4px 11px"></div>';
+  }
+
+  el.innerHTML=dashboardHtml+ordemGrupos.map(function(chave){
+    const itens=grupos[chave];
+    const primeiro=itens[0];
+    const totalGanhos=itens.filter(function(c){return c.nossa_colocacao===1;}).length;
+    const totalParticipados=itens.filter(function(c){return c.nossa_colocacao!=null;}).length;
+    const dataRef=itens.map(function(c){return c.data_pregao;}).find(Boolean);
+    const cabecalhoGrupo=primeiro.num_pregao
+      ? ('Pregão nº '+primeiro.num_pregao)
+      : (primeiro.orgao||'Órgão não identificado');
+
+    return '<div style="border:1px solid var(--borda);border-radius:10px;margin-bottom:8px;overflow:hidden">'
+      +'<div style="background:#f8fafc;padding:6px 10px;display:flex;align-items:center;gap:8px">'
+      +'<span style="font-weight:700;font-size:12px;flex-shrink:0">'+cabecalhoGrupo+'</span>'
+      +'<span style="font-size:10.5px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
+      +(primeiro.orgao&&primeiro.num_pregao?(primeiro.orgao+' · '):'')
+      +(primeiro.uasg?('UASG '+primeiro.uasg+' · '):'')
+      +(dataRef?(new Date(dataRef).toLocaleDateString('pt-BR')+' · '):'')
+      +itens.length+' item(ns)'
+      +'</span>'
+      +'<span style="font-size:10.5px;font-weight:700;color:'+(totalGanhos>0?'#166534':'#64748b')+';background:'+(totalGanhos>0?'#dcfce7':'#f1f5f9')+';padding:2px 9px;border-radius:8px;white-space:nowrap;flex-shrink:0">'
+      +'🏆 '+totalGanhos+'/'+totalParticipados
+      +'</span>'
+      +'</div>'
+      +'<div style="padding:8px 10px 4px">'
+      +itens.map(itemRowHtml).join('')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+const STATUS_OPCOES=['','Habilitada','Desclassificada','Inabilitada','Adjudicada','Homologada','Aceita'];
+
+// ══════════════════════════════════════════════════════════════
+// RELATÓRIOS DE INTELIGÊNCIA — Ranking de Concorrentes, Quase Ganhos,
+// Desempenho por Órgão, Marcas Concorrentes. Usa o que já está em cache
+// (rápido) + uma busca extra só pro ranking de concorrentes (precisa
+// de TODOS os participantes, não só quem ganhou).
+// ══════════════════════════════════════════════════════════════
+async function abrirRelatoriosLicitacao(){
+  if(!_classificacoesSalvasCache.length){showT('Nenhuma classificação salva ainda','erro');return;}
+  showT('Montando relatórios...','');
+
+  const ov=document.createElement('div');
+  ov.id='relatoriosLicitOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99996;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:820px;width:100%;padding:22px;margin:20px 0">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    +'<div style="font-weight:800;font-size:16px">📊 Relatórios de Inteligência Competitiva</div>'
+    +'<button class="btn-cancel-mod" onclick="document.getElementById(\'relatoriosLicitOverlay\').remove()">✕</button></div>'
+    +'<div id="corpoRelatoriosLicit"><div style="text-align:center;padding:30px;color:var(--muted)">⏳ Carregando...</div></div>'
+    +'</div>';
+  document.body.appendChild(ov);
+
+  const lista=_classificacoesSalvasCache;
+
+  // ── 1) Desempenho por Órgão ──
+  const porOrgao={};
+  lista.forEach(function(c){
+    const chave=c.orgao||'Não identificado';
+    if(!porOrgao[chave])porOrgao[chave]={total:0,ganhos:0,valorGanho:0};
+    porOrgao[chave].total++;
+    const ganhou=c.resultado_final?(c.resultado_final==='ganhamos'):(c.nossa_colocacao===1);
+    if(ganhou){
+      porOrgao[chave].ganhos++;
+      if(c.nosso_valor!=null&&c.qtd_solicitada!=null)porOrgao[chave].valorGanho+=Number(c.nosso_valor)*Number(c.qtd_solicitada);
+    }
+  });
+  const rankingOrgaos=Object.entries(porOrgao).map(function(e){
+    return{nome:e[0],total:e[1].total,ganhos:e[1].ganhos,taxa:e[1].total?Math.round(e[1].ganhos/e[1].total*100):0,valorGanho:e[1].valorGanho};
+  }).sort(function(a,b){return b.valorGanho-a.valorGanho||b.total-a.total;});
+
+  // ── 2) Quase Ganhos (perdemos por até 5%) ──
+  const quaseGanhos=lista.filter(function(c){
+    const ganhou=c.resultado_final?(c.resultado_final==='ganhamos'):(c.nossa_colocacao===1);
+    return !ganhou&&c.nosso_valor!=null&&c.vencedor_valor!=null&&c.vencedor_valor>0;
+  }).map(function(c){
+    const diffPct=((Number(c.nosso_valor)-Number(c.vencedor_valor))/Number(c.vencedor_valor))*100;
+    return{c:c,diffPct:diffPct};
+  }).filter(function(x){return x.diffPct<=5;})
+    .sort(function(a,b){return a.diffPct-b.diffPct;});
+
+  // ── 3) Marcas Concorrentes (a marca de quem venceu, quando não fomos nós) ──
+  const porMarca={};
+  lista.forEach(function(c){
+    const ganhou=c.resultado_final?(c.resultado_final==='ganhamos'):(c.nossa_colocacao===1);
+    if(ganhou||!c.vencedor_marca)return;
+    const chave=c.vencedor_marca;
+    if(!porMarca[chave])porMarca[chave]={vezes:0,somaValor:0,fabricantes:new Set()};
+    porMarca[chave].vezes++;
+    if(c.vencedor_valor!=null)porMarca[chave].somaValor+=Number(c.vencedor_valor);
+  });
+  const rankingMarcas=Object.entries(porMarca).map(function(e){
+    return{nome:e[0],vezes:e[1].vezes,precoMedio:e[1].vezes?e[1].somaValor/e[1].vezes:0};
+  }).sort(function(a,b){return b.vezes-a.vezes;});
+
+  // ── 4) Ranking de Concorrentes (precisa de TODOS os participantes) ──
+  const {data:todasPropostas,error:errProp}=await sb.from('licit_classificacao_propostas').select('cnpj,empresa,valor_ofertado,status,somos_nos,classificacao_id');
+  const porConcorrente={};
+  if(!errProp&&todasPropostas){
+    todasPropostas.forEach(function(p){
+      if(p.somos_nos)return;
+      const chave=(p.cnpj||'')+'|'+(p.empresa||'Não identificado');
+      if(!porConcorrente[chave])porConcorrente[chave]={nome:p.empresa||'Não identificado',cnpj:p.cnpj,vezes:0,vitorias:0,somaValor:0};
+      porConcorrente[chave].vezes++;
+      if(p.status==='Adjudicada')porConcorrente[chave].vitorias++;
+      if(p.valor_ofertado!=null)porConcorrente[chave].somaValor+=Number(p.valor_ofertado);
+    });
+  }
+  const rankingConcorrentes=Object.values(porConcorrente).map(function(c){
+    return{nome:c.nome,cnpj:c.cnpj,vezes:c.vezes,vitorias:c.vitorias,taxa:c.vezes?Math.round(c.vitorias/c.vezes*100):0,precoMedio:c.vezes?c.somaValor/c.vezes:0};
+  }).sort(function(a,b){return b.vezes-a.vezes;}).slice(0,15);
+
+  // ── Monta o HTML final ──
+  const rs=function(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});};
+  const bloco=function(titulo,corTitulo,conteudo){
+    return '<div style="margin-bottom:22px"><div style="font-weight:800;font-size:13px;color:'+corTitulo+';margin-bottom:8px">'+titulo+'</div>'+conteudo+'</div>';
+  };
+  const tabela=function(cabecalhos,linhas){
+    if(!linhas.length)return '<div style="font-size:11.5px;color:var(--muted);padding:8px 0">Nenhum dado suficiente ainda.</div>';
+    return '<table style="width:100%;font-size:11.5px;border-collapse:collapse">'
+      +'<thead><tr style="border-bottom:1px solid var(--borda);text-align:left">'+cabecalhos.map(function(h){return '<th style="padding:5px 8px;'+(h.dir?'text-align:right':'')+'">'+h.txt+'</th>';}).join('')+'</tr></thead>'
+      +'<tbody>'+linhas.join('')+'</tbody></table>';
+  };
+
+  let html='';
+
+  // ── Resumo geral no topo ──
+  const totalItens=lista.length;
+  const itensGanhos=lista.filter(function(c){return c.resultado_final?(c.resultado_final==='ganhamos'):(c.nossa_colocacao===1);});
+  const valorTotalGanho=itensGanhos.reduce(function(s,c){
+    return s+((c.nosso_valor!=null&&c.qtd_solicitada!=null)?Number(c.nosso_valor)*Number(c.qtd_solicitada):0);
+  },0);
+  const taxaVitoriaGeral=totalItens?Math.round(itensGanhos.length/totalItens*100):0;
+  html+='<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">'
+    +'<div style="flex:1;min-width:150px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px">'
+    +'<div style="font-size:9.5px;font-weight:700;color:#166534;text-transform:uppercase">💰 Valor Total Ganho pela Grow</div>'
+    +'<div style="font-size:19px;font-weight:800;color:#166534;margin-top:2px">'+rs(valorTotalGanho)+'</div>'
+    +'<div style="font-size:9.5px;color:#166534;margin-top:1px">'+itensGanhos.length+' de '+totalItens+' item(ns) — '+taxaVitoriaGeral+'% de taxa de vitória</div>'
+    +'</div></div>';
+
+  html+=bloco('🏆 Ranking de Concorrentes (top 15 por nº de disputas)','#7c3aed',
+    tabela([{txt:'Empresa'},{txt:'Disputas',dir:true},{txt:'Vitórias',dir:true},{txt:'Taxa',dir:true},{txt:'Preço Médio',dir:true}],
+      rankingConcorrentes.map(function(c){
+        return '<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:5px 8px">'+c.nome+'</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+c.vezes+'</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+c.vitorias+'</td>'
+          +'<td style="padding:5px 8px;text-align:right;font-weight:700;color:'+(c.taxa>=50?'#dc2626':'#64748b')+'">'+c.taxa+'%</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+rs(c.precoMedio)+'</td></tr>';
+      })));
+
+  html+=bloco('🎯 Quase Ganhos — perdemos por até 5%','#d97706',
+    tabela([{txt:'Item'},{txt:'Nosso Valor',dir:true},{txt:'Venceu por',dir:true},{txt:'Diferença',dir:true}],
+      quaseGanhos.map(function(x){
+        const c=x.c;
+        return '<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:5px 8px">'+(c.orgao||'—')+' · '+(c.item_descricao||'Item '+c.item_num)+'</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+rs(c.nosso_valor)+'</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+rs(c.vencedor_valor)+'</td>'
+          +'<td style="padding:5px 8px;text-align:right;font-weight:700;color:#d97706">+'+x.diffPct.toFixed(1)+'%</td></tr>';
+      })));
+
+  html+=bloco('🏢 Desempenho por Órgão','#0f6e5f',
+    tabela([{txt:'Órgão'},{txt:'Itens',dir:true},{txt:'Ganhos',dir:true},{txt:'Taxa',dir:true},{txt:'Valor Ganho',dir:true}],
+      rankingOrgaos.slice(0,15).map(function(o){
+        return '<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:5px 8px">'+o.nome+'</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+o.total+'</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+o.ganhos+'</td>'
+          +'<td style="padding:5px 8px;text-align:right;font-weight:700;color:'+(o.taxa>=50?'#166534':'#64748b')+'">'+o.taxa+'%</td>'
+          +'<td style="padding:5px 8px;text-align:right;font-weight:700;color:#166534">'+rs(o.valorGanho)+'</td></tr>';
+      })));
+
+  html+=bloco('🏷️ Marcas Concorrentes (que mais venceram contra a gente)','#be185d',
+    tabela([{txt:'Marca/Fabricante'},{txt:'Vezes que venceu',dir:true},{txt:'Preço Médio',dir:true}],
+      rankingMarcas.slice(0,15).map(function(m){
+        return '<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:5px 8px">'+m.nome+'</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+m.vezes+'</td>'
+          +'<td style="padding:5px 8px;text-align:right">'+rs(m.precoMedio)+'</td></tr>';
+      })));
+
+  // ── 5) Pregões Ganhos — Detalhado (cliente + itens de cada pregão) ──
+  const gruposGanhos={};
+  const ordemGruposGanhos=[];
+  itensGanhos.forEach(function(c){
+    const chave=c.num_pregao?('P:'+c.num_pregao):(c.uasg?('U:'+c.uasg+'|'+(c.orgao||'')):('S:'+c.id));
+    if(!gruposGanhos[chave]){gruposGanhos[chave]=[];ordemGruposGanhos.push(chave);}
+    gruposGanhos[chave].push(c);
+  });
+  ordemGruposGanhos.sort(function(a,b){
+    const totA=gruposGanhos[a].reduce(function(s,c){return s+((c.nosso_valor!=null&&c.qtd_solicitada!=null)?Number(c.nosso_valor)*Number(c.qtd_solicitada):0);},0);
+    const totB=gruposGanhos[b].reduce(function(s,c){return s+((c.nosso_valor!=null&&c.qtd_solicitada!=null)?Number(c.nosso_valor)*Number(c.qtd_solicitada):0);},0);
+    return totB-totA;
+  });
+
+  const conteudoGanhos=!ordemGruposGanhos.length
+    ? '<div style="font-size:11.5px;color:var(--muted);padding:8px 0">Nenhum pregão ganho ainda.</div>'
+    : ordemGruposGanhos.map(function(chave){
+        const itens=gruposGanhos[chave];
+        const primeiro=itens[0];
+        const totalPregao=itens.reduce(function(s,c){return s+((c.nosso_valor!=null&&c.qtd_solicitada!=null)?Number(c.nosso_valor)*Number(c.qtd_solicitada):0);},0);
+        const titulo=(primeiro.num_pregao?('Pregão nº '+primeiro.num_pregao):'')+(primeiro.orgao?((primeiro.num_pregao?' — ':'')+primeiro.orgao):'Órgão não identificado');
+        return '<div style="border:1px solid var(--borda);border-radius:8px;padding:10px 12px;margin-bottom:8px">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+          +'<div style="font-weight:700;font-size:12px">'+titulo+'</div>'
+          +'<div style="font-weight:800;font-size:12px;color:#166534">'+rs(totalPregao)+'</div>'
+          +'</div>'
+          +'<table style="width:100%;font-size:11px;border-collapse:collapse">'
+          +'<thead><tr style="color:var(--muted);text-align:left"><th style="padding:2px 6px">Item</th><th style="padding:2px 6px;text-align:right">Qtd.</th><th style="padding:2px 6px;text-align:right">Valor Unit.</th><th style="padding:2px 6px;text-align:right">Valor Total</th></tr></thead>'
+          +'<tbody>'+itens.map(function(c){
+            const totItem=(c.nosso_valor!=null&&c.qtd_solicitada!=null)?Number(c.nosso_valor)*Number(c.qtd_solicitada):null;
+            return '<tr><td style="padding:2px 6px">'+(c.item_num?('Item '+c.item_num+' — '):'')+(c.item_descricao||'—')+'</td>'
+              +'<td style="padding:2px 6px;text-align:right">'+(c.qtd_solicitada!=null?Number(c.qtd_solicitada).toLocaleString('pt-BR'):'—')+(c.unidade?(' '+c.unidade):'')+'</td>'
+              +'<td style="padding:2px 6px;text-align:right">'+(c.nosso_valor!=null?rs(c.nosso_valor):'—')+'</td>'
+              +'<td style="padding:2px 6px;text-align:right;font-weight:700">'+(totItem!=null?rs(totItem):'—')+'</td></tr>';
+          }).join('')+'</tbody></table></div>';
+      }).join('');
+
+  html+=bloco('📋 Pregões Ganhos — Detalhado (cliente e itens)','#166534',conteudoGanhos);
+
+  document.getElementById('corpoRelatoriosLicit').innerHTML=html;
+}
+
+function exportarExcelClassificacoes(){
+  const lista=_classificacoesSalvasCache;
+  if(!lista.length){showT('Nada pra exportar ainda','erro');return;}
+
+  const fArial='font-family:Arial;font-size:8pt;';
+  const bd='border:1px solid #94a3b8;';
+  const stTitulo=fArial+bd+'font-weight:bold;color:#fff;background:#7c3aed;padding:4px 6px;font-size:9pt;';
+  const stHead=fArial+bd+'font-weight:bold;color:#475569;background:#eef2ff;padding:3px 6px;text-align:left;';
+  const stCel=fArial+bd+'color:#1E293B;background:#ffffff;padding:3px 6px;text-align:left;';
+  const stValGanho=fArial+bd+'color:#166534;background:#f0fdf4;padding:3px 6px;font-weight:bold;';
+  const stValPerdido=fArial+bd+'color:#991b1b;background:#fef2f2;padding:3px 6px;font-weight:bold;';
+
+  let html='<table cellspacing="0" cellpadding="0" style="border-collapse:collapse">';
+  html+='<tr><td colspan="13" style="'+stTitulo+'">📚 Meus Pregões — Classificações</td></tr>';
+  html+='<tr><td style="'+stHead+'">Pregão</td><td style="'+stHead+'">Órgão</td><td style="'+stHead+'">Item</td>'
+    +'<td style="'+stHead+'">Qtd.</td><td style="'+stHead+'">Unid.</td><td style="'+stHead+'">Data</td><td style="'+stHead+'">Nossa Posição</td>'
+    +'<td style="'+stHead+'">Nosso Valor Unit.</td><td style="'+stHead+'">Nosso Valor Total</td>'
+    +'<td style="'+stHead+'">Vencedor</td><td style="'+stHead+'">Valor Total Vencedor</td><td style="'+stHead+'">Concorrentes</td><td style="'+stHead+'">Observação</td></tr>';
+
+  lista.forEach(function(c){
+    const ganhamos=c.resultado_final?(c.resultado_final==='ganhamos'):(c.nossa_colocacao===1);
+    const stVal=ganhamos?stValGanho:stValPerdido;
+    const temQtd=c.qtd_solicitada!=null;
+    const totalNosso=temQtd&&c.nosso_valor!=null?(Number(c.nosso_valor)*Number(c.qtd_solicitada)):null;
+    const totalVencedor=temQtd&&c.vencedor_valor!=null?(Number(c.vencedor_valor)*Number(c.qtd_solicitada)):null;
+    html+='<tr><td style="'+stCel+'">'+(c.num_pregao||'—')+'</td>'
+      +'<td style="'+stCel+'">'+(c.orgao||'—')+'</td>'
+      +'<td style="'+stCel+'">'+(c.item_num?('Item '+c.item_num+' — '):'')+(c.item_descricao||'')+'</td>'
+      +'<td style="'+stCel+'">'+(c.qtd_solicitada!=null?Number(c.qtd_solicitada).toLocaleString('pt-BR'):'—')+'</td>'
+      +'<td style="'+stCel+'">'+(c.unidade||'—')+'</td>'
+      +'<td style="'+stCel+'">'+(c.data_pregao?new Date(c.data_pregao).toLocaleDateString('pt-BR'):'—')+'</td>'
+      +'<td style="'+stVal+'">'+(c.nossa_colocacao?(c.nossa_colocacao+'º'):'—')+(c.resultado_final==='ganhamos'&&c.nossa_colocacao!==1?' (ganho depois)':'')+'</td>'
+      +'<td style="'+stCel+'">'+(c.nosso_valor!=null?('R$ '+Number(c.nosso_valor).toLocaleString('pt-BR',{minimumFractionDigits:2})):'—')+'</td>'
+      +'<td style="'+stCel+'">'+(totalNosso!=null?('R$ '+totalNosso.toLocaleString('pt-BR',{minimumFractionDigits:2})):'—')+'</td>'
+      +'<td style="'+stCel+'">'+(c.vencedor_nome||'—')+'</td>'
+      +'<td style="'+stCel+'">'+(totalVencedor!=null?('R$ '+totalVencedor.toLocaleString('pt-BR',{minimumFractionDigits:2})):'—')+'</td>'
+      +'<td style="'+stCel+'">'+(c.total_propostas||0)+'</td>'
+      +'<td style="'+stCel+'">'+(c.observacao||'')+'</td></tr>';
+  });
+  html+='</table>';
+
+  const full='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">'
+    +'<head><meta charset="UTF-8"></head><body>'+html+'</body></html>';
+  const blob=new Blob(['\ufeff'+full],{type:'application/vnd.ms-excel'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='Meus_Pregoes_'+new Date().toISOString().slice(0,10)+'.xls';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showT('Excel gerado ✓','verde');
+}
+
+async function exportarPdfClassificacoes(){
+  const el=document.getElementById('listaClassificacoesSalvas');
+  if(!el||!_classificacoesSalvasCache.length){showT('Nada pra exportar ainda','erro');return;}
+  showT('Gerando PDF...','');
+  try{
+    await html2pdf().set({
+      margin:8,
+      filename:'Meus_Pregoes_'+new Date().toISOString().slice(0,10)+'.pdf',
+      image:{type:'jpeg',quality:0.95},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy']}
+    }).from(el).save();
+    showT('PDF gerado ✓','verde');
+  }catch(e){
+    console.error(e);
+    showT('Erro ao gerar PDF: '+(e&&e.message?e.message:e),'erro');
+  }
+}
+
+
+async function marcarResultadoFinal(id,valor){
+  const {error}=await sb.from('licit_classificacoes').update({resultado_final:valor}).eq('id',id);
+  if(error){showT('Erro ao marcar resultado: '+error.message,'erro');return;}
+  showT(valor?'Marcado ✓':'Removido ✓','verde');
+  await carregarClassificacoesSalvas();
+  await _recarregarDetalheClassificacao(id);
+  const elDet=document.getElementById('detalheClassif'+id);
+  if(elDet)elDet.style.display='block';
+}
+
+async function salvarQuantidade(id){
+  const campo=document.getElementById('qtdTexto'+id);
+  const campoUnid=document.getElementById('unidadeTexto'+id);
+  if(!campo)return;
+  const valor=campo.value.trim();
+  const qtd=valor?parseFloat(valor):null;
+  if(valor&&(isNaN(qtd)||qtd<0)){showT('Quantidade inválida','erro');return;}
+  const unidade=campoUnid?campoUnid.value.trim().toUpperCase():null;
+  const {error}=await sb.from('licit_classificacoes').update({qtd_solicitada:qtd,unidade:unidade||null}).eq('id',id);
+  if(error){showT('Erro ao salvar: '+error.message,'erro');return;}
+  showT('Quantidade/unidade salvas ✓','verde');
+  await carregarClassificacoesSalvas();
+  await _recarregarDetalheClassificacao(id);
+  const elDet=document.getElementById('detalheClassif'+id);
+  if(elDet)elDet.style.display='block';
+}
+
+async function salvarObservacao(id){
+  const campo=document.getElementById('obsTexto'+id);
+  if(!campo)return;
+  const texto=campo.value.trim();
+  const {error}=await sb.from('licit_classificacoes').update({observacao:texto||null}).eq('id',id);
+  if(error){showT('Erro ao salvar observação: '+error.message,'erro');return;}
+  showT('Observação salva ✓','verde');
+  await carregarClassificacoesSalvas();
+  await _recarregarDetalheClassificacao(id);
+  const elDet=document.getElementById('detalheClassif'+id);
+  if(elDet)elDet.style.display='block';
+}
+
+
+async function toggleDetalheClassificacao(id){
+  const el=document.getElementById('detalheClassif'+id);
+  el.style.display='block';
+  await _recarregarDetalheClassificacao(id);
+}
+
+async function _recarregarDetalheClassificacao(id){
+  const el=document.getElementById('detalheClassif'+id);
+  if(!el)return;
+  el.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px">Carregando...</div>';
+
+  const {data,error}=await sb.from('licit_classificacao_propostas').select('*').eq('classificacao_id',id).order('valor_ofertado');
+  if(error||!data){el.innerHTML='<div style="font-size:11px;color:#dc2626;padding:8px">Erro ao carregar.</div>';return;}
+
+  const DESQUALIFICA=/^(Desclassificada|Inabilitada)$/i;
+  let contador=0;
+  data.forEach(function(p){
+    if(DESQUALIFICA.test(p.status||'')){p.posicaoEfetiva=null;}
+    else{contador++;p.posicaoEfetiva=contador;}
+  });
+
+  const optsHtml=function(atual){
+    return STATUS_OPCOES.map(function(o){return '<option value="'+o+'"'+(o===(atual||'')?' selected':'')+'>'+(o||'—')+'</option>';}).join('');
+  };
+
+  const cReg=_classificacoesSalvasCache.find(function(c){return c.id===id;});
+  const resultadoFinal=cReg?cReg.resultado_final:null;
+  const controleResultado='<div style="display:flex;align-items:center;gap:8px;padding:4px 8px 8px;flex-wrap:wrap">'
+    +'<span style="font-size:10px;color:var(--muted)">Resultado final (sobrepõe a classificação, útil quando ganhamos depois mesmo não sendo 1º):</span>'
+    +'<button onclick="marcarResultadoFinal('+id+',\'ganhamos\')" style="font-size:10px;padding:3px 9px;border-radius:6px;border:1px solid '+(resultadoFinal==='ganhamos'?'#166534':'var(--borda)')+';background:'+(resultadoFinal==='ganhamos'?'#dcfce7':'#fff')+';color:'+(resultadoFinal==='ganhamos'?'#166534':'var(--muted)')+';cursor:pointer;font-weight:700">🏆 Ganhamos</button>'
+    +'<button onclick="marcarResultadoFinal('+id+',\'perdemos\')" style="font-size:10px;padding:3px 9px;border-radius:6px;border:1px solid '+(resultadoFinal==='perdemos'?'#991b1b':'var(--borda)')+';background:'+(resultadoFinal==='perdemos'?'#fee2e2':'#fff')+';color:'+(resultadoFinal==='perdemos'?'#991b1b':'var(--muted)')+';cursor:pointer;font-weight:700">✕ Perdemos</button>'
+    +(resultadoFinal?('<button onclick="marcarResultadoFinal('+id+',null)" style="font-size:10px;padding:3px 9px;border-radius:6px;border:1px solid var(--borda);background:#fff;color:var(--muted);cursor:pointer">↩ Limpar (seguir classificação)</button>'):'')
+    +'</div>';
+
+  const observacaoAtual=cReg?(cReg.observacao||''):'';
+  const qtdAtual=cReg&&cReg.qtd_solicitada!=null?cReg.qtd_solicitada:'';
+  const unidadeAtual=cReg&&cReg.unidade?cReg.unidade:'';
+  const controleQtd='<div style="display:flex;align-items:center;gap:8px;padding:4px 8px 8px;flex-wrap:wrap">'
+    +'<span style="font-size:10px;color:var(--muted);flex-shrink:0">📦 Quantidade:</span>'
+    +'<input type="number" id="qtdTexto'+id+'" value="'+qtdAtual+'" placeholder="Ex: 50000" style="width:110px;font-size:11px;padding:5px 8px;border-radius:6px;border:1px solid var(--borda)">'
+    +'<span style="font-size:10px;color:var(--muted);flex-shrink:0">Unidade:</span>'
+    +'<input type="text" id="unidadeTexto'+id+'" value="'+unidadeAtual.replace(/"/g,'&quot;')+'" placeholder="UN, KG, L, CX..." style="width:90px;font-size:11px;padding:5px 8px;border-radius:6px;border:1px solid var(--borda)">'
+    +'<button onclick="salvarQuantidade('+id+')" class="reg-btn" style="flex-shrink:0;color:#0f6e5f;font-weight:700">💾 Salvar</button>'
+    +'</div>';
+
+  const controleObservacao='<div style="display:flex;align-items:flex-start;gap:8px;padding:4px 8px 8px;flex-wrap:wrap">'
+    +'<span style="font-size:10px;color:var(--muted);padding-top:6px;flex-shrink:0">📝 Observação:</span>'
+    +'<textarea id="obsTexto'+id+'" placeholder="Ex: cliente pediu desconto, produto trocado por indisponibilidade..." style="flex:1;min-width:220px;min-height:44px;font-size:11px;padding:6px 8px;border-radius:6px;border:1px solid var(--borda);resize:vertical;font-family:inherit">'+observacaoAtual.replace(/</g,'&lt;')+'</textarea>'
+    +'<button onclick="salvarObservacao('+id+')" class="reg-btn" style="flex-shrink:0;color:#0f6e5f;font-weight:700">💾 Salvar</button>'
+    +'</div>';
+
+  el.innerHTML='<div style="font-size:10px;color:var(--muted);padding:4px 8px 6px">💡 Mude o status de qualquer concorrente aqui — se marcar como Desclassificada/Inabilitada, a colocação dos outros sobe automaticamente. O preço também pode ser editado (💾) — útil quando foi negociado depois do pregão — e a colocação recalcula sozinha.</div>'
+    +controleResultado
+    +controleQtd
+    +controleObservacao
+    +'<table style="width:100%;font-size:11px;border-collapse:collapse;background:#fafbfc;border-radius:8px;overflow:hidden">'
+    +'<thead><tr style="background:#f1f5f9;text-align:left"><th style="padding:5px 8px">#</th><th style="padding:5px 8px">Empresa</th><th style="padding:5px 8px;text-align:right">Valor Unit.</th><th style="padding:5px 8px;text-align:right">Valor Total</th><th style="padding:5px 8px;text-align:center">Status</th></tr></thead>'
+    +'<tbody>'+data.map(function(p){
+      const desqualificado=DESQUALIFICA.test(p.status||'');
+      const medalha=desqualificado?'❌':(p.posicaoEfetiva===1?'🥇':(p.posicaoEfetiva===2?'🥈':(p.posicaoEfetiva===3?'🥉':(p.posicaoEfetiva||'—')+'º')));
+      const marcaHtml=(p.marca||p.modelo)?('<div style="font-size:9.5px;color:#7c3aed;margin-top:1px">'+(p.marca?('Marca/Fabricante: '+p.marca):'')+(p.marca&&p.modelo?' · ':'')+(p.modelo?('Modelo/Versão: '+p.modelo):'')+'</div>'):'';
+      const valorTotalProp=(cReg&&cReg.qtd_solicitada!=null)?(Number(p.valor_ofertado||0)*Number(cReg.qtd_solicitada)):null;
+      return '<tr style="'+(p.somos_nos?'background:#f0fdf4;font-weight:700':'')+(desqualificado?';opacity:.6':'')+'"><td style="padding:4px 8px">'+medalha+'</td>'
+        +'<td style="padding:4px 8px'+(desqualificado?';text-decoration:line-through':'')+'">'+p.empresa+(p.somos_nos?' (nós)':'')+' <span style="color:var(--muted);font-size:9.5px">'+(p.uf||'')+'</span>'+marcaHtml+'</td>'
+        +'<td style="padding:4px 8px;text-align:right"><div style="display:flex;align-items:center;gap:3px;justify-content:flex-end">'
+        +'<span style="font-size:10px;color:var(--muted)">R$</span>'
+        +'<input type="text" id="valorEdit'+p.id+'" value="'+Number(p.valor_ofertado||0).toFixed(2).replace('.',',')+'" onkeydown="if(event.key===\'Enter\')editarValorProposta('+p.id+','+id+')" style="width:70px;font-size:11px;padding:2px 4px;border-radius:4px;border:1px solid var(--borda);text-align:right">'
+        +'<button onclick="editarValorProposta('+p.id+','+id+')" title="Salvar novo preço (ex: negociado após o pregão)" style="border:none;background:none;cursor:pointer;font-size:11px;padding:2px">💾</button>'
+        +'</div></td>'
+        +'<td style="padding:4px 8px;text-align:right;color:#0f6e5f;font-weight:700">'+(valorTotalProp!=null?('R$ '+valorTotalProp.toLocaleString('pt-BR',{minimumFractionDigits:2})):'—')+'</td>'
+        +'<td style="padding:4px 8px;text-align:center">'
+        +'<select onchange="alterarStatusProposta('+p.id+','+id+',this.value)" style="font-size:10px;padding:2px 4px;border-radius:5px;border:1px solid var(--borda)">'+optsHtml(p.status)+'</select>'
+        +'</td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+// Muda o status de UMA proposta e recalcula a colocação de todo o item —
+// se o 1º cai pra desclassificado, o 2º sobe pra 1º automaticamente.
+// Recalcula colocação efetiva e vencedor de um item a partir das propostas já salvas —
+// usado tanto quando muda status quanto quando edita preço (negociação pós-pregão).
+async function _recalcularClassificacao(classificacaoId){
+  const {data:propostas,error:e2}=await sb.from('licit_classificacao_propostas').select('*').eq('classificacao_id',classificacaoId).order('valor_ofertado');
+  if(e2||!propostas)return{ok:false,erro:e2};
+
+  const DESQUALIFICA=/^(Desclassificada|Inabilitada)$/i;
+  let contador=0;
+  propostas.forEach(function(p){
+    if(DESQUALIFICA.test(p.status||'')){p.posicaoEfetiva=null;}
+    else{contador++;p.posicaoEfetiva=contador;}
+  });
+
+  const vencedor=propostas.find(function(p){return p.status==='Adjudicada';})
+    ||propostas.find(function(p){return p.posicaoEfetiva===1;})
+    ||propostas[0]||null;
+  const nossa=propostas.find(function(p){return p.somos_nos;})||null;
+
+  const {error:e3}=await sb.from('licit_classificacoes').update({
+    nossa_colocacao:nossa?(nossa.posicaoEfetiva!=null?nossa.posicaoEfetiva:null):null,
+    nosso_valor:nossa?nossa.valor_ofertado:null,
+    nossa_marca:nossa?nossa.marca:null,
+    nosso_modelo:nossa?nossa.modelo:null,
+    vencedor_nome:vencedor?vencedor.empresa:null,
+    vencedor_cnpj:vencedor?vencedor.cnpj:null,
+    vencedor_valor:vencedor?vencedor.valor_ofertado:null,
+    vencedor_marca:vencedor?vencedor.marca:null,
+    vencedor_modelo:vencedor?vencedor.modelo:null
+  }).eq('id',classificacaoId);
+  return{ok:!e3,erro:e3};
+}
+
+// Edita o preço de UM concorrente (inclusive o nosso) — útil quando o preço foi
+// negociado depois do pregão e ficou diferente do que foi ofertado originalmente.
+async function editarValorProposta(propostaId,classificacaoId){
+  const campo=document.getElementById('valorEdit'+propostaId);
+  if(!campo)return;
+  const novoValor=parseFloat(campo.value.replace(',','.'));
+  if(isNaN(novoValor)||novoValor<0){showT('Valor inválido','erro');return;}
+
+  const {error:e1}=await sb.from('licit_classificacao_propostas').update({valor_ofertado:novoValor}).eq('id',propostaId);
+  if(e1){showT('Erro ao salvar preço: '+e1.message,'erro');return;}
+
+  const r=await _recalcularClassificacao(classificacaoId);
+  if(!r.ok){showT('Preço salvo, mas não consegui recalcular a colocação','erro');return;}
+
+  showT('Preço atualizado ✓ (negociação registrada)','verde');
+  await _recarregarDetalheClassificacao(classificacaoId);
+  await carregarClassificacoesSalvas();
+  const elDet=document.getElementById('detalheClassif'+classificacaoId);
+  if(elDet)elDet.style.display='block';
+}
+
+async function alterarStatusProposta(propostaId,classificacaoId,novoStatus){
+  const {error:e1}=await sb.from('licit_classificacao_propostas').update({status:novoStatus||null}).eq('id',propostaId);
+  if(e1){showT('Erro ao alterar status: '+e1.message,'erro');return;}
+
+  const r=await _recalcularClassificacao(classificacaoId);
+  if(!r.ok){showT('Status salvo, mas não consegui recalcular a colocação','erro');return;}
+
+  showT('Status atualizado ✓','verde');
+  await _recarregarDetalheClassificacao(classificacaoId);
+  await carregarClassificacoesSalvas();
+  const elDet=document.getElementById('detalheClassif'+classificacaoId);
+  if(elDet)elDet.style.display='block';
+}
+
+
+async function excluirClassificacao(id){
+  if(!confirm('Excluir essa classificação salva?'))return;
+  const {error}=await sb.from('licit_classificacoes').delete().eq('id',id);
+  if(error){showT('Erro ao excluir: '+error.message,'erro');return;}
+  showT('Excluído ✓','verde');
+  carregarClassificacoesSalvas();
+}
+
+// Busca o resultado (vencedor, valor homologado) de UM item específico da contratação.
+// Endpoint público do PNCP: /orgaos/{cnpj}/compras/{ano}/{seq}/itens/{numeroItem}/resultados
+async function fetchPncpResultadoItem(cnpj,ano,sequencial,numeroItem){
+  const bases=['https://pncp.gov.br/pncp-api/v1','https://pncp.gov.br/api/consulta/v1'];
+  for(const base of bases){
+    try{
+      const data=await fetchPncpJson(base+'/orgaos/'+cnpj+'/compras/'+ano+'/'+sequencial+'/itens/'+numeroItem+'/resultados');
+      if(data){
+        const lista=Array.isArray(data)?data:(data.data||[data]);
+        if(lista.length)return lista;
+      }
+    }catch(e){
+      console.warn('Erro ao buscar resultado do item '+numeroItem+' em '+base+':',e);
+    }
+  }
+  return[];
+}
+
+// Preenche o campo da aba "Consultar Resultado" com o Nº de controle e já dispara a busca —
+// chamado a partir do botão no card da Agenda.
+// Aceita tanto o link completo (https://pncp.gov.br/app/editais/{cnpj}/{ano}/{seq})
+// quanto o número de controle cru (CNPJ-1-SEQUENCIAL/ANO) e devolve {cnpj,ano,seq}.
+function _parsePncpIdOuLink(str){
+  const s=(str||'').trim();
+  if(!s)return null;
+
+  // Formato link: pncp.gov.br/app/editais/{cnpj}/{ano}/{seq}
+  const mLink=s.match(/editais\/(\d{14})\/(\d{4})\/(\d+)/);
+  if(mLink)return{cnpj:mLink[1],ano:mLink[2],seq:String(parseInt(mLink[3],10))};
+
+  // Formato cru: CNPJ-1-SEQUENCIAL/ANO
+  const mCru=s.match(/(\d{14})-1-(\d+)\/(\d{4})/);
+  if(mCru)return{cnpj:mCru[1],ano:mCru[3],seq:String(parseInt(mCru[2],10))};
+
+  return null;
+}
+
+function irParaConsultarResultado(pncpId){
+  setLicitAba('consultar');
+  const campo=document.getElementById('consultarPncpId');
+  if(campo){campo.value=pncpId;}
+  consultarResultadoPregao();
+}
+
+async function consultarResultadoPregao(){
+  const raw=(document.getElementById('consultarPncpId').value||'').trim();
+  const out=document.getElementById('consultarResultadoOut');
+  const m=raw.match(/^(\d{14})-1-(\d+)\/(\d{4})$/);
+  if(!m){
+    out.innerHTML='<div style="padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#991b1b">⚠ Formato inválido. Cole o Nº de controle PNCP completo, no formato <b>CNPJ-1-SEQUENCIAL/ANO</b> (ex: 00394460000141-1-000123/2026).</div>';
+    return;
+  }
+  const cnpj=m[1],seq=String(parseInt(m[2],10)),ano=m[3];
+
+  out.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">⏳ Buscando itens e resultados no PNCP...</div>';
+
+  const [det,itens]=await Promise.all([
+    fetchPncpDetalheContratacao(cnpj,ano,seq).catch(function(){return null;}),
+    fetchPncpItens(cnpj,ano,seq).catch(function(){return[];})
+  ]);
+
+  if(!itens.length){
+    out.innerHTML='<div style="padding:12px 16px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e">⚠ Não encontrei itens pra esse pregão. Confira o número de controle, ou tente de novo em alguns minutos (o PNCP pode estar instável).</div>';
+    return;
+  }
+
+  const cabecalho='<div style="margin-bottom:14px;padding:12px 14px;background:#f8fafc;border-radius:8px">'
+    +'<div style="font-weight:700;font-size:13px">'+((det&&(det.orgaoEntidade&&(det.orgaoEntidade.razaoSocial||det.orgaoEntidade.razaosocial)))||'Órgão não identificado')+'</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+(det&&det.objetoCompra?String(det.objetoCompra).slice(0,200):'')+'</div>'
+    +'</div>';
+
+  await carregarMetaProdutos();
+  out.innerHTML=cabecalho+'<div id="consultarResultadoItens" style="font-size:12px;color:var(--muted)">⏳ Consultando resultado de '+itens.length+' item(ns)...</div>';
+
+  // Busca o resultado de cada item, em paralelo (limitado, pra não sobrecarregar)
+  const resultados=await Promise.all(itens.map(function(it){
+    return fetchPncpResultadoItem(cnpj,ano,seq,it.numeroItem).catch(function(){return[];});
+  }));
+
+  const linhas=itens.map(function(it,i){
+    const res=(resultados[i]&&resultados[i][0])||null;
+    const sug=sugerirProdutos(it.descricao,it.codigoItemCatalogo||it.catmat||null);
+    const nossoProd=sug.length?sug[0]:null;
+
+    let statusHtml,detalheHtml='';
+    if(!res||!res.fornecedor){
+      statusHtml='<span style="font-size:10.5px;font-weight:700;color:#64748b;background:#f1f5f9;padding:3px 9px;border-radius:8px">⏳ Sem resultado ainda</span>';
+    }else{
+      const nomeVencedor=(res.fornecedor&&(res.fornecedor.razaoSocial||res.fornecedor.nome))||res.niFornecedor||'—';
+      const cnpjVencedor=(res.fornecedor&&(res.fornecedor.ni||res.fornecedor.cnpj))||res.niFornecedor||'';
+      // Comparação simplificada: se o CNPJ da empresa configurada bater, foi você
+      const meuCnpj='10842256000108'; // Grow Química e Farmacêutica Ltda. — mesmo CNPJ usado na assinatura dos relatórios
+      const souEu=meuCnpj&&cnpjVencedor&&String(cnpjVencedor).replace(/\D/g,'')===meuCnpj;
+      const valorHomolog=res.valorTotalHomologado!=null?res.valorTotalHomologado:res.valorUnitarioHomologado;
+      const valorFmt=valorHomolog!=null?('R$ '+Number(valorHomolog).toLocaleString('pt-BR',{minimumFractionDigits:2})):'—';
+      if(souEu){
+        statusHtml='<span style="font-size:10.5px;font-weight:800;color:#166534;background:#dcfce7;padding:3px 9px;border-radius:8px">🏆 Você venceu — '+valorFmt+'</span>';
+      }else{
+        statusHtml='<span style="font-size:10.5px;font-weight:800;color:#991b1b;background:#fee2e2;padding:3px 9px;border-radius:8px">✕ Perdemos</span>';
+        detalheHtml='<div style="font-size:11px;color:var(--muted);margin-top:3px">Venceu: <b>'+nomeVencedor+'</b> — '+valorFmt+'</div>';
+      }
+    }
+
+    const matchHtml=nossoProd
+      ?'<div style="font-size:10.5px;color:#0f6e5f;margin-top:3px">📦 Nosso produto: '+nossoProd.nome+' ('+nossoProd.confianca+'%)</div>'
+      :'';
+
+    return '<div style="border:1px solid var(--borda);border-radius:8px;padding:10px 12px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'
+      +'<div style="flex:1"><b>Item '+(it.numeroItem||'—')+'</b> · '+String(it.descricao||'').slice(0,160)+matchHtml+detalheHtml+'</div>'
+      +statusHtml
+      +'</div></div>';
+  });
+
+  document.getElementById('consultarResultadoItens').outerHTML='<div id="consultarResultadoItens">'+linhas.join('')+'</div>';
+}
+
 async function fetchPncpItens(cnpj,ano,sequencial){
   const bases=['https://pncp.gov.br/pncp-api/v1','https://pncp.gov.br/api/consulta/v1'];
   for(const base of bases){
@@ -21372,9 +22576,18 @@ async function adicionarResultadoComoPregao(idx){
   const cnpj=item.orgaoEntidade&&item.orgaoEntidade.cnpj;
   const ano=item.anoCompra,seq=item.sequencialCompra;
 
-  // Enriquece com o detalhe oficial da contratação (quando temos os identificadores)
+  // Enriquece com o detalhe oficial da contratação (quando temos os identificadores).
+  // Se a API do PNCP estiver fora do ar nesse momento, NÃO pode impedir o salvamento —
+  // seguimos com os dados que já temos do resultado da busca (item).
   let det=null;
-  if(cnpj&&ano&&seq)det=await fetchPncpDetalheContratacao(cnpj,ano,seq);
+  if(cnpj&&ano&&seq){
+    try{
+      det=await fetchPncpDetalheContratacao(cnpj,ano,seq);
+    }catch(e){
+      console.warn('PNCP indisponível ao enriquecer pregão — salvando com os dados já obtidos na busca:',e);
+      showT('PNCP instável no momento — salvando com os dados já disponíveis...','');
+    }
+  }
 
   const numeroReal=(det&&det.numeroCompra)?det.numeroCompra+'/'+ano
     :((item.numeroCompra||seq||'?')+'/'+(ano||''));
@@ -21437,35 +22650,41 @@ async function adicionarResultadoComoPregao(idx){
   // Insere os itens que bateram com o filtro como itens do pregão
   let qtdItens=0;
   if(novoId){
-    let batidos=item._itensBatidos;
-    if(!batidos&&cnpj&&ano&&seq){
-      const palavrasNorm=buscaFiltros.palavras.map(normalizarTexto);
-      const todos=item._itensCache||await fetchPncpItens(cnpj,ano,seq);
-      batidos=todos.filter(function(it){
-        const dNorm=normalizarTexto(it.descricao);
-        return palavrasNorm.some(function(p){return dNorm.includes(p);});
-      });
-    }
-    if(batidos&&batidos.length){
-      // Também guarda os itens filtrados dentro dos dados do PNCP (aparecem no ℹ️ e na edição)
-      if(pncpDados){
-        pncpDados.itens_filtrados=batidos.map(function(it){
-          return{numeroItem:it.numeroItem||null,descricao:(it.descricao||'').slice(0,300),quantidade:it.quantidade||null};
+    try{
+      let batidos=item._itensBatidos;
+      if(!batidos&&cnpj&&ano&&seq){
+        const palavrasNorm=buscaFiltros.palavras.map(normalizarTexto);
+        const todos=item._itensCache||await fetchPncpItens(cnpj,ano,seq);
+        batidos=todos.filter(function(it){
+          const dNorm=normalizarTexto(it.descricao);
+          return palavrasNorm.some(function(p){return dNorm.includes(p);});
         });
-        await sb.from('pregoes').update({pncp_dados:pncpDados}).eq('id',novoId);
       }
-      const linhas=batidos.map(function(it){
-        return{
-          pregao_id:novoId,item_num:it.numeroItem||0,
-          descricao:(it.descricao||'').slice(0,2000),
-          quantidade:it.quantidade||null,
-          valor_estimado:it.valorUnitarioEstimado||null,
-          nosso_status:'em_analise',concorrentes:[]
-        };
-      });
-      const ri=await sb.from('pregao_itens').insert(linhas);
-      if(!ri.error)qtdItens=linhas.length;
-      else console.warn('Itens não salvos:',ri.error.message);
+      if(batidos&&batidos.length){
+        // Também guarda os itens filtrados dentro dos dados do PNCP (aparecem no ℹ️ e na edição)
+        if(pncpDados){
+          pncpDados.itens_filtrados=batidos.map(function(it){
+            return{numeroItem:it.numeroItem||null,descricao:(it.descricao||'').slice(0,300),quantidade:it.quantidade||null};
+          });
+          await sb.from('pregoes').update({pncp_dados:pncpDados}).eq('id',novoId);
+        }
+        const linhas=batidos.map(function(it){
+          return{
+            pregao_id:novoId,item_num:it.numeroItem||0,
+            descricao:(it.descricao||'').slice(0,2000),
+            quantidade:it.quantidade||null,
+            valor_estimado:it.valorUnitarioEstimado||null,
+            nosso_status:'em_analise',concorrentes:[]
+          };
+        });
+        const ri=await sb.from('pregao_itens').insert(linhas);
+        if(!ri.error)qtdItens=linhas.length;
+        else console.warn('Itens não salvos:',ri.error.message);
+      }
+    }catch(e){
+      // O pregão principal já foi salvo com sucesso acima — a falta dos itens
+      // (por instabilidade do PNCP) não pode passar a impressão de que nada foi salvo.
+      console.warn('PNCP indisponível ao buscar itens do pregão — pregão já salvo, itens ficam pendentes:',e);
     }
   }
 
@@ -21488,6 +22707,58 @@ async function ocultarResultadoPncp(idx){
 }
 
 // Mostra os dados completos do PNCP salvos junto com o pregão.
+// Tenta de novo buscar os dados completos do PNCP pra um pregão que foi salvo
+// só com o básico (porque a API estava instável no momento de adicionar).
+async function completarDadosPregao(id){
+  const p=pregoes.find(function(x){return x.id===id;});
+  if(!p||!p.pncp_id){showT('Este pregão não tem identificador do PNCP pra buscar.','erro');return;}
+
+  // numeroControlePNCP segue o formato CNPJ-1-SEQUENCIAL/ANO (padrão do PNCP)
+  const m=String(p.pncp_id).match(/^(\d{14})-1-(\d+)\/(\d{4})$/);
+  if(!m){showT('Não consegui interpretar o identificador do PNCP deste pregão.','erro');return;}
+  const cnpj=m[1],seq=String(parseInt(m[2],10)),ano=m[3];
+
+  showT('Buscando dados no PNCP...','');
+  let det=null;
+  try{
+    det=await fetchPncpDetalheContratacao(cnpj,ano,seq);
+  }catch(e){
+    console.warn('PNCP ainda instável ao tentar completar pregão:',e);
+    showT('PNCP ainda está instável — tenta de novo daqui a pouco.','erro');
+    return;
+  }
+  if(!det){showT('PNCP respondeu, mas sem dados pra este pregão.','erro');return;}
+
+  const fmtDataHora=function(v){return v?new Date(v).toLocaleString('pt-BR'):null;};
+  const pncpDados={
+    local:(det.unidadeOrgao?((det.unidadeOrgao.municipioNome||'')+'/'+(det.unidadeOrgao.ufSigla||'')):null),
+    orgao:(det.orgaoEntidade&&(det.orgaoEntidade.razaoSocial||det.orgaoEntidade.razaosocial))||p.orgao,
+    unidade_compradora:(det.unidadeOrgao?((det.unidadeOrgao.codigoUnidade||'')+' - '+(det.unidadeOrgao.nomeUnidade||'')):null),
+    modalidade:det.modalidadeNome||null,
+    amparo_legal:(det.amparoLegal&&det.amparoLegal.nome)||null,
+    tipo:det.tipoInstrumentoConvocatorioNome||null,
+    modo_disputa:det.modoDisputaNome||null,
+    registro_preco:det.srp?'Sim':'Não',
+    data_divulgacao:det.dataPublicacaoPncp?String(det.dataPublicacaoPncp).slice(0,10):null,
+    situacao:det.situacaoCompraNome||null,
+    inicio_propostas:fmtDataHora(det.dataAberturaProposta),
+    fim_propostas:fmtDataHora(det.dataEncerramentoProposta),
+    id_pncp:det.numeroControlePNCP||p.pncp_id,
+    fonte:det.usuarioNome||null,
+    objeto:det.objetoCompra||null,
+    info_complementar:det.informacaoComplementar||null,
+    valor_estimado:det.valorTotalEstimado||null
+  };
+  const linkDisputa=det.linkSistemaOrigem||p.link_disputa||null;
+
+  const {error}=await sb.from('pregoes').update({pncp_dados:pncpDados,link_disputa:linkDisputa}).eq('id',id);
+  if(error){showT('Erro ao salvar dados completos: '+error.message,'erro');return;}
+
+  showT('Dados completados ✓','verde');
+  await sbCarregarPregoes();
+}
+
+
 function mostrarDadosPncp(id){
   const p=pregoes.find(function(x){return String(x.id)===String(id);});
   if(!p||!p.pncp_dados){showT('Este pregão não tem dados do PNCP salvos','erro');return;}
@@ -21905,11 +23176,13 @@ function cardAgendaPregao(p,hoje){
   const diasStr=dias!==null?(dias===0?'Hoje':dias===1?'Amanhã':dias>0?'Em '+dias+' dias':'Há '+Math.abs(dias)+' dias'):'—';
   const diasCor=dias!==null?(dias<=1?'#dc2626':dias<=7?'#f97316':'#16a34a'):'#64748b';
   const objeto=(p.pncp_dados&&p.pncp_dados.objeto)?String(p.pncp_dados.objeto).slice(0,140):'';
+  const incompleto=!p.pncp_dados&&p.pncp_id; // salvou básico, mas o enriquecimento do PNCP falhou na hora
   return '<div class="registro-item" style="border-left:3px solid '+st.cor+'" onclick="abrirPregao('+p.id+')">'+
     '<div class="reg-info">'+
       '<div class="reg-titulo" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
         '<span>'+(p.orgao||'Pregão '+p.numero)+'</span>'+
         '<span style="font-size:10px;font-weight:700;color:'+st.cor+';background:'+st.bg+';padding:2px 8px;border-radius:10px">'+st.label+'</span>'+
+        (incompleto?'<span style="font-size:10px;font-weight:700;color:#b45309;background:#fef3c7;padding:2px 8px;border-radius:10px" title="O PNCP estava instável quando este pregão foi salvo — os dados completos (objeto, prazos, arquivos) ainda não foram carregados.">⚠ Dados incompletos</span>':'')+
       '</div>'+
       '<div class="reg-sub">'+
         '<span>📋 Pregão '+p.numero+'</span>'+
@@ -21920,7 +23193,9 @@ function cardAgendaPregao(p,hoje){
       (objeto?'<div style="font-size:11px;color:var(--muted-light);margin-top:3px">'+objeto+'…</div>':'')+
     '</div>'+
     '<div class="reg-acoes" onclick="event.stopPropagation()">'+
+      (incompleto?'<button class="reg-btn" onclick="completarDadosPregao('+p.id+')" title="Tentar buscar os dados completos no PNCP de novo" style="color:#b45309">🔄</button>':'')+
       (p.pncp_dados?'<button class="reg-btn" onclick="mostrarDadosPncp('+p.id+')" title="Dados do PNCP" style="color:#7c3aed">ℹ️</button>':'')+
+      (p.pncp_id?'<button class="reg-btn" onclick="irParaConsultarResultado(\''+p.pncp_id+'\')" title="Consultar resultado (quem venceu cada item)" style="color:#166534">🔍</button>':'')+
       (p.link_edital?'<button class="reg-btn" onclick="window.open(limparUrlPncp(\''+p.link_edital+'\'),\'_blank\')" title="Baixar edital" style="color:#0284c7">📄</button>':'')+
       (p.link_disputa?('<button class="reg-btn" onclick="window.open(\''+p.link_disputa+'\',\'_blank\')" title="Entrar na disputa (sala do orgao)" style="color:#7c3aed">🚪</button>'):'')+
       '<button class="reg-btn" onclick="abrirPregao('+p.id+')" title="Ver dossiê e itens" style="color:#0f6e5f">📋</button>'+
@@ -25286,9 +26561,11 @@ async function sbCarregarAgenda(){
       <div class="tv-clock-sub" id="tvAtualizado">atualizando…</div>
     </div>
     <div style="position:absolute;bottom:-3.2vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4vh;z-index:5">
-      <div style="display:flex;gap:.5vw;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.14);border-radius:1vh;padding:.3vh;box-shadow:0 2px 8px rgba(0,0,0,.3)">
+      <div style="display:flex;gap:.5vw;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.14);border-radius:1vh;padding:.3vh;box-shadow:0 2px 8px rgba(0,0,0,.3);align-items:center">
         <button id="tvTabGeral" onclick="tvSetTela('geral')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:#2563eb;color:#fff;transition:.18s">Geral</button>
         <button id="tvTabFretes" onclick="tvSetTela('fretes')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:transparent;color:rgba(255,255,255,.55);transition:.18s">Fretes</button>
+        <button id="tvTabFaturamento" onclick="tvSetTela('faturamento')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:transparent;color:rgba(255,255,255,.55);transition:.18s">Faturamento</button>
+        <button id="tvBtnPausa" onclick="tvTogglePausaManual()" title="Pausar nesta tela" style="padding:.5vh .9vw;font-size:1.5vh;font-weight:700;border:none;border-left:1px solid rgba(255,255,255,.15);border-radius:0;cursor:pointer;background:transparent;color:rgba(255,255,255,.7);margin-left:.2vh">⏸</button>
       </div>
       <!-- Barra de progresso da alternância automática -->
       <div style="width:10vw;height:.35vh;background:rgba(255,255,255,.1);border-radius:.4vh;overflow:hidden">
@@ -25428,6 +26705,90 @@ async function sbCarregarAgenda(){
     <div style="flex-shrink:0;padding:.8vh 0;display:flex;align-items:center;justify-content:space-between;font-size:1.2vh;color:#475569">
       <span>Ordenado por status · atraso destaca em vermelho</span>
       <span id="tvFreteAtualizadoEm"></span>
+    </div>
+  </div>
+
+  <!-- ═══════ TELA FATURAMENTO (v2 — sem produção/frete) ═══════ -->
+  <div id="tvTelaFaturamento" style="display:none;flex:1;flex-direction:column;min-height:0;padding:.5vh 2.4vw 0">
+
+    <!-- KPIs de faturamento -->
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.8vw;margin-bottom:1.2vh;flex-shrink:0">
+      <div class="tv-kpi" style="--tvc:#22c55e;text-align:left;padding:1.1vh 1vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-money"></use></svg>Faturamento do Mês</div>
+        <div class="tv-kpi-num" id="tvF2Total" style="font-size:2.9vh">R$ 0</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#06b6d4;text-align:left;padding:1.1vh 1vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-money"></use></svg>Faturamento Anual</div>
+        <div class="tv-kpi-num" id="tvF2TotalAno" style="font-size:2.9vh">R$ 0</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#3b82f6;text-align:left;padding:1.1vh 1vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-money"></use></svg>Ticket Médio</div>
+        <div class="tv-kpi-num" id="tvF2Ticket" style="font-size:2.9vh">R$ 0</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#8b5cf6;text-align:left;padding:1.1vh 1vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-check"></use></svg>Clientes Atendidos</div>
+        <div class="tv-kpi-num" id="tvF2Clientes" style="font-size:2.9vh">0</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#f59e0b;text-align:left;padding:1.1vh 1vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-alert"></use></svg>Vs. Mês Anterior</div>
+        <div class="tv-kpi-num" id="tvF2Crescimento" style="font-size:2.9vh">—</div>
+      </div>
+      <div class="tv-kpi" style="--tvc:#ec4899;text-align:left;padding:1.1vh 1vw">
+        <div class="tv-kpi-label"><svg data-ico viewBox="0 0 24 24"><use href="#i-check"></use></svg>Maior Cliente do Mês</div>
+        <div class="tv-kpi-num" id="tvF2MaiorCliente" style="font-size:1.7vh;line-height:1.3">—</div>
+      </div>
+    </div>
+
+    <!-- ═══ SEÇÃO MÊS ═══ -->
+    <div style="font-size:1.4vh;font-weight:900;color:#60a5fa;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5vh;flex-shrink:0;display:flex;align-items:center;gap:.5vw">
+      <span style="background:rgba(37,99,235,.25);border:1px solid rgba(96,165,250,.4);padding:.3vh 1vw;border-radius:2vh">📅 ESTE MÊS · <span id="tvF2LabelMes">—</span></span>
+    </div>
+
+    <!-- Grade de gráficos: 3x2 -->
+    <div style="flex:3;min-height:0;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:1vw;padding-bottom:.8vh">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#e2e8f0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">📊 Faturamento por Mês <span id="tvTitFatMes" style="color:#60a5fa;font-weight:700"></span></div>
+        <div style="flex:1;min-height:0;position:relative"><canvas id="tvChartMes"></canvas></div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#e2e8f0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">🥧 Vendas por Grupo <span id="tvTitGrupo" style="color:#60a5fa;font-weight:700"></span></div>
+        <div style="flex:1;min-height:0;position:relative"><canvas id="tvChartGrupo"></canvas></div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#e2e8f0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">🥇 Top 5 Clientes <span id="tvTitClientesMes" style="color:#60a5fa;font-weight:700"></span></div>
+        <div id="tvListaTopClientes" style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:space-evenly"></div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#e2e8f0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">🏆 Produtos Mais Vendidos <span id="tvTitProdutosMes" style="color:#60a5fa;font-weight:700"></span></div>
+        <div style="flex:1;min-height:0;position:relative"><canvas id="tvChartProdutos"></canvas></div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#e2e8f0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">📈 Venda Direta — Mês a Mês <span id="tvTitComparativo" style="color:#60a5fa;font-weight:700"></span></div>
+        <div style="flex:1;min-height:0;position:relative"><canvas id="tvChartComparativo"></canvas></div>
+      </div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#e2e8f0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">📉 Ticket Médio <span id="tvTitTicket" style="color:#60a5fa;font-weight:700"></span></div>
+        <div style="flex:1;min-height:0;position:relative"><canvas id="tvChartTicket"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ═══ SEÇÃO ANO — visualmente bem separada da seção mês, cor diferente ═══ -->
+    <div style="font-size:1.4vh;font-weight:900;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;margin:.6vh 0 .5vh;flex-shrink:0;display:flex;align-items:center;gap:.5vw">
+      <span style="background:rgba(217,119,6,.22);border:1px solid rgba(251,191,36,.45);padding:.3vh 1vw;border-radius:2vh">📆 ACUMULADO NO ANO · <span id="tvF2LabelAno">—</span></span>
+    </div>
+    <div style="flex:1.4;min-height:0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1vw;padding-bottom:.8vh">
+      <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#fde68a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">🏆 Top 5 Produtos <span id="tvTitProdutosAno" style="color:#fbbf24;font-weight:700"></span></div>
+        <div id="tvListaTopProdutosAno" style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:space-evenly"></div>
+      </div>
+      <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#fde68a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">🥇 Top 5 Clientes <span id="tvTitClientesAno" style="color:#fbbf24;font-weight:700"></span></div>
+        <div id="tvListaTopClientesAno" style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:space-evenly"></div>
+      </div>
+      <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:1vh;padding:1vh 1.2vw;display:flex;flex-direction:column;min-height:0">
+        <div style="font-size:1.3vh;font-weight:800;color:#fde68a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4vh;flex-shrink:0">🗺️ Top 5 Estados <span id="tvTitEstadosAno" style="color:#fbbf24;font-weight:700"></span></div>
+        <div id="tvListaTopEstadosAno" style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:space-evenly"></div>
+      </div>
     </div>
   </div>
 
@@ -27014,25 +28375,38 @@ function tvSetTela(tela){
   _tvTelaAtual=tela;
   var btnG=document.getElementById('tvTabGeral');
   var btnF=document.getElementById('tvTabFretes');
+  var btnF2=document.getElementById('tvTabFaturamento');
   var telaG=document.querySelector('.tv-kpis');
   var colsG=document.querySelector('.tv-cols');
   var tickerG=document.querySelector('.tv-ticker');
   var telaF=document.getElementById('tvTelaFretes');
+  var telaF2=document.getElementById('tvTelaFaturamento');
+  var botoes=[[btnG,tela==='geral'],[btnF,tela==='fretes'],[btnF2,tela==='faturamento']];
+  botoes.forEach(function(par){
+    if(!par[0])return;
+    par[0].style.background=par[1]?'#2563eb':'transparent';
+    par[0].style.color=par[1]?'#fff':'rgba(255,255,255,.55)';
+  });
   if(tela==='fretes'){
-    if(btnG){btnG.style.background='transparent';btnG.style.color='rgba(255,255,255,.55)';}
-    if(btnF){btnF.style.background='#2563eb';btnF.style.color='#fff';}
     if(telaG)telaG.style.display='none';
     if(colsG)colsG.style.display='none';
     if(tickerG)tickerG.style.display='none';
     if(telaF){telaF.style.display='flex';telaF.style.flexDirection='column';}
+    if(telaF2)telaF2.style.display='none';
     renderTVFretes();
+  }else if(tela==='faturamento'){
+    if(telaG)telaG.style.display='none';
+    if(colsG)colsG.style.display='none';
+    if(tickerG)tickerG.style.display='none';
+    if(telaF)telaF.style.display='none';
+    if(telaF2){telaF2.style.display='flex';telaF2.style.flexDirection='column';}
+    renderTVFaturamento();
   }else{
-    if(btnG){btnG.style.background='#2563eb';btnG.style.color='#fff';}
-    if(btnF){btnF.style.background='transparent';btnF.style.color='rgba(255,255,255,.55)';}
     if(telaG)telaG.style.display='grid';
     if(colsG)colsG.style.display='grid';
     if(tickerG)tickerG.style.display='block';
     if(telaF)telaF.style.display='none';
+    if(telaF2)telaF2.style.display='none';
   }
 }
 
@@ -27084,6 +28458,343 @@ function diasAtraso(fr){
   prazo.setHours(0,0,0,0);
   var hoje=new Date();hoje.setHours(0,0,0,0);
   return Math.ceil((hoje-prazo)/(1000*60*60*24));
+}
+
+let _tvChartMes=null,_tvChartGrupo=null,_tvChartProdutos=null,_tvChartComparativo=null,_tvChartTicket=null;
+
+function tvUltimos6Meses(){
+  const ativo=tvGetMesAtivo();
+  const partes=ativo.mesAno.split('/');
+  const mesAtivo=parseInt(partes[0],10),anoAtivo=parseInt(partes[1],10);
+  const nomesMes=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const lista=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(anoAtivo,mesAtivo-1-i,1);
+    lista.push({mesAno:String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(),label:nomesMes[d.getMonth()]});
+  }
+  return lista;
+}
+
+function tvMesesDoAno(ano){
+  const nomesMes=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const lista=[];
+  for(let m=0;m<12;m++){
+    lista.push({mesAno:String(m+1).padStart(2,'0')+'/'+ano,label:nomesMes[m]});
+  }
+  return lista;
+}
+
+function renderTVFaturamento(){
+  if(typeof Chart==='undefined')return;
+  const set=function(id,val){const e=document.getElementById(id);if(e)e.textContent=val;};
+  const mesInfo=tvGetMesAtivo();
+  const mesAnoFat=mesInfo.mesAno;
+  const anoAtivo=mesAnoFat.split('/')[1];
+  const fatMes=(fatDados||[]).filter(function(r){return r.mes_ano===mesAnoFat&&!r.excluida;});
+  const fatTotal=fatMes.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+  const qtdNfs=new Set(fatMes.map(function(r){return r.nf;})).size;
+  const clientesUnicos=new Set(fatMes.map(function(r){return r.cod_cliente;})).size;
+  const ticketMedio=qtdNfs>0?fatTotal/qtdNfs:0;
+
+  // Total acumulado no ano (precisa cedo pro KPI do topo)
+  const fatAno=(fatDados||[]).filter(function(r){return !r.excluida&&r.mes_ano&&r.mes_ano.split('/')[1]===anoAtivo;});
+  const fatTotalAno=fatAno.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+
+  const fontCor='rgba(226,232,240,.85)';
+  const gridCor='rgba(255,255,255,.08)';
+
+  // Últimos 6 meses (usado no gráfico de ticket médio, no crescimento e no comparativo) — calcula uma vez só
+  const meses=tvUltimos6Meses();
+  const totaisPorMes=meses.map(function(m){
+    return (fatDados||[]).filter(function(r){return r.mes_ano===m.mesAno&&!r.excluida;})
+      .reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+  });
+  const nfsPorMes=meses.map(function(m){
+    return new Set((fatDados||[]).filter(function(r){return r.mes_ano===m.mesAno&&!r.excluida;}).map(function(r){return r.nf;})).size;
+  });
+
+  set('tvF2Total','R$ '+fatTotal.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}));
+  set('tvF2TotalAno','R$ '+fatTotalAno.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}));
+  set('tvF2Ticket','R$ '+ticketMedio.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}));
+  set('tvF2Clientes',clientesUnicos);
+
+  // Crescimento vs mês anterior
+  const totalMesAnterior=totaisPorMes[totaisPorMes.length-2]||0;
+  const elCresc=document.getElementById('tvF2Crescimento');
+  if(elCresc){
+    if(totalMesAnterior>0){
+      const variacao=((fatTotal-totalMesAnterior)/totalMesAnterior)*100;
+      elCresc.textContent=(variacao>=0?'▲ +':'▼ ')+variacao.toFixed(1)+'%';
+      elCresc.style.color=variacao>=0?'#4ade80':'#f87171';
+    }else{
+      elCresc.textContent='—';
+      elCresc.style.color='#fff';
+    }
+  }
+
+  // Maior cliente do mês
+  const porCliente={};
+  fatMes.forEach(function(r){
+    const nome=r.cliente||r.cod_cliente||'—';
+    porCliente[nome]=(porCliente[nome]||0)+parseFloat(r.v_total||0);
+  });
+  const rankingClientes=Object.entries(porCliente).sort(function(a,b){return b[1]-a[1];});
+  const elMaiorCli=document.getElementById('tvF2MaiorCliente');
+  if(elMaiorCli){
+    if(rankingClientes.length){
+      const nomeC=rankingClientes[0][0];
+      elMaiorCli.textContent=(nomeC.length>22?nomeC.slice(0,22)+'…':nomeC)+' · R$ '+rankingClientes[0][1].toLocaleString('pt-BR',{minimumFractionDigits:0});
+    }else{
+      elMaiorCli.textContent='—';
+    }
+  }
+
+  // Lista Top 5 Clientes do mês
+  const elLista=document.getElementById('tvListaTopClientes');
+  if(elLista){
+    const top5=rankingClientes.slice(0,5);
+    if(!top5.length){
+      elLista.innerHTML='<div style="font-size:1.2vh;color:#64748b;text-align:center;padding-top:1vh">Sem vendas neste mês</div>';
+    }else{
+      const medalhas=['🥇','🥈','🥉','4º','5º'];
+      elLista.innerHTML=top5.map(function(c,i){
+        const nome=c[0].length>24?c[0].slice(0,24)+'…':c[0];
+        return '<div style="display:flex;align-items:center;gap:.6vw;padding:.3vh 0">'
+          +'<span style="font-size:1.4vh;width:2.2vw;flex-shrink:0">'+medalhas[i]+'</span>'
+          +'<span style="font-size:1.3vh;color:'+fontCor+';flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</span>'
+          +'<span style="font-size:1.3vh;font-weight:800;color:#fff;flex-shrink:0">R$ '+(c[1]/1000).toFixed(1)+'k</span>'
+          +'</div>';
+      }).join('');
+    }
+  }
+
+  // Labels das seções (deixa explícito qual período cada faixa mostra, pra não misturar)
+  set('tvF2LabelMes',mesInfo.label);
+  set('tvF2LabelAno',anoAtivo);
+
+  // Título de cada painel recebe o período exato — "Mês" quando é mês, "Anual" quando é ano
+  const mesAtivoAbrev=meses[meses.length-1].label;
+  const mesAnteriorAbrev=meses.length>=2?meses[meses.length-2].label:'';
+  const periodoMesTxt='· '+mesAtivoAbrev+'/'+anoAtivo;
+  set('tvTitGrupo',periodoMesTxt);
+  set('tvTitClientesMes',periodoMesTxt);
+  set('tvTitProdutosMes',periodoMesTxt);
+  set('tvTitComparativo','· '+meses[0].label+'–'+mesAtivoAbrev+'/'+anoAtivo);
+  set('tvTitFatMes','· Jan–Dez/'+anoAtivo);
+  set('tvTitTicket','· '+meses[0].label+'–'+mesAtivoAbrev+'/'+anoAtivo);
+  set('tvTitProdutosAno','· Anual '+anoAtivo);
+  set('tvTitClientesAno','· Anual '+anoAtivo);
+
+  // ═══ DADOS ANUAIS (ano do mês ativo, jan até o mês ativo) — faixa separada ═══
+  const porProdutoAno={};
+  fatAno.forEach(function(r){
+    const nome=canonNome(r.item||'N/D');
+    porProdutoAno[nome]=(porProdutoAno[nome]||0)+parseFloat(r.v_total||0);
+  });
+  const top5ProdutosAno=Object.entries(porProdutoAno).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  const elListaProdAno=document.getElementById('tvListaTopProdutosAno');
+  if(elListaProdAno){
+    if(!top5ProdutosAno.length){
+      elListaProdAno.innerHTML='<div style="font-size:1.2vh;color:#78716c;text-align:center;padding-top:1vh">Sem vendas neste ano</div>';
+    }else{
+      const medalhas=['🥇','🥈','🥉','4º','5º'];
+      elListaProdAno.innerHTML=top5ProdutosAno.map(function(p,i){
+        const nome=p[0].length>26?p[0].slice(0,26)+'…':p[0];
+        return '<div style="display:flex;align-items:center;gap:.6vw;padding:.3vh 0">'
+          +'<span style="font-size:1.4vh;width:2.2vw;flex-shrink:0">'+medalhas[i]+'</span>'
+          +'<span style="font-size:1.3vh;color:#fde68a;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</span>'
+          +'<span style="font-size:1.3vh;font-weight:800;color:#fff;flex-shrink:0">R$ '+p[1].toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+          +'</div>';
+      }).join('');
+    }
+  }
+
+  const porClienteAno={};
+  fatAno.forEach(function(r){
+    const nome=r.cliente||r.cod_cliente||'—';
+    porClienteAno[nome]=(porClienteAno[nome]||0)+parseFloat(r.v_total||0);
+  });
+  const top5ClientesAno=Object.entries(porClienteAno).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  const elListaCliAno=document.getElementById('tvListaTopClientesAno');
+  if(elListaCliAno){
+    if(!top5ClientesAno.length){
+      elListaCliAno.innerHTML='<div style="font-size:1.2vh;color:#78716c;text-align:center;padding-top:1vh">Sem vendas neste ano</div>';
+    }else{
+      const medalhas=['🥇','🥈','🥉','4º','5º'];
+      elListaCliAno.innerHTML=top5ClientesAno.map(function(c,i){
+        const nome=c[0].length>26?c[0].slice(0,26)+'…':c[0];
+        return '<div style="display:flex;align-items:center;gap:.6vw;padding:.3vh 0">'
+          +'<span style="font-size:1.4vh;width:2.2vw;flex-shrink:0">'+medalhas[i]+'</span>'
+          +'<span style="font-size:1.3vh;color:#fde68a;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</span>'
+          +'<span style="font-size:1.3vh;font-weight:800;color:#fff;flex-shrink:0">R$ '+c[1].toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+          +'</div>';
+      }).join('');
+    }
+  }
+
+  // Top 5 Estados do ano — só UF brasileira de verdade, sem "EX" (exportação) ou outros códigos
+  const UFS_BR_VALIDAS=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+  const porEstadoAno={};
+  fatAno.forEach(function(r){
+    const uf=(r.estado||'').toUpperCase().trim();
+    if(UFS_BR_VALIDAS.indexOf(uf)<0)return;
+    porEstadoAno[uf]=(porEstadoAno[uf]||0)+parseFloat(r.v_total||0);
+  });
+  const top5EstadosAno=Object.entries(porEstadoAno).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  set('tvTitEstadosAno','· Anual '+anoAtivo);
+  const elListaEstAno=document.getElementById('tvListaTopEstadosAno');
+  if(elListaEstAno){
+    if(!top5EstadosAno.length){
+      elListaEstAno.innerHTML='<div style="font-size:1.2vh;color:#78716c;text-align:center;padding-top:1vh">Sem vendas neste ano</div>';
+    }else{
+      const medalhas=['🥇','🥈','🥉','4º','5º'];
+      elListaEstAno.innerHTML=top5EstadosAno.map(function(e,i){
+        return '<div style="display:flex;align-items:center;gap:.6vw;padding:.3vh 0">'
+          +'<span style="font-size:1.4vh;width:2.2vw;flex-shrink:0">'+medalhas[i]+'</span>'
+          +'<span style="font-size:1.3vh;color:#fde68a;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+e[0]+'</span>'
+          +'<span style="font-size:1.3vh;font-weight:800;color:#fff;flex-shrink:0">R$ '+e[1].toLocaleString('pt-BR',{minimumFractionDigits:2})+'</span>'
+          +'</div>';
+      }).join('');
+    }
+  }
+
+  const mesesAno12=tvMesesDoAno(anoAtivo);
+  const totaisPorMesAno12=mesesAno12.map(function(m){
+    return (fatDados||[]).filter(function(r){return r.mes_ano===m.mesAno&&!r.excluida;})
+      .reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+  });
+  const ctxMes=document.getElementById('tvChartMes');
+  if(_tvChartMes){_tvChartMes.destroy();_tvChartMes=null;}
+  if(ctxMes){
+    _tvChartMes=new Chart(ctxMes,{
+      type:'bar',
+      data:{labels:mesesAno12.map(function(m){return m.label;}),datasets:[{
+        data:totaisPorMesAno12,
+        backgroundColor:mesesAno12.map(function(m){return m.mesAno===mesAnoFat?'#4ade80':'#22c55e';}),
+        borderRadius:6,maxBarThickness:38
+      }]},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'R$ '+ctx.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:0});}}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:fontCor,font:{size:10}}},
+          y:{grid:{color:gridCor},ticks:{color:fontCor,font:{size:10},callback:function(v){return 'R$ '+(v/1000).toFixed(0)+'k';}}}
+        }
+      }
+    });
+  }
+
+  // 2) Vendas por Grupo (mês ativo) — rosca
+  const porGrupo={};
+  fatMes.forEach(function(r){
+    const g=fatGrupos[r.cod_cliente]||'venda_direta';
+    porGrupo[g]=(porGrupo[g]||0)+parseFloat(r.v_total||0);
+  });
+  const gruposOrdenados=Object.keys(GRUPOS).filter(function(g){return porGrupo[g]>0;});
+  const ctxGrupo=document.getElementById('tvChartGrupo');
+  if(_tvChartGrupo){_tvChartGrupo.destroy();_tvChartGrupo=null;}
+  if(ctxGrupo&&gruposOrdenados.length){
+    _tvChartGrupo=new Chart(ctxGrupo,{
+      type:'doughnut',
+      data:{
+        labels:gruposOrdenados.map(function(g){return GRUPOS[g].label;}),
+        datasets:[{data:gruposOrdenados.map(function(g){return porGrupo[g];}),backgroundColor:gruposOrdenados.map(function(g){return GRUPOS[g].cor;}),borderColor:'#0b1220',borderWidth:2}]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'right',labels:{color:fontCor,font:{size:11},boxWidth:12,padding:8}},
+          tooltip:{callbacks:{label:function(ctx){
+            const total=ctx.dataset.data.reduce(function(a,b){return a+b;},0);
+            const pct=total>0?(ctx.parsed/total*100).toFixed(1):0;
+            return ctx.label+': R$ '+ctx.parsed.toLocaleString('pt-BR',{minimumFractionDigits:0})+' ('+pct+'%)';
+          }}}
+        }
+      }
+    });
+  }
+
+  // 3) Produtos Mais Vendidos (top 8, valor, mês ativo) — barras horizontais
+  const porProduto={};
+  fatMes.forEach(function(r){
+    const nome=canonNome(r.item||'N/D');
+    porProduto[nome]=(porProduto[nome]||0)+parseFloat(r.v_total||0);
+  });
+  const topProdutos=Object.entries(porProduto).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  const ctxProd=document.getElementById('tvChartProdutos');
+  if(_tvChartProdutos){_tvChartProdutos.destroy();_tvChartProdutos=null;}
+  if(ctxProd&&topProdutos.length){
+    _tvChartProdutos=new Chart(ctxProd,{
+      type:'bar',
+      data:{
+        labels:topProdutos.map(function(p){return p[0].length>26?p[0].slice(0,26)+'…':p[0];}),
+        datasets:[{data:topProdutos.map(function(p){return p[1];}),backgroundColor:'#3b82f6',borderRadius:5}]
+      },
+      options:{
+        indexAxis:'y',
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'R$ '+ctx.parsed.x.toLocaleString('pt-BR',{minimumFractionDigits:0});}}}},
+        scales:{
+          x:{grid:{color:gridCor},ticks:{color:fontCor,font:{size:10},callback:function(v){return 'R$ '+(v/1000).toFixed(0)+'k';}}},
+          y:{grid:{display:false},ticks:{color:fontCor,font:{size:10.5}}}
+        }
+      }
+    });
+  }
+
+  // 4) Venda Direta — mês a mês (últimos 6 meses)
+  const totaisVendaDiretaPorMes=meses.map(function(m){
+    return (fatDados||[]).filter(function(r){return r.mes_ano===m.mesAno&&!r.excluida&&(fatGrupos[r.cod_cliente]||'venda_direta')==='venda_direta';})
+      .reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+  });
+  const ctxComp=document.getElementById('tvChartComparativo');
+  if(_tvChartComparativo){_tvChartComparativo.destroy();_tvChartComparativo=null;}
+  if(ctxComp){
+    _tvChartComparativo=new Chart(ctxComp,{
+      type:'bar',
+      data:{
+        labels:meses.map(function(m){return m.label;}),
+        datasets:[{
+          data:totaisVendaDiretaPorMes,
+          backgroundColor:meses.map(function(m){return m.mesAno===mesAnoFat?'#22d3ee':'#06b6d4';}),
+          borderRadius:6,maxBarThickness:44
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'R$ '+ctx.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:0});}}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:fontCor,font:{size:10.5}}},
+          y:{grid:{color:gridCor},ticks:{color:fontCor,font:{size:10},callback:function(v){return 'R$ '+(v/1000).toFixed(0)+'k';}}}
+        }
+      }
+    });
+  }
+
+  // 5) Ticket Médio por Mês (últimos 6 meses) — linha
+  const ticketPorMes=totaisPorMes.map(function(tot,i){return nfsPorMes[i]>0?(tot/nfsPorMes[i]):0;});
+  const ctxTicket=document.getElementById('tvChartTicket');
+  if(_tvChartTicket){_tvChartTicket.destroy();_tvChartTicket=null;}
+  if(ctxTicket){
+    _tvChartTicket=new Chart(ctxTicket,{
+      type:'line',
+      data:{
+        labels:meses.map(function(m){return m.label;}),
+        datasets:[{
+          data:ticketPorMes,borderColor:'#ec4899',backgroundColor:'rgba(236,72,153,.15)',
+          fill:true,tension:.35,pointBackgroundColor:'#ec4899',pointRadius:4,pointHoverRadius:6,borderWidth:2.5
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'R$ '+ctx.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:0});}}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:fontCor,font:{size:11}}},
+          y:{grid:{color:gridCor},ticks:{color:fontCor,font:{size:10},callback:function(v){return 'R$ '+(v/1000).toFixed(1)+'k';}}}
+        }
+      }
+    });
+  }
 }
 
 function renderTVFretes(){
@@ -27172,6 +28883,7 @@ function renderTVFretes(){
 }
 
 setInterval(function(){if(_tvTelaAtual==='fretes')renderTVFretes();},30000);
+setInterval(function(){if(_tvTelaAtual==='faturamento')renderTVFaturamento();},30000);
 </script>
 
 <script>
@@ -27183,11 +28895,14 @@ setInterval(function(){if(_tvTelaAtual==='fretes')renderTVFretes();},30000);
   var _autoTimer=null;
   var _pausado=false;
   var _pausaTimer=null;
+  var _pausaManual=false; // pausa indefinida, só some quando o usuário clica de novo
 
   function proximaTela(){
     if(_pausado)return;
     var atual=window._tvTelaAtual||'geral';
-    tvSetTela(atual==='geral'?'fretes':'geral');
+    var ordem=['geral','fretes','faturamento'];
+    var idx=ordem.indexOf(atual);
+    tvSetTela(ordem[(idx+1)%ordem.length]);
   }
 
   function iniciarAuto(){
@@ -27197,10 +28912,24 @@ setInterval(function(){if(_tvTelaAtual==='fretes')renderTVFretes();},30000);
 
   /* Pausa 30s quando usuário interage com os botões da TV */
   function pausarAuto(){
+    if(_pausaManual)return; // pausa manual tem prioridade, não deixa a pausa curta sobrescrever
     _pausado=true;
     if(_pausaTimer)clearTimeout(_pausaTimer);
     _pausaTimer=setTimeout(function(){_pausado=false;},30000);
   }
+
+  /* Pausa/retoma indefinidamente — pro usuário ficar numa tela sem ela trocar sozinha */
+  window.tvTogglePausaManual=function(){
+    _pausaManual=!_pausaManual;
+    _pausado=_pausaManual;
+    if(_pausaTimer){clearTimeout(_pausaTimer);_pausaTimer=null;}
+    var btn=document.getElementById('tvBtnPausa');
+    if(btn){
+      btn.innerHTML=_pausaManual?'▶':'⏸';
+      btn.title=_pausaManual?'Retomar alternância automática':'Pausar nesta tela';
+      btn.style.color=_pausaManual?'#4ade80':'rgba(255,255,255,.7)';
+    }
+  };
 
   /* Hook nos botões de alternância para pausar o auto */
   var _tvSetTelaOrig=window.tvSetTela;
@@ -27215,6 +28944,7 @@ setInterval(function(){if(_tvTelaAtual==='fretes')renderTVFretes();},30000);
     if(_abrirOrig)_abrirOrig();
     window._tvTelaAtual='geral';
     _pausado=false;
+    _pausaManual=false;
     iniciarAuto();
   };
 
@@ -27261,6 +28991,7 @@ setInterval(function(){if(_tvTelaAtual==='fretes')renderTVFretes();},30000);
     try{
       if(typeof atualizarPainelTV==='function')atualizarPainelTV();
       if(window._tvTelaAtual==='fretes'&&typeof renderTVFretes==='function')renderTVFretes();
+      if(window._tvTelaAtual==='faturamento'&&typeof renderTVFaturamento==='function')renderTVFaturamento();
     }catch(e){}
   }
 
