@@ -224,6 +224,22 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 .acoes-btn.btn-danger{color:#dc2626;border-color:#fecaca}
 .acoes-btn.btn-danger:hover{background:#fef2f2;border-color:#dc2626}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ Transições inspiradas no transitions.dev (Jakubantalik/transitions.dev) ══
+   Modal: escala + fade com leve "overshoot" na entrada — igual ao pattern
+   "Modal open/close" da biblioteca. Card: leve elevação no hover, reaproveitando
+   a transição de sombra que o .modulo-card já tinha. Respeita prefers-reduced-motion. */
+:root{
+  --t-modal-dur:.28s;
+  --t-modal-ease:cubic-bezier(.34,1.35,.64,1);
+  --t-card-dur:.22s;
+  --t-card-ease:cubic-bezier(.4,0,.2,1);
+}
+@keyframes t-modal-pop{from{opacity:0;transform:scale(.94) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.t-modal-pop{animation:t-modal-pop var(--t-modal-dur) var(--t-modal-ease) both}
+@media (prefers-reduced-motion: reduce){
+  .t-modal-pop{animation:none}
+}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .sol-hist-input{padding:6px 10px;border-radius:7px;border:1px solid var(--borda);font-size:13px;color:var(--texto);background:#fff;width:100%}
@@ -1045,7 +1061,9 @@ tbody tr:hover{background:#f5f3ff}
   .nf-card{break-inside:avoid;border-left-width:3px!important}
   .nf-body{display:block!important}
 }
-.modulo-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--borda);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden;transition:box-shadow var(--t-base)}
+.modulo-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--borda);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden;transition:box-shadow var(--t-card-dur) var(--t-card-ease),transform var(--t-card-dur) var(--t-card-ease)}
+.modulo-card:hover{box-shadow:var(--shadow-lg,0 8px 24px rgba(0,0,0,.1));transform:translateY(-2px)}
+@media (prefers-reduced-motion: reduce){.modulo-card{transition:none}.modulo-card:hover{transform:none}}
 .modulo-card:hover{box-shadow:var(--shadow-md)}
 .modulo-header{background:linear-gradient(120deg,#1e1b4b 0%,#4c1d95 55%,#6d28d9 100%);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
 .modulo-header-title{font-family:'Inter',system-ui,sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:-.01em}
@@ -2326,7 +2344,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible,select:focus-visib
 
 /* ════ TV SKIN · Painel TV redesenhado ════ */
 #painelTV{background:radial-gradient(ellipse 70% 55% at 80% 0%,rgba(37,99,235,.10) 0%,transparent 55%),linear-gradient(180deg,#070d18 0%,#0a1322 100%) !important}
-.tv-head{display:flex;align-items:center;justify-content:space-between;padding:1.8vh 2.4vw 4.6vh;flex-shrink:0;border-bottom:1px solid rgba(148,163,184,.14)}
+.tv-head{display:flex;align-items:center;justify-content:space-between;padding:1.8vh 2.4vw 1.2vh;flex-shrink:0;border-bottom:1px solid rgba(148,163,184,.14)}
 .tv-brand{display:flex;align-items:center;gap:1.1vw}
 .tv-brand img{height:5vh;width:auto}
 .tv-brand-title{font-size:2.5vh;font-weight:800;letter-spacing:-.3px;color:#fff}
@@ -5397,7 +5415,7 @@ function abrirTrocarSenha(){
   ov.id='trocarSenhaOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99998;display:flex;align-items:center;justify-content:center;padding:16px';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:400px;width:100%;padding:22px">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:var(--card-bg,#fff);border-radius:14px;max-width:400px;width:100%;padding:22px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
     +'<div style="font-weight:800;font-size:16px">🔑 Trocar Senha</div>'
     +'<button class="btn-cancel-mod" onclick="document.getElementById(\'trocarSenhaOverlay\').remove()">✕</button></div>'
@@ -8522,7 +8540,7 @@ async function abrirPerfilConcorrente(nome){
   ov.id='perfilConcOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:22px">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:22px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
     +'<div style="font-weight:800;font-size:16px">🏢 '+String(nome).replace(/</g,'&lt;')+'</div>'
     +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'perfilConcOverlay\').remove()">✕</button></div>'
@@ -8956,7 +8974,7 @@ async function imprimirDashboardFaturamento(){
   const ov=document.createElement('div');
   ov.id='fatPrintOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
-  ov.innerHTML='<div style="background:#fff;border-radius:10px;max-width:1100px;width:100%;padding:0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:10px;max-width:1100px;width:100%;padding:0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;background:#fff;border-radius:10px 10px 0 0;z-index:2">'
     +'<div style="font-size:13px;font-weight:700;color:#0f172a">Pré-visualização — gerando PDF...</div>'
     +'<button id="fatPrintFechar" style="border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer">✕ Cancelar</button>'
@@ -9059,7 +9077,7 @@ async function abrirSelecaoImpressaoComissao(modo){
   ov.id='selImpComissaoOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99996;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
     +'<div style="font-weight:800;font-size:16px">'+(modo==='combinado'?'🖨️ Imprimir Faturamento + Comissões':'💰 Imprimir Relatório de Comissão')+'</div>'
     +'<button class="btn-cancel-mod" onclick="document.getElementById(\'selImpComissaoOverlay\').remove()">✕</button></div>'
@@ -9157,7 +9175,7 @@ async function gerarPdfComissaoSelecionada(){
   const ov=document.createElement('div');
   ov.id='pdfComissaoOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
-  ov.innerHTML='<div style="background:#fff;border-radius:10px;max-width:1100px;width:100%;padding:0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:10px;max-width:1100px;width:100%;padding:0">'
     +'<div id="pdfComissaoBarraAcoes" style="padding:10px 18px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:10;border-radius:10px 10px 0 0">'
     +'<span style="font-size:13px;font-weight:700;color:#0f172a">Preparando pré-visualização...</span>'
     +'<span></span></div>'
@@ -10438,7 +10456,7 @@ async function conferirPesoBrutoFaltante(registros){
   const ov=document.createElement('div');
   ov.id='pesoFaltanteOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99997;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
-  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
     +'<div style="font-weight:800;font-size:16px;margin-bottom:4px">⚖️ Peso bruto faltando</div>'
     +'<div style="font-size:12px;color:var(--muted);margin-bottom:16px">'+itensSemPeso.length+' produto(s) desta importação ainda não têm peso bruto cadastrado. Preencha para manter o cálculo de peso das notas sempre completo — ou pule e complete depois.</div>'
     +'<div id="pesoFaltanteLista" style="max-height:50vh;overflow-y:auto;margin-bottom:16px"></div>'
@@ -10540,7 +10558,7 @@ async function abrirComissoes(){
   ov.id='comissoesOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99994;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:760px;width:100%;padding:22px;margin:20px 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:var(--card-bg,#fff);border-radius:14px;max-width:760px;width:100%;padding:22px;margin:20px 0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
     +'<div style="font-weight:800;font-size:16px">💰 Comissões por Representante</div>'
     +'<button class="btn-cancel-mod" onclick="document.getElementById(\'comissoesOverlay\').remove()">✕ Fechar</button></div>'
@@ -10718,7 +10736,7 @@ async function abrirRelatorioComercial(){
   ov.id='relComercialOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99995;display:flex;align-items:center;justify-content:center;padding:14px';
   ov.onclick=function(e){if(e.target===ov)fecharRelatorioComercial();};
-  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:16px;max-width:1180px;width:100%;max-height:94vh;overflow-y:auto;padding:0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:var(--card-bg,#fff);border-radius:16px;max-width:1180px;width:100%;max-height:94vh;overflow-y:auto;padding:0">'
     +'<div id="relComercialCorpo" style="padding:22px"><div style="text-align:center;padding:40px;color:var(--muted)">⏳ Reunindo dados de cotações e faturamento...</div></div>'
     +'</div>';
   document.body.appendChild(ov);
@@ -11601,7 +11619,7 @@ function renderPadronizarNomes(){
     }).join('');
   }
 
-  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:640px;width:100%;padding:22px;margin:20px 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:var(--card-bg,#fff);border-radius:14px;max-width:640px;width:100%;padding:22px;margin:20px 0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
     +'<div style="font-weight:800;font-size:16px">🔤 Padronizar Nomes de Produto</div>'
     +'<button class="btn-cancel-mod" onclick="document.getElementById(\'padronizarNomesOverlay\').remove()">✕</button></div>'
@@ -11649,7 +11667,7 @@ async function abrirAliasesConfirmados(){
           +'</div>';
       }).join('')
     : '<div class="empty-mod"><div class="empty-icon">🔤</div>Nenhum nome padronizado ainda.</div>';
-  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
     +'<div style="font-weight:800;font-size:16px">✓ Nomes Já Padronizados ('+entradas.length+')</div>'
     +'<button class="btn-cancel-mod" onclick="document.getElementById(\'aliasesConfirmadosOverlay\').remove()">✕</button></div>'
@@ -12667,7 +12685,7 @@ function mostrarIgnoradosFaturamento(){
       +'<td style="padding:5px;color:'+(x.motivo==='repetido dentro da planilha'?'#f97316':'#64748b')+'">'+x.motivo+'</td>'
       +'</tr>';
   }).join('');
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:820px;width:100%;max-height:82vh;overflow:auto;padding:20px">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:820px;width:100%;max-height:82vh;overflow:auto;padding:20px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
     +'<div style="font-weight:700;font-size:15px">⚠️ '+L.length+' registro(s) ignorado(s) na importação</div>'
     +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'fatIgnoradosOverlay\').remove()">✕</button></div>'
@@ -18014,7 +18032,7 @@ async function abrirRelatorioVolumesRegiao(){
     });
   }
 
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:820px;width:100%;padding:0;margin:20px 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:820px;width:100%;padding:0;margin:20px 0">'
     +'<div style="padding:16px 22px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:5;border-radius:14px 14px 0 0">'
     +'<div><div style="font-weight:800;font-size:16px">📦 Volumes por Região/Cidade</div><div style="font-size:10.5px;color:var(--muted)">Cidades de destino, volumes, peso, medidas e valor da NF — dados do CT-e</div></div>'
     +'<div style="display:flex;gap:8px">'
@@ -20492,7 +20510,7 @@ async function enviarLicitacaoEmail(idx){
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
   const esc=function(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:88vh;display:flex;flex-direction:column;padding:20px">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:88vh;display:flex;flex-direction:column;padding:20px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
     +'<div style="font-weight:700;font-size:15px">📧 Resumo para e-mail</div>'
     +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'emailLicitOverlay\').remove()">✕</button></div>'
@@ -21140,7 +21158,7 @@ function abrirAjusteItem(idxRes,idxItem){
   ov.id='ajusteItemOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:20px;margin:auto 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:20px;margin:auto 0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
     +'<div style="font-weight:700;font-size:15px">&#9998; Ajustar item pelo edital</div>'
     +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'ajusteItemOverlay\').remove()">&#10005;</button></div>'
@@ -21306,7 +21324,7 @@ async function abrirVinculoProduto(idxRes,idxItem){
   ov.id='vincProdOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:520px;width:100%;padding:20px">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:520px;width:100%;padding:20px">'
     +'<div style="font-weight:700;font-size:15px;margin-bottom:8px">Vincular item a um produto</div>'
     +'<div style="font-size:12px;color:var(--muted);margin-bottom:12px">'+String(it.descricao||'').slice(0,220)+'</div>'
     +'<select id="vincProdSelect" style="width:100%;padding:9px;border:1px solid var(--borda);border-radius:8px;font-size:13px"><option value="">- Nenhum -</option>'+opcoes+'</select>'
@@ -21792,7 +21810,7 @@ async function abrirRelatoriosLicitacao(){
   ov.id='relatoriosLicitOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(6,12,24,.55);z-index:99996;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:820px;width:100%;padding:22px;margin:20px 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:820px;width:100%;padding:22px;margin:20px 0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
     +'<div style="font-weight:800;font-size:16px">📊 Relatórios de Inteligência Competitiva</div>'
     +'<button class="btn-cancel-mod" onclick="document.getElementById(\'relatoriosLicitOverlay\').remove()">✕</button></div>'
@@ -22769,7 +22787,7 @@ function mostrarDadosPncp(id){
   ov.id='pncpDadosOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:600px;width:100%;max-height:82vh;overflow-y:auto;padding:22px">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:600px;width:100%;max-height:82vh;overflow-y:auto;padding:22px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
     +'<div style="font-weight:700;font-size:15px;color:#0f172a">📋 Dados do PNCP — Pregão '+(p.numero||'')+'</div>'
     +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'pncpDadosOverlay\').remove()">✕</button></div>'
@@ -22979,7 +22997,7 @@ function editarPregao(id){
   ov.id='editarPregaoOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
   ov.onclick=function(e){if(e.target===ov)ov.remove();};
-  ov.innerHTML='<div style="background:#fff;border-radius:14px;max-width:760px;width:100%;padding:22px;margin:auto 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:14px;max-width:760px;width:100%;padding:22px;margin:auto 0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
     +'<div style="font-weight:700;font-size:16px;color:#0f172a">✏️ Editar Pregão '+(p.numero||'')+'</div>'
     +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'editarPregaoOverlay\').remove()">✕</button></div>'
@@ -26560,19 +26578,22 @@ async function sbCarregarAgenda(){
       <div class="tv-clock" id="tvRelogio">--:--</div>
       <div class="tv-clock-sub" id="tvAtualizado">atualizando…</div>
     </div>
-    <div style="position:absolute;bottom:-3.2vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4vh;z-index:5">
-      <div style="display:flex;gap:.5vw;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.14);border-radius:1vh;padding:.3vh;box-shadow:0 2px 8px rgba(0,0,0,.3);align-items:center">
-        <button id="tvTabGeral" onclick="tvSetTela('geral')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:#2563eb;color:#fff;transition:.18s">Geral</button>
-        <button id="tvTabFretes" onclick="tvSetTela('fretes')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:transparent;color:rgba(255,255,255,.55);transition:.18s">Fretes</button>
-        <button id="tvTabFaturamento" onclick="tvSetTela('faturamento')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:transparent;color:rgba(255,255,255,.55);transition:.18s">Faturamento</button>
-        <button id="tvBtnPausa" onclick="tvTogglePausaManual()" title="Pausar nesta tela" style="padding:.5vh .9vw;font-size:1.5vh;font-weight:700;border:none;border-left:1px solid rgba(255,255,255,.15);border-radius:0;cursor:pointer;background:transparent;color:rgba(255,255,255,.7);margin-left:.2vh">⏸</button>
-      </div>
-      <!-- Barra de progresso da alternância automática -->
-      <div style="width:10vw;height:.35vh;background:rgba(255,255,255,.1);border-radius:.4vh;overflow:hidden">
-        <div id="tvAutoBar" style="height:100%;width:0%;border-radius:.4vh;transition:none"></div>
-      </div>
-    </div>
     <button class="tv-close" onclick="fecharPainelTV()">✕</button>
+  </div>
+
+  <!-- Barra de abas (Geral/Fretes/Faturamento) — fica no fluxo normal, logo abaixo
+       do cabeçalho, sem sobrepor nada -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:.4vh;flex-shrink:0;padding:.8vh 0;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(148,163,184,.1)">
+    <div style="display:flex;gap:.5vw;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.14);border-radius:1vh;padding:.3vh;box-shadow:0 2px 8px rgba(0,0,0,.3);align-items:center">
+      <button id="tvTabGeral" onclick="tvSetTela('geral')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:#2563eb;color:#fff;transition:.18s">Geral</button>
+      <button id="tvTabFretes" onclick="tvSetTela('fretes')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:transparent;color:rgba(255,255,255,.55);transition:.18s">Fretes</button>
+      <button id="tvTabFaturamento" onclick="tvSetTela('faturamento')" style="padding:.5vh 1.4vw;font-size:1.3vh;font-weight:700;border:none;border-radius:.7vh;cursor:pointer;background:transparent;color:rgba(255,255,255,.55);transition:.18s">Faturamento</button>
+      <button id="tvBtnPausa" onclick="tvTogglePausaManual()" title="Pausar nesta tela" style="padding:.5vh .9vw;font-size:1.5vh;font-weight:700;border:none;border-left:1px solid rgba(255,255,255,.15);border-radius:0;cursor:pointer;background:transparent;color:rgba(255,255,255,.7);margin-left:.2vh">⏸</button>
+    </div>
+    <!-- Barra de progresso da alternância automática -->
+    <div style="width:10vw;height:.35vh;background:rgba(255,255,255,.1);border-radius:.4vh;overflow:hidden">
+      <div id="tvAutoBar" style="height:100%;width:0%;border-radius:.4vh;transition:none"></div>
+    </div>
   </div>
 
   <!-- Faixa de KPIs -->
@@ -28728,7 +28749,7 @@ function renderTVFaturamento(){
       type:'bar',
       data:{
         labels:topProdutos.map(function(p){return p[0].length>26?p[0].slice(0,26)+'…':p[0];}),
-        datasets:[{data:topProdutos.map(function(p){return p[1];}),backgroundColor:'#3b82f6',borderRadius:5}]
+        datasets:[{data:topProdutos.map(function(p){return p[1];}),backgroundColor:'#3b82f6',borderRadius:5,maxBarThickness:28,categoryPercentage:0.7,barPercentage:0.9}]
       },
       options:{
         indexAxis:'y',
@@ -29328,7 +29349,7 @@ async function abrirRelatorioFinanceiroFretes(){
       +'<input type="checkbox" class="relFinFreteStatus" value="'+k+'" checked> '+STATUS_LABELS[k]+'</label>';
   }).join('');
 
-  ov.innerHTML='<div style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:var(--card-bg,#fff);border-radius:14px;max-width:560px;width:100%;padding:22px;margin:20px 0">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
     +'<div style="font-weight:800;font-size:16px">💰 Relatório de Custos de Frete</div>'
     +'<button class="btn-cancel-mod" onclick="document.getElementById(\'selRelFinFreteOverlay\').remove()">✕</button></div>'
@@ -29446,7 +29467,7 @@ async function gerarRelatorioFinanceiroFretes(){
   const ov=document.createElement('div');
   ov.id='pdfRelFinFreteOverlay';
   ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
-  ov.innerHTML='<div style="background:#fff;border-radius:10px;max-width:1000px;width:100%;padding:0">'
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:10px;max-width:1000px;width:100%;padding:0">'
     +'<div style="padding:12px 18px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">'
     +'<div style="font-size:13px;font-weight:700;color:#0f172a">Pré-visualização — Relatório de Custos de Frete</div>'
     +'<button id="relFinFreteFechar" style="border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer">✕ Fechar</button>'
