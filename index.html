@@ -4100,14 +4100,32 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
       <div class="modulo-card">
         <div class="modulo-header"><div class="modulo-header-title">🏥 DATASUS — Estabelecimentos de Saúde (CNES)</div></div>
         <div class="modulo-body">
-          <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Consulta o Cadastro Nacional de Estabelecimentos de Saúde: endereço, telefone, natureza jurídica e leitos — útil para dimensionar o hospital/órgão antes de decidir participar de um pregão.</p>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Consulta hospitais e leitos do CNES (DATASUS): endereço, telefone, e-mail, natureza jurídica e leitos — útil para dimensionar o hospital/órgão antes de decidir participar de um pregão.</p>
 
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-            <input type="text" id="datasusNome" placeholder="Nome do hospital/órgão (ex: Hospital das Clínicas)" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarDatasus();}">
-            <select id="datasusUf" style="width:110px"></select>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;align-items:center">
+            <select id="datasusUf" style="width:120px"></select>
+            <input type="text" id="datasusNome" placeholder="Nome do hospital (opcional)" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarDatasus();}">
+            <select id="datasusTipo" style="width:230px">
+              <option value="venda">Com venda direta (privados + filantrópicos)</option>
+              <option value="privado">Só privados</option>
+              <option value="filantropico">Só filantrópicos</option>
+              <option value="publico">Só públicos</option>
+              <option value="">Todos</option>
+            </select>
+            <input type="number" id="datasusMinLeitos" min="0" placeholder="Mín. leitos" style="width:110px" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarDatasus();}">
             <button class="btn-salvar-mod" onclick="buscarDatasus()">🔍 Buscar</button>
           </div>
-          <div style="font-size:11px;color:var(--muted-light);margin-bottom:12px">Dica: abra esta aba a partir do botão 🏥 dentro de um pregão para já vir com o nome do órgão preenchido.</div>
+          <div style="font-size:11px;color:var(--muted-light);margin-bottom:12px">Escolha o estado para listar os hospitais com mais leitos (maior primeiro) e baixe o Excel para o representante. Públicos, em geral, não têm venda direta — por isso o filtro padrão os esconde. Pelo botão 🏥 de um pregão, a aba abre com o filtro em "Todos".</div>
+
+          <details style="font-size:12px;margin-bottom:10px">
+            <summary style="cursor:pointer;color:var(--muted)">⚙️ Base na nuvem (Supabase) — atualizar / diagnosticar</summary>
+            <div style="padding:8px 0;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="datasusAdmin('status')">📊 Ver andamento</button>
+              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="datasusAdmin('probe')">🧪 Testar fontes do Ministério</button>
+              <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px" onclick="datasusAtualizarBase()">🔄 Atualizar base agora</button>
+            </div>
+            <pre id="datasusAdminOut" style="display:none;max-height:260px;overflow:auto;background:#0f172a;color:#e2e8f0;padding:10px;border-radius:8px;font-size:11px;white-space:pre-wrap"></pre>
+          </details>
 
           <div id="datasusStatus" style="font-size:12px;margin-bottom:10px"></div>
           <div id="datasusResultados" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -8957,7 +8975,47 @@ async function analisarMercado(nacional){
 /* ══════ IMPRIMIR PÁGINA DE FATURAMENTO (KPIs + gráficos) ══════
    A impressão nativa do navegador saía em branco porque os gráficos são
    <canvas> desenhados via JS — o navegador não "vê" o desenho ao imprimir.
-   Aqui capturamos a tela como imagem (html2canvas) e geramos o PDF direto. */
+   Aqui cada gráfico vira imagem em alta resolução, os blocos são distribuídos em páginas
+   A4 PAISAGEM sem nunca partir um cartão ao meio, e cada página é fotografada
+   e montada no PDF (o html2pdf só gera o canvas — quem decide as quebras somos nós). */
+// Gera a imagem de um gráfico em ALTA resolução (3x) e no TAMANHO EXATO que ele vai ocupar
+// na página do PDF — assim o texto fica nítido e o layout não depende do tamanho da tela de
+// quem está gerando (antes a proporção da tela mudava a altura dos cartões e o nº de páginas).
+// Se algo falhar, usa o canvas do jeito que está.
+function _canvasAltaResolucao(canvas,w,h){
+  let ch=null;
+  try{ch=(typeof Chart!=='undefined'&&Chart.getChart)?Chart.getChart(canvas):null;}catch(e){}
+  if(!ch)return canvas.toDataURL('image/png',1.0);
+  const dprOriginal=ch.options.devicePixelRatio;
+  try{
+    ch.options.devicePixelRatio=3;
+    if(w>0&&h>0)ch.resize(w,h);else ch.resize();
+    ch.update('none');
+    return canvas.toDataURL('image/png',1.0);
+  }catch(e){
+    console.warn('Alta resolução indisponível, usando a resolução da tela:',e);
+    return canvas.toDataURL('image/png',1.0);
+  }finally{
+    try{ch.options.devicePixelRatio=dprOriginal;ch.resize();ch.update('none');}catch(e){}
+  }
+}
+
+// Fotografa UMA página (já montada com tamanho exato de A4 paisagem) usando o html2pdf só
+// pra gerar o canvas — o PDF em si é montado depois, página por página, sem deixar o
+// html2pdf decidir onde cortar (era isso que partia os cartões ao meio).
+async function _fatPaginaParaCanvas(pageEl,PW,PH){
+  const worker=html2pdf().set({
+    margin:0,
+    html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
+    // unit 'px' + formato do tamanho da página: faz o html2pdf renderizar o conteúdo na
+    // largura real da página (1123px), em vez de espremer tudo em ~733px como antes.
+    jsPDF:{unit:'px',format:[PW,PH],orientation:'landscape',hotfixes:['px_scaling']}
+  }).from(pageEl);
+  const canvas=await worker.toCanvas().get('canvas');
+  if(!canvas||!canvas.getContext)throw new Error('Não consegui capturar a página do relatório');
+  return canvas;
+}
+
 async function imprimirDashboardFaturamento(){
   const metrics=document.getElementById('fatMetrics');
   const charts=document.getElementById('fatCharts');
@@ -8967,78 +9025,174 @@ async function imprimirDashboardFaturamento(){
   }
   showT('Preparando impressão...','verde');
 
-  // Mesmo método já usado (e funcionando) no PDF da Licitação e do Relatório Comercial:
-  // o conteúdo fica de fato VISÍVEL na tela (num overlay) enquanto é fotografado.
-  // Tentar esconder o elemento (fora da tela ou atrás de outros) é o que causava o PDF em branco.
   const label=document.getElementById('fatMesLabel');
+  const periodoTxt=(label&&label.textContent)||'';
+  const geradoEm=new Date().toLocaleString('pt-BR');
+
+  // ── Geometria: A4 em PAISAGEM (1123 x 794 px a 96dpi). Em paisagem os cartões ficam do
+  //    mesmo tamanho que na tela, e o texto dos gráficos continua legível (em retrato tudo
+  //    era encolhido pra ~65% e o texto virava um borrão).
+  const PW=1123,PH=794;
+  const PAD_X=28,PAD_TOP=20,PAD_BOT=14;
+  const HEAD_1=64,HEAD_N=30,RODAPE=26,GAP=14,BODY_TOP=12;
+  const LARG_UTIL=PW-2*PAD_X;
+  const alturaUtil=function(idxPagina){
+    return PH-PAD_TOP-PAD_BOT-RODAPE-BODY_TOP-(idxPagina===0?HEAD_1:HEAD_N);
+  };
+
+  let cancelado=false;
   const ov=document.createElement('div');
   ov.id='fatPrintOverlay';
-  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999999;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px';
-  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:10px;max-width:1100px;width:100%;padding:0">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;background:#fff;border-radius:10px 10px 0 0;z-index:2">'
-    +'<div style="font-size:13px;font-weight:700;color:#0f172a">Pré-visualização — gerando PDF...</div>'
+  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:999999;overflow:auto;padding:24px 12px';
+  ov.innerHTML='<div class="t-modal-pop" style="background:#fff;border-radius:10px;width:'+(PW+36)+'px;margin:0 auto;padding:0">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #e2e8f0;border-radius:10px 10px 0 0">'
+    +'<div id="fatPrintStatus" style="font-size:13px;font-weight:700;color:#0f172a">Preparando relatório...</div>'
     +'<button id="fatPrintFechar" style="border:1px solid #e2e8f0;background:#fff;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer">✕ Cancelar</button>'
     +'</div>'
-    +'<div id="fatPrintConteudo" style="padding:18px"></div>'
+    +'<div id="fatPrintConteudo" style="padding:18px;background:#e2e8f0;display:flex;flex-direction:column;align-items:center;gap:18px;border-radius:0 0 10px 10px"></div>'
     +'</div>';
   document.body.appendChild(ov);
-  document.getElementById('fatPrintFechar').onclick=function(){ov.remove();};
-
+  document.getElementById('fatPrintFechar').onclick=function(){cancelado=true;ov.remove();};
+  const statusEl=document.getElementById('fatPrintStatus');
   const conteudo=document.getElementById('fatPrintConteudo');
-  conteudo.innerHTML='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;border-bottom:2px solid #0f6e5f;padding-bottom:10px">'
-    +'<div><div style="font-weight:800;font-size:18px;color:#0f172a">Faturamento — Grow Química</div>'
-    +'<div style="font-size:12px;color:#64748b">'+((label&&label.textContent)||'')+'</div></div>'
-    +'<div style="font-size:11px;color:#94a3b8">Gerado em '+new Date().toLocaleString('pt-BR')+'</div></div>';
 
-  const metricsClone=metrics.cloneNode(true);
-  metricsClone.style.marginBottom='18px';
-  conteudo.appendChild(metricsClone);
+  // Área de medição: mesma largura útil da página, fora da tela — serve só pra descobrir a
+  // altura de cada bloco antes de distribuir nas páginas.
+  const stage=document.createElement('div');
+  stage.style.cssText='position:absolute;left:-99999px;top:0;width:'+LARG_UTIL+'px';
+  document.body.appendChild(stage);
 
-  const chartsClone=charts.cloneNode(false);
-  chartsClone.style.display='block';
-  conteudo.appendChild(chartsClone);
-
-  // Cada gráfico original vira uma imagem estática (os <canvas> clonados via
-  // cloneNode ficam em branco — precisam ser redesenhados como <img>).
-  const blocosOriginais=charts.children;
-  const promessasImg=[];
-  for(let i=0;i<blocosOriginais.length;i++){
-    const blocoClone=blocosOriginais[i].cloneNode(true);
-    const canvasClone=blocoClone.querySelectorAll('canvas');
-    const canvasReal=blocosOriginais[i].querySelectorAll('canvas');
-    canvasClone.forEach(function(cv,j){
-      if(canvasReal[j]){
-        const dataUrl=canvasReal[j].toDataURL('image/png',1.0);
-        const img=document.createElement('img');
-        img.style.width='100%';
-        promessasImg.push(new Promise(function(res){img.onload=res;img.onerror=res;img.src=dataUrl;}));
-        cv.replaceWith(img);
-      }
-    });
-    chartsClone.appendChild(blocoClone);
-  }
-  await Promise.all(promessasImg);
-  await new Promise(function(r){requestAnimationFrame(function(){requestAnimationFrame(r);});}); // garante 2 frames pintados
-
-  const alvo=conteudo.parentElement; // o cartão branco inteiro, já visível na tela
   try{
-    await html2pdf().set({
-      margin:8,
-      filename:'Faturamento_'+((label&&label.textContent)||'periodo').replace(/[^0-9A-Za-z]/g,'_')+'.pdf',
-      image:{type:'jpeg',quality:0.95},
-      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-      pagebreak:{mode:['css','avoid-all','legacy']}
-    }).from(alvo).save();
+    // ── 1) Monta os blocos (métricas + cada bloco de gráficos) ──
+    const blocos=[];
+
+    // Métricas: faixa de destaque em cima (total) e os cartões dos grupos embaixo, em linha
+    // (lado a lado, o último cartão ficava sozinho numa linha e o conjunto ficava desbalanceado).
+    const mb=metrics.cloneNode(true);
+    mb.removeAttribute('id');
+    mb.style.gridTemplateColumns='1fr';
+    mb.style.gap='0';
+    mb.style.margin='0';
+    blocos.push({el:mb});
+
+    // Cada gráfico vira uma imagem estática. Primeiro o <canvas> clonado é trocado por um
+    // espaço reservado (o clone ficaria em branco), pra medir quanto espaço o gráfico tem
+    // de verdade na página; depois ele é re-renderizado em alta resolução EXATAMENTE nesse
+    // tamanho. Também tira a altura FIXA dos contêineres (era ela que deixava um espaço
+    // branco enorme embaixo de cada gráfico no PDF).
+    const itensCanvas=[];
+    const filhos=charts.children;
+    for(let i=0;i<filhos.length;i++){
+      const orig=filhos[i];
+      const clone=orig.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.style.margin='0';
+      const cvClones=clone.querySelectorAll('canvas');
+      const cvReais=orig.querySelectorAll('canvas');
+      cvClones.forEach(function(cv,j){
+        const real=cvReais[j];
+        if(!real)return;
+        const ph=document.createElement('div');
+        ph.style.cssText='width:100%;height:100%';
+        const wrap=cv.parentElement;
+        cv.replaceWith(ph);
+        itensCanvas.push({real:real,ph:ph,wrap:(wrap&&wrap!==clone)?wrap:null});
+      });
+      blocos.push({el:clone});
+    }
+    blocos.forEach(function(b){b.el.style.flexShrink='0';stage.appendChild(b.el);});
+    await new Promise(function(r){requestAnimationFrame(function(){requestAnimationFrame(r);});});
+
+    itensCanvas.forEach(function(it){
+      const r=it.ph.getBoundingClientRect();
+      it.w=Math.round(r.width);
+      it.h=Math.round(r.height);
+    });
+    const promessasImg=[];
+    itensCanvas.forEach(function(it){
+      const img=document.createElement('img');
+      img.style.cssText='display:block;width:100%;height:auto';
+      promessasImg.push(new Promise(function(res){img.onload=res;img.onerror=res;}));
+      img.src=_canvasAltaResolucao(it.real,it.w,it.h);
+      if(it.wrap&&it.wrap.style&&it.wrap.style.height)it.wrap.style.height='auto';
+      it.ph.replaceWith(img);
+    });
+    await Promise.all(promessasImg);
+    await new Promise(function(r){requestAnimationFrame(function(){requestAnimationFrame(r);});});
+
+    // ── 2) Mede cada bloco e distribui nas páginas SEM nunca partir um bloco ao meio ──
+    blocos.forEach(function(b){b.h=Math.ceil(b.el.getBoundingClientRect().height);});
+    const blocosVisiveis=blocos.filter(function(b){return b.h>0;});
+
+    const paginas=[];
+    let pg={blocos:[],h:0};
+    blocosVisiveis.forEach(function(b){
+      const extra=pg.blocos.length?GAP:0;
+      if(pg.blocos.length&&pg.h+extra+b.h>alturaUtil(paginas.length)){
+        paginas.push(pg);
+        pg={blocos:[],h:0};
+      }
+      pg.h+=(pg.blocos.length?GAP:0)+b.h;
+      pg.blocos.push(b);
+    });
+    if(pg.blocos.length)paginas.push(pg);
+    const total=paginas.length;
+
+    // ── 3) Monta cada página com tamanho exato de A4 paisagem (cabeçalho, corpo e rodapé) ──
+    const paginaEls=paginas.map(function(p,idx){
+      const pEl=document.createElement('div');
+      pEl.style.cssText='width:'+PW+'px;height:'+PH+'px;box-sizing:border-box;padding:'+PAD_TOP+'px '+PAD_X+'px '+PAD_BOT+'px;background:#fff;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0';
+
+      const cab=idx===0
+        ? '<div style="height:'+HEAD_1+'px;flex-shrink:0;box-sizing:border-box;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0f6e5f;padding-bottom:8px">'
+          +'<div><div style="font-weight:800;font-size:20px;color:#0f172a;line-height:1.2">Faturamento — Grow Química</div>'
+          +'<div style="font-size:12px;color:#64748b;margin-top:2px">'+periodoTxt+'</div></div>'
+          +'<div style="font-size:11px;color:#94a3b8;padding-top:4px">Gerado em '+geradoEm+'</div></div>'
+        : '<div style="height:'+HEAD_N+'px;flex-shrink:0;box-sizing:border-box;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #cbd5e1;padding-bottom:6px">'
+          +'<div style="font-size:12px;font-weight:700;color:#0f172a">Faturamento — Grow Química <span style="font-weight:400;color:#64748b">· '+periodoTxt+'</span></div>'
+          +'<div style="font-size:10px;color:#94a3b8">Gerado em '+geradoEm+'</div></div>';
+
+      const corpo=document.createElement('div');
+      corpo.style.cssText='flex:1;min-height:0;display:flex;flex-direction:column;gap:'+GAP+'px;padding-top:'+BODY_TOP+'px;overflow:hidden';
+      p.blocos.forEach(function(b){corpo.appendChild(b.el);});
+
+      const rod='<div style="height:'+RODAPE+'px;flex-shrink:0;box-sizing:border-box;display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid #e2e8f0;padding-top:6px;font-size:10px;color:#94a3b8">'
+        +'<span>Grow Química e Farmacêutica Ltda. · GEx Assist</span><span>Página '+(idx+1)+' de '+total+'</span></div>';
+
+      pEl.insertAdjacentHTML('beforeend',cab);
+      pEl.appendChild(corpo);
+      pEl.insertAdjacentHTML('beforeend',rod);
+      conteudo.appendChild(pEl);
+      return pEl;
+    });
+    stage.remove();
+    await new Promise(function(r){requestAnimationFrame(function(){requestAnimationFrame(r);});}); // 2 frames pintados
+
+    // ── 4) Fotografa página por página e monta o PDF (A4 paisagem, 1 imagem por página) ──
+    const canvases=[];
+    for(let i=0;i<paginaEls.length;i++){
+      if(cancelado)return;
+      statusEl.textContent='Gerando PDF — página '+(i+1)+' de '+total+'...';
+      canvases.push(await _fatPaginaParaCanvas(paginaEls[i],PW,PH));
+    }
+    if(cancelado)return;
+
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});
+    canvases.forEach(function(cv,i){
+      if(i>0)doc.addPage('a4','landscape');
+      doc.addImage(cv.toDataURL('image/jpeg',0.95),'JPEG',0,0,297,210);
+    });
+    doc.save('Faturamento_'+(periodoTxt||'periodo').replace(/[^0-9A-Za-z]/g,'_')+'.pdf');
     showT('PDF gerado ✓','verde');
   }catch(e){
     console.error(e);
     showT('Erro ao gerar PDF: '+(e&&e.message?e.message:e),'erro');
   }finally{
+    stage.remove();
     ov.remove();
   }
 }
-
 
 
 
@@ -11081,9 +11235,12 @@ async function exportarRelatorioComercialPDF(){
    Usada para checar porte (leitos), endereço e contato de um
    hospital/órgão antes de decidir participar de um pregão.
 
-   IMPORTANTE: essa API (apidadosabertos.saude.gov.br) EXIGE uma chave
-   de autenticação — diferente do PNCP e do Compras.gov, que são livres.
-   Sem a chave configurada, a busca mostra instrução de como obter.
+   Endpoint: /assistencia-a-saude/hospitais-e-leitos (filtra por "uf" com a
+   sigla; limit até 1000; offset = número da página, começa em 0).
+   A API NÃO filtra por nome, então baixamos os hospitais da UF e filtramos
+   no navegador. O antigo /cnes/estabelecimentos só aceita codigo_uf numérico
+   e limit<=20 — ignorava "uf" e "nome_fantasia", por isso o resultado era
+   sempre o mesmo.
    ══════════════════════════════════════════════════════════════ */
 let _datasusInit=false;
 
@@ -11094,7 +11251,7 @@ function initDatasus(){
       +Object.keys(UF_NOME).sort().map(function(uf){return '<option value="'+uf+'">'+uf+'</option>';}).join('');
   }
   if(!_datasusInit){
-    document.getElementById('datasusStatus').innerHTML='Digite o nome do hospital/órgão e clique em Buscar.';
+    document.getElementById('datasusStatus').innerHTML='Escolha o estado (e, se quiser, o nome ou o mínimo de leitos) e clique em Buscar.';
     _datasusInit=true;
   }
 }
@@ -11106,60 +11263,347 @@ function abrirDatasusDoOrgao(nomeOrgao,uf){
   const sel=document.getElementById('datasusUf');
   if(inp)inp.value=(nomeOrgao||'').replace(/EMPRESA BRASILEIRA DE SERVICOS HOSPITALARES.*?-\s*/i,'').trim();
   if(sel&&uf)sel.value=uf;
+  const tp=document.getElementById('datasusTipo');if(tp)tp.value='';
   buscarDatasus();
+}
+
+// Cache por UF (ou 'BR') dos hospitais baixados — evita baixar tudo de novo a cada busca
+const _datasusCache={};
+
+function _dsEsc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+}
+function _dsNorm(s){
+  return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+// Extrai a lista de dentro da resposta, seja array puro ou {chave:[...]}
+function _dsLista(resp){
+  if(Array.isArray(resp))return resp;
+  if(resp&&typeof resp==='object'){
+    const k=Object.keys(resp).find(function(k){return Array.isArray(resp[k]);});
+    if(k)return resp[k];
+  }
+  return [];
+}
+// Primeiro campo cujo NOME casa com algum regex (na ordem) e que tenha valor
+function _dsPick(o,regexes){
+  const keys=Object.keys(o);
+  for(let i=0;i<regexes.length;i++){
+    const k=keys.find(function(k){return regexes[i].test(k)&&o[k]!==null&&o[k]!==''&&typeof o[k]!=='object';});
+    if(k)return o[k];
+  }
+  return '';
+}
+
+// Campos que são NOME DO HOSPITAL (exclui nome de região, macrorregião, município, UF etc.)
+function _dsNomeKeys(h){
+  const prim=Object.keys(h).filter(function(k){return typeof h[k]==='string'&&h[k]&&/hospital|fantasia|razao|estabelec/i.test(k)&&/nome|^no_|fantasia|razao/i.test(k)&&!/regia|macro|munic|cidade|uf|natureza|tipo|gestao|esfera|endereco|email/i.test(k.replace(/hospital/i,''));});
+  if(prim.length)return prim;
+  return Object.keys(h).filter(function(k){return typeof h[k]==='string'&&h[k]&&/^(nome|no_)/i.test(k)&&!/regia|macro|munic|cidade|uf|natureza|tipo|gestao|esfera|endereco|email/i.test(k);});
+}
+
+// Baixa todos os hospitais de uma UF (ou do Brasil), página por página.
+// Se a API devolver erro 5xx com páginas grandes, tenta de novo com páginas menores.
+// Lê a base já gravada no Supabase (tabela cnes_hospitais). Retorna null se estiver vazia/ausente.
+let _datasusInfo='';
+function _dsUnicos(lista){
+  const vistos=new Set();
+  return lista.filter(function(h){const k=JSON.stringify(h);if(vistos.has(k))return false;vistos.add(k);return true;});
+}
+async function _dsDoSupabaseCru(uf,st){
+  try{
+    let todos=[];let ultima='';
+    for(let pg=0;pg<60;pg++){
+      st.innerHTML='⏳ Lendo a base do Supabase'+(uf?(' ('+uf+')'):'')+'... '+todos.length+' registros';
+      let q=sb.from('cnes_hospitais').select('dados,atualizado_em').order('id',{ascending:true}).range(pg*1000,pg*1000+999);
+      if(uf)q=q.eq('uf',uf);
+      const {data,error}=await q;
+      if(error)return null;
+      if(!data||!data.length)break;
+      data.forEach(function(r){todos.push(r.dados);if(r.atualizado_em>ultima)ultima=r.atualizado_em;});
+      if(data.length<1000)break;
+    }
+    todos=_dsUnicos(todos);
+    if(!todos.length)return null;
+    _datasusInfo='base própria · atualizada em '+new Date(ultima).toLocaleDateString('pt-BR');
+    return todos;
+  }catch(e){return null;}
+}
+
+// Leitura da tabela LIMPA "hospitais" (colunas prontas, sem duplicados) — resposta instantânea
+async function _dsDoSupabase(uf,st){
+  try{
+    let todos=[];let ultima='';
+    for(let pg=0;pg<20;pg++){
+      let q=sb.from('hospitais').select('nome,razao,uf,municipio,tipo,leitos,leitos_sus,leitos_uti,endereco,cep,atualizado_em')
+        .order('leitos',{ascending:false,nullsFirst:false}).order('id',{ascending:true}).range(pg*1000,pg*1000+999);
+      if(uf)q=q.eq('uf',uf);
+      const {data,error}=await q;
+      if(error){todos=null;break;}
+      if(!data||!data.length)break;
+      data.forEach(function(r){todos.push(r);if(r.atualizado_em>ultima)ultima=r.atualizado_em;});
+      if(data.length<1000)break;
+    }
+    if(todos&&todos.length){
+      _datasusInfo='base própria · atualizada em '+new Date(ultima).toLocaleDateString('pt-BR');
+      return todos.map(function(r){
+        return {__norm:true,nome:r.nome||'Sem nome',razao:r.razao||'',tipo:r.tipo||'indefinido',leitos:r.leitos,leitosSus:r.leitos_sus,uti:r.leitos_uti,
+          municipio:r.municipio||'',uf:r.uf||'',endereco:r.endereco||'',cep:r.cep||'',telefone:'',email:'',
+          busca:_dsNorm((r.nome||'')+' '+(r.razao||'')),raw:r};
+      });
+    }
+  }catch(e){}
+  return await _dsDoSupabaseCru(uf,st);   // tabela limpa ainda não existe/está vazia
+}
+
+async function _dsBaixar(uf,st){
+  const chave=uf||'BR';
+  if(_datasusCache[chave])return _datasusCache[chave];
+  const doBanco=await _dsDoSupabase(uf,st);
+  if(doBanco){_datasusCache[chave]=doBanco;return doBanco;}
+  _datasusInfo='direto da API do Ministério (base própria ainda vazia)';
+
+  // A API do Ministério dá erro 500 quando se usa o filtro "uf". Baixamos o Brasil todo
+  // (uma vez só) e filtramos o estado aqui.
+  let brasil=_datasusCache['BR_API'];
+  if(!brasil){
+    const tamanhos=[1000,300,100,20];
+    for(let t=0;t<tamanhos.length&&!brasil;t++){
+      const lim=tamanhos[t];
+      const buscar=async function(off){
+        const url='https://apidadosabertos.saude.gov.br/assistencia-a-saude/hospitais-e-leitos?limit='+lim+'&offset='+off;
+        let resp=await fetchComprasGov(url);
+        if(!resp){await new Promise(function(r){setTimeout(r,1500);});resp=await fetchComprasGov(url);}
+        return resp?_dsLista(resp):null;
+      };
+      const p0=await buscar(0);
+      if(!p0)continue;
+      // O Swagger diz que "offset" é número da página, mas na prática pode ser a posição do registro.
+      // Descobrimos comparando: se offset=1 devolve a 2ª linha da página 0 como 1ª, é por registro.
+      let porRegistro=false;
+      if(p0.length>=lim){
+        const p1=await buscar(1);
+        if(p1&&p1.length&&p0.length>1&&JSON.stringify(p1[0])===JSON.stringify(p0[1]))porRegistro=true;
+      }
+      const vistos=new Set();let todos=[];let falhou=false;let off=0;
+      for(let pg=0;pg<200;pg++){
+        st.innerHTML='⏳ Baixando hospitais do Brasil... '+todos.length+' hospitais';
+        const lista=(pg===0)?p0:await buscar(off);
+        if(!lista){falhou=true;break;}
+        let novos=0;
+        lista.forEach(function(h){const k=JSON.stringify(h);if(!vistos.has(k)){vistos.add(k);todos.push(h);novos++;}});
+        if(lista.length<lim||novos===0)break;   // fim, ou página que não trouxe nada novo
+        off=porRegistro?(off+lim):(off+1);
+      }
+      if(!falhou)brasil=todos;
+    }
+    if(!brasil)return null;
+    _datasusCache['BR_API']=brasil;
+  }
+  const res=uf?brasil.filter(function(h){return _dsUfDe(h)===uf;}):brasil;
+  _datasusCache[chave]=res;
+  return res;
+}
+
+// ── Classificação público / privado / filantrópico ──
+// Natureza jurídica por código: 1xxx = administração pública · 2xxx = entidade empresarial · 3xxx = sem fins lucrativos
+// Exceções que são PÚBLICAS apesar do 2xxx: empresa pública (2011) e sociedade de economia mista (2038, 2046)
+function _dsTipo(h){
+  const keys=Object.keys(h).filter(function(k){return /natureza|esfera|gestao|administr|personalidade|conven|publico|privad/i.test(k)&&h[k]!==null&&h[k]!==''&&typeof h[k]!=='object';});
+  for(let i=0;i<keys.length;i++){
+    if(/natureza/i.test(keys[i])){
+      const v=String(h[keys[i]]).trim();
+      if(/^(2011|2038|2046)\b/.test(v))return 'publico';
+      const m=v.match(/^([123])\d{2,3}\b/);
+      if(m)return m[1]==='1'?'publico':(m[1]==='2'?'privado':'filantropico');
+    }
+  }
+  const txt=_dsNorm(keys.map(function(k){return h[k];}).join(' '));
+  if(/sem fins|filantrop|beneficente|santa casa/.test(txt))return 'filantropico';
+  if(/privad|empresar|particular|lucrativ/.test(txt))return 'privado';
+  if(/public|municipal|estadual|federal|distrital/.test(txt))return 'publico';
+  const nome=_dsNorm(_dsNomeKeys(h).map(function(k){return h[k];}).join(' '));
+  if(/santa casa|beneficente|misericordia|filantrop/.test(nome))return 'filantropico';
+  if(/municipal|estadual|federal|universitario/.test(nome))return 'publico';
+  return 'indefinido';
+}
+const _DS_TIPO_LABEL={publico:'Público',privado:'Privado',filantropico:'Filantrópico',indefinido:'Não identificado'};
+const _DS_TIPO_COR={publico:'#64748b',privado:'#0f6e5f',filantropico:'#7c3aed',indefinido:'#b45309'};
+
+// ── Leitos: total, SUS e UTI ──
+function _dsNum(h,k){return (k&&h[k]!==null&&h[k]!==''&&!isNaN(Number(h[k])))?Number(h[k]):null;}
+function _dsLeitos(h){
+  const ks=Object.keys(h).filter(function(k){return /leito/i.test(k)&&_dsNum(h,k)!==null;});
+  if(!ks.length)return {total:null,sus:null,uti:null};
+  const totK=ks.find(function(k){return /total|existente|exist/i.test(k)&&!/sus|compl|uti/i.test(k);});
+  const susK=ks.find(function(k){return /total.*sus|sus.*total/i.test(k)&&!/uti/i.test(k);})||ks.find(function(k){return /^qt_sus$|(^|_)sus(_|$)/i.test(k)&&!/uti|nao_?sus/i.test(k);});
+  const utiK=ks.find(function(k){return /uti/i.test(k)&&!/sus|adulto|pediatr|neonat|queimad|coronar/i.test(k);});
+  let total=_dsNum(h,totK);
+  if(total===null)total=ks.filter(function(k){return !/sus|compl|uti/i.test(k);}).reduce(function(a,k){return a+_dsNum(h,k);},0);
+  return {total:total,sus:_dsNum(h,susK),uti:_dsNum(h,utiK)};
+}
+
+// Se a API devolver uma linha por tipo de leito, junta tudo por CNES somando os leitos
+function _dsAgrupar(lista){
+  const cnesKey=lista.length?Object.keys(lista[0]).find(function(k){return /cnes/i.test(k);}):null;
+  if(!cnesKey)return lista;
+  const mapa={};let dup=false;
+  lista.forEach(function(h){
+    const c=h[cnesKey];
+    if(c===null||c===undefined||c===''){mapa['_'+Math.random()]=h;return;}
+    if(!mapa[c]){mapa[c]=Object.assign({},h);return;}
+    dup=true;
+    Object.keys(h).forEach(function(k){
+      if(/leito/i.test(k)&&_dsNum(h,k)!==null){mapa[c][k]=(Number(mapa[c][k])||0)+Number(h[k]);}
+    });
+  });
+  return dup?Object.values(mapa):lista;
+}
+
+let _datasusUltimo=[];   // linhas filtradas da última busca (para exportar)
+
+function _dsUfDe(e){return _dsPick(e,[/unidade_da_federacao/i,/^uf$/i,/sigla_?uf/i,/^uf_/i]);}
+
+function _dsLinha(e){
+  if(e.__norm)return e;
+  const lt=_dsLeitos(e);
+  const nome=_dsPick(e,[/^nome_do_hospital$/i,/fantasia/i,/^no_?estabelec/i,/^nome_.*estab/i,/razao/i])||_dsNomeKeys(e).map(function(k){return e[k];})[0]||'Sem nome';
+  const municipio=_dsPick(e,[/^nome.*munic/i,/munic/i,/cidade/i]);
+  const uf=_dsUfDe(e);
+  return {
+    nome:nome,
+    razao:_dsPick(e,[/razao/i,/empresarial/i]),
+    cnes:_dsPick(e,[/cnes/i]),
+    tipo:_dsTipo(e),
+    leitos:lt.total,leitosSus:lt.sus,uti:lt.uti,
+    municipio:municipio,uf:uf,
+    endereco:[_dsPick(e,[/^enderco_do|^endereco_do|logradouro|^endereco/i]),_dsPick(e,[/^numero_do_endereco|^numero$|^nu_endereco/i]),_dsPick(e,[/bairro/i])].filter(Boolean).join(', '),
+    cep:_dsPick(e,[/cep/i]),
+    telefone:_dsPick(e,[/telefone/i,/fone/i]),
+    email:_dsPick(e,[/mail/i]),
+    busca:_dsNorm(_dsNomeKeys(e).map(function(k){return e[k];}).join(' ')||nome),
+    raw:e
+  };
+}
+function _dsLinkBusca(l){
+  return 'https://www.google.com/search?q='+encodeURIComponent(l.nome+' '+(l.municipio||'')+' '+(l.uf||'')+' telefone contato');
 }
 
 async function buscarDatasus(){
   const nome=(document.getElementById('datasusNome').value||'').trim();
   const uf=document.getElementById('datasusUf').value;
+  const tipoSel=(document.getElementById('datasusTipo')||{}).value||'';
+  const minL=parseInt((document.getElementById('datasusMinLeitos')||{}).value,10)||0;
   const st=document.getElementById('datasusStatus');
   const box=document.getElementById('datasusResultados');
-  box.innerHTML='';
+  box.innerHTML='';_datasusUltimo=[];
 
-  if(!nome){showT('Digite o nome do hospital/órgão','erro');return;}
+  if(!nome&&!uf){showT('Escolha um estado ou digite o nome do hospital','erro');return;}
   st.innerHTML='⏳ Consultando o CNES...';
 
-  const url='https://apidadosabertos.saude.gov.br/cnes/estabelecimentos?nome_fantasia='+encodeURIComponent(nome)
-    +(uf?('&uf='+uf):'')+'&limit=20';
-
-  const resp=await fetchComprasGov(url); // mesmo helper já usado (tenta direto, cai no proxy se CORS bloquear)
-
-  if(!resp){
-    const erroTxt=_ultimoErroComprasGov||'';
-    const semAuth=/401|403|token|autentic/i.test(erroTxt);
+  const bruto=await _dsBaixar(uf,st);
+  if(!bruto){
+    const erroTxt=_ultimoErroComprasGov||'Erro desconhecido';
     st.innerHTML='<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px;color:#991b1b;font-size:12px;line-height:1.6">'
-      +'🔒 <b>Não foi possível consultar o CNES.</b><br>'
-      +(semAuth
-        ? 'Essa API exige uma chave de autenticação que ainda não está configurada. '
-          +'Crie uma conta em <a href="https://apidadosabertos.saude.gov.br" target="_blank" style="color:#991b1b;text-decoration:underline">apidadosabertos.saude.gov.br</a>, '
-          +'gere uma chave e me avise para eu ligar isso na função baixar-arquivo.'
-        : String(erroTxt||'Erro desconhecido').slice(0,200))
-      +'</div>';
+      +'🔒 <b>Não foi possível consultar o CNES.</b><br>'+_dsEsc(String(erroTxt).slice(0,300))
+      +(/50\d/.test(erroTxt)?'<br><i>O servidor do Ministério da Saúde respondeu com erro. Costuma ser instabilidade deles — tente de novo em alguns minutos.</i>':'')+'</div>';
     return;
   }
+  const todos=_dsAgrupar(bruto).map(_dsLinha);
 
-  const lista=resp.estabelecimentos||resp.data||resp.resultado||(Array.isArray(resp)?resp:[]);
-  if(!lista||!lista.length){
-    st.innerHTML='Nenhum estabelecimento encontrado para "'+nome+'"'+(uf?(' em '+uf):'')+'.';
+  const palavras=_dsNorm(nome).split(' ').filter(function(w){return w.length>1;});
+  let achados=todos.filter(function(l){
+    if(palavras.length){
+      const txt=l.busca||_dsNorm(l.nome);
+      if(!palavras.every(function(w){return txt.indexOf(w)>=0;}))return false;
+    }
+    if(tipoSel==='venda'&&!(l.tipo==='privado'||l.tipo==='filantropico'||l.tipo==='indefinido'))return false;
+    if(tipoSel&&tipoSel!=='venda'&&l.tipo!==tipoSel)return false;
+    if(minL&&!(l.leitos>=minL))return false;
+    return true;
+  });
+  achados.sort(function(a,b){return (b.leitos||0)-(a.leitos||0);});
+  _datasusUltimo=achados;
+
+  if(!achados.length){
+    st.innerHTML='Nenhum hospital encontrado com esses filtros (de '+todos.length+' hospitais consultados'+(uf?(' em '+uf):'')+').';
     return;
   }
-  st.innerHTML='✅ '+lista.length+' estabelecimento(s) encontrado(s)';
+  const cont={publico:0,privado:0,filantropico:0,indefinido:0};
+  achados.forEach(function(l){cont[l.tipo]++;});
+  const somaLeitos=achados.reduce(function(a,l){return a+(l.leitos||0);},0);
+  const MAX=200;
+  st.innerHTML='✅ <b>'+achados.length+'</b> hospital(is) · <b>'+somaLeitos.toLocaleString('pt-BR')+'</b> leitos · '
+    +'<span style="color:'+_DS_TIPO_COR.privado+'">'+cont.privado+' privados</span> · '
+    +'<span style="color:'+_DS_TIPO_COR.filantropico+'">'+cont.filantropico+' filantrópicos</span> · '
+    +'<span style="color:'+_DS_TIPO_COR.publico+'">'+cont.publico+' públicos</span>'
+    +(cont.indefinido?(' · <span style="color:'+_DS_TIPO_COR.indefinido+'">'+cont.indefinido+' não identificados</span>'):'')
+    +(achados.length>MAX?(' — mostrando os '+MAX+' maiores em leitos; o Excel leva todos'):'')
+    +(_datasusInfo?(' <span style="color:var(--muted);font-size:11px">('+_dsEsc(_datasusInfo)+')</span>'):'')
+    +' <button class="btn-cancel-mod" style="font-size:11px;padding:3px 10px;margin-left:8px" onclick="exportarDatasusXlsx()">📥 Baixar Excel</button>';
 
-  box.innerHTML=lista.map(function(e){
-    const nomeEst=e.nome_fantasia||e.razao_social||e.nome||'Estabelecimento sem nome';
-    const end=[e.logradouro,e.numero,e.bairro,e.municipio,e.uf].filter(Boolean).join(', ');
-    const tel=e.telefone||e.numero_telefone||'';
-    const cnes=e.codigo_cnes||e.cnes||e.co_cnes||'';
-    const natureza=e.natureza_juridica||e.tipo_gestao||'';
-    const leitos=e.qtd_leitos||e.leitos_existentes||e.quantidade_leitos||null;
-    return '<div class="modulo-card" style="padding:14px">'
-      +'<div style="font-weight:700;font-size:13px">'+nomeEst+'</div>'
-      +(cnes?('<div style="font-size:11px;color:var(--muted)">CNES '+cnes+(natureza?(' · '+natureza):'')+'</div>'):'')
-      +(end?('<div style="font-size:12px;margin-top:4px">📍 '+end+'</div>'):'')
-      +(tel?('<div style="font-size:12px;color:var(--muted)">📞 '+tel+'</div>'):'')
-      +(leitos?('<div style="font-size:12px;font-weight:700;color:#0f6e5f;margin-top:4px">🛏️ '+leitos+' leito(s)</div>'):'')
-      +'</div>';
-  }).join('');
+  box.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">'
+    +'<thead><tr style="text-align:left;border-bottom:2px solid #e2e8f0"><th style="padding:6px">Hospital</th><th>Tipo</th><th style="text-align:right">Leitos</th><th style="text-align:right">UTI</th><th>Município</th><th>Contato</th></tr></thead><tbody>'
+    +achados.slice(0,MAX).map(function(l){
+      const campos=Object.keys(l.raw).filter(function(k){return l.raw[k]!==null&&l.raw[k]!==''&&typeof l.raw[k]!=='object';})
+        .map(function(k){return '<div><b>'+_dsEsc(k)+':</b> '+_dsEsc(l.raw[k])+'</div>';}).join('');
+      const contato=(l.telefone||l.email)
+        ?(_dsEsc(l.telefone)+(l.email?('<div>'+_dsEsc(l.email)+'</div>'):''))
+        :('<a href="'+_dsLinkBusca(l)+'" target="_blank" rel="noopener" style="color:#2563eb">🔎 buscar contato</a>');
+      return '<tr style="border-bottom:1px solid #f1f5f9;vertical-align:top">'
+        +'<td style="padding:6px"><b>'+_dsEsc(l.nome)+'</b>'
+        +((l.razao&&l.razao!==l.nome)?('<div style="font-size:11px;color:var(--muted)">'+_dsEsc(l.razao)+'</div>'):'')
+        +(l.endereco?('<div style="font-size:11px;color:var(--muted)">📍 '+_dsEsc(l.endereco)+'</div>'):'')
+        +'<details style="font-size:11px;color:var(--muted)"><summary style="cursor:pointer">todos os campos</summary>'+campos+'</details></td>'
+        +'<td><span style="font-weight:700;color:'+_DS_TIPO_COR[l.tipo]+'">'+_DS_TIPO_LABEL[l.tipo]+'</span></td>'
+        +'<td style="text-align:right;font-weight:700">'+(l.leitos!==null?l.leitos:'—')+(l.leitosSus!==null?('<div style="font-size:10px;font-weight:400;color:var(--muted)">'+l.leitosSus+' SUS</div>'):'')+'</td>'
+        +'<td style="text-align:right">'+(l.uti!==null?l.uti:'—')+'</td>'
+        +'<td>'+_dsEsc(l.municipio)+(l.uf?(' / '+_dsEsc(l.uf)):'')+'</td>'
+        +'<td>'+contato+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+
+// ── Administração da base na nuvem (chama a Edge Function sincronizar-hospitais) ──
+async function _dsFn(acao,extra){
+  const r=await fetch(SB_URL+'/functions/v1/sincronizar-hospitais?acao='+acao+(extra||''),{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+  const txt=await r.text();
+  if(!r.ok)throw new Error('HTTP '+r.status+' — '+txt.slice(0,300));
+  try{return JSON.parse(txt);}catch(e){return txt;}
+}
+async function datasusAdmin(acao){
+  const out=document.getElementById('datasusAdminOut');
+  out.style.display='block';out.textContent='⏳ Executando "'+acao+'"... (pode levar até 2 minutos)';
+  try{out.textContent=JSON.stringify(await _dsFn(acao),null,2);}
+  catch(e){out.textContent='Erro: '+e.message+(/404/.test(e.message)?'\n(a função sincronizar-hospitais ainda não foi publicada no Supabase)':'')+(/Failed to fetch/i.test(e.message)?'\n(Failed to fetch = a função não está publicada, ou o "Verify JWT" dela está ligado, ou ela caiu. Confira no Supabase: Edge Functions > sincronizar-hospitais.)':'');}
+}
+async function datasusAtualizarBase(){
+  const out=document.getElementById('datasusAdminOut');
+  out.style.display='block';out.textContent='⏳ Atualizando a base... mantenha esta aba aberta.';
+  try{
+    for(let i=0;i<150;i++){
+      const r=await _dsFn('auto');
+      out.textContent='Rodada '+(i+1)+': '+JSON.stringify(r,null,2);
+      if(!r.pendente)break;
+      if(r.erro&&i>5&&!r.concluido&&r.restantes===undefined)break;
+    }
+    Object.keys(_datasusCache).forEach(function(k){delete _datasusCache[k];});
+    showT('Atualização terminou — veja o andamento','verde');
+  }catch(e){out.textContent+='\nErro: '+e.message;}
+}
+
+function exportarDatasusXlsx(){
+  if(!_datasusUltimo.length){showT('Faça uma busca primeiro','erro');return;}
+  if(typeof XLSX==='undefined'){showT('Biblioteca de Excel não carregou','erro');return;}
+  const linhas=_datasusUltimo.map(function(l){
+    return {'Hospital':l.nome,'Razão social':l.razao,'Tipo':_DS_TIPO_LABEL[l.tipo],'Leitos':l.leitos,'Leitos SUS':l.leitosSus,'Leitos UTI':l.uti,
+      'Município':l.municipio,'UF':l.uf,'Endereço':l.endereco,'CEP':l.cep,'Telefone':l.telefone,'E-mail':l.email,'Buscar contato':_dsLinkBusca(l)};
+  });
+  const ws=XLSX.utils.json_to_sheet(linhas);
+  ws['!cols']=[{wch:42},{wch:40},{wch:14},{wch:8},{wch:10},{wch:10},{wch:22},{wch:5},{wch:40},{wch:10},{wch:18},{wch:28},{wch:30}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Hospitais');
+  const uf=document.getElementById('datasusUf').value||'BR';
+  XLSX.writeFile(wb,'hospitais_'+uf+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
 
 /* ══════ CÓDIGOS CATMAT DO PRODUTO ══════ */
@@ -11490,6 +11934,23 @@ async function salvarProduto(){
 ══════════════════════════════════════ */
 let fatDados=[];         // todos os registros carregados
 let fatGrupos={};        // {cod_cliente: grupo}
+let fatTiposCliente={};  // {cod_cliente: 'publico'|'cliente_direto'|'distribuidor'} — 2ª classificação, independente do grupo
+// Fonte única dos tipos de cliente (ordem = ordem dos blocos/subtotais nas telas e relatórios)
+const TIPOS_CLIENTE=[
+  {k:'publico',label:'Público',icone:'🏛️',cor:'#1d4ed8',bg:'#eff6ff',bgBadge:'#dbeafe'},
+  {k:'distribuidor',label:'Distribuidor',icone:'🚚',cor:'#047857',bg:'#ecfdf5',bgBadge:'#d1fae5'},
+  {k:'cliente_direto',label:'Cliente direto',icone:'🏢',cor:'#92400e',bg:'#fffbeb',bgBadge:'#fef3c7'}
+];
+// O tipo só é usado no grupo Venda Direta Grow
+const GRUPO_COM_TIPO='venda_direta';
+// Antes existia "privado"; passou a ser "cliente direto". Mantém o legado funcionando mesmo
+// que o SQL de migração ainda não tenha rodado.
+function normalizarTipoCliente(v){return v==='privado'?'cliente_direto':(v||'');}
+function badgeTipoCliente(tipo){
+  const t=TIPOS_CLIENTE.find(function(x){return x.k===normalizarTipoCliente(tipo);});
+  if(!t)return '';
+  return '<span style="font-size:9px;font-weight:700;color:'+t.cor+';background:'+t.bgBadge+';padding:1px 6px;border-radius:8px;margin-right:6px;white-space:nowrap">'+t.icone+' '+t.label+'</span>';
+}
 let _aliasNomeProduto={}; // {nome_variante: nome_canonico} — padronização de nomes de produto
 function canonNome(nome){
   return _aliasNomeProduto[nome]||nome;
@@ -11707,7 +12168,11 @@ async function sbCarregarGrupos(){
   const {data,error}=await sb.from('clientes_grupo').select('*');
   if(error){console.error('grupos erro:',error);return;}
   fatGrupos={};
-  (data||[]).forEach(function(r){fatGrupos[r.cod_cliente]=r.grupo;});
+  fatTiposCliente={};
+  (data||[]).forEach(function(r){
+    fatGrupos[r.cod_cliente]=r.grupo;
+    if(r.tipo_cliente)fatTiposCliente[r.cod_cliente]=normalizarTipoCliente(r.tipo_cliente);
+  });
 }
 
 async function sbCarregarRepresentantes(){
@@ -11969,6 +12434,7 @@ function renderFaturamento(){
       porCliente[r.cod_cliente]={
         cod:r.cod_cliente,nome:r.cliente,cidade:r.cidade,estado:r.estado,
         grupo:fatGrupos[r.cod_cliente]||'venda_direta',
+        tipo:fatTiposCliente[r.cod_cliente]||'',
         total:0,nfs:new Set(),itens:[]
       };
     }
@@ -12058,6 +12524,40 @@ function renderFaturamento(){
 
   // Grupos
   const gruposEl=document.getElementById('fatGrupos');
+  // Linhas de cliente de um grupo. Se algum cliente do grupo já foi classificado como Público ou
+  // Cliente direto ou Distribuidor, a tabela é dividida em blocos com subtotal de cada um (+ "Sem classificação" pros
+  // que ainda faltam). Grupo sem nenhum cliente classificado continua igual ao que era.
+  function corpoTabela(gClientes,gCfg,gTotal,gKey){
+    const usaTipo=(gKey===GRUPO_COM_TIPO);
+    const linhaCliente=function(c,i,mostrarBadge){
+      const bg=i%2===0?'#fff':'#fafafa';
+      const pct=gTotal>0?((c.total/gTotal)*100).toFixed(1):0;
+      return '<tr onclick="abrirClienteDetalhe(\''+c.cod+'\')" style="background:'+bg+';cursor:pointer;border-top:1px solid #f1f5f9" onmouseover="this.style.background=\''+gCfg.bg+'\'" onmouseout="this.style.background=\''+bg+'\'">'+
+            '<td style="padding:4.9px 12px;font-size:12px;font-weight:500;color:var(--texto);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(mostrarBadge?badgeTipoCliente(c.tipo):'')+c.nome+'</td>'+
+            '<td style="padding:4.9px 8px;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.cidade+'</td>'+
+            '<td style="padding:4.9px 8px;text-align:center;font-size:11px;color:var(--muted)">'+c.estado+'</td>'+
+            '<td style="padding:4.9px 12px;text-align:right;font-size:12px;font-weight:700;color:'+gCfg.cor+'">'+fmt(c.total)+'</td>'+
+            '<td style="padding:4.9px 12px;text-align:right;font-size:11px;color:var(--muted)">'+pct+'%</td>'+
+          '</tr>';
+    };
+    const temTipo=usaTipo&&gClientes.some(function(c){return c.tipo;});
+    if(!temTipo)return gClientes.map(function(c,i){return linhaCliente(c,i,false);}).join('');
+    const secoes=TIPOS_CLIENTE.map(function(t){return{k:t.k,label:t.icone+' '+t.label,cor:t.cor,bg:t.bg};})
+      .concat([{k:'',label:'Sem classificação',cor:'#64748b',bg:'#f1f5f9'}]);
+    return secoes.map(function(sec){
+      const lista=gClientes.filter(function(c){return (c.tipo||'')===sec.k;});
+      if(!lista.length)return '';
+      const sub=lista.reduce(function(a,c){return a+c.total;},0);
+      const pctSec=gTotal>0?((sub/gTotal)*100).toFixed(1):0;
+      return '<tr style="background:'+sec.bg+';border-top:2px solid '+sec.cor+'"><td colspan="5" style="padding:7px 12px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">'
+        +'<span style="font-size:11px;font-weight:800;color:'+sec.cor+';text-transform:uppercase;letter-spacing:.3px">'+sec.label+' <span style="font-weight:500;opacity:.8">('+lista.length+' cliente'+(lista.length>1?'s':'')+')</span></span>'
+        +'<span style="font-size:12px;font-weight:800;color:'+sec.cor+'">Subtotal '+fmt(sub)+' <span style="font-weight:600;font-size:10px;opacity:.85">· '+pctSec+'% do grupo</span></span>'
+        +'</div></td></tr>'
+        +lista.map(function(c,i){return linhaCliente(c,i,false);}).join('');
+    }).join('');
+  }
+
   const grupoHtml=Object.keys(GRUPOS).map(function(g){
     const gCfg=GRUPOS[g];
     const gClientes=clientes.filter(function(c){return c.grupo===g;}).sort(function(a,b){return b.total-a.total;});
@@ -12083,19 +12583,7 @@ function renderFaturamento(){
           '<th style="padding:6px 12px;text-align:right;font-size:10px;font-weight:700;color:'+gCfg.cor+';text-transform:uppercase">Total</th>'+
           '<th style="padding:6px 12px;text-align:right;font-size:10px;font-weight:700;color:'+gCfg.cor+';text-transform:uppercase">% Grupo</th>'+
         '</tr></thead>'+
-        '<tbody>'+
-        gClientes.map(function(c,i){
-          const bg=i%2===0?'#fff':'#fafafa';
-          const pct=gTotal>0?((c.total/gTotal)*100).toFixed(1):0;
-          return '<tr onclick="abrirClienteDetalhe(\''+c.cod+'\')" style="background:'+bg+';cursor:pointer;border-top:1px solid #f1f5f9" onmouseover="this.style.background=\''+gCfg.bg+'\'" onmouseout="this.style.background=\''+bg+'\'">'+
-            '<td style="padding:4.9px 12px;font-size:12px;font-weight:500;color:var(--texto);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.nome+'</td>'+
-            '<td style="padding:4.9px 8px;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.cidade+'</td>'+
-            '<td style="padding:4.9px 8px;text-align:center;font-size:11px;color:var(--muted)">'+c.estado+'</td>'+
-            '<td style="padding:4.9px 12px;text-align:right;font-size:12px;font-weight:700;color:'+gCfg.cor+'">'+fmt(c.total)+'</td>'+
-            '<td style="padding:4.9px 12px;text-align:right;font-size:11px;color:var(--muted)">'+pct+'%</td>'+
-          '</tr>';
-        }).join('')+
-        '</tbody>'+
+        '<tbody>'+corpoTabela(gClientes,gCfg,gTotal,g)+'</tbody>'+
       '</table>'+
     '</div>';
   }).join('');
@@ -13055,7 +13543,7 @@ function abrirClassificacao(){
   const clientes={};
   dados.forEach(function(r){
     if(!r.cod_cliente)return;
-    clientes[r.cod_cliente]={cod:r.cod_cliente,nome:r.cliente,grupo:fatGrupos[r.cod_cliente]||'venda_direta'};
+    clientes[r.cod_cliente]={cod:r.cod_cliente,nome:r.cliente,grupo:fatGrupos[r.cod_cliente]||'venda_direta',tipo:fatTiposCliente[r.cod_cliente]||''};
   });
 
   // Preencher a lista de representantes conhecidos para autocomplete
@@ -13086,7 +13574,12 @@ function abrirClassificacao(){
         '<option value="parceiros"'+(c.grupo==='parceiros'?' selected':'')+'>Parceiros</option>'+
         '<option value="venda_direta"'+(c.grupo==='venda_direta'?' selected':'')+'>Venda Direta</option>'+
         '<option value="exportacao"'+(c.grupo==='exportacao'?' selected':'')+'>Exportação</option>'+
+      '</select>'+
+      '<select class="selTipoCliente" title="Tipo de cliente (só Venda Direta)" onchange="mudarTipoCard(\''+c.cod+'\',this.value)" onclick="event.stopPropagation()" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--borda);background:#f8fafc;cursor:pointer;max-width:122px">'+
+        '<option value=""'+(!c.tipo?' selected':'')+'>Tipo de cliente</option>'+
+        TIPOS_CLIENTE.map(function(t){return '<option value="'+t.k+'"'+(c.tipo===t.k?' selected':'')+'>'+t.icone+' '+t.label+'</option>';}).join('')+
       '</select>';
+    atualizarVisibilidadeTipo(card,c.grupo);
     card.addEventListener('dragstart',function(){fatDragging=c.cod;});
     const zoneId=c.grupo==='3a'?'grupoZone3a':c.grupo==='parceiros'?'grupoZoneParceiros':'grupoZoneVendaDireta';
     const zone=document.getElementById(zoneId);
@@ -13098,6 +13591,16 @@ function abrirClassificacao(){
 
 function mudarRepresentanteCard(cod,valor){
   fatRepresentantes[cod]=valor.trim();
+}
+
+// Tipo de cliente (Público/Cliente direto/Distribuidor): '' (vazio) = ainda sem classificar; fica guardado pra limpar no banco também
+function mudarTipoCard(cod,valor){
+  fatTiposCliente[cod]=valor;
+}
+// O seletor de tipo só aparece pra cliente que está em Venda Direta
+function atualizarVisibilidadeTipo(card,grupo){
+  const sel=card&&card.querySelector('.selTipoCliente');
+  if(sel)sel.style.display=(grupo===GRUPO_COM_TIPO)?'':'none';
 }
 
 // Lançamento Manual
@@ -14616,6 +15119,15 @@ async function gerarRelatorioFaturamento(modo){
     '.secao-dash{margin-top:18px}'+
     '.secao-dash>.secao-title{page-break-after:avoid;break-after:avoid}'+
     '.secao-title{font-size:12px;font-weight:700;color:#0f172a;letter-spacing:.3px;padding:0 0 4px 8px;border-left:4px solid #0f6e5f;margin-bottom:3px}'+
+    '.sec-table{width:100%;border-collapse:collapse;table-layout:fixed}'+
+    '.sec-table th:nth-child(2),.sec-table td:nth-child(2){width:16%}'+
+    '.sec-table th:nth-child(3),.sec-table td:nth-child(3){width:24%}'+
+    '.sec-table td:first-child{padding-right:12px}'+
+    '.secao-quebra{page-break-inside:auto!important;break-inside:auto!important}'+
+    '.bloco-estado{page-break-inside:avoid;break-inside:avoid;margin-bottom:6px}'+
+    '.bloco-estado>.titulo-bloco{page-break-after:avoid;break-after:avoid}'+
+    '.sec-table tr{page-break-inside:avoid;break-inside:avoid}'+
+    '.sec-table thead{display:table-header-group}'+
     '.sec-table th{padding:4px 7px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:#475569;border-bottom:1.5px solid #cbd5e1;text-align:left}'+
     '.sec-table th.r{text-align:right}.sec-table th.c{text-align:center}'+
     '.sec-table td{padding:3px 7px;font-size:10.5px;color:#1e293b;border-bottom:1px solid #f1f5f9;word-wrap:break-word;overflow-wrap:break-word}'+
@@ -14628,7 +15140,7 @@ async function gerarRelatorioFaturamento(modo){
   if(opts.clientes){
     const dadosCli=opts.clientesGrupo?dados.filter(function(r){return(fatGrupos[r.cod_cliente]||'venda_direta')===opts.clientesGrupo;}):dados;
     const porCliente={};
-    dadosCli.forEach(function(r){if(!r.cod_cliente)return;if(!porCliente[r.cod_cliente])porCliente[r.cod_cliente]={nome:r.cliente,cidade:r.cidade,estado:r.estado,grupo:fatGrupos[r.cod_cliente]||'venda_direta',total:0};porCliente[r.cod_cliente].total+=parseFloat(r.v_total||0);});
+    dadosCli.forEach(function(r){if(!r.cod_cliente)return;if(!porCliente[r.cod_cliente])porCliente[r.cod_cliente]={nome:r.cliente,cidade:r.cidade,estado:r.estado,grupo:fatGrupos[r.cod_cliente]||'venda_direta',tipo:fatTiposCliente[r.cod_cliente]||'',total:0};porCliente[r.cod_cliente].total+=parseFloat(r.v_total||0);});
     const clientes=Object.values(porCliente).sort(function(a,b){return b.total-a.total;});
     let acumGrupos=0;
     const gruposAtivos=Object.keys(GRUPOS).filter(function(g){return clientes.some(function(c){return c.grupo===g;});});
@@ -14642,15 +15154,31 @@ async function gerarRelatorioFaturamento(modo){
         '<colgroup><col style="width:54%"><col style="width:20%"><col style="width:5%"><col style="width:15%"><col style="width:6%"></colgroup>'+
         '<thead><tr class="th-row"><th>Cliente</th><th>Cidade</th><th class="c">UF</th><th class="r">Total</th><th class="r">% Grupo</th></tr></thead>'+
         '<tbody>';
-      gC.forEach(function(c){
-        body+='<tr class="cli-row">'+
+      const linhaCli=function(c){
+        return '<tr class="cli-row">'+
           '<td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:0">'+c.nome+'</td>'+
           '<td>'+c.cidade+'</td>'+
           '<td class="c">'+c.estado+'</td>'+
           '<td class="r">'+fmt(c.total)+'</td>'+
           '<td class="pct">'+(gT>0?((c.total/gT)*100).toFixed(1):0)+'%</td>'+
         '</tr>';
-      });
+      };
+      if(g!==GRUPO_COM_TIPO||!gC.some(function(c){return c.tipo;})){
+        gC.forEach(function(c){body+=linhaCli(c);});
+      }else{
+        // Grupo com clientes classificados: um bloco por tipo (e Sem classificação), cada um com subtotal
+        TIPOS_CLIENTE.map(function(t){return{k:t.k,label:t.label,cor:t.cor,bg:t.bg};})
+          .concat([{k:'',label:'Sem classificação',cor:'#64748b',bg:'#f1f5f9'}]).forEach(function(sec){
+          const lista=gC.filter(function(c){return (c.tipo||'')===sec.k;});
+          if(!lista.length)return;
+          const sub=lista.reduce(function(a,c){return a+c.total;},0);
+          const st='background:'+sec.bg+';color:'+sec.cor+';font-weight:800;font-size:10px;padding:5px 8px;border-top:1.5px solid '+sec.cor;
+          body+='<tr><td colspan="3" style="'+st+';text-transform:uppercase">'+sec.label+' ('+lista.length+' cliente'+(lista.length>1?'s':'')+') — Subtotal</td>'+
+            '<td class="r" style="'+st+'">'+fmt(sub)+'</td>'+
+            '<td class="r" style="'+st+'">'+(gT>0?((sub/gT)*100).toFixed(1):0)+'%</td></tr>';
+          lista.forEach(function(c){body+=linhaCli(c);});
+        });
+      }
       body+='<tr class="total-row"><td colspan="3">Total '+GRUPOS[g].label+'</td><td class="r">'+fmt(gT)+'</td><td></td></tr>'+
         '<tr class="subtotal-row"><td colspan="3">Subtotal Acumulado</td><td class="r">'+fmt(acumGrupos)+'</td><td></td></tr>'+
         '</tbody></table></div>';
@@ -14715,12 +15243,12 @@ async function gerarRelatorioFaturamento(modo){
     const ufsFiltro=(opts.porEstadoFiltro||'').split(',').map(function(s){return s.trim().toUpperCase();}).filter(Boolean);
     if(ufsFiltro.length)d=d.filter(function(r){return ufsFiltro.includes((r.estado||'').toUpperCase());});
     const label='Produtos por Estado'+(opts.porEstadoGrupo?' \u2014 '+GRUPOS[opts.porEstadoGrupo]?.label:'')+(ufsFiltro.length?' \u2014 '+ufsFiltro.join(', '):'');
-    body+='<div class="secao"><div class="secao-title">'+label+'</div>';
+    body+='<div class="secao secao-quebra"><div class="secao-title" style="page-break-after:avoid">'+label+'</div>';
 
     function tabelaEstadoProduto(dadosSecao){
       const porEP={};dadosSecao.forEach(function(r){const e=r.estado||'N/D';const p=canonNome(r.item||'N/D');if(!porEP[e])porEP[e]={};if(!porEP[e][p])porEP[e][p]={qtd:0,total:0};porEP[e][p].qtd+=parseFloat(r.quantidade||0);porEP[e][p].total+=parseFloat(r.v_total||0);});
       let html='';
-      Object.keys(porEP).sort().forEach(function(e){const prods=Object.entries(porEP[e]).sort(function(a,b){return b[1].total-a[1].total;});const eT=prods.reduce(function(s,p){return s+p[1].total;},0);html+='<div style="font-size:10px;font-weight:700;color:#475569;margin:10px 0 4px">'+e+' \u2014 '+fmt(eT)+'</div><table class="sec-table"><thead><tr><th>Produto</th><th class="r">Qtd</th><th class="r">Total</th></tr></thead><tbody>';prods.forEach(function(p){html+='<tr><td>'+p[0]+'</td><td class="r">'+fmtN(p[1].qtd)+'</td><td class="r">'+fmt(p[1].total)+'</td></tr>';});html+='</tbody></table>';});
+      Object.keys(porEP).sort().forEach(function(e){const prods=Object.entries(porEP[e]).sort(function(a,b){return b[1].total-a[1].total;});const eT=prods.reduce(function(s,p){return s+p[1].total;},0);html+='<div class="bloco-estado"><div class="titulo-bloco" style="font-size:10px;font-weight:700;color:#475569;margin:10px 0 4px">'+e+' \u2014 '+fmt(eT)+'</div><table class="sec-table"><thead><tr><th>Produto</th><th class="r">Qtd</th><th class="r">Total</th></tr></thead><tbody>';prods.forEach(function(p){html+='<tr><td>'+p[0]+'</td><td class="r">'+fmtN(p[1].qtd)+'</td><td class="r">'+fmt(p[1].total)+'</td></tr>';});html+='</tbody></table></div>';});
       return html;
     }
 
@@ -14749,7 +15277,7 @@ async function gerarRelatorioFaturamento(modo){
     const ufsFiltroECP=(opts.estadoClienteProdutoFiltro||'').split(',').map(function(s){return s.trim().toUpperCase();}).filter(Boolean);
     if(ufsFiltroECP.length)d=d.filter(function(r){return ufsFiltroECP.includes((r.estado||'').toUpperCase());});
     const labelECP='Estado \u203a Cliente \u203a Produto'+(opts.estadoClienteProdutoGrupo?' \u2014 '+GRUPOS[opts.estadoClienteProdutoGrupo]?.label:'')+(ufsFiltroECP.length?' \u2014 '+ufsFiltroECP.join(', '):'');
-    body+='<div class="secao"><div class="secao-title">'+labelECP+'</div>';
+    body+='<div class="secao secao-quebra"><div class="secao-title" style="page-break-after:avoid">'+labelECP+'</div>';
 
     if(!d.length){
       body+='<p style="font-size:11px;color:#94a3b8;padding:8px 0">Nenhum dado encontrado'+(ufsFiltroECP.length?' para os estados selecionados neste per\u00edodo.':' neste per\u00edodo.')+'</p>';
@@ -14784,12 +15312,12 @@ async function gerarRelatorioFaturamento(modo){
 
         clientesOrd.forEach(function(cliObj){
           const prods=Object.entries(cliObj.produtos).sort(function(a,b){return b[1].total-a[1].total;});
-          body+='<div style="font-size:10px;font-weight:700;color:#475569;margin:8px 0 3px 10px">\ud83d\udc64 '+cliObj.nome+' \u2014 '+fmt(cliObj.total)+'</div>'
+          body+='<div class="bloco-estado"><div class="titulo-bloco" style="font-size:10px;font-weight:700;color:#475569;margin:8px 0 3px 10px">\ud83d\udc64 '+cliObj.nome+' \u2014 '+fmt(cliObj.total)+'</div>'
             +'<table class="sec-table" style="margin-left:10px;width:calc(100% - 10px)"><thead><tr><th>Produto</th><th class="r">Qtd</th><th class="r">Total</th></tr></thead><tbody>';
           prods.forEach(function(p){
             body+='<tr><td>'+p[0]+'</td><td class="r">'+fmtN(p[1].qtd)+'</td><td class="r">'+fmt(p[1].total)+'</td></tr>';
           });
-          body+='</tbody></table>';
+          body+='</tbody></table></div>';
         });
       });
     }
@@ -15009,6 +15537,7 @@ function mudarGrupoCard(cod, grupo){
   const zoneId=grupo==='3a'?'grupoZone3a':grupo==='parceiros'?'grupoZoneParceiros':grupo==='exportacao'?'grupoZoneExportacao':'grupoZoneVendaDireta';
   const zone=document.getElementById(zoneId);
   if(zone)zone.appendChild(card);
+  atualizarVisibilidadeTipo(card,grupo);
 }
 
 function dropCliente(event,grupo){
@@ -15022,6 +15551,7 @@ function dropCliente(event,grupo){
   // Sincronizar o select do card
   const sel=card.querySelector('select');
   if(sel)sel.value=grupo;
+  atualizarVisibilidadeTipo(card,grupo);
   fatDragging=null;
 }
 
@@ -15040,6 +15570,22 @@ async function salvarClassificacao(){
   if(updatesRep.length){
     const {error:errRep}=await sb.from('clientes_representante').upsert(updatesRep,{onConflict:'cod_cliente'});
     if(errRep){showT('Erro ao salvar representantes: '+errRep.message,'erro');return;}
+  }
+
+  const updatesTipo=Object.entries(fatTiposCliente).map(function(e){
+    const grupoCli=fatGrupos[e[0]]||'venda_direta';
+    const tipoValido=(grupoCli===GRUPO_COM_TIPO)?(e[1]||null):null; // fora de Venda Direta não tem tipo
+    if(!tipoValido)fatTiposCliente[e[0]]='';
+    return{cod_cliente:e[0],grupo:grupoCli,tipo_cliente:tipoValido};
+  });
+  if(updatesTipo.length){
+    const {error:errTipo}=await sb.from('clientes_grupo').upsert(updatesTipo,{onConflict:'cod_cliente'});
+    if(errTipo){
+      console.error('tipo_cliente erro:',errTipo);
+      renderFaturamento();
+      showT('Grupos salvos, mas o tipo de cliente não: '+errTipo.message+' (rode o SQL add_tipo_cliente.sql no Supabase)','erro');
+      return;
+    }
   }
 
   fecharClassificacao();
@@ -28579,7 +29125,7 @@ function renderTVFaturamento(){
     }else{
       const medalhas=['🥇','🥈','🥉','4º','5º'];
       elLista.innerHTML=top5.map(function(c,i){
-        const nome=c[0].length>24?c[0].slice(0,24)+'…':c[0];
+        const nome=c[0].length>31?c[0].slice(0,31)+'…':c[0];
         return '<div style="display:flex;align-items:center;gap:.6vw;padding:.3vh 0">'
           +'<span style="font-size:1.4vh;width:2.2vw;flex-shrink:0">'+medalhas[i]+'</span>'
           +'<span style="font-size:1.3vh;color:'+fontCor+';flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</span>'
@@ -28601,7 +29147,7 @@ function renderTVFaturamento(){
   set('tvTitClientesMes',periodoMesTxt);
   set('tvTitProdutosMes',periodoMesTxt);
   set('tvTitComparativo','· '+meses[0].label+'–'+mesAtivoAbrev+'/'+anoAtivo);
-  set('tvTitFatMes','· Jan–Dez/'+anoAtivo);
+  set('tvTitFatMes','· Jan–'+mesAtivoAbrev+'/'+anoAtivo);
   set('tvTitTicket','· '+meses[0].label+'–'+mesAtivoAbrev+'/'+anoAtivo);
   set('tvTitProdutosAno','· Anual '+anoAtivo);
   set('tvTitClientesAno','· Anual '+anoAtivo);
@@ -28679,7 +29225,8 @@ function renderTVFaturamento(){
     }
   }
 
-  const mesesAno12=tvMesesDoAno(anoAtivo);
+  const mesAtivoNum=parseInt(mesAnoFat.split('/')[0],10);
+  const mesesAno12=tvMesesDoAno(anoAtivo).slice(0,mesAtivoNum); // só até o mês atual
   const totaisPorMesAno12=mesesAno12.map(function(m){
     return (fatDados||[]).filter(function(r){return r.mes_ano===m.mesAno&&!r.excluida;})
       .reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
