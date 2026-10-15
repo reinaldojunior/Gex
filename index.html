@@ -12224,8 +12224,18 @@ async function excluirRepresentante(representante){
 
 // Carregar vendas do Supabase
 async function sbCarregarVendas(){
-  const {data,error}=await sb.from('vendas').select('*').order('dt_emissao',{ascending:false});
-  if(error){console.error('vendas erro:',error);return;}
+  // Pagina de 1000 em 1000: o Supabase corta a resposta em 1000 linhas por requisição.
+  // Ordena por dt_emissao desc + id para a paginação ser estável.
+  let todas=[];
+  for(let de=0;;de+=1000){
+    const {data,error}=await sb.from('vendas').select('*')
+      .order('dt_emissao',{ascending:false}).order('id',{ascending:true})
+      .range(de,de+999);
+    if(error){console.error('vendas erro:',error);return;}
+    todas=todas.concat(data||[]);
+    if(!data||data.length<1000)break;
+  }
+  const data=todas;
   fatDados=data||[];
   atualizarFiltroMeses();
   renderFaturamento();
@@ -14466,7 +14476,20 @@ async function gerarRelatorioFaturamento(modo){
     const fmtBR=function(iso){if(!iso)return'';const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0];};
     periodo=(de||ate)?(fmtBR(de)+' a '+fmtBR(ate)):'Per\u00edodo selecionado';
   }
-  const totalGeral=dados.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+  // Total do período: se TODAS as seções marcadas usam o mesmo grupo (ex.: "Só Venda Direta"),
+  // o total do cabeçalho é o desse grupo. Se houver grupos diferentes (ou "todos"), mantém o total geral.
+  const _secGrupos=[
+    [opts.dashboard,opts.dashboardGrupo],[opts.comparativo,opts.compGrupo],[opts.clientes,opts.clientesGrupo],
+    [opts.estado,opts.estadoGrupo],[opts.produtos,opts.produtosGrupo],[opts.ticket,opts.ticketGrupo],
+    [opts.concentracao,opts.concentracaoGrupo],[opts.mix,opts.mixGrupo],[opts.porEstado,opts.porEstadoGrupo],
+    [opts.estadoClienteProduto,opts.estadoClienteProdutoGrupo],[opts.porRepresentante,opts.porRepresentanteGrupo],
+    [opts.produtoMes,opts.produtoMesGrupo],[opts.produtoEstado,opts.produtoEstadoGrupo]
+  ].filter(function(x){return x[0];}).map(function(x){return x[1]||'';});
+  const _gUnicos=Array.from(new Set(_secGrupos));
+  const grupoTotal=(_gUnicos.length===1&&_gUnicos[0])?_gUnicos[0]:'';
+  const dadosTotal=grupoTotal?dados.filter(function(r){return(fatGrupos[r.cod_cliente]||'venda_direta')===grupoTotal;}):dados;
+  const totalGeral=dadosTotal.reduce(function(s,r){return s+parseFloat(r.v_total||0);},0);
+  const totalRotulo='Total do Per\u00edodo'+(grupoTotal&&GRUPOS[grupoTotal]?(' \u2014 '+GRUPOS[grupoTotal].label):'');
 
   // ── Dashboard de Comparação — gráficos gerados nativamente pro relatório (não é
   // captura de tela), usando as mesmas cores/estilo já estabelecidos no resto do
@@ -15500,7 +15523,7 @@ async function gerarRelatorioFaturamento(modo){
   }
 
 
-  const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relat\u00f3rio '+periodo+'</title><style>'+css+'</style></head><body><div class="header"><div><h1>Relat\u00f3rio de Faturamento</h1><p>'+periodo+' \u00b7 Gerado em '+new Date().toLocaleString('pt-BR')+'</p></div><div class="total-box"><span>Total do Per\u00edodo</span><strong>'+fmt(totalGeral)+'</strong></div></div>'+dashboardHtml+comparativoHtml+body+'</body></html>';
+  const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relat\u00f3rio '+periodo+'</title><style>'+css+'</style></head><body><div class="header"><div><h1>Relat\u00f3rio de Faturamento</h1><p>'+periodo+' \u00b7 Gerado em '+new Date().toLocaleString('pt-BR')+'</p></div><div class="total-box"><span>'+totalRotulo+'</span><strong>'+fmt(totalGeral)+'</strong></div></div>'+dashboardHtml+comparativoHtml+body+'</body></html>';
 
   if(modo==='pdf'){
     showT('Gerando PDF...','');
