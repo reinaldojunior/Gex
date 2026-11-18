@@ -24683,9 +24683,9 @@ var mpSeg={};
 var mpExpandido=null;
 var estSubViewAtual='aca';
 
-// Faixa real de códigos de matéria-prima: 11.005 a 11.140
+// Faixa real de códigos de matéria-prima: 11.005 a 11.140 (aceita 11.074 ou 11.0074)
 function _ehCodigoMP(cod){
-  const m=String(cod||'').match(/^11\.(\d{3})$/);
+  const m=String(cod||'').trim().match(/^11\.(\d{3,4})$/);
   if(!m)return false;
   const n=parseInt(m[1],10);
   return n>=5&&n<=140;
@@ -24732,15 +24732,22 @@ function processarBuffer(buffer,filename){
     var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
     if(!rows||rows.length<2){showT('Arquivo vazio ou inválido','erro');return;}
     var header=rows[0];
-    // Encontrar índices das colunas
-    var iCod=header.indexOf('Cód. Item');
-    var iNome=header.indexOf('Item');
-    var iDep=header.indexOf('Cód. Depósito');
-    var iLote=header.indexOf('Lote');
-    var iDisp=header.indexOf('Saldo Disponível');
-    var iVal=header.indexOf('Validade Lote');
-    var iUnid=header.indexOf('Unid.');
-    var iStatus=header.indexOf('Status');
+    // Encontrar índices das colunas (ignora acentos, maiúsculas, pontos e espaços extras)
+    var _normH=function(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[.:]/g,'').replace(/\s+/g,' ').trim();};
+    var _hn=header.map(_normH);
+    var _col=function(){for(var a=0;a<arguments.length;a++){var k=_hn.indexOf(_normH(arguments[a]));if(k>-1)return k;}return -1;};
+    var iCod=_col('Cód. Item','Cod Item','Código Item');
+    var iNome=_col('Item','Descrição','Descrição Item');
+    var iDep=_col('Cód. Depósito','Cod Deposito','Depósito');
+    var iLote=_col('Lote');
+    var iDisp=_col('Saldo Disponível','Saldo Disp.');
+    // No depósito CQ o material está bloqueado aguardando liberação: o ERP costuma zerar o
+    // "Saldo Disponível" e deixar a quantidade em outra coluna de saldo. Usa a primeira que existir.
+    var iSaldoCQ=_col('Saldo Físico','Saldo Atual','Saldo Total','Saldo em Estoque','Saldo Estoque','Saldo Bloqueado','Saldo','Quantidade','Qtde','Qtd');
+    var iVal=_col('Validade Lote','Validade');
+    var iUnid=_col('Unid.','Unidade','UN');
+    var iStatus=_col('Status');
+    var _num=function(v){if(typeof v==='number')return v;var s=String(v||'').trim();if(!s)return 0;if(s.indexOf(',')>-1)s=s.replace(/\./g,'').replace(',','.');var n=parseFloat(s);return isNaN(n)?0:n;};
     if(iCod<0||iDep<0){showT('Colunas não encontradas — verifique o arquivo','erro');return;}
     // Processar TODOS os depósitos — ACA, MP, embalagem etc.
     estDados={};
@@ -24749,10 +24756,11 @@ function processarBuffer(buffer,filename){
     var totalLinhas=0;
     for(var i=1;i<rows.length;i++){
       var row=rows[i];
-      var depItem=String(row[iDep]||'').trim();
+      var depItem=String(row[iDep]||'').trim().toUpperCase();
       var cod=String(row[iCod]||'').trim();
       if(!cod)continue;
-      var disp=parseFloat(row[iDisp])||0;
+      var disp=_num(row[iDisp]);
+      if(depItem==='CQ'&&iSaldoCQ>-1&&iSaldoCQ!==iDisp){var _sCQ=_num(row[iSaldoCQ]);if(_sCQ>disp)disp=_sCQ;}
       var lote=String(row[iLote]||'').trim();
       var valRaw=row[iVal];
       var val=null;
@@ -24781,7 +24789,7 @@ function processarBuffer(buffer,filename){
     // Carregar seg salvo (já em memória via sbCarregarEstoqueSeg)
     // Atualizar UI
     var agora=new Date();
-    document.getElementById('estUploadInfo').textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+Object.keys(estDados).length+' produtos ACA · '+Object.keys(mpDados).length+' itens MP · '+Object.keys(estTodosItens).length+' itens total';
+    document.getElementById('estUploadInfo').textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+Object.keys(estDados).length+' produtos ACA · '+Object.keys(mpDados).length+' itens MP · '+Object.keys(estTodosItens).length+' itens total'+(iSaldoCQ>-1&&iSaldoCQ!==iDisp?' · CQ pela coluna “'+header[iSaldoCQ]+'”':'');
     document.getElementById('estVazio').style.display='none';
     document.getElementById('estTabela').style.display='block';
     renderEstoque('');
