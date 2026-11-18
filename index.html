@@ -24741,9 +24741,9 @@ function processarBuffer(buffer,filename){
     var iDep=_col('Cód. Depósito','Cod Deposito','Depósito');
     var iLote=_col('Lote');
     var iDisp=_col('Saldo Disponível','Saldo Disp.');
-    // No depósito CQ o material está bloqueado aguardando liberação: o ERP costuma zerar o
-    // "Saldo Disponível" e deixar a quantidade em outra coluna de saldo. Usa a primeira que existir.
-    var iSaldoCQ=_col('Saldo Físico','Saldo Atual','Saldo Total','Saldo em Estoque','Saldo Estoque','Saldo Bloqueado','Saldo','Quantidade','Qtde','Qtd');
+    // No depósito CQ o material está bloqueado aguardando liberação e o "Saldo Disponível" vem zerado:
+    // a quantidade do CQ é lida da coluna "Saldo Contábil".
+    var iSaldoCQ=_col('Saldo Contábil','Saldo Contabil');
     var iVal=_col('Validade Lote','Validade');
     var iUnid=_col('Unid.','Unidade','UN');
     var iStatus=_col('Status');
@@ -24760,7 +24760,7 @@ function processarBuffer(buffer,filename){
       var cod=String(row[iCod]||'').trim();
       if(!cod)continue;
       var disp=_num(row[iDisp]);
-      if(depItem==='CQ'&&iSaldoCQ>-1&&iSaldoCQ!==iDisp){var _sCQ=_num(row[iSaldoCQ]);if(_sCQ>disp)disp=_sCQ;}
+      if(depItem==='CQ'&&iSaldoCQ>-1)disp=_num(row[iSaldoCQ]);
       var lote=String(row[iLote]||'').trim();
       var valRaw=row[iVal];
       var val=null;
@@ -24789,7 +24789,7 @@ function processarBuffer(buffer,filename){
     // Carregar seg salvo (já em memória via sbCarregarEstoqueSeg)
     // Atualizar UI
     var agora=new Date();
-    document.getElementById('estUploadInfo').textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+Object.keys(estDados).length+' produtos ACA · '+Object.keys(mpDados).length+' itens MP · '+Object.keys(estTodosItens).length+' itens total'+(iSaldoCQ>-1&&iSaldoCQ!==iDisp?' · CQ pela coluna “'+header[iSaldoCQ]+'”':'');
+    document.getElementById('estUploadInfo').textContent='📅 Último upload: '+agora.toLocaleString('pt-BR')+' — '+Object.keys(estDados).length+' produtos ACA · '+Object.keys(mpDados).length+' itens MP · '+Object.keys(estTodosItens).length+' itens total'+(iSaldoCQ>-1?' · CQ pelo Saldo Contábil':' · ⚠ coluna Saldo Contábil não encontrada — CQ pelo Saldo Disponível');
     document.getElementById('estVazio').style.display='none';
     document.getElementById('estTabela').style.display='block';
     renderEstoque('');
