@@ -3133,6 +3133,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
   <symbol id="i-money" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v.01M18 14.5v.01"/></symbol>
   <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 0 1-8 0V4Z"/><path d="M8 5H4.5a3.5 3.5 0 0 0 3.6 3.5M16 5h3.5a3.5 3.5 0 0 1-3.6 3.5"/><path d="M12 14v4M8.5 21h7M10 18h4"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3L6 21V3Z"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
   <symbol id="i-link" viewBox="0 0 24 24"><path d="M9.8 14.2 14.2 9.8"/><path d="M8.5 11 6.6 12.9a3.4 3.4 0 0 0 4.8 4.8l1.9-1.9"/><path d="M15.5 13l1.9-1.9a3.4 3.4 0 0 0-4.8-4.8l-1.9 1.9"/></symbol>
 </svg>
 
@@ -3203,6 +3204,7 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
   <div class="sidebar-section">
     <div class="sidebar-section-label">GERENCIAL</div>
     <button class="sidebar-item" id="btnModoFaturamento" data-label="Faturamento" onclick="setModoApp('faturamento')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-chart"></use></svg><span class="si-text">Faturamento</span></button>
+    <button class="sidebar-item" id="btnModoFiscal" data-label="Fiscal" onclick="setModoApp('fiscal')"><svg class="si-icon" data-ico viewBox="0 0 24 24"><use href="#i-receipt"></use></svg><span class="si-text">Fiscal</span></button>
   </div>
 </aside>
 <div class="main-area" id="mainArea">
@@ -4636,6 +4638,191 @@ html[data-tema="claro"] [style*="border-color:#e"]{border-color:rgba(13,58,94,.1
   </div>
 
   <!-- SEÇÃO ESTOQUE (placeholder) -->
+  <!-- ══════════ FISCAL — Calculadora CBS/IBS (Reforma Tributária) ══════════ -->
+  <div id="secaoFiscal" style="display:none">
+    <style>
+      #secaoFiscal .fis-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+      #secaoFiscal .fis-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:5px 12px;border-radius:50px;border:1px solid var(--borda);background:var(--card);color:var(--muted);margin-left:auto}
+      #secaoFiscal .fis-status .dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}
+      #secaoFiscal .fis-status.on{color:#047857;border-color:#a7f3d0}
+      #secaoFiscal .fis-status.on .dot{background:#10b981}
+      #secaoFiscal .fis-status.off{color:#b45309;border-color:#fde68a}
+      #secaoFiscal .fis-status.off .dot{background:#f59e0b}
+      #secaoFiscal .fis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+      #secaoFiscal .fis-tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+      #secaoFiscal table.fis-tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:820px}
+      #secaoFiscal table.fis-tbl th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:left;padding:8px 6px;border-bottom:1px solid var(--borda);white-space:nowrap}
+      #secaoFiscal table.fis-tbl td{padding:6px;border-bottom:1px solid var(--borda);vertical-align:middle;color:var(--texto)}
+      #secaoFiscal table.fis-tbl td.r,#secaoFiscal table.fis-tbl th.r{text-align:right;font-variant-numeric:tabular-nums}
+      #secaoFiscal table.fis-tbl input,#secaoFiscal table.fis-tbl select{width:100%;background:var(--surface-1);border:1px solid var(--borda);border-radius:8px;font:inherit;font-size:12px;color:var(--texto);padding:6px 8px}
+      #secaoFiscal table.fis-tbl input:focus,#secaoFiscal table.fis-tbl select:focus{outline:none;border-color:var(--accent-light);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+      #secaoFiscal .fis-btn-sec{background:var(--card);color:var(--texto);border:1px solid var(--borda);font:600 12px 'Inter',system-ui,sans-serif;padding:8px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+      #secaoFiscal .fis-btn-sec:hover{border-color:var(--accent-light);color:var(--accent)}
+      #secaoFiscal .fis-btn-sec:focus-visible,#secaoFiscal .fis-x:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+      #secaoFiscal .fis-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:6px 8px;border-radius:6px}
+      #secaoFiscal .fis-x:hover{color:#dc2626;background:rgba(220,38,38,.08)}
+      #secaoFiscal .fis-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+      #secaoFiscal .fis-kpi{border:1px solid var(--borda);border-radius:12px;padding:12px 14px;background:var(--surface-1)}
+      #secaoFiscal .fis-kpi .l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+      #secaoFiscal .fis-kpi .v{font-size:18px;font-weight:700;color:var(--texto);margin-top:4px;font-variant-numeric:tabular-nums}
+      #secaoFiscal .fis-kpi.dest{background:var(--accent-pale);border-color:rgba(59,130,246,.25)}
+      #secaoFiscal .fis-kpi.dest .v{color:var(--accent)}
+      #secaoFiscal .fis-chip{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:50px;white-space:nowrap}
+      #secaoFiscal .fis-chip.ok{background:#d1fae5;color:#065f46}
+      #secaoFiscal .fis-chip.sim{background:#dbeafe;color:#1e40af}
+      #secaoFiscal .fis-chip.est{background:#fef3c7;color:#92400e}
+      #secaoFiscal .fis-chip.err{background:#fee2e2;color:#991b1b}
+      #secaoFiscal .fis-note{font-size:11px;color:var(--muted);line-height:1.5}
+      #secaoFiscal .fis-aviso{font-size:12px;line-height:1.5;padding:10px 12px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;margin-bottom:12px}
+      #secaoFiscal .fis-erro{font-size:12px;line-height:1.5;padding:10px 12px;border-radius:10px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;margin-bottom:12px}
+      #secaoFiscal details.fis-mem{margin-top:4px}
+      #secaoFiscal details.fis-mem summary{cursor:pointer;font-size:11px;color:var(--accent);font-weight:600}
+      #secaoFiscal details.fis-mem div{font-size:11px;color:var(--muted);line-height:1.5;margin-top:4px;max-width:520px}
+      #secaoFiscal pre.fis-pre{background:var(--surface-2);border:1px solid var(--borda);border-radius:10px;padding:12px;font-size:11px;overflow:auto;max-height:360px;white-space:pre-wrap;word-break:break-word;color:var(--texto)}
+      #secaoFiscal table.fis-kv{width:100%;border-collapse:collapse;font-size:12px}
+      #secaoFiscal table.fis-kv td{padding:7px 8px;border-bottom:1px solid var(--borda);vertical-align:top;color:var(--texto)}
+      #secaoFiscal table.fis-kv td:first-child{width:38%;color:var(--muted);font-weight:600}
+      #secaoFiscal code{font-size:11px;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+      #secaoFiscal .fis-acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+      html[data-tema="escuro"] #secaoFiscal .fis-chip.ok{background:rgba(16,185,129,.18);color:#6ee7b7}
+      html[data-tema="escuro"] #secaoFiscal .fis-chip.sim{background:rgba(59,130,246,.2);color:#93c5fd}
+      html[data-tema="escuro"] #secaoFiscal .fis-chip.est{background:rgba(245,158,11,.18);color:#fcd34d}
+      html[data-tema="escuro"] #secaoFiscal .fis-chip.err{background:rgba(239,68,68,.18);color:#fca5a5}
+      html[data-tema="escuro"] #secaoFiscal .fis-aviso{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:#fcd34d}
+      html[data-tema="escuro"] #secaoFiscal .fis-erro{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#fca5a5}
+      html[data-tema="escuro"] #secaoFiscal .fis-kpi.dest{background:rgba(59,130,246,.12)}
+      @media (max-width:768px){#secaoFiscal .fis-status{margin-left:0}}
+    </style>
+
+    <div class="fis-tabs">
+      <button id="fisBtnCalc" class="frete-filter-btn active" onclick="fisSetAba('calc')">🧮 Calculadora CBS/IBS</button>
+      <button id="fisBtnCons" class="frete-filter-btn" onclick="fisSetAba('cons')">🔎 Consultas</button>
+      <button id="fisBtnConf" class="frete-filter-btn" onclick="fisSetAba('conf')">⚙️ Conexão</button>
+      <span class="fis-status" id="fisStatus" role="status"><span class="dot"></span><span id="fisStatusTxt">Verificando API…</span></span>
+    </div>
+
+    <!-- ── ABA CALCULADORA ── -->
+    <div id="fisAbaCalc">
+      <div class="historico-card">
+        <div class="card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-receipt"></use></svg>Operação</div>
+        <div class="fis-grid">
+          <div class="form-field"><label for="fisData">Data do fato gerador</label><input type="date" id="fisData" onchange="fisOnData()"></div>
+          <div class="form-field"><label for="fisUf">UF de destino</label><select id="fisUf" onchange="fisOnUf()"></select></div>
+          <div class="form-field"><label for="fisMun">Município</label><select id="fisMun"></select></div>
+          <div class="form-field"><label for="fisTabela">Preço sugerido</label>
+            <select id="fisTabela" onchange="fisRepreciar()">
+              <option value="cf">Tabela Consumidor Final</option>
+              <option value="dist">Tabela Distribuidor</option>
+              <option value="manual">Manual (não preencher)</option>
+            </select>
+          </div>
+        </div>
+        <div id="fisAliqBox" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid var(--borda)">
+          <div class="fis-note" style="margin-bottom:10px">A partir de 2027 a Receita não publica alíquotas de referência na calculadora: informe as alíquotas nominais (%) da operação. Os valores iniciais são os do exemplo oficial e devem ser conferidos.</div>
+          <div class="fis-grid">
+            <div class="form-field"><label for="fisAqCbs">CBS (%)</label><input type="number" step="0.01" min="0" id="fisAqCbs" value="8.8"></div>
+            <div class="form-field"><label for="fisAqUf">IBS estadual (%)</label><input type="number" step="0.01" min="0" id="fisAqUf" value="0.05"></div>
+            <div class="form-field"><label for="fisAqMun">IBS municipal (%)</label><input type="number" step="0.01" min="0" id="fisAqMun" value="0.05"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="historico-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+          <div class="card-title" style="margin:0"><svg data-ico viewBox="0 0 24 24"><use href="#i-list"></use></svg>Itens</div>
+          <div class="fis-acoes">
+            <button class="fis-btn-sec" onclick="fisAddItem()">＋ Adicionar item</button>
+            <button class="fis-btn-sec" onclick="fisLimparItens()">Limpar</button>
+          </div>
+        </div>
+        <div class="fis-tbl-wrap">
+          <table class="fis-tbl">
+            <colgroup><col style="width:30px"><col style="width:auto"><col style="width:100px"><col style="width:150px"><col style="width:190px"><col style="width:70px"><col style="width:100px"><col style="width:100px"><col style="width:36px"></colgroup>
+            <thead><tr><th>#</th><th>Produto</th><th>NCM</th><th>CST</th><th>Classificação (cClassTrib)</th><th class="r">Qtd</th><th class="r">Valor unit. (R$)</th><th class="r">Base (R$)</th><th></th></tr></thead>
+            <tbody id="fisItensBody"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px">
+          <div class="fis-note" id="fisItensResumo"></div>
+          <button class="btn-pdf" id="fisBtnCalcular" onclick="fisCalcular()"><svg class="btn-ico" data-ico viewBox="0 0 24 24"><use href="#i-receipt"></use></svg> Calcular tributos</button>
+        </div>
+      </div>
+
+      <div class="historico-card" id="fisResultadoCard" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <div class="card-title" style="margin:0"><svg data-ico viewBox="0 0 24 24"><use href="#i-chart"></use></svg>Resultado</div>
+          <div class="fis-acoes">
+            <button class="fis-btn-sec" id="fisBtnXml" onclick="fisGerarXml()">Baixar XML (grupo NF-e)</button>
+            <button class="fis-btn-sec" onclick="fisExportarJson()">Exportar JSON</button>
+          </div>
+        </div>
+        <div id="fisResultado"></div>
+      </div>
+    </div>
+
+    <!-- ── ABA CONSULTAS ── -->
+    <div id="fisAbaCons" style="display:none">
+      <div class="historico-card">
+        <div class="card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-search"></use></svg>Consultar dados abertos da Receita</div>
+        <div class="fis-grid" style="align-items:end">
+          <div class="form-field"><label for="fisCTipo">Consulta</label>
+            <select id="fisCTipo" onchange="fisOnConsTipo()">
+              <option value="ncm">NCM — descrição e Imposto Seletivo</option>
+              <option value="class">Classificação tributária (cClassTrib)</option>
+              <option value="aplic">NCM é aceita na classificação?</option>
+              <option value="aliq">Alíquotas de referência (UF/município)</option>
+              <option value="erro">Código de erro da calculadora</option>
+            </select>
+          </div>
+          <div class="form-field" id="fisCF1"><label for="fisC1" id="fisC1L">NCM</label><input type="text" id="fisC1" placeholder="3808.94.19"></div>
+          <div class="form-field" id="fisCF2" style="display:none"><label for="fisC2" id="fisC2L">cClassTrib</label><input type="text" id="fisC2" placeholder="000001"></div>
+          <div class="form-field"><label for="fisCData">Data</label><input type="date" id="fisCData"></div>
+          <div><button class="btn-pdf" onclick="fisConsultar()" style="width:100%;justify-content:center">Consultar</button></div>
+        </div>
+        <div id="fisConsResultado" style="margin-top:14px"></div>
+      </div>
+      <div class="historico-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
+            <div class="card-title" style="margin-bottom:4px"><svg data-ico viewBox="0 0 24 24"><use href="#i-check"></use></svg>NCMs dos produtos GEx</div>
+            <div class="fis-note">Confere a descrição oficial de cada NCM usada no catálogo e se há Imposto Seletivo.</div>
+          </div>
+          <button class="fis-btn-sec" onclick="fisConferirNcms()">Conferir NCMs</button>
+        </div>
+        <div id="fisNcmsResultado" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <!-- ── ABA CONEXÃO ── -->
+    <div id="fisAbaConf" style="display:none">
+      <div class="historico-card">
+        <div class="card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-link"></use></svg>Endereço da API da calculadora</div>
+        <div class="fis-grid" style="align-items:end">
+          <div class="form-field" style="grid-column:1/-1"><label for="fisApiUrl">URL base (termina em /api/calculadora)</label><input type="url" id="fisApiUrl" placeholder="http://localhost:8080/api/calculadora"></div>
+        </div>
+        <div class="fis-acoes" style="margin-top:12px">
+          <button class="btn-pdf" onclick="fisSalvarApi()">Salvar e testar</button>
+          <button class="fis-btn-sec" onclick="fisRestaurarApi()">Restaurar padrão</button>
+        </div>
+        <div id="fisConfMsg" style="margin-top:12px"></div>
+      </div>
+      <div class="historico-card">
+        <div class="card-title"><svg data-ico viewBox="0 0 24 24"><use href="#i-settings"></use></svg>Como rodar a calculadora da Receita</div>
+        <div class="fis-note" style="font-size:12px">
+          <p style="margin:0 0 8px">A calculadora oficial (<a href="https://github.com/ReceitaFederal/calculadora-rtc-regime-regular" target="_blank" rel="noopener">ReceitaFederal/calculadora-rtc-regime-regular</a>) é uma API Java que roda no seu computador ou servidor. Sem ela, o GEx faz só uma <b>estimativa local</b> para itens com tributação integral (CST 000).</p>
+          <ol style="margin:0 0 8px;padding-left:18px;line-height:1.7">
+            <li>Instale o Java 21 e clone o repositório.</li>
+            <li>Copie <code>fiscal-api/CorsConfig.java</code> (deste repositório do GEx) para <code>src/main/java/br/gov/serpro/rtc/config/security/</code>. Sem ele o navegador bloqueia as chamadas (CORS).</li>
+            <li>Gere o banco: <code>mkdir -p calculadora/db</code> e <code>./mvnw flyway:migrate -Dflyway.configFiles=./flyway/flyway-pro.conf</code></li>
+            <li>Rode: <code>./mvnw spring-boot:run -Dspring-boot.run.profiles=offline</code></li>
+            <li>Deixe a URL acima como <code>http://localhost:8080/api/calculadora</code> e clique em “Salvar e testar”.</li>
+          </ol>
+          <p style="margin:0">Para a equipe toda usar, hospede a API num servidor com HTTPS e informe a URL aqui. Detalhes em <code>fiscal-api/README.md</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="secaoEstoque" style="display:none">
 
     <div style="display:flex;gap:8px;margin-bottom:14px">
@@ -16061,12 +16248,12 @@ function setModoApp(m){
   const btns={
     home:'btnModoHome', cotacao:'btnModoCot', tabela:'btnModoTab', amostras:'btnModoAmostras',
     crm:'btnModoCRM', agenda:'btnModoAgenda', licitacoes:'btnModoLicit', cadastros:'btnModoCadastros',
-    faturamento:'btnModoFaturamento', frete:'btnModoFrete', estoque:'btnModoEstoque'
+    faturamento:'btnModoFaturamento', frete:'btnModoFrete', estoque:'btnModoEstoque', fiscal:'btnModoFiscal'
   };
   const secs={
     home:'secaoHome', cotacao:'secaoCotacao', tabela:'secaoTabela', amostras:'secaoAmostras',
     crm:'secaoCRM', agenda:'secaoAgenda', licitacoes:'secaoLicitacoes', cadastros:'secaoCadastros', faturamento:'secaoFaturamento',
-    frete:'secaoFrete', estoque:'secaoEstoque'
+    frete:'secaoFrete', estoque:'secaoEstoque', fiscal:'secaoFiscal'
   };
   // Atualizar botões sidebar
   Object.entries(btns).forEach(([modo,id])=>{
@@ -16134,6 +16321,7 @@ function setModoApp(m){
   if(m==='frete'){renderFretes();atualizarStatsFrete();}
   if(m==='agenda'){renderAgenda();renderProximosEventos();}
   if(m==='licitacoes'){sbCarregarPregoes();}
+  if(m==='fiscal'&&typeof fisInit==='function'){fisInit();}
 }
 
 function setTpTipo(t){
@@ -24435,6 +24623,7 @@ var PAGE_HEADERS = {
   cadastros:  {icon:'i-settings', title:'Cadastros',         sub:'Gestão de produtos e descrições'},
   faturamento:{icon:'i-chart', title:'Faturamento', sub:'Dashboard de vendas e faturamento'},
   estoque:    {icon:'i-box',      title:'Estoque',           sub:'Gestão e alertas de estoque de produtos'},
+  fiscal:     {icon:'i-receipt',  title:'Fiscal',            sub:'Calculadora CBS/IBS da Reforma Tributária (Receita Federal)'},
 };
 function atualizarPageHeader(m){
   var d=PAGE_HEADERS[m]||PAGE_HEADERS['home'];
@@ -25708,14 +25897,14 @@ var _gexUser=null; // {login, nome, perfil, modulos:[]}
 var MODULO_KEY={
   home:'home',cotacao:'cotacao',tabela:'tabelas',amostras:'amostras',
   crm:'crm',agenda:'agenda',licitacoes:'licitacoes',cadastros:'cadastros',
-  frete:'fretes',estoque:'estoque',faturamento:'faturamento'
+  frete:'fretes',estoque:'estoque',faturamento:'faturamento',fiscal:'fiscal'
 };
 
 // Perfis pré-definidos (admin sempre vê tudo)
 var PERFIS={
-  admin:    ['home','cotacao','tabelas','amostras','crm','agenda','licitacoes','cadastros','fretes','estoque','faturamento'],
+  admin:    ['home','cotacao','tabelas','amostras','crm','agenda','licitacoes','cadastros','fretes','estoque','faturamento','fiscal'],
   logistica:['home','fretes','agenda'],
-  financeiro:['home','faturamento','fretes'],
+  financeiro:['home','faturamento','fretes','fiscal'],
   estoque:  ['home','estoque','cadastros'],
   licitacoes:['home','licitacoes','agenda','crm']
 };
@@ -25728,10 +25917,10 @@ function gexTemAcesso(modo){
 }
 
 function gexAplicarPermissoes(){
-  var modos=['cotacao','tabela','amostras','crm','agenda','licitacoes','cadastros','frete','estoque','faturamento'];
+  var modos=['cotacao','tabela','amostras','crm','agenda','licitacoes','cadastros','frete','estoque','faturamento','fiscal'];
   var btnMap={cotacao:'btnModoCot',tabela:'btnModoTab',amostras:'btnModoAmostras',crm:'btnModoCRM',
     agenda:'btnModoAgenda',licitacoes:'btnModoLicit',cadastros:'btnModoCadastros',
-    frete:'btnModoFrete',estoque:'btnModoEstoque',faturamento:'btnModoFaturamento'};
+    frete:'btnModoFrete',estoque:'btnModoEstoque',faturamento:'btnModoFaturamento',fiscal:'btnModoFiscal'};
   modos.forEach(function(m){
     var btn=document.getElementById(btnMap[m]);
     if(btn)btn.style.display=gexTemAcesso(m)?'':'none';
@@ -30642,6 +30831,7 @@ function enviarEmailTesteFretes(){
             <label class="umod-chk"><input type="checkbox" value="fretes"> 🚛 Fretes</label>
             <label class="umod-chk"><input type="checkbox" value="estoque"> 📦 Estoque</label>
             <label class="umod-chk"><input type="checkbox" value="faturamento"> 💰 Faturamento</label>
+            <label class="umod-chk"><input type="checkbox" value="fiscal"> 🧾 Fiscal</label>
           </div>
         </div>
         <input type="hidden" id="uLoginEdit">
@@ -30775,9 +30965,9 @@ html[data-tema="escuro"] .cot-sel,html[data-tema="escuro"] .cot-obs{
 /* ════ GERENCIAR USUÁRIOS ════ */
 
 var PERFIS_DEF={
-  admin:    ['home','cotacao','tabelas','amostras','crm','agenda','licitacoes','cadastros','fretes','estoque','faturamento'],
+  admin:    ['home','cotacao','tabelas','amostras','crm','agenda','licitacoes','cadastros','fretes','estoque','faturamento','fiscal'],
   logistica:['home','fretes','agenda'],
-  financeiro:['home','faturamento','fretes'],
+  financeiro:['home','faturamento','fretes','fiscal'],
   estoque:  ['home','estoque','cadastros'],
   licitacoes:['home','licitacoes','agenda','crm'],
   custom:   ['home']
@@ -31132,7 +31322,8 @@ var GEX_CMD_MODULOS = [
   {modo:'cadastros',   titulo:'Cadastros',   sub:'Produtos e descrições',       ico:'⚙️'},
   {modo:'frete',       titulo:'Fretes',      sub:'Notas fiscais e entregas',    ico:'🚛'},
   {modo:'estoque',     titulo:'Estoque',     sub:'Saldos e produção',           ico:'📦'},
-  {modo:'faturamento', titulo:'Faturamento', sub:'Dashboard de vendas',         ico:'💰'}
+  {modo:'faturamento', titulo:'Faturamento', sub:'Dashboard de vendas',         ico:'💰'},
+  {modo:'fiscal',      titulo:'Fiscal',      sub:'Calculadora CBS/IBS',         ico:'🧾'}
 ];
 
 function gexCmdAbrir(){
@@ -31331,6 +31522,460 @@ document.addEventListener('keydown', function(e){
     </div>
   </div>
 </div>
+
+<script>
+/* ══════════ FISCAL — Calculadora CBS/IBS (API ReceitaFederal/calculadora-rtc-regime-regular) ══════════ */
+var FIS_API_PADRAO='http://localhost:8080/api/calculadora';
+/* UF → [código IBGE da UF, código IBGE da capital, nome da capital] */
+var FIS_UFS={"RO":[11,1100205,"Porto Velho"],"AC":[12,1200401,"Rio Branco"],"AM":[13,1302603,"Manaus"],"RR":[14,1400100,"Boa Vista"],"PA":[15,1501402,"Belém"],"AP":[16,1600303,"Macapá"],"TO":[17,1721000,"Palmas"],"MA":[21,2111300,"São Luís"],"PI":[22,2211001,"Teresina"],"CE":[23,2304400,"Fortaleza"],"RN":[24,2408102,"Natal"],"PB":[25,2507507,"João Pessoa"],"PE":[26,2611606,"Recife"],"AL":[27,2704302,"Maceió"],"SE":[28,2800308,"Aracaju"],"BA":[29,2927408,"Salvador"],"MG":[31,3106200,"Belo Horizonte"],"ES":[32,3205309,"Vitória"],"RJ":[33,3304557,"Rio de Janeiro"],"SP":[35,3550308,"São Paulo"],"PR":[41,4106902,"Curitiba"],"SC":[42,4205407,"Florianópolis"],"RS":[43,4314902,"Porto Alegre"],"MS":[50,5002704,"Campo Grande"],"MT":[51,5103403,"Cuiabá"],"GO":[52,5208707,"Goiânia"],"DF":[53,5300108,"Brasília"]};
+/* CST → classificações (cópia de dados-abertos/situacoes-tributarias/cbs-ibs, usada enquanto a API não responde) */
+var FIS_CST=[["000","Tributação integral",[["000001","Situações tributadas integralmente pelo IBS e CBS."],["000002","Exploração de via"],["000003","Regime automotivo - projetos incentivados (art. 311)"],["000004","Regime automotivo - projetos incentivados (art. 312)"],["000005","Operação com EAC destinado à mistura com gasolina A, mas com saída do biocombustível com destinação diversa"]]],["010","Tributação com alíquotas uniformes",[["010001","Operações do FGTS não realizadas pela Caixa Econômica Federal"],["010002","Operações do serviço financeiro"]]],["011","Tributação com alíquotas uniformes reduzidas",[["011001","Planos de assistência funerária."],["011002","Planos de assistência à saúde"],["011003","Intermediação de planos de assistência à saúde"],["011004","Concursos e prognósticos"],["011005","Planos de assistência à saúde de animais domésticos"]]],["200","Alíquota reduzida",[["200001","Serviços de transporte de bens até as zonas de processamento de exportação e bens exportados a partir das zonas de processamento de exportação"],["200002","Fornecimento ou importação para produtor rural não contribuinte ou TAC"],["200003","Vendas de produtos destinados à alimentação humana (Anexo I)"],["200004","Fornecimento de dispositivos médicos (Anexo XII)"],["200005","Fornecimento de dispositivos médicos para órgãos da administração pública e entidades de saúde imunes (Anexo IV)"],["200006","Situação de emergência de saúde pública reconhecida pelo Poder público"],["200007","Fornecimento dos dispositivos de acessibilidade próprios para pessoas com deficiência (Anexo XIII)"],["200008","Fornecimento dos dispositivos de acessibilidade próprios para pessoas com deficiência adquiridos por órgãos da administração pública (Anexo V)"],["200009","Fornecimento dos medicamentos registrados na Anvisa"],["200010","Fornecimento dos medicamentos registrados na Anvisa, adquiridos por órgãos da administração pública"],["200011","Fornecimento das composições para nutrição enteral e parenteral quando adquiridas por órgãos da administração pública (Anexo VI)"],["200012","Situação de emergência de saúde pública reconhecida pelo Poder público"],["200013","Fornecimento de tampões higiênicos, absorventes higiênicos internos ou externos"],["200014","Fornecimento dos produtos hortícolas, frutas e ovos (Anexo XV)"],["200015","Venda de automóveis de passageiros de fabricação nacional adquiridos por motoristas profissionais ou pessoas com deficiência"],["200016","Prestação de serviços de pesquisa e desenvolvimento por Instituição Científica, Tecnológica e de Inovação (ICT)"],["200017","Operações relacionadas ao FGTS"],["200018","Operações de resseguro e retrocessão"],["200019","Importador dos serviços financeiros contribuinte"],["200020","Operação praticada por sociedades cooperativas optantes por regime específico do IBS e CBS"],["200021","Serviços de transporte público coletivo de passageiros ferroviário e hidroviário"],["200022","Operação originada fora da ZFM que destine bem material industrializado a contribuinte estabelecido na ZFM"],["200023","Operação realizada por indústria incentivada que destine bem material intermediário para outra indústria incentivada na ZFM"],["200024","Operação originada fora das Áreas de Livre Comércio destinadas a contribuinte estabelecido nas Áreas de Livre Comércio"],["200025","Fornecimento dos serviços de educação relacionados ao Programa Universidade para Todos (Prouni)"],["200026","Locação de imóveis localizados nas zonas reabilitadas"],["200027","Operações de locação, cessão onerosa e arrendamento de bens imóveis"],["200028","Fornecimento dos serviços de educação (Anexo II)"],["200029","Fornecimento dos serviços de saúde humana (Anexo III)"],["200030","Venda dos dispositivos médicos (Anexo IV)"],["200031","Fornecimento dos dispositivos de acessibilidade próprios para pessoas com deficiência (Anexo V)"],["200032","Fornecimento dos medicamentos registrados na Anvisa ou produzidos por farmácias de manipulação, ressalvados os medicamentos sujeitos à alíquota zero"],["200033","Fornecimento das composições para nutrição enteral e parenteral (Anexo VI)"],["200034","Fornecimento dos alimentos destinados ao consumo humano (Anexo VII)"],["200035","Fornecimento dos produtos de higiene pessoal e limpeza (Anexo VIII)"],["200036","Fornecimento de produtos agropecuários, aquícolas, pesqueiros, florestais e extrativistas vegetais in natura"],["200037","Fornecimento de serviços ambientais de conservação ou recuperação da vegetação nativa"],["200038","Fornecimento dos insumos agropecuários e aquícolas (Anexo IX)"],["200039","Fornecimento dos bens e serviços relacionados com produções nacionais artísticas, culturais, de eventos, jornalísticas e audiovisuais (Anexo X)"],["200040","Fornecimento de serviços de comunicação institucional à administração pública"],["200041","Fornecimento de serviço de educação desportiva (art. 141. I)"],["200042","Fornecimento de serviço de gestão e exploração do desporto (art. 141. II)"],["200043","Fornecimento à administração pública dos serviços e dos bens relativos à soberania (Anexo XI)"],["200044","Operações e prestações de serviços de segurança da informação e segurança cibernética desenvolvidos por sociedade que tenha sócio brasileiro (Anexo XI)"],["200045","Operações relacionadas a projetos de reabilitação urbana de zonas históricas e de áreas críticas de recuperação e reconversão urbanística"],["200046","Operações com bens imóveis"],["200047","Bares e Restaurantes"],["200048","Hotelaria, Parques de Diversão e Parques Temáticos"],["200049","Transporte coletivo de passageiros rodoviário, ferroviário e hidroviário"],["200050","Serviços de transporte aéreo regional coletivo de passageiros ou de carga"],["200051","Agências de Turismo"],["200052","Prestação de serviços de profissões intelectuais"],["200053","Fornecimento de medicamentos registrados na Anvisa, quando  classificados como soros ou vacinas"],["200054","Fornecimento de bem material pela cooperativa de produção agropecuária a associado não sujeito ao regime regular do IBS e da CBS"]]],["220","Alíquota fixa",[["220001","Incorporação imobiliária submetida ao regime especial de tributação"],["220002","Incorporação imobiliária submetida ao regime especial de tributação"],["220003","Alienação de imóvel decorrente de parcelamento do solo"]]],["221","Alíquota fixa proporcional",[["221001","Locação, cessão onerosa ou arrendamento de bem imóvel com alíquota sobre a receita bruta"],["221002","Incorporação imobiliária submetida ao regime especial de tributação"],["221003","Incorporação imobiliária submetida ao regime especial de tributação"],["221004","Alienação de imóvel decorrente de parcelamento do solo"]]],["222","Redução de Base de Cálculo",[["222001","Transporte internacional de passageiros, caso os trechos de ida e volta sejam vendidos em conjunto"]]],["400","Isenção",[["400001","Fornecimento de serviços de transporte público coletivo de passageiros rodoviário e metroviário"],["400002","Fornecimento de serviços de transporte público coletivo de passageiros rodoviário e metroviário com medição por quilômetro rodado"]]],["410","Imunidade e não incidência",[["410001","Fornecimento de bonificações quando constem no documento fiscal e que não dependam de evento posterior"],["410002","Transferências entre estabelecimentos pertencentes ao mesmo contribuinte"],["410003","Doações sem contraprestação em benefício do doador"],["410004","Exportações de bens e serviços"],["410005","Fornecimentos realizados pela União, pelos Estados, pelo Distrito Federal e pelos Municípios"],["410006","Fornecimentos realizados por entidades religiosas e templos de qualquer culto"],["410007","Fornecimentos realizados por partidos políticos, entidades sindicais e instituições de educação e de assistência social"],["410008","Fornecimentos de livros, jornais, periódicos e do papel destinado a sua impressão"],["410009","Fornecimentos de fonogramas e videofonogramas musicais produzidos no Brasil"],["410010","Fornecimentos de serviço de comunicação nas modalidades de radiodifusão sonora e de sons e imagens de recepção livre e gratuita"],["410011","Fornecimentos de ouro, quando definido em lei como ativo financeiro ou instrumento cambial"],["410012","Fornecimento de condomínio edilício não optante pelo regime regular"],["410013","Exportações de combustíveis"],["410014","Fornecimento de produtor rural não contribuinte"],["410015","Fornecimento por transportador autônomo não contribuinte"],["410016","Fornecimento ou aquisição de resíduos sólidos"],["410017","Aquisição de bem móvel com crédito presumido sob condição de revenda realizada"],["410018","Operações relacionadas aos fundos garantidores e executores de políticas públicas"],["410019","Exclusão da gorjeta na base de cálculo no fornecimento de alimentação"],["410020","Exclusão do valor de intermediação na base de cálculo no fornecimento de alimentação"],["410021","Contribuição de que trata o art. 149-A da Constituição Federal"],["410022","Consolidação da propriedade do bem pelo credor"],["410023","Alienação de bens móveis ou imóveis que tenham sido objeto de garantia em que o prestador da garantia não seja contribuinte"],["410024","Consolidação da propriedade do bem pelo grupo de consórcio"],["410025","Alienação de bem que tenha sido objeto de garantia em que o prestador da garantia não seja contribuinte"],["410026","Doação com anulação de crédito"],["410027","Exportação de serviço ou de bem imaterial"],["410028","Operações com bens imóveis realizadas por pessoas físicas não consideradas contribuintes"],["410029","Operações acobertadas somente pelo ICMS"],["410030","Estorno de crédito por perecimento, deteriorização, roubo, furto ou extravio."],["410031","Fornecimento em período anterior ao início de vigência de incidências de CBS e IBS"],["410032","Tributos incidentes na operação que não integram a base de cálculo do IBS e da CBS"],["410033","Operações de Fundos de Investimento Imobiliário (FII) e Fundos de Investimento nas Cadeias Produtivas do Agronegócio (Fiagro)"],["410034","Operações de fundos de investimento"],["410035","Fornecimento realizado por nanoempreendedor"],["410036","Descontos incondicionais"],["410037","Importação os bens materiais sem incidência de IBS e CBS"],["410999","Operações não onerosas sem previsão de tributação, não especificadas anteriormente"]]],["510","Diferimento",[["510001","Operações, sujeitas a diferimento, com energia elétrica, relativas à importação, geração, comercialização, distribuição e transmissão"]]],["515","Diferimento com redução de alíquota",[["515001","Operações, sujeitas a diferimento, com insumos agropecuários e aquícolas (Anexo IX)"]]],["550","Suspensão",[["550001","Exportações de bens materiais"],["550002","Regime de Trânsito"],["550003","Regimes de Depósito (art. 85)"],["550004","Regimes de Depósito (art. 87)"],["550005","Regimes de Depósito (art. 87, Parágrafo único)"],["550006","Regimes de Permanência Temporária"],["550007","Regimes de Aperfeiçoamento"],["550008","Importação de bens para o Regime de Repetro-Temporário"],["550009","GNL-Temporário"],["550010","Repetro-Permanente"],["550011","Repetro-Industrialização"],["550012","Repetro-Nacional"],["550013","Repetro-Entreposto"],["550014","Zona de Processamento de Exportação"],["550015","Regime Tributário para Incentivo à Modernização e à Ampliação da Estrutura Portuária"],["550016","Regime Especial de Incentivos para o Desenvolvimento da Infraestrutura"],["550017","Regime Tributário para Incentivo à Atividade Naval - Renaval (Art. 107, I)"],["550018","Desoneração da aquisição de bens de capital"],["550019","Importação de bem material por indústria incentivada para utilização na ZFM"],["550020","Áreas de livre comércio"],["550021","Industrialização destinada a exportações"],["550022","Regime Especial de Incentivos para a Produção de Hidrogênio de Baixa Emissão de Carbono (Rehidro)"],["550023","Operações com hidrocarbonetos líquidos derivados de petróleo não combustíveis ou de gás natural, inclusive nafta"],["550024","Regime Tributário para Incentivo à Atividade Naval - Renaval (Art. 107, II)"],["550025","Regime Tributário para Incentivo à Atividade Naval - Renaval (Art. 107, III)"]]],["620","Tributação monofásica",[["620001","Tributação monofásica sobre combustíveis"],["620002","Tributação monofásica com responsabilidade pela retenção sobre combustíveis"],["620003","Tributação monofásica com responsabilidade de retenção de tributos por terceiros"],["620004","Tributação monofásica sobre mistura de EAC com gasolina A em percentual superior ao obrigatório"],["620005","Tributação monofásica sobre mistura de EAC com gasolina A em percentual inferior ao obrigatório"],["620006","Tributação monofásica sobre combustíveis cobrada anteriormente"],["620007","Perecimento, deteriorização, roubo, furto ou extravio no regime monofásico"]]],["800","Transferência de crédito",[["800001","Fusão, cisão ou incorporação"],["800002","Transferência de crédito do associado, inclusive as cooperativas singulares"]]],["810","Ajustes de IBS na ZFM",[["810001","Crédito presumido de IBS sobre o valor apurado nos fornecimentos a partir da ZFM"]]],["811","Ajustes",[["811001","Anulação de Crédito por Saídas Imunes/Isentas"],["811002","Débitos de notas fiscais não processadas na apuração"],["811003","Desenquadramento do Simples Nacional"]]],["820","Tributação em documento específico",[["820001","Documento com informações de fornecimento de serviços de planos de assistência à saúde elencados no art. 234 da Lei Complementar nº214, de 2025"],["820002","Documento com informações de fornecimento de serviços de planos de assistência funerária"],["820003","Documento com informações de fornecimento de serviços de planos de assistência à saúde de animais domésticos"],["820004","Documento com informações de prestação de serviços de consursos de prognósticos"],["820005","Documento com informações de alienação de bens imóveis"],["820006","Documento com informações de fornecimento de serviços de exploração de via"],["820007","Documento com informações de fornecimento de serviços financeiros"],["820008","Documento com informações de fornecimento de serviço continuado, mas com tributação realizada em fatura anterior"],["820009","Cobrança relativa a fornecimentos declarados em outro documento"]]],["830","Exclusão de base de cálculo",[["830001","Documento com exclusão da BC da CBS e do IBS de energia elétrica fornecida pela distribuidora à UC"]]]];
+/* Alíquotas de referência de 2026 (ano de teste: CBS 0,9% e IBS 0,1%) */
+var FIS_ALIQ_2026={cbs:0.9,ibsUf:0.1,ibsMun:0};
+
+var fisEstado={iniciado:false,online:false,versao:null,itens:[],munCache:{},ultimoReq:null,ultimoResp:null,origem:null,seq:0};
+
+function fisApiBase(){
+  var u=null;try{u=localStorage.getItem('gexFiscalApi');}catch(e){}
+  return (u||FIS_API_PADRAO).replace(/\/+$/,'');
+}
+function fisEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fisMoeda(v){var n=Number(v)||0;return 'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fisPct(v){var n=Number(v);if(isNaN(n))return '—';return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4})+'%';}
+function fisNum(v){if(typeof v==='number')return v;var s=String(v||'').trim();if(!s)return 0;if(s.indexOf(',')>-1)s=s.replace(/\./g,'').replace(',','.');var n=parseFloat(s);return isNaN(n)?0:n;}
+function fisHoje(){var d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
+function fisNcmDigitos(n){return String(n||'').replace(/\D/g,'');}
+function fisNcmFmt(n){var d=fisNcmDigitos(n);return d.length===8?d.slice(0,4)+'.'+d.slice(4,6)+'.'+d.slice(6):d;}
+
+function fisFetch(path,opts){
+  opts=opts||{};
+  var ctrl=new AbortController();var t=setTimeout(function(){ctrl.abort();},opts.timeout||15000);
+  var init={method:opts.method||'GET',headers:opts.headers||{},signal:ctrl.signal};
+  if(opts.body!=null){init.body=opts.body;}
+  return fetch(fisApiBase()+path,init).then(function(r){
+    clearTimeout(t);
+    var ct=r.headers.get('content-type')||'';
+    var p=ct.indexOf('json')>-1?r.json():r.text();
+    return p.then(function(dados){return {ok:r.ok,status:r.status,dados:dados,headers:r.headers};});
+  },function(e){clearTimeout(t);throw e;});
+}
+
+/* ── Inicialização / abas ── */
+function fisInit(){
+  if(fisEstado.iniciado){fisTestarConexao(true);return;}
+  fisEstado.iniciado=true;
+  var ufSel=document.getElementById('fisUf');
+  ufSel.innerHTML=Object.keys(FIS_UFS).sort().map(function(u){return '<option value="'+u+'">'+u+'</option>';}).join('');
+  ufSel.value='SP';
+  document.getElementById('fisData').value=fisHoje();
+  document.getElementById('fisCData').value=fisHoje();
+  document.getElementById('fisApiUrl').value=fisApiBase();
+  fisMunFallback('SP');
+  fisOnData();
+  if(!fisEstado.itens.length)fisAddItem();
+  fisTestarConexao(true);
+}
+function fisSetAba(a){
+  ['calc','cons','conf'].forEach(function(x){
+    var cap=x.charAt(0).toUpperCase()+x.slice(1);
+    document.getElementById('fisAba'+cap).style.display=x===a?'':'none';
+    document.getElementById('fisBtn'+cap).classList.toggle('active',x===a);
+  });
+}
+function fisSetStatus(estado,txt){
+  var el=document.getElementById('fisStatus');if(!el)return;
+  el.classList.remove('on','off');if(estado)el.classList.add(estado);
+  document.getElementById('fisStatusTxt').textContent=txt;
+}
+function fisTestarConexao(silencioso){
+  fisSetStatus('','Verificando API…');
+  return fisFetch('/dados-abertos/versao',{timeout:6000}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    fisEstado.online=true;fisEstado.versao=r.dados;
+    fisSetStatus('on','API conectada · v'+(r.dados.versaoApp||'?')+' · base '+(r.dados.versaoDb||'?'));
+    fisOnUf(true);
+    fisAtualizarCstsOnline();
+    return true;
+  }).catch(function(e){
+    fisEstado.online=false;fisEstado.versao=null;
+    fisSetStatus('off','API offline · estimativa local');
+    if(!silencioso)showT('Não foi possível conectar à calculadora. Confira a URL e se a API está rodando com CORS liberado.','erro');
+    return false;
+  });
+}
+function fisAtualizarCstsOnline(){
+  var data=document.getElementById('fisData').value||fisHoje();
+  fisFetch('/dados-abertos/situacoes-tributarias/cbs-ibs?data='+data).then(function(r){
+    if(!r.ok||!Array.isArray(r.dados))return;
+    FIS_CST=r.dados.map(function(s){return [s.codigo,s.descricao,(s.classificacoesTributarias||[]).map(function(c){return [c.codigo,c.descricao];})];});
+    fisRenderItens();
+  }).catch(function(){});
+}
+
+/* ── Operação ── */
+function fisAno(){var v=document.getElementById('fisData').value;return v?parseInt(v.slice(0,4),10):new Date().getFullYear();}
+function fisOnData(){
+  document.getElementById('fisAliqBox').style.display=fisAno()>=2027?'':'none';
+}
+function fisMunFallback(uf){
+  var c=FIS_UFS[uf];var sel=document.getElementById('fisMun');
+  sel.innerHTML='<option value="'+c[1]+'">'+fisEsc(c[2])+' (capital)</option>';
+}
+function fisOnUf(manterSelecao){
+  var uf=document.getElementById('fisUf').value;
+  var sel=document.getElementById('fisMun');
+  var anterior=manterSelecao?sel.value:null;
+  var preencher=function(lista){
+    var cap=FIS_UFS[uf][1];
+    sel.innerHTML=lista.map(function(m){return '<option value="'+m.codigo+'">'+fisEsc(m.nome)+'</option>';}).join('');
+    sel.value=String(anterior&&lista.some(function(m){return String(m.codigo)===String(anterior);})?anterior:cap);
+  };
+  if(!fisEstado.online){fisMunFallback(uf);fisRepreciar();return;}
+  if(fisEstado.munCache[uf]){preencher(fisEstado.munCache[uf]);fisRepreciar();return;}
+  fisMunFallback(uf);
+  fisFetch('/dados-abertos/ufs/municipios?siglaUf='+uf).then(function(r){
+    if(r.ok&&Array.isArray(r.dados)&&r.dados.length){fisEstado.munCache[uf]=r.dados;if(document.getElementById('fisUf').value===uf)preencher(r.dados);}
+  }).catch(function(){});
+  fisRepreciar();
+}
+
+/* ── Itens ── */
+function fisProdutos(){return (typeof PRODUTOS!=='undefined'&&Array.isArray(PRODUTOS))?PRODUTOS:[];}
+function fisPrecoSugerido(cod){
+  var tab=document.getElementById('fisTabela').value;if(tab==='manual')return null;
+  var uf=document.getElementById('fisUf').value;
+  var p=fisProdutos().find(function(x){return x.codigo===cod;});if(!p)return null;
+  var v=(typeof precoPorTabela==='function')?precoPorTabela(p,tab,uf):((p[tab]||{})[uf]||0);
+  if(!v&&p.ta)v=p.ta[uf]||0;
+  return v||null;
+}
+function fisAddItem(cod){
+  fisEstado.itens.push({id:++fisEstado.seq,cod:cod||'',ncm:'',cst:'000',cct:'000001',qtd:1,vu:0});
+  if(cod)fisAplicarProduto(fisEstado.itens[fisEstado.itens.length-1]);
+  fisRenderItens();
+}
+function fisLimparItens(){fisEstado.itens=[];fisAddItem();document.getElementById('fisResultadoCard').style.display='none';}
+function fisRemItem(id){
+  fisEstado.itens=fisEstado.itens.filter(function(i){return i.id!==id;});
+  if(!fisEstado.itens.length)fisAddItem();else fisRenderItens();
+}
+function fisItem(id){return fisEstado.itens.find(function(i){return i.id===id;});}
+function fisAplicarProduto(it){
+  var ncm=(typeof NCM_MAP!=='undefined'&&NCM_MAP[it.cod])||'';
+  it.ncm=fisNcmFmt(ncm);
+  var pr=fisPrecoSugerido(it.cod);if(pr!=null)it.vu=pr;
+}
+function fisRepreciar(){
+  if(document.getElementById('fisTabela').value==='manual')return;
+  fisEstado.itens.forEach(function(it){if(it.cod){var pr=fisPrecoSugerido(it.cod);if(pr!=null)it.vu=pr;}});
+  fisRenderItens();
+}
+function fisUpd(id,campo,el){
+  var it=fisItem(id);if(!it)return;
+  var v=el.value;
+  if(campo==='cod'){it.cod=v;fisAplicarProduto(it);fisRenderItens();return;}
+  if(campo==='cst'){
+    it.cst=v;var g=FIS_CST.find(function(s){return s[0]===v;});
+    it.cct=g&&g[2].length?g[2][0][0]:'';fisRenderItens();return;
+  }
+  if(campo==='qtd'||campo==='vu'){it[campo]=fisNum(v);fisAtualizarBase(it);return;}
+  it[campo]=v;
+}
+function fisBase(it){return Math.round(fisNum(it.qtd)*fisNum(it.vu)*100)/100;}
+function fisAtualizarBase(it){
+  var el=document.getElementById('fisBase'+it.id);if(el)el.textContent=fisMoeda(fisBase(it));
+  fisResumoItens();
+}
+function fisResumoItens(){
+  var tot=fisEstado.itens.reduce(function(a,it){return a+fisBase(it);},0);
+  document.getElementById('fisItensResumo').textContent=fisEstado.itens.length+' item(ns) · base total '+fisMoeda(tot);
+}
+function fisRenderItens(){
+  var body=document.getElementById('fisItensBody');if(!body)return;
+  var prods=fisProdutos();
+  var optsProd='<option value="">— Item avulso —</option>'+prods.map(function(p){
+    return '<option value="'+fisEsc(p.codigo)+'">'+fisEsc(p.produto+' · '+p.apresentacao)+'</option>';
+  }).join('');
+  var optsCst=FIS_CST.map(function(s){return '<option value="'+s[0]+'" title="'+fisEsc(s[1])+'">'+s[0]+' · '+fisEsc(s[1])+'</option>';}).join('');
+  body.innerHTML=fisEstado.itens.map(function(it,ix){
+    var g=FIS_CST.find(function(s){return s[0]===it.cst;});
+    var cls=(g?g[2]:[]);
+    if(it.cct&&!cls.some(function(c){return c[0]===it.cct;}))cls=[[it.cct,'(informado)']].concat(cls);
+    var optsCct=cls.map(function(c){return '<option value="'+c[0]+'" title="'+fisEsc(c[1])+'">'+c[0]+' · '+fisEsc(c[1])+'</option>';}).join('');
+    var n=ix+1;
+    return '<tr>'
+      +'<td>'+n+'</td>'
+      +'<td><select aria-label="Produto do item '+n+'" onchange="fisUpd('+it.id+',\'cod\',this)">'+optsProd.replace('value="'+fisEsc(it.cod)+'"','value="'+fisEsc(it.cod)+'" selected')+'</select></td>'
+      +'<td><input aria-label="NCM do item '+n+'" value="'+fisEsc(it.ncm)+'" placeholder="0000.00.00" oninput="fisUpd('+it.id+',\'ncm\',this)"></td>'
+      +'<td><select aria-label="CST do item '+n+'" onchange="fisUpd('+it.id+',\'cst\',this)">'+optsCst.replace('value="'+it.cst+'"','value="'+it.cst+'" selected')+'</select></td>'
+      +'<td><select aria-label="Classificação tributária do item '+n+'" onchange="fisUpd('+it.id+',\'cct\',this)">'+optsCct.replace('value="'+it.cct+'"','value="'+it.cct+'" selected')+'</select></td>'
+      +'<td><input aria-label="Quantidade do item '+n+'" inputmode="decimal" style="text-align:right" value="'+fisEsc(String(it.qtd).replace('.',','))+'" oninput="fisUpd('+it.id+',\'qtd\',this)"></td>'
+      +'<td><input aria-label="Valor unitário do item '+n+'" inputmode="decimal" style="text-align:right" value="'+fisEsc((Number(it.vu)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}))+'" oninput="fisUpd('+it.id+',\'vu\',this)"></td>'
+      +'<td class="r" id="fisBase'+it.id+'">'+fisMoeda(fisBase(it))+'</td>'
+      +'<td><button class="fis-x" title="Remover item" aria-label="Remover item '+n+'" onclick="fisRemItem('+it.id+')">×</button></td>'
+      +'</tr>';
+  }).join('');
+  fisResumoItens();
+}
+
+/* ── Cálculo ── */
+function fisMontarReq(){
+  var data=document.getElementById('fisData').value;
+  if(!data)throw new Error('Informe a data do fato gerador.');
+  var ano=fisAno();
+  var aliq=null;
+  if(ano>=2027){
+    aliq={cbs:fisNum(document.getElementById('fisAqCbs').value),ibsEstadual:fisNum(document.getElementById('fisAqUf').value),ibsMunicipal:fisNum(document.getElementById('fisAqMun').value)};
+  }
+  var itens=fisEstado.itens.map(function(it,ix){
+    var ncm=fisNcmDigitos(it.ncm);
+    if(ncm.length!==8)throw new Error('Item '+(ix+1)+': informe uma NCM com 8 dígitos.');
+    if(!it.cst||!it.cct)throw new Error('Item '+(ix+1)+': escolha o CST e a classificação tributária.');
+    var base=fisBase(it);
+    if(base<=0)throw new Error('Item '+(ix+1)+': quantidade e valor unitário precisam ser maiores que zero.');
+    var o={numero:ix+1,ncm:ncm,cst:it.cst,cClassTrib:it.cct,baseCalculo:base,quantidade:fisNum(it.qtd),unidade:'UN'};
+    if(aliq)o.aliquotasNominais=aliq;
+    return o;
+  });
+  return {id:'GEX-'+Date.now(),versao:'1.0.0',dhFatoGerador:data+'T12:00:00-03:00',
+    municipio:parseInt(document.getElementById('fisMun').value,10),uf:document.getElementById('fisUf').value,itens:itens};
+}
+function fisCalcular(){
+  var req;
+  try{req=fisMontarReq();}catch(e){showT(e.message,'erro');return;}
+  var btn=document.getElementById('fisBtnCalcular');btn.disabled=true;
+  var fim=function(){btn.disabled=false;};
+  var calcLocal=function(motivo){
+    fisEstado.ultimoReq=req;fisEstado.ultimoResp=fisCalculoLocal(req);fisEstado.origem='local';
+    fisRenderResultado(fisEstado.ultimoResp,'local',motivo);fim();
+  };
+  if(!fisEstado.online){calcLocal('API da calculadora não conectada.');return;}
+  fisFetch('/observabilidade/regime-geral',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(req),timeout:30000})
+    .then(function(r){
+      if(!r.ok){fisRenderErroApi(r);fim();return;}
+      fisEstado.ultimoReq=req;fisEstado.ultimoResp=r.dados;fisEstado.origem='api';
+      fisRenderResultado(r.dados,'api',r.headers.get('x-warning-dados-simulados'));fim();
+    })
+    .catch(function(){fisEstado.online=false;fisSetStatus('off','API offline · estimativa local');calcLocal('Falha ao falar com a API agora.');});
+}
+/* Estimativa sem a API: só tributação integral (CST 000). Demais CSTs dependem das regras da Receita. */
+function fisCalculoLocal(req){
+  var ano=parseInt(req.dhFatoGerador.slice(0,4),10);
+  var objetos=[],tBC=0,tCbs=0,tUf=0,tMun=0;
+  req.itens.forEach(function(it){
+    var al=it.aliquotasNominais?{cbs:it.aliquotasNominais.cbs,ibsUf:it.aliquotasNominais.ibsEstadual,ibsMun:it.aliquotasNominais.ibsMunicipal}:(ano===2026?FIS_ALIQ_2026:null);
+    if(it.cst!=='000'||!al){
+      objetos.push({nObj:it.numero,estadoItem:'NAO_ESTIMADO',erros:[{title:'Requer a API',detail:!al?'Sem alíquotas de referência para '+ano+'.':'CST '+it.cst+' tem regras próprias (redução, diferimento, isenção…). Conecte a calculadora da Receita para calcular este item.'}]});
+      return;
+    }
+    var r2=function(v){return Math.round(v*100)/100;};
+    var vCbs=r2(it.baseCalculo*al.cbs/100),vUf=r2(it.baseCalculo*al.ibsUf/100),vMun=r2(it.baseCalculo*al.ibsMun/100);
+    tBC+=it.baseCalculo;tCbs+=vCbs;tUf+=vUf;tMun+=vMun;
+    objetos.push({nObj:it.numero,estadoItem:'ESTIMATIVA_LOCAL',tribCalc:{IBSCBS:{CST:it.cst,cClassTrib:it.cClassTrib,gIBSCBS:{vBC:it.baseCalculo.toFixed(2),
+      gIBSUF:{pIBSUF:al.ibsUf,vIBSUF:vUf.toFixed(2)},gIBSMun:{pIBSMun:al.ibsMun,vIBSMun:vMun.toFixed(2)},vIBS:r2(vUf+vMun).toFixed(2),gCBS:{pCBS:al.cbs,vCBS:vCbs.toFixed(2)}}}}});
+  });
+  return {objetos:objetos,total:{tribCalc:{IBSCBSTot:{vBCIBSCBS:tBC.toFixed(2),gIBS:{gIBSUF:{vIBSUF:tUf.toFixed(2)},gIBSMun:{vIBSMun:tMun.toFixed(2)},vIBS:(tUf+tMun).toFixed(2)},gCBS:{vCBS:tCbs.toFixed(2)}}}}};
+}
+function fisChip(estado){
+  var m={CALCULADO:['ok','Calculado'],CALCULO_SIMULADO:['sim','Simulado'],ESTIMATIVA_LOCAL:['est','Estimativa local'],
+    INCONSISTENCIA_ENTRADA:['err','Inconsistência'],NAO_IMPLEMENTADO:['err','Não implementado'],FALHA_TECNICA:['err','Falha técnica'],NAO_ESTIMADO:['err','Requer API']};
+  var x=m[estado]||['err',estado||'—'];
+  return '<span class="fis-chip '+x[0]+'">'+fisEsc(x[1])+'</span>';
+}
+function fisAliqTxt(g,campo){
+  if(!g)return '—';
+  var t=fisPct(g[campo]);
+  if(g.gRed&&g.gRed.pAliqEfet!=null)t+=' → '+fisPct(g.gRed.pAliqEfet)+' <span class="fis-note">(red. '+fisPct(g.gRed.pRedAliq)+')</span>';
+  return t;
+}
+function fisRenderResultado(resp,origem,aviso){
+  var card=document.getElementById('fisResultadoCard');card.style.display='';
+  document.getElementById('fisBtnXml').style.display=origem==='api'?'':'none';
+  var tot=(((resp||{}).total||{}).tribCalc||{}).IBSCBSTot||{};
+  var vBC=fisNum(tot.vBCIBSCBS),vCbs=fisNum((tot.gCBS||{}).vCBS),gI=tot.gIBS||{};
+  var vUf=fisNum((gI.gIBSUF||{}).vIBSUF),vMun=fisNum((gI.gIBSMun||{}).vIBSMun),vIbs=fisNum(gI.vIBS);
+  var vIs=fisNum(((((resp||{}).total||{}).tribCalc||{}).ISTot||{}).vIS);
+  var total=vCbs+vIbs+vIs;
+  var html='';
+  if(origem==='local')html+='<div class="fis-aviso"><b>Estimativa local.</b> '+fisEsc(aviso||'')+' Os valores abaixo usam alíquota cheia, sem as regras da Receita, e não servem para emissão de nota. Conecte a API na aba Conexão para o cálculo oficial.</div>';
+  else if(aviso)html+='<div class="fis-aviso"><b>Cálculo simulado:</b> '+fisEsc(aviso)+'</div>';
+  html+='<div class="fis-kpis">'
+    +'<div class="fis-kpi"><div class="l">Base de cálculo</div><div class="v">'+fisMoeda(vBC)+'</div></div>'
+    +'<div class="fis-kpi"><div class="l">CBS (federal)</div><div class="v">'+fisMoeda(vCbs)+'</div></div>'
+    +'<div class="fis-kpi"><div class="l">IBS estadual</div><div class="v">'+fisMoeda(vUf)+'</div></div>'
+    +'<div class="fis-kpi"><div class="l">IBS municipal</div><div class="v">'+fisMoeda(vMun)+'</div></div>'
+    +(vIs?'<div class="fis-kpi"><div class="l">Imposto Seletivo</div><div class="v">'+fisMoeda(vIs)+'</div></div>':'')
+    +'<div class="fis-kpi dest"><div class="l">Total de tributos'+(vBC?' · '+fisPct(total/vBC*100):'')+'</div><div class="v">'+fisMoeda(total)+'</div></div>'
+    +'</div>';
+  html+='<div class="fis-tbl-wrap"><table class="fis-tbl"><thead><tr><th>#</th><th>Produto</th><th>Situação</th><th class="r">Base</th><th class="r">CBS</th><th class="r">IBS UF</th><th class="r">IBS Mun.</th><th class="r">Total</th></tr></thead><tbody>';
+  (resp.objetos||[]).forEach(function(o){
+    var it=fisEstado.itens[(o.nObj||1)-1]||{};
+    var p=fisProdutos().find(function(x){return x.codigo===it.cod;});
+    var nome=p?p.produto+' · '+p.apresentacao:'Item avulso';
+    var sub='NCM '+fisEsc(it.ncm||'—')+' · CST '+fisEsc(it.cst)+' · '+fisEsc(it.cct);
+    var g=((o.tribCalc||{}).IBSCBS||{}).gIBSCBS;
+    if(!g){
+      var errs=(o.erros||[]).map(function(e){return '<div style="color:#dc2626;font-size:11px;margin-top:3px">'+(e.code?'<b>'+fisEsc(e.code)+'</b> · ':'')+fisEsc(e.detail||e.title||'')+'</div>';}).join('');
+      html+='<tr><td>'+fisEsc(o.nObj)+'</td><td><div style="font-weight:600">'+fisEsc(nome)+'</div><div class="fis-note">'+sub+'</div>'+errs+'</td><td>'+fisChip(o.estadoItem)+'</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>';
+      return;
+    }
+    var c=g.gCBS||{},u=g.gIBSUF||{},m=g.gIBSMun||{};
+    var vIsItem=fisNum((((o.tribCalc||{}).IS)||{}).vIS);
+    var tItem=fisNum(c.vCBS)+fisNum(u.vIBSUF)+fisNum(m.vIBSMun)+vIsItem;
+    var mem=[['CBS',c.memoriaCalculo],['IBS UF',u.memoriaCalculo],['IBS Mun.',m.memoriaCalculo]].filter(function(x){return x[1];});
+    var memHtml=mem.length?'<details class="fis-mem"><summary>Memória de cálculo</summary><div>'+mem.map(function(x){return '<b>'+x[0]+':</b> '+fisEsc(x[1]);}).join('<br>')+'</div></details>':'';
+    html+='<tr><td>'+fisEsc(o.nObj)+'</td><td><div style="font-weight:600">'+fisEsc(nome)+'</div><div class="fis-note">'+sub+'</div>'+memHtml+'</td><td>'+fisChip(o.estadoItem)+'</td>'
+      +'<td class="r">'+fisMoeda(g.vBC)+'</td>'
+      +'<td class="r">'+fisMoeda(c.vCBS)+'<div class="fis-note">'+fisAliqTxt(c,'pCBS')+'</div></td>'
+      +'<td class="r">'+fisMoeda(u.vIBSUF)+'<div class="fis-note">'+fisAliqTxt(u,'pIBSUF')+'</div></td>'
+      +'<td class="r">'+fisMoeda(m.vIBSMun)+'<div class="fis-note">'+fisAliqTxt(m,'pIBSMun')+'</div></td>'
+      +'<td class="r" style="font-weight:700">'+fisMoeda(tItem)+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  html+='<div class="fis-note" style="margin-top:10px">'+(origem==='api'?'Fonte: calculadora oficial da Receita Federal'+(fisEstado.versao?' (v'+fisEsc(fisEstado.versao.versaoApp)+', base '+fisEsc(fisEstado.versao.versaoDb)+')':'')+'. ':'')+'Valores por dentro da base informada; os totais somam só os itens calculados.</div>';
+  document.getElementById('fisResultado').innerHTML=html;
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function fisRenderErroApi(r){
+  var d=r.dados||{};
+  var msgs=[];
+  if(d.detail)msgs.push(d.detail);
+  (d.erros||d.errors||[]).forEach(function(e){msgs.push((e.code?e.code+' · ':'')+(e.detail||e.title||''));});
+  if(!msgs.length)msgs.push(typeof d==='string'?d.slice(0,400):'Erro HTTP '+r.status);
+  document.getElementById('fisResultadoCard').style.display='';
+  document.getElementById('fisBtnXml').style.display='none';
+  document.getElementById('fisResultado').innerHTML='<div class="fis-erro"><b>A calculadora recusou a operação (HTTP '+r.status+').</b><br>'+msgs.map(fisEsc).join('<br>')+'</div>';
+}
+function fisBaixar(nome,conteudo,tipo){
+  var b=new Blob([conteudo],{type:tipo});var a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download=nome;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
+}
+function fisExportarJson(){
+  if(!fisEstado.ultimoResp){showT('Calcule antes de exportar','erro');return;}
+  fisBaixar('fiscal-'+fisEstado.ultimoReq.id+'.json',JSON.stringify({origem:fisEstado.origem,requisicao:fisEstado.ultimoReq,resposta:fisEstado.ultimoResp},null,2),'application/json');
+}
+/* XML do grupo de tributação: usa /regime-geral (estrito) e depois /xml/generate e /xml/validate */
+function fisGerarXml(){
+  if(!fisEstado.ultimoReq||fisEstado.origem!=='api'){showT('Calcule com a API conectada para gerar o XML','erro');return;}
+  var btn=document.getElementById('fisBtnXml');btn.disabled=true;
+  var json={'Content-Type':'application/json'};
+  fisFetch('/regime-geral',{method:'POST',headers:json,body:JSON.stringify(fisEstado.ultimoReq),timeout:30000})
+    .then(function(r){
+      if(!r.ok)throw new Error('Algum item tem inconsistência; corrija antes de gerar o XML. '+((r.dados&&r.dados.detail)||''));
+      return fisFetch('/xml/generate?tipo=nfe',{method:'POST',headers:json,body:JSON.stringify(r.dados),timeout:30000});
+    })
+    .then(function(r){
+      if(!r.ok)throw new Error('A API não gerou o XML (HTTP '+r.status+').');
+      var xml=typeof r.dados==='string'?r.dados:JSON.stringify(r.dados);
+      fisBaixar('grupo-ibscbs-'+fisEstado.ultimoReq.id+'.xml',xml,'application/xml');
+      return fisFetch('/xml/validate?tipo=nfe&subtipo=grupo',{method:'POST',headers:{'Content-Type':'application/xml'},body:xml});
+    })
+    .then(function(r){
+      if(r.ok)showT('XML gerado e validado no XSD da NF-e','verde');
+      else showT('XML baixado, mas a validação no XSD apontou erro: '+((r.dados&&r.dados.detail)||('HTTP '+r.status)),'erro');
+    })
+    .catch(function(e){showT(e.message||'Falha ao gerar XML','erro');})
+    .then(function(){btn.disabled=false;});
+}
+
+/* ── Consultas ── */
+var FIS_CONS={
+  ncm:{l1:'NCM',p1:'3808.94.19'},
+  class:{l1:'cClassTrib',p1:'000001'},
+  aplic:{l1:'NCM',p1:'3808.94.19',l2:'cClassTrib',p2:'200005'},
+  aliq:{l1:'UF',p1:'SP',l2:'Município (código IBGE, opcional)',p2:'3550308'},
+  erro:{l1:'Código do erro',p1:'REG-011'}
+};
+function fisOnConsTipo(){
+  var c=FIS_CONS[document.getElementById('fisCTipo').value];
+  document.getElementById('fisC1L').textContent=c.l1;document.getElementById('fisC1').placeholder=c.p1;document.getElementById('fisC1').value='';
+  document.getElementById('fisCF2').style.display=c.l2?'':'none';
+  if(c.l2){document.getElementById('fisC2L').textContent=c.l2;document.getElementById('fisC2').placeholder=c.p2;document.getElementById('fisC2').value='';}
+  document.getElementById('fisConsResultado').innerHTML='';
+}
+function fisRotulo(k){
+  var s=String(k).replace(/([a-z])([A-Z])/g,'$1 $2').replace(/_/g,' ');
+  return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase();
+}
+function fisKv(obj){
+  if(obj==null||typeof obj!=='object')return '<div class="fis-note">'+fisEsc(obj)+'</div>';
+  return '<table class="fis-kv">'+Object.keys(obj).map(function(k){
+    var v=obj[k];
+    if(typeof v==='boolean')v=v?'Sim':'Não';
+    else if(v!==null&&typeof v==='object')v='<pre class="fis-pre" style="margin:0;max-height:200px">'+fisEsc(JSON.stringify(v,null,2))+'</pre>';
+    else v=fisEsc(v==null?'—':v);
+    return '<tr><td>'+fisEsc(fisRotulo(k))+'</td><td>'+v+'</td></tr>';
+  }).join('')+'</table>';
+}
+function fisConsultar(){
+  var out=document.getElementById('fisConsResultado');
+  if(!fisEstado.online){out.innerHTML='<div class="fis-aviso">As consultas precisam da API da calculadora conectada. Configure na aba Conexão.</div>';return;}
+  var tipo=document.getElementById('fisCTipo').value;
+  var v1=document.getElementById('fisC1').value.trim(),v2=document.getElementById('fisC2').value.trim();
+  var data=document.getElementById('fisCData').value||fisHoje();
+  var D='/dados-abertos',path,multi=null;
+  if(!v1){showT('Preencha o campo '+FIS_CONS[tipo].l1,'erro');return;}
+  if(tipo==='ncm')path=D+'/ncm?ncm='+fisNcmDigitos(v1)+'&data='+data;
+  else if(tipo==='class')path=D+'/classificacoes-tributarias/cbs-ibs/class-trib/'+encodeURIComponent(v1)+'?data='+data;
+  else if(tipo==='aplic'){if(!v2){showT('Informe a cClassTrib','erro');return;}path=D+'/classificacoes-tributarias/ncm-aplicavel?ncm='+fisNcmDigitos(v1)+'&cClassTrib='+encodeURIComponent(v2)+'&dataOcorrenciaFatoGerador='+data;}
+  else if(tipo==='erro')path='/observabilidade/erros?codigo='+encodeURIComponent(v1.toUpperCase());
+  else if(tipo==='aliq'){
+    var uf=FIS_UFS[v1.toUpperCase()];if(!uf){showT('UF inválida','erro');return;}
+    multi=[['CBS (União)',D+'/aliquota-uniao?data='+data],['IBS estadual ('+v1.toUpperCase()+')',D+'/aliquota-uf?codigoUf='+uf[0]+'&data='+data],['IBS municipal ('+(v2||uf[1])+')',D+'/aliquota-municipio?codigoMunicipio='+(fisNcmDigitos(v2)||uf[1])+'&data='+data]];
+  }
+  out.innerHTML='<div class="fis-note">Consultando…</div>';
+  if(multi){
+    Promise.all(multi.map(function(m){return fisFetch(m[1]).then(function(r){return [m[0],r];},function(){return [m[0],null];});})).then(function(rs){
+      var obj={};rs.forEach(function(x){var r=x[1];obj[x[0]]=r&&r.ok&&r.dados.aliquotaReferencia!=null?fisPct(r.dados.aliquotaReferencia):(r&&r.dados&&r.dados.detail?'Não encontrada':'Erro');});
+      out.innerHTML=fisKv(obj)+'<div class="fis-note" style="margin-top:8px">A Receita só publica alíquotas de referência para 2026. A partir de 2027, informe as alíquotas nominais no cálculo.</div>';
+    });
+    return;
+  }
+  fisFetch(path).then(function(r){
+    if(!r.ok){out.innerHTML='<div class="fis-erro">'+fisEsc((r.dados&&(r.dados.detail||r.dados.title))||('HTTP '+r.status))+'</div>';return;}
+    if(tipo==='aplic'){
+      out.innerHTML=r.dados.valido?'<div class="fis-chip ok" style="font-size:12px;padding:6px 12px">✓ NCM '+fisEsc(fisNcmFmt(v1))+' é aceita na classificação '+fisEsc(v2)+'</div>':'<div class="fis-chip err" style="font-size:12px;padding:6px 12px">✗ NCM '+fisEsc(fisNcmFmt(v1))+' não é aceita na classificação '+fisEsc(v2)+'</div>';
+      return;
+    }
+    out.innerHTML=fisKv(r.dados);
+  }).catch(function(){out.innerHTML='<div class="fis-erro">Falha ao consultar a API.</div>';});
+}
+function fisConferirNcms(){
+  var out=document.getElementById('fisNcmsResultado');
+  if(!fisEstado.online){out.innerHTML='<div class="fis-aviso">Conecte a API da calculadora na aba Conexão para conferir as NCMs.</div>';return;}
+  if(typeof NCM_MAP==='undefined'){out.innerHTML='<div class="fis-note">Catálogo de NCMs não encontrado.</div>';return;}
+  var grupos={};
+  Object.keys(NCM_MAP).forEach(function(cod){var n=fisNcmDigitos(NCM_MAP[cod]);(grupos[n]=grupos[n]||[]).push(cod);});
+  var data=fisHoje();
+  out.innerHTML='<div class="fis-note">Consultando '+Object.keys(grupos).length+' NCMs…</div>';
+  Promise.all(Object.keys(grupos).map(function(n){
+    return fisFetch('/dados-abertos/ncm?ncm='+n+'&data='+data).then(function(r){return [n,r];},function(){return [n,null];});
+  })).then(function(rs){
+    var html='<div class="fis-tbl-wrap"><table class="fis-tbl" style="min-width:640px"><thead><tr><th>NCM</th><th>Descrição oficial</th><th>Imp. Seletivo</th><th class="r">Produtos</th></tr></thead><tbody>';
+    rs.forEach(function(x){
+      var n=x[0],r=x[1],d=r&&r.ok?r.dados:null;
+      var desc=d?[d.subposicao,d.item,d.subitem].filter(Boolean).join(' › '):(r&&r.dados&&r.dados.detail)||'Não encontrada';
+      html+='<tr><td style="white-space:nowrap;font-weight:600">'+fisEsc(fisNcmFmt(n))+'</td><td>'+fisEsc(desc)+'</td><td>'+(d?(d.tributadoPeloImpostoSeletivo?'<span class="fis-chip err">Sim</span>':'<span class="fis-chip ok">Não</span>'):'—')+'</td><td class="r">'+grupos[n].length+'</td></tr>';
+    });
+    out.innerHTML=html+'</tbody></table></div>';
+  });
+}
+
+/* ── Conexão ── */
+function fisSalvarApi(){
+  var u=document.getElementById('fisApiUrl').value.trim().replace(/\/+$/,'');
+  if(u&&!/^https?:\/\//i.test(u)){showT('A URL precisa começar com http:// ou https://','erro');return;}
+  try{if(u)localStorage.setItem('gexFiscalApi',u);else localStorage.removeItem('gexFiscalApi');}catch(e){}
+  fisEstado.munCache={};
+  var msg=document.getElementById('fisConfMsg');msg.innerHTML='<div class="fis-note">Testando…</div>';
+  fisTestarConexao(true).then(function(ok){
+    msg.innerHTML=ok?'<div class="fis-chip ok" style="font-size:12px;padding:6px 12px">✓ Conectado à calculadora v'+fisEsc(fisEstado.versao.versaoApp)+' (base '+fisEsc(fisEstado.versao.versaoDb)+', '+fisEsc(fisEstado.versao.dataVersaoDb||'')+')</div>'
+      :'<div class="fis-erro"><b>Não conectou.</b> Verifique se a API está rodando nesse endereço e se o <code>CorsConfig.java</code> foi adicionado (sem ele o navegador bloqueia a chamada). Se o GEx está em HTTPS, a API também precisa de HTTPS, exceto quando roda em <code>localhost</code>.</div>';
+  });
+}
+function fisRestaurarApi(){document.getElementById('fisApiUrl').value=FIS_API_PADRAO;fisSalvarApi();}
+</script>
 
 </body>
 </html>
