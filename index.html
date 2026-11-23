@@ -13374,7 +13374,7 @@ function mostrarIgnoradosFaturamento(){
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
     +'<div style="font-weight:700;font-size:15px">⚠️ '+L.length+' registro(s) ignorado(s) na importação</div>'
     +'<button class="btn-cancel-mod" style="padding:4px 12px" onclick="document.getElementById(\'fatIgnoradosOverlay\').remove()">✕</button></div>'
-    +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Critério: mesma NF + mesmo item + mesmo valor total já lançado em importação anterior. Linhas repetidas dentro da mesma planilha são aceitas.</div>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Critérios: mesma NF + mesmo item + mesmo valor total já lançado em importação anterior; ou condição de pagamento de amostra grátis/bonificação (não é venda). Linhas repetidas dentro da mesma planilha são aceitas.</div>'
     +'<div style="overflow-x:auto"><table style="width:100%;font-size:11px;border-collapse:collapse;min-width:600px">'
     +'<tr style="text-align:left;border-bottom:1px solid var(--borda)"><th style="padding:5px">NF</th><th style="padding:5px">Item</th><th style="padding:5px">Descrição</th><th style="padding:5px">Cliente</th><th style="padding:5px">Valor</th><th style="padding:5px">Motivo</th></tr>'
     +linhas+'</table></div></div>';
@@ -13434,7 +13434,19 @@ async function importarFaturamento(input){
       // Só é bloqueado o que já foi lançado no sistema em importação anterior.
       var duplicadas=0;
       var listaIgnorados=[];
+      // Amostra grátis / bonificação / doação não é venda: não entra no Faturamento
+      var naoVenda=/amostra|gr[aá]ti|bonifica|doa[cç][aã]o|brinde|demonstra/i;
+      var naoVendaQtd=0;
       var registrosNovos=registros.filter(function(r){
+        if(naoVenda.test(r.cond_pagamento||'')){
+          naoVendaQtd++;
+          listaIgnorados.push({
+            nf:r.nf,item:r.cod_item,desc:r.item||'',cliente:r.cliente||'',
+            valor:parseFloat(r.v_total)||0,
+            motivo:'condição de pagamento "'+r.cond_pagamento+'" (não é venda)'
+          });
+          return false;
+        }
         var k=chaveReg(r);
         if(existentes.has(k)){
           duplicadas++;
@@ -13450,8 +13462,8 @@ async function importarFaturamento(input){
       _fatUltimosIgnorados=listaIgnorados;
 
       if(!registrosNovos.length){
-        showT('Nenhum registro novo — '+duplicadas+' já estavam lançados','erro');
-        if(duplicadas)mostrarIgnoradosFaturamento();
+        showT('Nenhum registro novo — '+duplicadas+' já estavam lançados'+(naoVendaQtd?', '+naoVendaQtd+' de amostra/bonificação':''),'erro');
+        if(duplicadas||naoVendaQtd)mostrarIgnoradosFaturamento();
         input.value='';
         return;
       }
@@ -13470,8 +13482,9 @@ async function importarFaturamento(input){
 
       var msgImport=registrosNovos.length+' registro(s) importado(s) ✓';
       if(duplicadas)msgImport+=' — '+duplicadas+' ignorado(s)';
+      if(naoVendaQtd)msgImport+=' — '+naoVendaQtd+' de amostra/bonificação fora do faturamento';
       showT(msgImport,'verde');
-      if(duplicadas)mostrarIgnoradosFaturamento();
+      if(duplicadas||naoVendaQtd)mostrarIgnoradosFaturamento();
 
       // Confere se a coluna de peso veio preenchida — se vier tudo zerado,
       // é sinal de que o nome da coluna na planilha não bate com "P.bruto".
